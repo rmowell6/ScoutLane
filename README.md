@@ -11,7 +11,7 @@ verified syntax and architecture rules.
 
 ## Stack
 
-- **Next.js 16.2** (App Router, TypeScript) · React 19 · Node 24 (CI) / 20.9+ (local)
+- **Next.js 16.2** (App Router, TypeScript) · React 19 · **Node 24** (pinned via `.nvmrc` + `engines`; CI, Vercel)
 - **Supabase** via `@supabase/ssr` (+ `@supabase/supabase-js`), session refresh in `proxy.ts`
 - **Anthropic** `@anthropic-ai/sdk` — Claude Haiku/Sonnet/Opus
 - **docx** (doc generation) · **zod** (validation) · **Vitest** (unit) · Playwright (e2e, later)

@@ -14,8 +14,9 @@ with no env vars (the `proxy.ts` middleware skips session refresh until Supabase
 1. Vercel → **Add New… → Project** → import `rmowell6/ScoutLane`.
 2. Framework preset: **Next.js** (auto-detected; also pinned in `vercel.json`).
 3. Build command `next build`, output handled by Vercel — leave defaults.
-4. **Node.js version:** select **22.x or later** in Project → Settings → General.
-   `package.json` sets `engines.node >= 20`, so Vercel uses its supported LTS.
+4. **Node.js version:** **24.x** — pinned by `engines.node` in `package.json` and `.nvmrc`, and
+   matches CI. Vercel reads `engines.node`, so no manual Project Settings change is needed.
+   (Vercel supports 24.x/22.x; Node 20 reached end-of-maintenance on 2026-04-30, so we avoid it.)
 
 ## 2. Environment variables (Project → Settings → Environment Variables)
 
@@ -52,8 +53,10 @@ Both should succeed even before env vars are configured. Once Supabase env vars 
 
 - **Runtime:** App Router route handlers default to the Node.js runtime. Doc-generation routes
   added in M1 will pin `export const runtime = 'nodejs'` (docx needs Node `Buffer`).
-- **Function duration:** `vercel.json` sets `app/api/**` to `maxDuration: 60`. Raise it (up to
-  your plan's limit) once the multi-step packet pipeline lands in M1.
+- **Function duration:** route handlers use Vercel's default duration. When M1's multi-step
+  packet pipeline lands, set the limit per-route with `export const maxDuration = N` in the
+  route file (the Next.js App Router segment option) rather than a `vercel.json` glob — a glob
+  that matches no built function fails the Vercel build.
 - **Cron (Phase 2):** add a `crons` entry to `vercel.json`; Hobby allows at most one run/day and
   cron only runs on Production — keep the endpoint idempotent.
 - **Secrets:** `.env.local` is gitignored and never committed; production secrets live only in
