@@ -6,6 +6,7 @@ import { parseJob } from './parseJob'
 import { scoreFit } from './scoreFit'
 import { tailorResume } from './tailorResume'
 import { runGuardrails, type GuardrailReport } from '@/lib/guardrails'
+import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
 import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
 export interface PacketInput {
@@ -38,7 +39,11 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     tailorResume(profile, jobReqs),
   ])
 
-  const guardrails = runGuardrails(tailored, profile, { bannedTerms: input.bannedTerms })
+  const guardrails = runGuardrails(tailored, profile, {
+    // Default to the standing banned terms (no Kubernetes/Docker/etc.); callers may extend.
+    bannedTerms: input.bannedTerms ?? BANNED_TERMS,
+    style: { allowEmDash: STYLE_RULES.allowEmDash },
+  })
 
   return { profile, jobReqs, fit, tailored, guardrails }
 }
