@@ -5,26 +5,43 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request })
+  const response = NextResponse.next({ request })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          )
-        },
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+
+  // Deploy resilience: before Supabase is wired (e.g. the very first Vercel deploy),
+  // skip session refresh rather than crash every request. Once both env vars are set,
+  // behavior is identical to the reference implementation.
+  if (!url || !key) {
+    return response
+  }
+
+  return refreshSession(request, response, url, key)
+}
+
+async function refreshSession(
+  request: NextRequest,
+  initialResponse: NextResponse,
+  url: string,
+  key: string,
+) {
+  let response = initialResponse
+
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        response = NextResponse.next({ request })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options),
+        )
       },
     },
-  )
+  })
 
   // Verifies the JWT locally and refreshes the session cookie.
   await supabase.auth.getClaims()

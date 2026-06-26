@@ -71,6 +71,8 @@ docs/                      # build plan + engineering plan + handoff guide
 
 ## Deploying to Vercel
 
-Push to GitHub, import the repo into Vercel, and set the environment variables above in the
-Vercel project settings. The default Node runtime is used; doc-generation routes added later
-pin `export const runtime = 'nodejs'`.
+See **[`docs/DEPLOY.md`](docs/DEPLOY.md)** for the full runbook. In short: import the repo into
+Vercel (Next.js auto-detected via `vercel.json`), pick Node 22.x+, and set the environment
+variables above. The app deploys and serves `/` and `/api/health` even before Supabase is
+configured — `proxy.ts` skips session refresh until the Supabase env vars are present. The
+default Node runtime is used; doc-generation routes added later pin `export const runtime = 'nodejs'`.
