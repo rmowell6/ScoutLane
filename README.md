@@ -14,7 +14,7 @@ verified syntax and architecture rules.
 - **Next.js 16.2** (App Router, TypeScript) · React 19 · **Node 24** (pinned via `.nvmrc` + `engines`; CI, Vercel)
 - **Supabase** via `@supabase/ssr` (+ `@supabase/supabase-js`), session refresh in `proxy.ts`
 - **Anthropic** `@anthropic-ai/sdk` — Claude Haiku/Sonnet/Opus
-- **docx** (doc generation) · **zod** (validation) · **Vitest** (unit) · Playwright (e2e, later)
+- **docx** (doc generation) · **zod** (validation) · **Vitest** (unit) · **Playwright** (e2e)
 
 ## Getting started
 
@@ -50,8 +50,12 @@ a request actually uses them, so M0 runs and the health route responds with plac
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run test` / `npm run test:run` | Vitest (watch / once) |
-| `npm run e2e` | Playwright (added in a later milestone) |
+| `npm run test` / `npm run test:run` | Vitest unit tests (watch / once) |
+| `npm run e2e` | Playwright happy-path E2E (Chromium); builds + serves the prod bundle |
+
+> **E2E browsers:** CI installs Chromium with `npx playwright install --with-deps chromium`.
+> If you run E2E in a sandbox that ships a different Chromium revision, point Playwright at it:
+> `PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome npm run e2e`.
 
 **A task is done only when typecheck + lint + tests are green** (see `CLAUDE.md`).
 
@@ -65,8 +69,10 @@ lib/
   anthropic.ts             # Anthropic client + model constants
   supabase/{client,server,admin}.ts
 proxy.ts                   # Next 16 middleware: Supabase session refresh via getClaims()
-docs/                      # build plan + engineering plan + handoff guide
-.github/workflows/ci.yml   # typecheck → lint → test on Node 24
+tests/                     # Playwright E2E specs (*.spec.ts)
+playwright.config.ts       # E2E config (builds + serves the prod bundle)
+docs/                      # build plan + engineering plan + handoff guide + DEPLOY runbook
+.github/workflows/ci.yml   # build job (typecheck → lint → unit) + e2e job, on Node 24
 ```
 
 ## Deploying to Vercel

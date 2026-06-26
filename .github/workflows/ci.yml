@@ -21,3 +21,17 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test:run
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      # Install only Chromium with its OS deps; matches the revision this Playwright pins.
+      - run: npx playwright install --with-deps chromium
+      # playwright.config.ts builds + starts the production server via webServer.
+      - run: npm run e2e
