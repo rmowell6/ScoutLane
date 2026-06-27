@@ -34,6 +34,7 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 - Supabase middleware file is `proxy.ts`; refresh sessions with `supabase.auth.getClaims()` — do **not** trust `getSession()`/`getUser()` in server code. Keys: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (browser), `SUPABASE_SECRET_KEY` (server-only, bypasses RLS).
 - Secrets are server-only; **never** prefix a secret with `NEXT_PUBLIC_`. `.env*` is gitignored.
 - Vercel Hobby cron runs at most **once/day** (a sub-daily schedule fails at deploy); cron is best-effort, so keep endpoints **idempotent**.
+- **Test live endpoints against the production URL only**, not `*-git-*.vercel.app` previews. Vercel **Deployment Protection** gates previews behind SSO, so a preview request returns a `302`/empty body before it reaches the app (looks like an app bug but isn't). Use preview URLs only when the user explicitly says to.
 
 ## Conventions
 - TypeScript `strict` + `noUncheckedIndexedAccess`; avoid `any`; derive types with `z.infer`.
