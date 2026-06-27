@@ -116,6 +116,35 @@
   line-height: 1.4;
 }
 
+.reuseBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(52, 168, 83, 0.12);
+  color: #6ee7a0;
+  border: 1px solid rgba(52, 168, 83, 0.35);
+}
+
+.clearLink {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  color: #8b9099;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearLink:hover {
+  color: #c4c8ce;
+}
+
 .textarea {
   width: 100%;
   resize: vertical;

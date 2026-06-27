@@ -4,15 +4,23 @@
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { buildPacket, PacketError } from '@/lib/services/buildPacket'
+import { getProfile, ProfileStoreError } from '@/lib/services/profileStore'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if needed
 
-const Body = z.object({
-  resumeText: z.string().min(1),
-  jdText: z.string().min(1),
-  bannedTerms: z.array(z.string()).optional(),
-})
+// Provide a resume one of two ways: paste raw text (stateless) OR reference a saved profile
+// (reuse path; skips re-structuring). Exactly one is required, enforced below.
+const Body = z
+  .object({
+    resumeText: z.string().min(1).optional(),
+    profileId: z.uuid().optional(),
+    jdText: z.string().min(1),
+    bannedTerms: z.array(z.string()).optional(),
+  })
+  .refine((b) => Boolean(b.resumeText) !== Boolean(b.profileId), {
+    message: 'provide exactly one of resumeText or profileId',
+  })
 
 export async function POST(request: Request) {
   try {
@@ -25,7 +33,21 @@ export async function POST(request: Request) {
       )
     }
 
-    const packet = await buildPacket(parsed.data)
+    // Reuse path: load the stored profile and hand it to the pipeline (skips structureResume).
+    let profile
+    if (parsed.data.profileId) {
+      profile = await getProfile(parsed.data.profileId)
+      if (!profile) {
+        return NextResponse.json({ error: 'Profile not found', profileId: parsed.data.profileId }, { status: 404 })
+      }
+    }
+
+    const packet = await buildPacket({
+      jdText: parsed.data.jdText,
+      resumeText: parsed.data.resumeText,
+      profile,
+      bannedTerms: parsed.data.bannedTerms,
+    })
 
     // Never ship a failed guardrail silently — surface it for regeneration / human review.
     // A 422 here is NOT request validation (that's 400 above); it means the generated packet
@@ -52,9 +74,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(packet, { status: 200 })
   } catch (err) {
-    // Surface which pipeline step failed + its message. Step names and error messages here
-    // are diagnostics, not secrets (API keys never appear in them). Tighten before public launch.
-    const step = err instanceof PacketError ? err.step : null
+    // Surface which step failed + its message. Step names and error messages here are
+    // diagnostics, not secrets (API keys never appear in them). Tighten before public launch.
+    const step =
+      err instanceof PacketError
+        ? err.step
+        : err instanceof ProfileStoreError
+          ? `profile:${err.step}`
+          : null
     const message = err instanceof Error ? err.message : String(err)
     console.error('[packet] generation failed', step ?? '', err)
     return NextResponse.json(

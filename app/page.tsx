@@ -4,9 +4,16 @@
 // Paste a resume + a JD, POST to /api/packet, then render the fit assessment, the
 // guardrail verdict, and download buttons for the two tailored .docx files.
 // This is a thin client: all generation and the no-fabrication guardrail live server-side.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import styles from './page.module.css'
+
+/** A saved profile + the resume snapshot it was structured from (for staleness detection). */
+interface SavedProfile {
+  id: string
+  resume: string
+}
+const SAVED_KEY = 'scoutlane.savedProfile'
 
 /** Error shapes the route can return (400 invalid body, 422 guardrail, 500 step failure). */
 interface ApiError {
@@ -36,6 +43,69 @@ export default function Home() {
   const [error, setError] = useState<ApiError | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadNote, setUploadNote] = useState<string | null>(null)
+  const [saved, setSaved] = useState<SavedProfile | null>(null)
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [profileNote, setProfileNote] = useState<string | null>(null)
+
+  // Rehydrate a previously saved profile (id + its source resume) on first load. This must run
+  // post-mount, not in a lazy initializer: the page is statically prerendered with no
+  // localStorage, so reading it during render would cause an SSR/hydration mismatch.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SAVED_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as SavedProfile
+      if (parsed?.id && typeof parsed.resume === 'string') {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time rehydration from localStorage
+        setSaved(parsed)
+        setResumeText(parsed.resume)
+      }
+    } catch {
+      // ignore corrupt/unavailable storage
+    }
+  }, [])
+
+  // The saved profile is "live" only while the resume text still matches what it was built from.
+  const reuseActive = saved !== null && saved.resume === resumeText
+
+  async function saveProfile() {
+    setSavingProfile(true)
+    setProfileNote(null)
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resumeText }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setProfileNote((data?.message as string) ?? (data?.error as string) ?? `Save failed (${res.status})`)
+        return
+      }
+      const next: SavedProfile = { id: (data as { profileId: string }).profileId, resume: resumeText }
+      setSaved(next)
+      try {
+        localStorage.setItem(SAVED_KEY, JSON.stringify(next))
+      } catch {
+        // non-fatal: reuse still works this session
+      }
+      setProfileNote('Profile saved. Future generations reuse it without re-structuring.')
+    } catch (err) {
+      setProfileNote(err instanceof Error ? err.message : 'Save failed')
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
+  function clearSaved() {
+    setSaved(null)
+    setProfileNote(null)
+    try {
+      localStorage.removeItem(SAVED_KEY)
+    } catch {
+      // ignore
+    }
+  }
 
   async function generate(e: React.FormEvent) {
     e.preventDefault()
@@ -43,10 +113,12 @@ export default function Home() {
     setPacket(null)
     setError(null)
     try {
+      // Reuse the saved profile when the resume text is unchanged; else send raw text.
+      const payload = reuseActive ? { profileId: saved.id, jdText } : { resumeText, jdText }
       const res = await fetch('/api/packet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText, jdText }),
+        body: JSON.stringify(payload),
       })
       const data = await res.json().catch(() => null)
       if (!res.ok) {
@@ -155,7 +227,30 @@ export default function Home() {
             >
               Load sample
             </button>
+            {!reuseActive ? (
+              <button
+                className={styles.secondary}
+                type="button"
+                onClick={saveProfile}
+                disabled={savingProfile || loading || resumeText.trim().length === 0}
+              >
+                {savingProfile ? 'Saving profile…' : 'Save profile for reuse'}
+              </button>
+            ) : (
+              <span className={styles.reuseBadge}>
+                ✓ Reusing saved profile
+                <button type="button" className={styles.clearLink} onClick={clearSaved}>
+                  clear
+                </button>
+              </span>
+            )}
           </div>
+          {profileNote && <span className={styles.uploadNote}>{profileNote}</span>}
+          {saved && !reuseActive && (
+            <span className={styles.uploadNote}>
+              Resume edited since save — this run will re-structure. Save again to reuse.
+            </span>
+          )}
         </form>
 
         {error && <ErrorPanel error={error} />}
