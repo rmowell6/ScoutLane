@@ -46,5 +46,28 @@ export async function tailorResume(profile: Profile, jobReqs: JobReqs): Promise<
 
   const tailored = message.parsed_output
   if (!tailored) throw new Error('tailorResume: no structured output returned')
-  return tailored
+
+  // Tidy model formatting artifacts so the shipped docs are clean and the style guardrail
+  // sees no stray repeated spaces. Single-line fields collapse all whitespace; the cover
+  // letter keeps blank-line paragraph breaks.
+  return {
+    summary: tidyLine(tailored.summary),
+    skills: tailored.skills.map(tidyLine),
+    claims: tailored.claims.map((c) => ({ ...c, text: tidyLine(c.text) })),
+    coverLetter: tidyParagraphs(tailored.coverLetter),
+  }
+}
+
+/** Collapse all runs of whitespace to a single space; trim. For single-line content. */
+function tidyLine(s: string): string {
+  return s.replace(/\s+/g, ' ').trim()
+}
+
+/** Collapse repeated spaces and trim each line, but preserve blank-line paragraph breaks. */
+function tidyParagraphs(s: string): string {
+  return s
+    .replace(/[ \t]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }

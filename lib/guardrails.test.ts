@@ -102,6 +102,14 @@ describe('checkStyle', () => {
   test('passes clean prose', () => {
     expect(checkStyle('I led the team and shipped.').ok).toBe(true)
   })
+
+  test('flags repeated spaces within a line', () => {
+    expect(checkStyle('I led  the team.').ok).toBe(false)
+  })
+
+  test('does NOT flag newlines or blank-line paragraph breaks', () => {
+    expect(checkStyle('First paragraph.\n\nSecond paragraph.').ok).toBe(true)
+  })
 })
 
 describe('checkAtsSafe', () => {

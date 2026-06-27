@@ -112,7 +112,9 @@ export function checkStyle(text: string, options: StyleOptions = {}): StyleResul
   const { allowEmDash = false } = options
   const violations: string[] = []
   if (!allowEmDash && text.includes('—')) violations.push('contains em dash (—)')
-  if (/\s{2,}/.test(text)) violations.push('contains repeated whitespace')
+  // Flag repeated *spaces* within a line only — newlines and blank-line paragraph breaks are
+  // intentional (cover letters), so they must not trip this check.
+  if (/ {2,}/.test(text)) violations.push('contains repeated spaces')
   return { ok: violations.length === 0, violations }
 }
 
