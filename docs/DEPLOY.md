@@ -49,10 +49,24 @@ curl -sS -o /dev/null -w "%{http_code}\n" https://<your-app>.vercel.app/   # -> 
 Both should succeed even before env vars are configured. Once Supabase env vars are set,
 `proxy.ts` begins refreshing sessions on matched routes.
 
+## Supabase setup (for stored, downloadable documents)
+
+The packet pipeline generates the `.docx` files regardless; **with Supabase configured it stores
+them and returns signed download URLs, and without it falls back to returning the docx inline
+(base64)**. To enable stored downloads:
+
+1. **Storage bucket:** create a **private** bucket named `documents` (Storage → New bucket).
+   `/api/packet` uploads under `resumes/` and `cover-letters/` and returns 1-hour signed URLs.
+2. **Database schema (optional now):** apply `supabase/migrations/0001_init.sql` (SQL Editor, or
+   `supabase db push`). It creates `profiles` / `jobs` / `generations` with RLS enabled. The
+   current pipeline is stateless, so these are forward-scaffolding — not required to run packets.
+3. **Env vars:** ensure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and
+   `SUPABASE_SECRET_KEY` are set in Vercel (Production + Preview). The secret key is server-only.
+
 ## Notes
 
-- **Runtime:** App Router route handlers default to the Node.js runtime. Doc-generation routes
-  added in M1 will pin `export const runtime = 'nodejs'` (docx needs Node `Buffer`).
+- **Runtime:** App Router route handlers default to the Node.js runtime. `/api/packet` pins
+  `export const runtime = 'nodejs'` (docx `Packer` + Supabase upload need Node `Buffer`).
 - **Function duration:** route handlers use Vercel's default duration. When M1's multi-step
   packet pipeline lands, set the limit per-route with `export const maxDuration = N` in the
   route file (the Next.js App Router segment option) rather than a `vercel.json` glob — a glob

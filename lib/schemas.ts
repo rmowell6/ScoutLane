@@ -22,8 +22,17 @@ export const EducationSchema = z.object({
 })
 export type Education = z.infer<typeof EducationSchema>
 
+export const ContactSchema = z.object({
+  location: z.string(),
+  phone: z.string(),
+  email: z.string(),
+})
+export type Contact = z.infer<typeof ContactSchema>
+
 export const ProfileSchema = z.object({
   name: z.string(),
+  // Optional: not every pasted resume includes full contact info; the doc builder falls back.
+  contact: ContactSchema.optional(),
   summary: z.string(),
   skills: z.array(z.string()),
   roles: z.array(RoleSchema),
