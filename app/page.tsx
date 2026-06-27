@@ -323,6 +323,8 @@ export default function Home() {
                     value={jobQuery}
                     onChange={(e) => setJobQuery(e.target.value)}
                     placeholder="Search roles by title or company…"
+                    aria-label="Search roles by title or company"
+                    aria-controls="job-results"
                   />
                   {selectedJob && (
                     <div className={styles.selectedJob}>
@@ -335,7 +337,14 @@ export default function Home() {
                       </button>
                     </div>
                   )}
-                  <ul className={styles.jobList}>
+                  <p className={styles.srOnly} role="status">
+                    {jobsLoading
+                      ? 'Searching roles…'
+                      : jobResults.length > 0
+                        ? `${jobResults.length} role${jobResults.length === 1 ? '' : 's'} found`
+                        : (jobsNote ?? 'No roles found.')}
+                  </p>
+                  <ul id="job-results" className={styles.jobList} aria-label="Job search results" aria-busy={jobsLoading}>
                     {jobsLoading && <li className={styles.jobMeta}>Loading…</li>}
                     {!jobsLoading && jobResults.length === 0 && (
                       <li className={styles.jobMeta}>{jobsNote ?? 'No roles found.'}</li>
@@ -346,6 +355,7 @@ export default function Home() {
                           type="button"
                           className={selectedJob?.id === job.id ? styles.jobItemOn : styles.jobItem}
                           onClick={() => setSelectedJob(job)}
+                          aria-pressed={selectedJob?.id === job.id}
                         >
                           <span className={styles.jobTitle}>{job.title}</span>
                           <span className={styles.jobSub}>
@@ -451,6 +461,9 @@ export default function Home() {
               </span>
             )}
           </div>
+          <p className={styles.srOnly} role="status">
+            {loading ? 'Generating your packet…' : ''}
+          </p>
           {profileNote && <span className={styles.uploadNote}>{profileNote}</span>}
           {saved && !reuseActive && (
             <span className={styles.uploadNote}>

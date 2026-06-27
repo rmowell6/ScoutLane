@@ -50,13 +50,14 @@
 .packet .topbar{background:linear-gradient(135deg,var(--sl-navy-900),var(--sl-navy-600));
   color:#fff;border-radius:var(--radius-card);padding:18px 22px;margin-bottom:16px}
 .packet .topbar .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9fc6ea;margin:0}
-.packet .topbar h1{margin:4px 0 2px;font-size:22px;line-height:1.2}
+.packet .topbar h2{margin:4px 0 2px;font-size:22px;line-height:1.2}
+.packet .topbar h2:focus-visible{outline-offset:4px}
 .packet .topbar .gen{font-size:12px;color:#cfe0f2;margin:0}
 
 /* ---- cards & layout ---- */
 .packet .card{background:var(--color-surface);border:1px solid var(--color-border);
   border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:16px 18px;margin-bottom:16px}
-.packet .card > h2{margin:0 0 10px;font-size:15px;color:var(--color-brand);
+.packet .card > h3{margin:0 0 10px;font-size:15px;color:var(--color-brand);
   border-bottom:2px solid var(--color-wash);padding-bottom:7px}
 .packet .grid-2{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
 .packet .muted{color:var(--color-text-muted)}

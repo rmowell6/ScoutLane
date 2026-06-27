@@ -14,6 +14,20 @@
   gap: 32px;
 }
 
+/* Visually hidden but exposed to assistive tech (live-region status, off-screen labels). */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .header {
   display: flex;
   flex-direction: column;
@@ -389,7 +403,8 @@
 
 .prefsHint {
   font-weight: 400;
-  color: #6b7079;
+  /* #6b7079 was ~3.9:1 on the page background (fails WCAG AA for text); #8b9099 is ~6:1. */
+  color: #8b9099;
 }
 
 .prefsGrid {
