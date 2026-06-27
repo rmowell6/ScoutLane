@@ -1,0 +1,143 @@
+/* ============================================================================
+   ScoutLane — Application Packet design system (ported from scoutlane-packet.css).
+   Tokens + accessible components (WCAG 2.2 AA, see UI_UX_SPEC.md). The original
+   `body { … }` rule is scoped to `.packet` here so the packet renders as a light
+   panel inside the app's existing (dark) page chrome instead of theming the page.
+   ============================================================================ */
+
+:root {
+  /* ---- primitive palette ---- */
+  --sl-navy-900:#0f2742; --sl-navy-700:#16335b; --sl-navy-600:#1c4a78; --sl-blue-500:#2f6fb0;
+  --sl-ink:#1d2733; --sl-muted:#667085;
+  --sl-bg:#f6f7f9; --sl-surface:#ffffff; --sl-wash:#eef2f8; --sl-zebra:#f7f9fc;
+  --sl-line:#e4e9f0; --sl-track:#e9edf3;
+  --sl-copper:#b0682c;                 /* graphic accent only (not for text) */
+  --sl-green:#1a7d46; --sl-green-tint:#e9f7ef;   /* AA-fixed (was #1f9d57) */
+  --sl-blue:#2563c9;  --sl-blue-tint:#eaf1fc;
+  --sl-amber:#b45309; --sl-amber-tint:#fbf3e1;   /* AA-fixed (was #c98a16) */
+  --sl-red:#c0392b;   --sl-red-tint:#fdeeec;
+
+  /* ---- semantic tokens (components consume only these) ---- */
+  --color-bg:var(--sl-bg); --color-surface:var(--sl-surface);
+  --color-text:var(--sl-ink); --color-text-muted:var(--sl-muted);
+  --color-brand:var(--sl-navy-700); --color-brand-strong:var(--sl-navy-900);
+  --color-accent:var(--sl-copper); --color-link:var(--sl-blue);
+  --color-border:var(--sl-line); --color-wash:var(--sl-wash); --color-track:var(--sl-track);
+  --color-pass:var(--sl-green); --color-pass-bg:var(--sl-green-tint);
+  --color-info:var(--sl-blue);  --color-info-bg:var(--sl-blue-tint);
+  --color-warn:var(--sl-amber); --color-warn-bg:var(--sl-amber-tint);
+  --color-fail:var(--sl-red);   --color-fail-bg:var(--sl-red-tint);
+
+  /* ---- non-color tokens ---- */
+  --radius-card:12px; --radius-pill:20px; --radius-sm:6px;
+  --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-6:1.5rem;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --shadow-card:0 1px 2px rgba(16,39,66,.05);
+  --maxw:1080px;
+}
+
+.packet{box-sizing:border-box;background:var(--color-bg);color:var(--color-text);
+  font-family:var(--font-sans);font-size:14px;line-height:1.5;padding:var(--space-6);
+  border-radius:var(--radius-card)}
+.packet *{box-sizing:border-box}
+.packet a{color:var(--color-link);text-decoration:none}
+.packet a:hover{text-decoration:underline}
+.packet :focus-visible{outline:3px solid var(--color-link);outline-offset:2px;border-radius:var(--radius-sm)}
+.packet .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* ---- topbar ---- */
+.packet .topbar{background:linear-gradient(135deg,var(--sl-navy-900),var(--sl-navy-600));
+  color:#fff;border-radius:var(--radius-card);padding:18px 22px;margin-bottom:16px}
+.packet .topbar .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9fc6ea;margin:0}
+.packet .topbar h1{margin:4px 0 2px;font-size:22px;line-height:1.2}
+.packet .topbar .gen{font-size:12px;color:#cfe0f2;margin:0}
+
+/* ---- cards & layout ---- */
+.packet .card{background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:16px 18px;margin-bottom:16px}
+.packet .card > h2{margin:0 0 10px;font-size:15px;color:var(--color-brand);
+  border-bottom:2px solid var(--color-wash);padding-bottom:7px}
+.packet .grid-2{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.packet .muted{color:var(--color-text-muted)}
+
+/* ---- pills ---- */
+.packet .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;list-style:none;padding:0}
+.packet .pill{background:var(--color-wash);color:var(--color-brand);font-weight:600;
+  font-size:12px;border-radius:var(--radius-pill);padding:3px 11px}
+
+/* ---- score gauge (role="meter"): conic arc driven by --value (0-100) ---- */
+.packet .gauge{--value:0;--gauge-color:var(--color-accent);
+  width:78px;height:78px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:conic-gradient(var(--gauge-color) calc(var(--value)*1%), var(--color-track) 0)}
+.packet .gauge__inner{width:58px;height:58px;border-radius:50%;background:var(--color-surface);
+  display:grid;place-items:center;text-align:center;line-height:1.05}
+.packet .gauge__num{font-weight:700;color:var(--color-brand);font-size:18px}
+.packet .gauge__den{display:block;font-size:8px;color:var(--color-text-muted);font-weight:600;letter-spacing:.04em}
+.packet .gauge-row{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+
+/* ---- sub-score bars (role="meter") ---- */
+.packet .meter{margin:9px 0}
+.packet .meter__top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.packet .meter__label{font-size:12.5px}
+.packet .meter__val{font-weight:700;font-size:13px}
+.packet .meter__track{height:8px;background:var(--color-track);border-radius:5px;overflow:hidden;margin:3px 0}
+.packet .meter__fill{height:100%;border-radius:5px;width:calc(var(--value,0)*1%);background:var(--fill,var(--color-brand))}
+.packet .meter__note{font-size:11px;color:var(--color-text-muted)}
+.packet .is-pass{--fill:var(--color-pass)} .packet .is-pass .meter__val{color:var(--color-pass)}
+.packet .is-warn{--fill:var(--color-warn)} .packet .is-warn .meter__val{color:var(--color-warn)}
+.packet .is-fail{--fill:var(--color-fail)} .packet .is-fail .meter__val{color:var(--color-fail)}
+.packet .is-info{--fill:var(--color-info)} .packet .is-info .meter__val{color:var(--color-info)}
+
+/* ---- lists ---- */
+.packet ul.tight{margin:6px 0;padding-left:18px} .packet ul.tight li{margin:5px 0;font-size:13px}
+
+/* ---- data table ---- */
+.packet .data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.packet .data-table caption{text-align:left;font-weight:600;color:var(--color-brand);
+  padding:0 0 8px;font-size:13px}
+.packet .data-table th[scope=col]{background:var(--color-brand-strong);color:#fff;
+  text-align:left;padding:6px 9px;font-weight:600}
+.packet .data-table th[scope=row]{text-align:left;font-weight:600;color:var(--color-brand)}
+.packet .data-table td,.packet .data-table th[scope=row]{padding:6px 9px;border-bottom:1px solid var(--color-border);vertical-align:top}
+.packet .data-table tbody tr:nth-child(even) td,
+.packet .data-table tbody tr:nth-child(even) th[scope=row]{background:var(--sl-zebra)}
+
+/* ---- status badge: color + TEXT + icon (never color alone, WCAG 1.4.1) ---- */
+.packet .badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:var(--radius-sm);white-space:nowrap;text-transform:uppercase;letter-spacing:.02em}
+.packet .badge svg{width:10px;height:10px;flex:none}
+.packet .badge.is-pass{color:var(--color-pass);background:var(--color-pass-bg)}
+.packet .badge.is-info{color:var(--color-info);background:var(--color-info-bg)}
+.packet .badge.is-warn{color:var(--color-warn);background:var(--color-warn-bg)}
+.packet .badge.is-fail{color:var(--color-fail);background:var(--color-fail-bg)}
+
+/* ---- callout ---- */
+.packet .callout{border-radius:var(--radius-card);padding:11px 14px;font-size:12.5px;margin-top:8px;
+  border-left:4px solid var(--color-warn);background:var(--color-warn-bg)}
+.packet .callout b{color:var(--color-warn)}
+
+/* ---- numbered steps ---- */
+.packet ol.steps{counter-reset:s;list-style:none;padding:0;margin:6px 0}
+.packet ol.steps li{position:relative;padding-left:30px;margin:9px 0;font-size:13px}
+.packet ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+  width:21px;height:21px;border-radius:50%;background:var(--color-brand-strong);color:#fff;
+  font-size:11px;font-weight:700;display:grid;place-items:center}
+
+.packet .foot{color:var(--color-text-muted);font-size:12px;text-align:center;margin-top:6px}
+
+/* ---- downloads (app affordance, styled in the design language) ---- */
+.packet .downloads{display:flex;gap:10px;flex-wrap:wrap}
+.packet .download-btn{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  background:var(--color-brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 14px}
+.packet .download-btn:hover{background:var(--color-brand-strong)}
+
+/* ---- print / PDF ---- */
+@media print{
+  .packet{padding:0;background:#fff}
+  .packet .card,.packet .gauge,.packet .callout,.packet .data-table tr{break-inside:avoid}
+  .packet h1,.packet h2,.packet h3{break-after:avoid}
+  .packet .topbar,.packet .gauge,.packet .badge,.packet .meter__fill,
+  .packet .data-table th[scope=col],.packet ol.steps li::before{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
