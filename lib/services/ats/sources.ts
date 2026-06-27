@@ -10,8 +10,8 @@ export const SOURCES: AtsSource[] = [
   { provider: 'greenhouse', token: 'gitlab', company: 'GitLab' },
   // Lever: api.lever.co/v0/postings/<company>
   { provider: 'lever', token: 'leverdemo', company: 'Lever (demo board)' },
-  { provider: 'lever', token: 'netflix', company: 'Netflix' },
-  // Ashby: api.ashbyhq.com/posting-api/job-board/<token>
+  { provider: 'lever', token: 'plaid', company: 'Plaid' },
+  // Ashby: api.ashbyhq.com/posting-api/job-board/<token> (canonical slug is lowercase)
   { provider: 'ashby', token: 'ramp', company: 'Ramp' },
-  { provider: 'ashby', token: 'Notion', company: 'Notion' },
+  { provider: 'ashby', token: 'notion', company: 'Notion' },
 ]

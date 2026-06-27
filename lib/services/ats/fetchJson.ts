@@ -6,7 +6,8 @@ export async function fetchJson(url: string, timeoutMs = 10_000): Promise<unknow
   try {
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { accept: 'application/json' },
+      // A descriptive UA is good practice for public APIs (some reject the default fetch agent).
+      headers: { accept: 'application/json', 'user-agent': 'ScoutLane/1.0 (+job-pool ingest)' },
     })
     if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`)
     return await res.json()

@@ -97,4 +97,33 @@ describe('fetchAshby', () => {
     const jobs = await fetchAshby({ provider: 'ashby', token: 'acme', company: 'Acme' })
     expect(jobs[0]?.jdText).toBe('HTML JD')
   })
+
+  test('tolerates a missing top-level id, falling back to jobUrl as the unique key', async () => {
+    // The public posting-api does not guarantee a top-level string id; a required schema would
+    // throw and drop the whole board. We fall back to jobUrl (which embeds the id).
+    mockFetchOnce({
+      jobs: [{ title: 'SRE', jobUrl: 'https://jobs.ashbyhq.com/acme/uuid-1', descriptionPlain: 'x' }],
+    })
+    const jobs = await fetchAshby({ provider: 'ashby', token: 'acme', company: 'Acme' })
+    expect(jobs).toHaveLength(1)
+    expect(jobs[0]?.externalId).toBe('https://jobs.ashbyhq.com/acme/uuid-1')
+  })
+
+  test('skips a posting with neither id nor jobUrl (no stable key)', async () => {
+    mockFetchOnce({ jobs: [{ title: 'Ghost role', descriptionPlain: 'x' }] })
+    const jobs = await fetchAshby({ provider: 'ashby', token: 'acme', company: 'Acme' })
+    expect(jobs).toEqual([])
+  })
+
+  test('drops explicitly-unlisted postings', async () => {
+    mockFetchOnce({
+      jobs: [
+        { id: 'a', title: 'Listed', isListed: true, descriptionPlain: 'x' },
+        { id: 'b', title: 'Draft', isListed: false, descriptionPlain: 'x' },
+        { id: 'c', title: 'Unspecified', descriptionPlain: 'x' }, // isListed absent -> kept
+      ],
+    })
+    const jobs = await fetchAshby({ provider: 'ashby', token: 'acme', company: 'Acme' })
+    expect(jobs.map((j) => j.externalId)).toEqual(['a', 'c'])
+  })
 })
