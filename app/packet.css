@@ -128,8 +128,10 @@
 
 /* ---- downloads (app affordance, styled in the design language) ---- */
 .packet .downloads{display:flex;gap:10px;flex-wrap:wrap}
-.packet .download-btn{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
-  background:var(--color-brand);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 14px}
+.packet .download-btn{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:12.5px;
+  font-weight:600;cursor:pointer;background:var(--color-brand);color:#fff;border:none;
+  border-radius:var(--radius-sm);padding:9px 15px}
+.packet .download-btn svg{width:13px;height:13px;flex:none}
 .packet .download-btn:hover{background:var(--color-brand-strong)}
 
 /* ---- print / PDF ---- */

@@ -4,7 +4,7 @@
 // deterministic FitResult + tailored content — no scoring logic here. Semantics per the spec:
 // one <h1>, sections labelled by their <h2>, role="meter" for the gauge and sub-score bars (never
 // progressbar), status conveyed by text + icon (never color alone), WCAG 2.2 AA tokens.
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
 
@@ -116,6 +116,33 @@ function downloadDoc(doc: DocumentRef) {
     trigger(url)
     setTimeout(() => URL.revokeObjectURL(url), 0)
   }
+}
+
+function DownloadIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 12 12">
+      <path d="M6 1v6M3.5 5L6 7.5 8.5 5M2 10.5h8" fill="none" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  )
+}
+
+/** A download button that clearly reads as a download, with a brief confirmation on click. */
+function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
+  const [done, setDone] = useState(false)
+  return (
+    <button
+      type="button"
+      className="download-btn"
+      onClick={() => {
+        downloadDoc(doc)
+        setDone(true)
+        setTimeout(() => setDone(false), 2500)
+      }}
+    >
+      <DownloadIcon />
+      {done ? `Downloaded ${label} ✓` : `Download ${label}`}
+    </button>
+  )
 }
 
 export default function PacketView({ packet }: { packet: Packet }) {
@@ -300,17 +327,16 @@ export default function PacketView({ packet }: { packet: Packet }) {
             )}
           </ul>
           {documents ? (
-            <div className="downloads">
-              <button type="button" className="download-btn" onClick={() => downloadDoc(documents.fitAssessment)}>
-                Fit assessment (.docx)
-              </button>
-              <button type="button" className="download-btn" onClick={() => downloadDoc(documents.resume)}>
-                Resume (.docx)
-              </button>
-              <button type="button" className="download-btn" onClick={() => downloadDoc(documents.coverLetter)}>
-                Cover letter (.docx)
-              </button>
-            </div>
+            <>
+              <p className="muted" style={{ margin: '0 0 8px', fontSize: '12.5px' }}>
+                Your packet — click to download each Word file (.docx):
+              </p>
+              <div className="downloads">
+                <DocButton doc={documents.fitAssessment} label="fit assessment" />
+                <DocButton doc={documents.resume} label="résumé" />
+                <DocButton doc={documents.coverLetter} label="cover letter" />
+              </div>
+            </>
           ) : (
             <p className="muted">A guardrail blocked this packet, so no documents were generated.</p>
           )}
