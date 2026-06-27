@@ -5,7 +5,7 @@
 // Lazy + degradable like lib/storage.ts: the client is built on first use, so importing this
 // module never throws when env is absent (keeps unit tests / builds working without secrets).
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import { ProfileSchema, type Profile } from '@/lib/schemas'
+import { CandidatePreferencesSchema, ProfileSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 
 const TABLE = 'profiles'
 
@@ -47,12 +47,22 @@ async function runStep<T>(step: string, fn: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Persist a structured profile + its source text. Returns the new row id. */
-export async function saveProfile(profile: Profile, sourceResume: string): Promise<{ id: string }> {
+export interface StoredProfile {
+  profile: Profile
+  /** Candidate preferences saved with the profile; null when none were provided. */
+  preferences: CandidatePreferences | null
+}
+
+/** Persist a structured profile + its source text + optional preferences. Returns the new id. */
+export async function saveProfile(
+  profile: Profile,
+  sourceResume: string,
+  preferences?: CandidatePreferences | null,
+): Promise<{ id: string }> {
   return runStep('insert', async () => {
     const { data, error } = await db()
       .from(TABLE)
-      .insert({ source_resume: sourceResume, structured: profile })
+      .insert({ source_resume: sourceResume, structured: profile, preferences: preferences ?? null })
       .select('id')
       .single()
     if (error) throw error
@@ -62,14 +72,14 @@ export async function saveProfile(profile: Profile, sourceResume: string): Promi
 }
 
 /**
- * Load a stored profile by id. Returns null when no row matches. The stored `structured`
- * JSON is re-validated with the schema — never trust persisted shape blindly.
+ * Load a stored profile (+ preferences) by id. Returns null when no row matches. Both stored
+ * JSON blobs are re-validated with their schema — never trust persisted shape blindly.
  */
-export async function getProfile(id: string): Promise<Profile | null> {
+export async function getStoredProfile(id: string): Promise<StoredProfile | null> {
   return runStep('select', async () => {
     const { data, error } = await db()
       .from(TABLE)
-      .select('structured')
+      .select('structured, preferences')
       .eq('id', id)
       .maybeSingle()
     if (error) throw error
@@ -77,6 +87,12 @@ export async function getProfile(id: string): Promise<Profile | null> {
 
     const parsed = ProfileSchema.safeParse(data.structured)
     if (!parsed.success) throw new ProfileStoreError('validate', parsed.error)
-    return parsed.data
+
+    let preferences: CandidatePreferences | null = null
+    if (data.preferences != null) {
+      const prefs = CandidatePreferencesSchema.safeParse(data.preferences)
+      if (prefs.success) preferences = prefs.data // tolerate legacy/partial prefs: ignore if invalid
+    }
+    return { profile: parsed.data, preferences }
   })
 }

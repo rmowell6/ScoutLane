@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { toCoverLetterContent, toResumeContent } from '@/lib/docgen/mapProfile'
+import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import type { FitResult } from '@/lib/fit/fitScore'
 
 const profile: Profile = {
   name: 'Ryan Mowell',
@@ -61,5 +62,32 @@ describe('toCoverLetterContent', () => {
     const cl = toCoverLetterContent(profile, tailored, { title: 'Lead — Cloud', company: 'A — B', mustHave: [], niceToHave: [] }, 'x')
     expect(cl.reLine.includes('—')).toBe(false)
     expect(cl.salutation.includes('—')).toBe(false)
+  })
+})
+
+describe('toFitAssessmentContent', () => {
+  const fit: FitResult = {
+    version: '1.0.0',
+    overall: 82,
+    band: 'Strong fit',
+    base: 81.7,
+    bonus: 0,
+    penaltyTotal: 0,
+    penalties: { hardGaps: 0, expired: 0, unconfirmedLive: 0, defenseAdjacent: 0, heavyTravelOrPresales: 0 },
+    hardGaps: ['people management'],
+    dimensions: [
+      { key: 'roleTypeMatch', label: 'Role-type match', weight: 0.2, score: 80, note: 'Target-title fit: solid.' },
+    ],
+  }
+
+  test('maps the FitResult onto the doc content (band, math, dimensions, hard gaps)', () => {
+    const fa = toFitAssessmentContent(profile, fit, jobReqs, 'June 27, 2026')
+    expect(fa.candidateName).toBe('Ryan Mowell')
+    expect(fa.roleTitle).toBe('Senior Cloud Engineer')
+    expect(fa.overall).toBe(82)
+    expect(fa.band).toBe('Strong fit')
+    expect(fa.base).toBe(81.7)
+    expect(fa.dimensions[0]).toMatchObject({ label: 'Role-type match', score: 80, weight: 0.2 })
+    expect(fa.hardGaps).toEqual(['people management'])
   })
 })

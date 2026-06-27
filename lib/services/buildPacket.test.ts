@@ -8,8 +8,27 @@ vi.mock('./structureResume', () => ({ structureResume }))
 vi.mock('./parseJob', () => ({
   parseJob: vi.fn(async () => ({ mustHave: [], niceToHave: [] })),
 }))
-vi.mock('./scoreFit', () => ({
-  scoreFit: vi.fn(async () => ({ overall: 70, subs: [], reasonCodes: [] })),
+// Fit is now extract (mocked) -> deterministic assessFit (runs for real on the FitInput below).
+vi.mock('./extractFitInput', () => ({
+  extractFitInput: vi.fn(async () => ({
+    roleTypeMatch: 'solid',
+    mustHaveSkills: ['azure'],
+    candidateSkills: ['azure'],
+    adjacentSkills: [],
+    seniorityMatch: 'adjacent',
+    compTopUsd: null,
+    targetCompTopUsd: 1,
+    employerType: 'direct',
+    location: 'remote_us',
+    locationFlags: { onCall: false, travelModerate: false, travelHeavy: false },
+    vertical: 'match',
+    requiredCerts: [],
+    heldCerts: [],
+    adjacentCerts: [],
+    hardGaps: [],
+    flags: { expired: false, unconfirmedLive: false, defenseAdjacent: false, heavyTravelOrPresales: false },
+    lanesSurfaced: 1,
+  })),
 }))
 vi.mock('./tailorResume', () => ({
   tailorResume: vi.fn(async () => ({ summary: 's', skills: [], claims: [], coverLetter: 'c' })),
@@ -25,9 +44,11 @@ vi.mock('@/lib/guardrails', () => ({
 }))
 vi.mock('@/lib/docgen/resume', () => ({ buildResumeDocx: async () => Buffer.from('r') }))
 vi.mock('@/lib/docgen/coverLetter', () => ({ buildCoverLetterDocx: async () => Buffer.from('c') }))
+vi.mock('@/lib/docgen/fitAssessment', () => ({ buildFitAssessmentDocx: async () => Buffer.from('f') }))
 vi.mock('@/lib/docgen/mapProfile', () => ({
   toResumeContent: () => ({}),
   toCoverLetterContent: () => ({}),
+  toFitAssessmentContent: () => ({}),
 }))
 vi.mock('@/lib/storage', () => ({
   isStorageConfigured: () => false,
@@ -56,6 +77,10 @@ describe('buildPacket profile vs resumeText', () => {
     expect(structureResume).not.toHaveBeenCalled()
     expect(packet.profile).toEqual(PROFILE)
     expect(packet.documents?.storage).toBe('inline')
+    // Fit is the deterministic engine's FitResult, and the packet ships three documents.
+    expect(packet.fit.band).toBeTypeOf('string')
+    expect(packet.fit.dimensions).toHaveLength(8)
+    expect(packet.documents?.fitAssessment.filename).toContain('Fit_Assessment')
   })
 
   test('stateless path: raw resumeText calls structureResume', async () => {

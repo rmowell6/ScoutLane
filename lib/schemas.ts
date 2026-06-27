@@ -54,23 +54,34 @@ export const JobReqsSchema = z.object({
 })
 export type JobReqs = z.infer<typeof JobReqsSchema>
 
-// ---- Fit score -------------------------------------------------------------------
-// Numeric RANGE checks live in code (clampScores), not the schema: the structured-output
-// transform can drop JSON-Schema keywords like minimum/maximum (Engineering Plan §4.5).
+// ---- Candidate preferences -------------------------------------------------------
+// User-set signals the deterministic fit engine needs but a resume doesn't contain. Distinct
+// from the LLM-structured Profile (these are chosen by the candidate, never inferred from text).
+// In rubric 1.0.0 the engine math uses targetCompTopUsd + targetLanes; workMode / noGoLocations /
+// employerTypePreference are persisted for personalization and given to the extractor as context.
 
-export const SubScoreSchema = z.object({
-  label: z.string(),
-  score: z.number(),
-  note: z.string(),
-})
-export type SubScore = z.infer<typeof SubScoreSchema>
+export const WorkModeSchema = z.enum(['remote', 'hybrid', 'onsite', 'flexible'])
+export type WorkMode = z.infer<typeof WorkModeSchema>
 
-export const FitScoreSchema = z.object({
-  overall: z.number(),
-  subs: z.array(SubScoreSchema),
-  reasonCodes: z.array(z.string()),
+export const EmployerTypePrefSchema = z.enum([
+  'direct',
+  'managed_services',
+  'consulting',
+  'vendor',
+  'no_preference',
+])
+export type EmployerTypePref = z.infer<typeof EmployerTypePrefSchema>
+
+export const CandidatePreferencesSchema = z.object({
+  /** Candidate's target top-of-band comp (USD). null/absent -> comp dimension stays neutral. */
+  targetCompTopUsd: z.number().positive().nullable().optional(),
+  /** Target roles/lanes, e.g. ['Cloud Engineer', 'VMware Engineer'] — sets role-type fit. */
+  targetLanes: z.array(z.string()).default([]),
+  workMode: WorkModeSchema.optional(),
+  noGoLocations: z.array(z.string()).default([]),
+  employerTypePreference: EmployerTypePrefSchema.optional(),
 })
-export type FitScore = z.infer<typeof FitScoreSchema>
+export type CandidatePreferences = z.infer<typeof CandidatePreferencesSchema>
 
 // ---- Tailored content ------------------------------------------------------------
 // Every claim references a profile fact id so the no-fabrication guardrail can trace it

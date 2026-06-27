@@ -4,8 +4,9 @@
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { buildPacket, PacketError } from '@/lib/services/buildPacket'
-import { getProfile, ProfileStoreError } from '@/lib/services/profileStore'
+import { getStoredProfile, ProfileStoreError } from '@/lib/services/profileStore'
 import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
+import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if needed
@@ -19,6 +20,7 @@ const Body = z
     profileId: z.uuid().optional(),
     jdText: z.string().min(1).optional(),
     jobId: z.uuid().optional(),
+    preferences: CandidatePreferencesSchema.optional(),
     bannedTerms: z.array(z.string()).optional(),
   })
   .refine((b) => Boolean(b.resumeText) !== Boolean(b.profileId), {
@@ -39,14 +41,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // Reuse path: load the stored profile and hand it to the pipeline (skips structureResume).
-    let profile
+    // Reuse path: load the stored profile (+ its saved preferences) and hand it to the pipeline.
+    let profile: Profile | undefined
+    let storedPreferences: CandidatePreferences | null = null
     if (parsed.data.profileId) {
-      profile = await getProfile(parsed.data.profileId)
-      if (!profile) {
+      const stored = await getStoredProfile(parsed.data.profileId)
+      if (!stored) {
         return NextResponse.json({ error: 'Profile not found', profileId: parsed.data.profileId }, { status: 404 })
       }
+      profile = stored.profile
+      storedPreferences = stored.preferences
     }
+    // Request preferences win over the profile's saved ones; fall back to saved.
+    const preferences = parsed.data.preferences ?? storedPreferences ?? undefined
 
     // Pooled-job path: resolve the selected job's JD text from the store.
     let jdText = parsed.data.jdText
@@ -68,6 +75,7 @@ export async function POST(request: Request) {
       jdText: jdText as string,
       resumeText: parsed.data.resumeText,
       profile,
+      preferences,
       bannedTerms: parsed.data.bannedTerms,
     })
 

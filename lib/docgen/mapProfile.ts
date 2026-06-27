@@ -10,8 +10,10 @@
 //  - Role context lines are omitted (the schema has no per-role context yet).
 // Everything rendered still traces to real Profile facts — the guardrail runs independently.
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import type { FitResult } from '@/lib/fit/fitScore'
 import type { ResumeContent } from '@/lib/docgen/resume'
 import type { CoverLetterContent } from '@/lib/docgen/coverLetter'
+import type { FitAssessmentContent } from '@/lib/docgen/fitAssessment'
 
 const FALLBACK_CONTACT = { location: '', phone: '', email: '' }
 
@@ -47,6 +49,27 @@ export function toResumeContent(
       detail: [e.degree, e.field, e.year].filter(Boolean).join(', '),
     })),
     authLine: 'Authorized to work in the U.S. for any employer',
+  }
+}
+
+export function toFitAssessmentContent(
+  profile: Profile,
+  fit: FitResult,
+  jobReqs: JobReqs,
+  date: string,
+): FitAssessmentContent {
+  return {
+    candidateName: profile.name,
+    roleTitle: jobReqs.title ?? 'Target role',
+    company: jobReqs.company ?? '',
+    date,
+    overall: fit.overall,
+    band: fit.band,
+    base: fit.base,
+    bonus: fit.bonus,
+    penaltyTotal: fit.penaltyTotal,
+    dimensions: fit.dimensions.map((d) => ({ label: d.label, score: d.score, weight: d.weight, note: d.note })),
+    hardGaps: fit.hardGaps,
   }
 }
 

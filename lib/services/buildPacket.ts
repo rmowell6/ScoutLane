@@ -3,15 +3,17 @@
 // that calls this sets runtime='nodejs' (docx Packer + Supabase upload need Node).
 import { structureResume } from './structureResume'
 import { parseJob } from './parseJob'
-import { scoreFit } from './scoreFit'
+import { extractFitInput } from './extractFitInput'
+import { assessFit, type FitResult } from '@/lib/fit/fitScore'
 import { tailorResume } from './tailorResume'
 import { runGuardrails, type GuardrailReport } from '@/lib/guardrails'
 import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
 import { buildResumeDocx } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx } from '@/lib/docgen/coverLetter'
-import { toCoverLetterContent, toResumeContent } from '@/lib/docgen/mapProfile'
+import { buildFitAssessmentDocx } from '@/lib/docgen/fitAssessment'
+import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
 import { isStorageConfigured, uploadDocx } from '@/lib/storage'
-import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import type { CandidatePreferences, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
 export interface PacketInput {
   jdText: string
@@ -19,6 +21,8 @@ export interface PacketInput {
   resumeText?: string
   /** A pre-structured profile (reuse path) — when set, structureResume is skipped. */
   profile?: Profile
+  /** Candidate preferences (target comp/lane drive the fit engine; rest are persisted context). */
+  preferences?: CandidatePreferences
   /** Sensitive terms that may appear only if present in the profile (e.g. ['Kubernetes']). */
   bannedTerms?: string[]
   /** Date string for the cover letter; defaults to today (injectable for tests). */
@@ -37,12 +41,13 @@ export interface PacketDocuments {
   storage: 'supabase' | 'inline'
   resume: DocumentRef
   coverLetter: DocumentRef
+  fitAssessment: DocumentRef
 }
 
 export interface Packet {
   profile: Profile
   jobReqs: JobReqs
-  fit: FitScore
+  fit: FitResult
   tailored: TailoredContent
   guardrails: GuardrailReport
   /** Generated docs — null when a guardrail blocked the packet (nothing ships). */
@@ -61,28 +66,33 @@ async function generateDocuments(
   profile: Profile,
   tailored: TailoredContent,
   jobReqs: JobReqs,
+  fit: FitResult,
   date: string,
 ): Promise<PacketDocuments> {
-  const [resumeBuf, coverBuf] = await Promise.all([
+  const [resumeBuf, coverBuf, fitBuf] = await Promise.all([
     buildResumeDocx(toResumeContent(profile, tailored, jobReqs)),
     buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date)),
+    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, jobReqs, date)),
   ])
 
   const base = safeName(profile.name)
   const resumeName = `${base}_Resume.docx`
   const coverName = `${base}_Cover_Letter.docx`
+  const fitName = `${base}_Fit_Assessment.docx`
 
   if (isStorageConfigured()) {
     try {
       const id = crypto.randomUUID()
-      const [r, c] = await Promise.all([
+      const [r, c, f] = await Promise.all([
         uploadDocx(resumeBuf, 'resumes', `${id}-resume`, resumeName),
         uploadDocx(coverBuf, 'cover-letters', `${id}-cover`, coverName),
+        uploadDocx(fitBuf, 'fit-assessments', `${id}-fit`, fitName),
       ])
       return {
         storage: 'supabase',
         resume: { filename: resumeName, signedUrl: r.signedUrl },
         coverLetter: { filename: coverName, signedUrl: c.signedUrl },
+        fitAssessment: { filename: fitName, signedUrl: f.signedUrl },
       }
     } catch (err) {
       // Bucket missing or transient error — fall back to inline so the packet still ships.
@@ -94,6 +104,7 @@ async function generateDocuments(
     storage: 'inline',
     resume: { filename: resumeName, base64: resumeBuf.toString('base64') },
     coverLetter: { filename: coverName, base64: coverBuf.toString('base64') },
+    fitAssessment: { filename: fitName, base64: fitBuf.toString('base64') },
   }
 }
 
@@ -137,10 +148,12 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     (await runStep('structureResume', () => structureResume(input.resumeText as string)))
   const jobReqs = await runStep('parseJob', () => parseJob(input.jdText))
 
-  const [fit, tailored] = await Promise.all([
-    runStep('scoreFit', () => scoreFit(profile, jobReqs)),
+  // Fit: the LLM EXTRACTS signals (fuzzy), then the deterministic engine SCORES them (exact).
+  const [fitInput, tailored] = await Promise.all([
+    runStep('extractFitInput', () => extractFitInput(profile, jobReqs, input.preferences)),
     runStep('tailorResume', () => tailorResume(profile, jobReqs)),
   ])
+  const fit = assessFit(fitInput)
 
   const guardrails = runGuardrails(tailored, profile, {
     bannedTerms: input.bannedTerms ?? BANNED_TERMS,
@@ -149,7 +162,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
 
   const documents = guardrails.ok
     ? await runStep('generateDocuments', () =>
-        generateDocuments(profile, tailored, jobReqs, input.date ?? todayString()),
+        generateDocuments(profile, tailored, jobReqs, fit, input.date ?? todayString()),
       )
     : null
 

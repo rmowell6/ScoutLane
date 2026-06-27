@@ -22,7 +22,7 @@ vi.mock('@supabase/supabase-js', () => ({
 
 import {
   ProfileStoreError,
-  getProfile,
+  getStoredProfile,
   isProfileStoreConfigured,
   saveProfile,
 } from './profileStore'
@@ -66,11 +66,18 @@ describe('saveProfile / getProfile', () => {
     delete process.env.SUPABASE_SECRET_KEY
   })
 
-  test('saveProfile persists structured + source and returns the new id', async () => {
+  test('saveProfile persists structured + source + preferences and returns the new id', async () => {
     state.insertResult = { data: { id: 'row-123' }, error: null }
-    const { id } = await saveProfile(PROFILE, 'raw resume text')
+    const prefs = { targetCompTopUsd: 170000, targetLanes: ['Cloud Engineer'], noGoLocations: [] }
+    const { id } = await saveProfile(PROFILE, 'raw resume text', prefs)
     expect(id).toBe('row-123')
-    expect(state.lastInsert).toEqual({ source_resume: 'raw resume text', structured: PROFILE })
+    expect(state.lastInsert).toEqual({ source_resume: 'raw resume text', structured: PROFILE, preferences: prefs })
+  })
+
+  test('saveProfile stores null preferences when none given', async () => {
+    state.insertResult = { data: { id: 'row-1' }, error: null }
+    await saveProfile(PROFILE, 'x')
+    expect(state.lastInsert).toMatchObject({ preferences: null })
   })
 
   test('saveProfile tags a DB error with step "insert"', async () => {
@@ -81,20 +88,29 @@ describe('saveProfile / getProfile', () => {
     })
   })
 
-  test('getProfile returns a validated profile', async () => {
-    state.selectResult = { data: { structured: PROFILE }, error: null }
-    const result = await getProfile('row-123')
-    expect(result).toEqual(PROFILE)
+  test('getStoredProfile returns a validated profile + parsed preferences', async () => {
+    const prefs = { targetCompTopUsd: 170000, targetLanes: ['Cloud Engineer'], noGoLocations: [] }
+    state.selectResult = { data: { structured: PROFILE, preferences: prefs }, error: null }
+    const result = await getStoredProfile('row-123')
+    expect(result?.profile).toEqual(PROFILE)
+    expect(result?.preferences).toMatchObject({ targetCompTopUsd: 170000, targetLanes: ['Cloud Engineer'] })
   })
 
-  test('getProfile returns null when no row matches', async () => {
+  test('getStoredProfile tolerates absent preferences (null)', async () => {
+    state.selectResult = { data: { structured: PROFILE, preferences: null }, error: null }
+    const result = await getStoredProfile('row-123')
+    expect(result?.profile).toEqual(PROFILE)
+    expect(result?.preferences).toBeNull()
+  })
+
+  test('getStoredProfile returns null when no row matches', async () => {
     state.selectResult = { data: null, error: null }
-    expect(await getProfile('missing')).toBeNull()
+    expect(await getStoredProfile('missing')).toBeNull()
   })
 
-  test('getProfile rejects with step "validate" when stored shape is corrupt', async () => {
-    state.selectResult = { data: { structured: { name: 123 } }, error: null }
-    await expect(getProfile('row-123')).rejects.toMatchObject({
+  test('getStoredProfile rejects with step "validate" when stored shape is corrupt', async () => {
+    state.selectResult = { data: { structured: { name: 123 }, preferences: null }, error: null }
+    await expect(getStoredProfile('row-123')).rejects.toMatchObject({
       name: 'ProfileStoreError',
       step: 'validate',
     })

@@ -7,15 +7,19 @@ import * as z from 'zod'
 import { structureResume } from '@/lib/services/structureResume'
 import {
   ProfileStoreError,
-  getProfile,
+  getStoredProfile,
   isProfileStoreConfigured,
   saveProfile,
 } from '@/lib/services/profileStore'
+import { CandidatePreferencesSchema } from '@/lib/schemas'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const Body = z.object({ resumeText: z.string().min(1) })
+const Body = z.object({
+  resumeText: z.string().min(1),
+  preferences: CandidatePreferencesSchema.optional(),
+})
 
 function notConfigured() {
   // A 503 (not 500): the app is fine, the persistence backend just isn't wired.
@@ -39,8 +43,8 @@ export async function POST(request: Request) {
     }
 
     const profile = await structureResume(parsed.data.resumeText)
-    const { id } = await saveProfile(profile, parsed.data.resumeText)
-    return NextResponse.json({ profileId: id, profile }, { status: 201 })
+    const { id } = await saveProfile(profile, parsed.data.resumeText, parsed.data.preferences)
+    return NextResponse.json({ profileId: id, profile, preferences: parsed.data.preferences ?? null }, { status: 201 })
   } catch (err) {
     return mapError(err, 'create profile')
   }
@@ -55,9 +59,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid or missing id' }, { status: 400 })
     }
 
-    const profile = await getProfile(id)
-    if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
-    return NextResponse.json({ profileId: id, profile }, { status: 200 })
+    const stored = await getStoredProfile(id)
+    if (!stored) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    return NextResponse.json(
+      { profileId: id, profile: stored.profile, preferences: stored.preferences },
+      { status: 200 },
+    )
   } catch (err) {
     return mapError(err, 'get profile')
   }

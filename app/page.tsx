@@ -64,6 +64,12 @@ export default function Home() {
   const [jobsLoading, setJobsLoading] = useState(false)
   const [jobsNote, setJobsNote] = useState<string | null>(null)
   const [selectedJob, setSelectedJob] = useState<PooledJob | null>(null)
+  // Candidate preferences (feed the deterministic fit engine). Target comp + lanes are primary.
+  const [targetComp, setTargetComp] = useState('')
+  const [targetLanes, setTargetLanes] = useState('')
+  const [workMode, setWorkMode] = useState('')
+  const [employerPref, setEmployerPref] = useState('')
+  const [noGo, setNoGo] = useState('')
 
   // Load/search the job pool while in "pick" mode. Debounced; runs on entering pick mode and on
   // each query change. setState lands inside the async callback (not the effect body), so it
@@ -118,10 +124,11 @@ export default function Home() {
     setSavingProfile(true)
     setProfileNote(null)
     try {
+      const preferences = buildPreferences()
       const res = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText }),
+        body: JSON.stringify({ resumeText, ...(preferences ? { preferences } : {}) }),
       })
       const data = await res.json().catch(() => null)
       if (!res.ok) {
@@ -153,6 +160,25 @@ export default function Home() {
     }
   }
 
+  /** Assemble the preferences payload, or undefined when nothing is set (so the server can fall
+   *  back to a saved profile's stored preferences). */
+  function buildPreferences(): Record<string, unknown> | undefined {
+    const comp = Number(targetComp.replace(/[^0-9.]/g, ''))
+    const hasComp = Number.isFinite(comp) && comp > 0
+    const lanes = targetLanes.split(',').map((s) => s.trim()).filter(Boolean)
+    const noGoLocations = noGo.split(',').map((s) => s.trim()).filter(Boolean)
+    if (!hasComp && lanes.length === 0 && !workMode && !employerPref && noGoLocations.length === 0) {
+      return undefined
+    }
+    return {
+      targetCompTopUsd: hasComp ? comp : null,
+      targetLanes: lanes,
+      noGoLocations,
+      ...(workMode ? { workMode } : {}),
+      ...(employerPref ? { employerTypePreference: employerPref } : {}),
+    }
+  }
+
   async function generate(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -163,7 +189,8 @@ export default function Home() {
       const resumePart = reuseActive ? { profileId: saved.id } : { resumeText }
       // JD: a picked pooled job sends its id; otherwise the pasted text.
       const jdPart = jdMode === 'pick' && selectedJob ? { jobId: selectedJob.id } : { jdText }
-      const payload = { ...resumePart, ...jdPart }
+      const preferences = buildPreferences()
+      const payload = { ...resumePart, ...jdPart, ...(preferences ? { preferences } : {}) }
       const res = await fetch('/api/packet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -333,6 +360,66 @@ export default function Home() {
             </div>
           </div>
 
+          <details className={styles.prefs}>
+            <summary className={styles.prefsSummary}>
+              Preferences <span className={styles.prefsHint}>— tune the fit score (optional)</span>
+            </summary>
+            <div className={styles.prefsGrid}>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>Target comp (top of band, USD)</span>
+                <input
+                  className={styles.prefInput}
+                  inputMode="numeric"
+                  value={targetComp}
+                  onChange={(e) => setTargetComp(e.target.value)}
+                  placeholder="e.g. 170000"
+                />
+              </label>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>Target roles / lanes (comma-separated)</span>
+                <input
+                  className={styles.prefInput}
+                  value={targetLanes}
+                  onChange={(e) => setTargetLanes(e.target.value)}
+                  placeholder="e.g. Cloud Engineer, VMware Engineer"
+                />
+              </label>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>Preferred work mode</span>
+                <select className={styles.prefInput} value={workMode} onChange={(e) => setWorkMode(e.target.value)}>
+                  <option value="">No preference</option>
+                  <option value="remote">Remote</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="onsite">Onsite</option>
+                  <option value="flexible">Flexible</option>
+                </select>
+              </label>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>Preferred employer type</span>
+                <select
+                  className={styles.prefInput}
+                  value={employerPref}
+                  onChange={(e) => setEmployerPref(e.target.value)}
+                >
+                  <option value="">No preference</option>
+                  <option value="direct">Direct employer</option>
+                  <option value="managed_services">Managed services</option>
+                  <option value="consulting">Consulting</option>
+                  <option value="vendor">Vendor</option>
+                </select>
+              </label>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>No-go locations (comma-separated)</span>
+                <input
+                  className={styles.prefInput}
+                  value={noGo}
+                  onChange={(e) => setNoGo(e.target.value)}
+                  placeholder="e.g. California"
+                />
+              </label>
+            </div>
+          </details>
+
           <div className={styles.actions}>
             <button className={styles.primary} type="submit" disabled={!canSubmit}>
               {loading ? 'Generating packet…' : 'Generate packet'}
@@ -401,6 +488,8 @@ function ErrorPanel({ error }: { error: ApiError }) {
 
 function PacketResult({ packet }: { packet: Packet }) {
   const { fit, guardrails, documents } = packet
+  // NOTE: interim functional view of the deterministic FitResult. The full WCAG-AA packet design
+  // (gauge/meters/badges from scoutlane-packet.css) lands in the next phase.
   return (
     <section className={styles.panel}>
       <div className={styles.scoreRow}>
@@ -408,16 +497,27 @@ function PacketResult({ packet }: { packet: Packet }) {
           <span className={styles.scoreNumber}>{fit.overall}</span>
           <span className={styles.scoreOutOf}>/ 100</span>
         </div>
-        <div className={styles.scoreSubs}>
-          {fit.subs.map((s) => (
-            <div key={s.label} className={styles.sub}>
-              <span className={styles.subLabel}>{s.label}</span>
-              <span className={styles.subScore}>{s.score}</span>
-              <span className={styles.subNote}>{s.note}</span>
-            </div>
-          ))}
+        <div className={styles.fitSummary}>
+          <span className={styles.fitBand}>{fit.band}</span>
+          <span className={styles.fitMath}>
+            base {fit.base} · bonus +{fit.bonus} · penalties −{fit.penaltyTotal}
+          </span>
         </div>
       </div>
+
+      <div className={styles.scoreSubs}>
+        {fit.dimensions.map((d) => (
+          <div key={d.key} className={styles.sub}>
+            <span className={styles.subLabel}>{d.label}</span>
+            <span className={styles.subScore}>{d.score}</span>
+            <span className={styles.subNote}>{d.note}</span>
+          </div>
+        ))}
+      </div>
+
+      {fit.hardGaps.length > 0 && (
+        <p className={styles.errorMeta}>Hard gaps: {fit.hardGaps.join(', ')}</p>
+      )}
 
       <div className={styles.guardrails}>
         <GuardrailBadge ok={guardrails.noFabrication.ok} label="No fabrication" />
@@ -428,6 +528,7 @@ function PacketResult({ packet }: { packet: Packet }) {
 
       {documents ? (
         <div className={styles.downloads}>
+          <DownloadButton doc={documents.fitAssessment} label="Download fit assessment (.docx)" />
           <DownloadButton doc={documents.resume} label="Download resume (.docx)" />
           <DownloadButton doc={documents.coverLetter} label="Download cover letter (.docx)" />
         </div>
