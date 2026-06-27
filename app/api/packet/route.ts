@@ -86,10 +86,18 @@ export async function POST(request: Request) {
       const g = packet.guardrails
       const reasons: string[] = []
       if (!g.noFabrication.ok) {
-        reasons.push(
-          `no-fabrication: ${g.noFabrication.unverifiable.length} claim(s) do not trace to a profile fact: ` +
-            g.noFabrication.unverifiable.map((c) => `"${c.text}"`).join('; '),
-        )
+        if (g.noFabrication.unverifiable.length > 0) {
+          reasons.push(
+            `no-fabrication: ${g.noFabrication.unverifiable.length} claim(s) do not trace to a profile fact: ` +
+              g.noFabrication.unverifiable.map((c) => `"${c.text}"`).join('; '),
+          )
+        }
+        if (g.noFabrication.ungroundedSkills.length > 0) {
+          reasons.push(
+            `no-fabrication: ${g.noFabrication.ungroundedSkills.length} tailored skill(s) not in the profile: ` +
+              g.noFabrication.ungroundedSkills.map((s) => `"${s}"`).join(', '),
+          )
+        }
       }
       if (!g.bannedTerms.ok) reasons.push(`banned-terms: ${g.bannedTerms.violations.join(', ')}`)
       if (!g.style.ok) reasons.push(`style: ${g.style.violations.join('; ')}`)

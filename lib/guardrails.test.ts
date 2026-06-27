@@ -77,6 +77,36 @@ describe('checkNoFabrication', () => {
     const tailored = makeTailored({ claims: [{ text: 'Migrated 40 VMs to Azure', factId: null }] })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
   })
+
+  test('rejects a stripped fragment of a longer fact (factId null) — no one-directional substring pass', () => {
+    const profile = makeProfile({
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure with zero data loss and full rollback coverage'],
+        },
+      ],
+    })
+    const tailored = makeTailored({ claims: [{ text: 'Migrated 40 VMs', factId: null }] })
+    const result = checkNoFabrication(tailored, profile)
+    expect(result.ok).toBe(false)
+    expect(result.unverifiable).toHaveLength(1)
+  })
+
+  test('flags a tailored skill not grounded in any profile fact', () => {
+    const tailored = makeTailored({ skills: ['Azure', 'Kubernetes'] })
+    const result = checkNoFabrication(tailored, makeProfile())
+    expect(result.ok).toBe(false)
+    expect(result.ungroundedSkills).toContain('Kubernetes')
+  })
+
+  test('passes when tailored skills are all present in the profile', () => {
+    const tailored = makeTailored({ skills: ['Azure', 'VMware'] })
+    expect(checkNoFabrication(tailored, makeProfile()).ungroundedSkills).toEqual([])
+  })
 })
 
 describe('checkBannedTerms', () => {

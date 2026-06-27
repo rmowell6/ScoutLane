@@ -69,7 +69,8 @@ const dimensionLine = (d: FitDimensionLine) =>
       new TextRun({ text: d.label, font: SANS, bold: true, size: 21, color: NAVY }),
       new TextRun({ text: `  (weight ${Math.round(d.weight * 100)}%)`, font: SANS, size: 18, color: SLATE }),
       new TextRun({ text: `\t${d.score} / 100`, font: SANS, bold: true, size: 21, color: COPPER }),
-      ...(d.note ? [new TextRun({ text: `\n${d.note}`, font: SANS, size: 20, color: SLATE })] : []),
+      // `break: 1` inserts a real <w:br/>; a literal '\n' inside a TextRun does NOT wrap in Word.
+      ...(d.note ? [new TextRun({ text: d.note, break: 1, font: SANS, size: 20, color: SLATE })] : []),
     ],
   })
 

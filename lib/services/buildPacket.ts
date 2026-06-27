@@ -157,9 +157,22 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   ])
   const fit = assessFit(fitInput)
 
+  // ATS-safety asserted on the shipping content. The docgen builders are single-column with no
+  // tables/images by construction (lib/docgen/*), so those structural fields are fixed; the
+  // meaningful runtime gate is that real selectable text exists (textRunCount > 0).
+  const atsDoc = {
+    columns: 1,
+    hasTables: false,
+    hasImages: false,
+    textRunCount: (tailored.summary.trim() ? 1 : 0) + tailored.skills.length + tailored.claims.length,
+  }
+
   const guardrails = runGuardrails(tailored, profile, {
-    bannedTerms: input.bannedTerms ?? BANNED_TERMS,
+    // BANNED_TERMS is a mandatory floor: callers may ADD watched terms, never remove the standing
+    // ones (the Ryan corrections in profileRules.ts must never regress).
+    bannedTerms: [...new Set([...BANNED_TERMS, ...(input.bannedTerms ?? [])])],
     style: { allowEmDash: STYLE_RULES.allowEmDash },
+    atsDoc,
   })
 
   const documents = guardrails.ok

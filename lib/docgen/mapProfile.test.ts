@@ -77,6 +77,20 @@ describe('toCoverLetterContent', () => {
     expect(cl.closing).toBe('Sincerely,')
     expect(cl.signature).toBe('Ryan Mowell')
   })
+
+  test('does NOT strip body paragraphs that merely begin with a closing/salutation word', () => {
+    const tricky: TailoredContent = {
+      ...tailored,
+      coverLetter:
+        'Best of all, I led the Azure migration to completion under budget.\n\nRegards for data privacy shaped my work at the credit union.\n\nDear to me is the mission you describe.',
+    }
+    const cl = toCoverLetterContent(profile, tricky, jobReqs, 'x')
+    expect(cl.paragraphs).toEqual([
+      'Best of all, I led the Azure migration to completion under budget.',
+      'Regards for data privacy shaped my work at the credit union.',
+      'Dear to me is the mission you describe.',
+    ])
+  })
 })
 
 describe('toFitAssessmentContent', () => {
