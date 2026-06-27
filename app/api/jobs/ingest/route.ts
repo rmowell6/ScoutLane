@@ -1,24 +1,47 @@
 // POST /api/jobs/ingest — fetch the seed pool from public ATS APIs and upsert it (M3).
 // Idempotent (upsert on source+external_id), so it's safe to re-run and safe for a future cron.
-// Optional auth: if CRON_SECRET is set, require `Authorization: Bearer <secret>` — this writes to
-// the DB and calls out to external APIs, so gate it once a secret exists; open otherwise for POC.
+// Auth: require `Authorization: Bearer <CRON_SECRET>`. This writes to the DB and calls out to
+// external APIs, so it must not be openly callable in production. Fail CLOSED in prod — if no
+// secret is configured, the endpoint is unavailable (503) rather than wide open. Outside prod
+// (local/preview POC) it stays open when no secret is set, for convenience.
+import { timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { ingestAll } from '@/lib/services/ats'
 import { JobStoreError, isJobStoreConfigured, upsertJobs } from '@/lib/services/jobStore'
+import { serverErrorBody } from '@/lib/http/errors'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
 
-function authorized(request: Request): boolean {
+const isProd = process.env.NODE_ENV === 'production'
+
+/** Constant-time compare so a wrong token can't be recovered by timing the response. */
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a)
+  const bb = Buffer.from(b)
+  return ba.length === bb.length && timingSafeEqual(ba, bb)
+}
+
+type AuthResult = 'ok' | 'unauthorized' | 'misconfigured'
+
+function authorize(request: Request): AuthResult {
   const secret = process.env.CRON_SECRET
-  if (!secret) return true // no secret configured -> open (POC)
-  return request.headers.get('authorization') === `Bearer ${secret}`
+  if (!secret) return isProd ? 'misconfigured' : 'ok' // fail closed in prod; open for local POC
+  return safeEqual(request.headers.get('authorization') ?? '', `Bearer ${secret}`) ? 'ok' : 'unauthorized'
 }
 
 export async function POST(request: Request) {
   try {
-    if (!authorized(request)) {
+    const auth = authorize(request)
+    if (auth === 'unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (auth === 'misconfigured') {
+      console.error('[jobs] ingest refused: CRON_SECRET is not set in production')
+      return NextResponse.json(
+        { error: 'Ingest endpoint not configured', message: 'CRON_SECRET is required in production' },
+        { status: 503 },
+      )
     }
     if (!isJobStoreConfigured()) {
       return NextResponse.json(
@@ -50,8 +73,7 @@ export async function POST(request: Request) {
     )
   } catch (err) {
     const step = err instanceof JobStoreError ? err.step : null
-    const message = err instanceof Error ? err.message : String(err)
     console.error('[jobs] ingest failed', step ?? '', err)
-    return NextResponse.json({ error: 'Internal Server Error', step, message }, { status: 500 })
+    return NextResponse.json(serverErrorBody(err, step), { status: 500 })
   }
 }

@@ -4,6 +4,7 @@
 // runtime='nodejs' because mammoth/unpdf need Node Buffer + APIs.
 import { NextResponse } from 'next/server'
 import { ExtractError, MAX_RESUME_BYTES, extractResumeText } from '@/lib/services/extractResumeText'
+import { serverErrorBody } from '@/lib/http/errors'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -62,13 +63,9 @@ export async function POST(request: Request) {
         )
       }
       console.error('[extract] failed', err.step, err)
-      return NextResponse.json(
-        { error: 'Extraction failed', step: err.step, message: err.message },
-        { status: 500 },
-      )
+      return NextResponse.json(serverErrorBody(err, err.step, 'Extraction failed'), { status: 500 })
     }
-    const message = err instanceof Error ? err.message : String(err)
     console.error('[extract] failed', err)
-    return NextResponse.json({ error: 'Internal Server Error', message }, { status: 500 })
+    return NextResponse.json(serverErrorBody(err, null), { status: 500 })
   }
 }
