@@ -5,21 +5,27 @@ import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { buildPacket, PacketError } from '@/lib/services/buildPacket'
 import { getProfile, ProfileStoreError } from '@/lib/services/profileStore'
+import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if needed
 
 // Provide a resume one of two ways: paste raw text (stateless) OR reference a saved profile
-// (reuse path; skips re-structuring). Exactly one is required, enforced below.
+// (reuse path; skips re-structuring). Provide the JD one of two ways: paste raw text OR reference
+// a pooled job by id. Exactly one of each pair is required, enforced below.
 const Body = z
   .object({
     resumeText: z.string().min(1).optional(),
     profileId: z.uuid().optional(),
-    jdText: z.string().min(1),
+    jdText: z.string().min(1).optional(),
+    jobId: z.uuid().optional(),
     bannedTerms: z.array(z.string()).optional(),
   })
   .refine((b) => Boolean(b.resumeText) !== Boolean(b.profileId), {
     message: 'provide exactly one of resumeText or profileId',
+  })
+  .refine((b) => Boolean(b.jdText) !== Boolean(b.jobId), {
+    message: 'provide exactly one of jdText or jobId',
   })
 
 export async function POST(request: Request) {
@@ -42,8 +48,24 @@ export async function POST(request: Request) {
       }
     }
 
+    // Pooled-job path: resolve the selected job's JD text from the store.
+    let jdText = parsed.data.jdText
+    if (parsed.data.jobId) {
+      const job = await getJobJd(parsed.data.jobId)
+      if (!job) {
+        return NextResponse.json({ error: 'Job not found', jobId: parsed.data.jobId }, { status: 404 })
+      }
+      if (!job.jdText.trim()) {
+        return NextResponse.json(
+          { error: 'Selected job has no description text', jobId: parsed.data.jobId },
+          { status: 422 },
+        )
+      }
+      jdText = job.jdText
+    }
+
     const packet = await buildPacket({
-      jdText: parsed.data.jdText,
+      jdText: jdText as string,
       resumeText: parsed.data.resumeText,
       profile,
       bannedTerms: parsed.data.bannedTerms,
@@ -81,7 +103,9 @@ export async function POST(request: Request) {
         ? err.step
         : err instanceof ProfileStoreError
           ? `profile:${err.step}`
-          : null
+          : err instanceof JobStoreError
+            ? `job:${err.step}`
+            : null
     const message = err instanceof Error ? err.message : String(err)
     console.error('[packet] generation failed', step ?? '', err)
     return NextResponse.json(

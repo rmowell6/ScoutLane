@@ -23,6 +23,18 @@ interface ApiError {
   message?: string
 }
 
+/** A pooled job from /api/jobs (light list shape). */
+interface PooledJob {
+  id: string
+  provider: string
+  title: string
+  company: string
+  location: string | null
+  url: string
+}
+
+type JdMode = 'paste' | 'pick'
+
 const SAMPLE_RESUME =
   'Ryan Mowell — Cloud Engineer\nLebanon, OH · ryan@example.com\n\n' +
   'Skills: Azure, VMware, Veeam, PowerShell, Microsoft Sentinel, Azure Virtual Desktop\n\n' +
@@ -46,6 +58,40 @@ export default function Home() {
   const [saved, setSaved] = useState<SavedProfile | null>(null)
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileNote, setProfileNote] = useState<string | null>(null)
+  const [jdMode, setJdMode] = useState<JdMode>('paste')
+  const [jobQuery, setJobQuery] = useState('')
+  const [jobResults, setJobResults] = useState<PooledJob[]>([])
+  const [jobsLoading, setJobsLoading] = useState(false)
+  const [jobsNote, setJobsNote] = useState<string | null>(null)
+  const [selectedJob, setSelectedJob] = useState<PooledJob | null>(null)
+
+  // Load/search the job pool while in "pick" mode. Debounced; runs on entering pick mode and on
+  // each query change. setState lands inside the async callback (not the effect body), so it
+  // doesn't trip the synchronous-setState lint rule.
+  useEffect(() => {
+    if (jdMode !== 'pick') return
+    const q = jobQuery.trim()
+    const handle = setTimeout(async () => {
+      setJobsLoading(true)
+      setJobsNote(null)
+      try {
+        const res = await fetch(`/api/jobs?${new URLSearchParams(q ? { q } : {}).toString()}`)
+        const data = await res.json().catch(() => null)
+        if (!res.ok) {
+          setJobsNote((data?.message as string) ?? (data?.error as string) ?? `Failed to load jobs (${res.status})`)
+          setJobResults([])
+          return
+        }
+        setJobResults((data as { jobs: PooledJob[] }).jobs)
+      } catch (err) {
+        setJobsNote(err instanceof Error ? err.message : 'Failed to load jobs')
+        setJobResults([])
+      } finally {
+        setJobsLoading(false)
+      }
+    }, 300)
+    return () => clearTimeout(handle)
+  }, [jdMode, jobQuery])
 
   // Rehydrate a previously saved profile (id + its source resume) on first load. This must run
   // post-mount, not in a lazy initializer: the page is statically prerendered with no
@@ -113,8 +159,11 @@ export default function Home() {
     setPacket(null)
     setError(null)
     try {
-      // Reuse the saved profile when the resume text is unchanged; else send raw text.
-      const payload = reuseActive ? { profileId: saved.id, jdText } : { resumeText, jdText }
+      // Resume: reuse the saved profile when the text is unchanged; else send raw text.
+      const resumePart = reuseActive ? { profileId: saved.id } : { resumeText }
+      // JD: a picked pooled job sends its id; otherwise the pasted text.
+      const jdPart = jdMode === 'pick' && selectedJob ? { jobId: selectedJob.id } : { jdText }
+      const payload = { ...resumePart, ...jdPart }
       const res = await fetch('/api/packet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -165,7 +214,13 @@ export default function Home() {
     }
   }
 
-  const canSubmit = resumeText.trim().length > 0 && jdText.trim().length > 0 && !loading
+  const jdReady = jdMode === 'pick' ? selectedJob !== null : jdText.trim().length > 0
+  const canSubmit = resumeText.trim().length > 0 && jdReady && !loading
+
+  function pickMode(mode: JdMode) {
+    setJdMode(mode)
+    if (mode === 'paste') setSelectedJob(null)
+  }
 
   return (
     <div className={styles.page}>
@@ -203,16 +258,79 @@ export default function Home() {
               />
               {uploadNote && <span className={styles.uploadNote}>{uploadNote}</span>}
             </label>
-            <label className={styles.field}>
-              <span className={styles.label}>Job description</span>
-              <textarea
-                className={styles.textarea}
-                value={jdText}
-                onChange={(e) => setJdText(e.target.value)}
-                placeholder="Paste the target job description…"
-                rows={16}
-              />
-            </label>
+            <div className={styles.field}>
+              <span className={styles.labelRow}>
+                <span className={styles.label}>Job description</span>
+                <span className={styles.toggle}>
+                  <button
+                    type="button"
+                    className={jdMode === 'paste' ? styles.toggleOn : styles.toggleOff}
+                    onClick={() => pickMode('paste')}
+                  >
+                    Paste
+                  </button>
+                  <button
+                    type="button"
+                    className={jdMode === 'pick' ? styles.toggleOn : styles.toggleOff}
+                    onClick={() => pickMode('pick')}
+                  >
+                    Pick from pool
+                  </button>
+                </span>
+              </span>
+
+              {jdMode === 'paste' ? (
+                <textarea
+                  className={styles.textarea}
+                  value={jdText}
+                  onChange={(e) => setJdText(e.target.value)}
+                  placeholder="Paste the target job description…"
+                  rows={16}
+                />
+              ) : (
+                <div className={styles.picker}>
+                  <input
+                    className={styles.search}
+                    type="search"
+                    value={jobQuery}
+                    onChange={(e) => setJobQuery(e.target.value)}
+                    placeholder="Search roles by title or company…"
+                  />
+                  {selectedJob && (
+                    <div className={styles.selectedJob}>
+                      <span>
+                        <strong>{selectedJob.title}</strong> — {selectedJob.company}
+                        {selectedJob.location ? ` · ${selectedJob.location}` : ''}
+                      </span>
+                      <button type="button" className={styles.clearLink} onClick={() => setSelectedJob(null)}>
+                        clear
+                      </button>
+                    </div>
+                  )}
+                  <ul className={styles.jobList}>
+                    {jobsLoading && <li className={styles.jobMeta}>Loading…</li>}
+                    {!jobsLoading && jobResults.length === 0 && (
+                      <li className={styles.jobMeta}>{jobsNote ?? 'No roles found.'}</li>
+                    )}
+                    {jobResults.map((job) => (
+                      <li key={job.id}>
+                        <button
+                          type="button"
+                          className={selectedJob?.id === job.id ? styles.jobItemOn : styles.jobItem}
+                          onClick={() => setSelectedJob(job)}
+                        >
+                          <span className={styles.jobTitle}>{job.title}</span>
+                          <span className={styles.jobSub}>
+                            {job.company}
+                            {job.location ? ` · ${job.location}` : ''}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={styles.actions}>
