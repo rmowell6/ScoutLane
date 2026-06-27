@@ -14,8 +14,11 @@ import { isStorageConfigured, uploadDocx } from '@/lib/storage'
 import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
 export interface PacketInput {
-  resumeText: string
   jdText: string
+  /** Raw resume text to structure on the fly (stateless path). */
+  resumeText?: string
+  /** A pre-structured profile (reuse path) — when set, structureResume is skipped. */
+  profile?: Profile
   /** Sensitive terms that may appear only if present in the profile (e.g. ['Kubernetes']). */
   bannedTerms?: string[]
   /** Date string for the cover letter; defaults to today (injectable for tests). */
@@ -125,7 +128,13 @@ async function runStep<T>(step: string, fn: () => Promise<T>): Promise<T> {
  * surfaces which stage broke (PacketError.step).
  */
 export async function buildPacket(input: PacketInput): Promise<Packet> {
-  const profile = await runStep('structureResume', () => structureResume(input.resumeText))
+  // Reuse a stored profile when provided; otherwise structure the raw resume text.
+  if (!input.profile && !input.resumeText) {
+    throw new PacketError('input', new Error('buildPacket requires either profile or resumeText'))
+  }
+  const profile =
+    input.profile ??
+    (await runStep('structureResume', () => structureResume(input.resumeText as string)))
   const jobReqs = await runStep('parseJob', () => parseJob(input.jdText))
 
   const [fit, tailored] = await Promise.all([
