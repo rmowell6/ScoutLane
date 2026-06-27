@@ -34,6 +34,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [packet, setPacket] = useState<Packet | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadNote, setUploadNote] = useState<string | null>(null)
 
   async function generate(e: React.FormEvent) {
     e.preventDefault()
@@ -67,6 +69,30 @@ export default function Home() {
     setJdText(SAMPLE_JD)
   }
 
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file
+    if (!file) return
+    setUploading(true)
+    setUploadNote(null)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      const res = await fetch('/api/extract', { method: 'POST', body })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setUploadNote((data?.message as string) ?? (data?.error as string) ?? `Upload failed (${res.status})`)
+        return
+      }
+      setResumeText((data as { text: string }).text)
+      setUploadNote(`Loaded ${file.name} (${(data as { chars: number }).chars.toLocaleString()} chars) — review and edit below.`)
+    } catch (err) {
+      setUploadNote(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const canSubmit = resumeText.trim().length > 0 && jdText.trim().length > 0 && !loading
 
   return (
@@ -84,14 +110,26 @@ export default function Home() {
         <form className={styles.form} onSubmit={generate}>
           <div className={styles.fields}>
             <label className={styles.field}>
-              <span className={styles.label}>Resume</span>
+              <span className={styles.labelRow}>
+                <span className={styles.label}>Resume</span>
+                <span className={styles.upload}>
+                  <input
+                    type="file"
+                    accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                    onChange={onFile}
+                    disabled={uploading || loading}
+                  />
+                  {uploading && <span className={styles.uploadStatus}>Extracting…</span>}
+                </span>
+              </span>
               <textarea
                 className={styles.textarea}
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
-                placeholder="Paste the candidate's resume text…"
+                placeholder="Paste the resume text, or upload a PDF / DOCX / TXT above…"
                 rows={16}
               />
+              {uploadNote && <span className={styles.uploadNote}>{uploadNote}</span>}
             </label>
             <label className={styles.field}>
               <span className={styles.label}>Job description</span>
