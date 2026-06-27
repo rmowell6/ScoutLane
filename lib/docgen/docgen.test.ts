@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { buildResumeDocx, type ResumeContent } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx, type CoverLetterContent } from '@/lib/docgen/coverLetter'
+import { buildFitAssessmentDocx, type FitAssessmentContent } from '@/lib/docgen/fitAssessment'
 
 const sampleResume: ResumeContent = {
   name: 'Ryan Mowell',
@@ -57,6 +58,44 @@ describe('docgen', () => {
 
   test('buildCoverLetterDocx produces a non-trivial .docx buffer', async () => {
     const buf = await buildCoverLetterDocx(sampleCover)
+    expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('buildFitAssessmentDocx produces a non-trivial .docx buffer', async () => {
+    const content: FitAssessmentContent = {
+      candidateName: 'Ryan Mowell',
+      roleTitle: 'Senior Cloud Engineer',
+      company: 'Acme',
+      date: 'June 27, 2026',
+      overall: 82,
+      band: 'Strong fit',
+      base: 81.7,
+      bonus: 0,
+      penaltyTotal: 0,
+      dimensions: [
+        { label: 'Role-type match', score: 80, weight: 0.2, note: 'Target-title fit: solid.' },
+        { label: 'Core skills coverage', score: 70, weight: 0.22, note: '3 of 5 must-haves matched.' },
+      ],
+      hardGaps: ['people management'],
+    }
+    const buf = await buildFitAssessmentDocx(content)
+    expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('buildFitAssessmentDocx tolerates empty dimensions and hard gaps', async () => {
+    const buf = await buildFitAssessmentDocx({
+      candidateName: 'Ada',
+      roleTitle: '',
+      company: '',
+      date: 'x',
+      overall: 40,
+      band: 'Lead',
+      base: 40,
+      bonus: 0,
+      penaltyTotal: 0,
+      dimensions: [],
+      hardGaps: [],
+    })
     expect(isDocxBuffer(buf)).toBe(true)
   })
 })

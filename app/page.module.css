@@ -373,6 +373,75 @@
   color: #e8eaed;
 }
 
+.prefs {
+  border: 1px solid #2a2e37;
+  border-radius: 10px;
+  padding: 4px 14px;
+}
+
+.prefsSummary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c4c8ce;
+  padding: 8px 0;
+}
+
+.prefsHint {
+  font-weight: 400;
+  color: #6b7079;
+}
+
+.prefsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 8px 0 12px;
+}
+
+.prefField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.prefLabel {
+  font-size: 12px;
+  color: #8b9099;
+}
+
+.prefInput {
+  background: #15171c;
+  border: 1px solid #2a2e37;
+  border-radius: 8px;
+  color: #e8eaed;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.prefInput:focus {
+  outline: none;
+  border-color: #4c8bf5;
+}
+
+.fitSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fitBand {
+  font-size: 20px;
+  font-weight: 700;
+  color: #6ee7a0;
+}
+
+.fitMath {
+  font-size: 12px;
+  color: #8b9099;
+}
+
 .scoreRow {
   display: flex;
   gap: 28px;
