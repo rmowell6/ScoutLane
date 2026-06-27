@@ -4,7 +4,7 @@
 import { structureResume } from './structureResume'
 import { parseJob } from './parseJob'
 import { extractFitInput } from './extractFitInput'
-import { assessFit, type FitResult } from '@/lib/fit/fitScore'
+import { assessFit, type FitInput, type FitResult } from '@/lib/fit/fitScore'
 import { tailorResume } from './tailorResume'
 import { runGuardrails, type GuardrailReport } from '@/lib/guardrails'
 import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
@@ -48,6 +48,8 @@ export interface Packet {
   profile: Profile
   jobReqs: JobReqs
   fit: FitResult
+  /** The extracted signals the score was computed from (drives the keyword/coverage view). */
+  fitInput: FitInput
   tailored: TailoredContent
   guardrails: GuardrailReport
   /** Generated docs — null when a guardrail blocked the packet (nothing ships). */
@@ -166,5 +168,5 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
       )
     : null
 
-  return { profile, jobReqs, fit, tailored, guardrails, documents }
+  return { profile, jobReqs, fit, fitInput, tailored, guardrails, documents }
 }

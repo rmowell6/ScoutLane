@@ -5,7 +5,8 @@
 // guardrail verdict, and download buttons for the two tailored .docx files.
 // This is a thin client: all generation and the no-fabrication guardrail live server-side.
 import { useEffect, useState } from 'react'
-import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
+import type { Packet } from '@/lib/services/buildPacket'
+import PacketView from '@/components/Packet'
 import styles from './page.module.css'
 
 /** A saved profile + the resume snapshot it was structured from (for staleness detection). */
@@ -459,7 +460,7 @@ export default function Home() {
         </form>
 
         {error && <ErrorPanel error={error} />}
-        {packet && <PacketResult packet={packet} />}
+        {packet && <PacketView packet={packet} />}
       </main>
     </div>
   )
@@ -486,105 +487,3 @@ function ErrorPanel({ error }: { error: ApiError }) {
   )
 }
 
-function PacketResult({ packet }: { packet: Packet }) {
-  const { fit, guardrails, documents } = packet
-  // NOTE: interim functional view of the deterministic FitResult. The full WCAG-AA packet design
-  // (gauge/meters/badges from scoutlane-packet.css) lands in the next phase.
-  return (
-    <section className={styles.panel}>
-      <div className={styles.scoreRow}>
-        <div className={styles.scoreBadge}>
-          <span className={styles.scoreNumber}>{fit.overall}</span>
-          <span className={styles.scoreOutOf}>/ 100</span>
-        </div>
-        <div className={styles.fitSummary}>
-          <span className={styles.fitBand}>{fit.band}</span>
-          <span className={styles.fitMath}>
-            base {fit.base} · bonus +{fit.bonus} · penalties −{fit.penaltyTotal}
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.scoreSubs}>
-        {fit.dimensions.map((d) => (
-          <div key={d.key} className={styles.sub}>
-            <span className={styles.subLabel}>{d.label}</span>
-            <span className={styles.subScore}>{d.score}</span>
-            <span className={styles.subNote}>{d.note}</span>
-          </div>
-        ))}
-      </div>
-
-      {fit.hardGaps.length > 0 && (
-        <p className={styles.errorMeta}>Hard gaps: {fit.hardGaps.join(', ')}</p>
-      )}
-
-      <div className={styles.guardrails}>
-        <GuardrailBadge ok={guardrails.noFabrication.ok} label="No fabrication" />
-        <GuardrailBadge ok={guardrails.bannedTerms.ok} label="Banned terms" />
-        <GuardrailBadge ok={guardrails.style.ok} label="Style" />
-        {guardrails.ats && <GuardrailBadge ok={guardrails.ats.ok} label="ATS-safe" />}
-      </div>
-
-      {documents ? (
-        <div className={styles.downloads}>
-          <DownloadButton doc={documents.fitAssessment} label="Download fit assessment (.docx)" />
-          <DownloadButton doc={documents.resume} label="Download resume (.docx)" />
-          <DownloadButton doc={documents.coverLetter} label="Download cover letter (.docx)" />
-        </div>
-      ) : (
-        <p className={styles.errorMeta}>
-          A guardrail blocked this packet, so no documents were generated.
-        </p>
-      )}
-    </section>
-  )
-}
-
-function GuardrailBadge({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <span className={`${styles.badge} ${ok ? styles.badgeOk : styles.badgeFail}`}>
-      {ok ? '✓' : '✕'} {label}
-    </span>
-  )
-}
-
-/** Download a returned doc: use the Supabase signed URL, else decode the inline base64. */
-function DownloadButton({ doc, label }: { doc: DocumentRef; label: string }) {
-  function handle() {
-    if (doc.signedUrl) {
-      triggerDownload(doc.signedUrl, doc.filename)
-      return
-    }
-    if (doc.base64) {
-      const url = base64ToObjectUrl(doc.base64)
-      triggerDownload(url, doc.filename)
-      // Revoke on the next tick so the click has been handled.
-      setTimeout(() => URL.revokeObjectURL(url), 0)
-    }
-  }
-  return (
-    <button className={styles.download} type="button" onClick={handle}>
-      {label}
-    </button>
-  )
-}
-
-function triggerDownload(url: string, filename: string) {
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-}
-
-const DOCX_MIME =
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-
-function base64ToObjectUrl(base64: string): string {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-  return URL.createObjectURL(new Blob([bytes], { type: DOCX_MIME }))
-}
