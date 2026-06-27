@@ -77,15 +77,29 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
   })
 }
 
-/** List the pool for the picker, newest first. */
-export async function listJobs(limit = 100): Promise<StoredJob[]> {
+export interface ListJobsOptions {
+  /** Case-insensitive search over title + company. */
+  q?: string
+  limit?: number
+}
+
+/** List the pool for the picker, newest first. Optional case-insensitive title/company search. */
+export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob[]> {
+  const { q, limit = 50 } = options
   return runStep('list', async () => {
-    const { data, error } = await db()
+    let query = db()
       .from(TABLE)
       .select('id, source, title, company, location, url')
       .eq('status', 'live')
-      .order('created_at', { ascending: false })
-      .limit(limit)
+
+    const term = q?.trim()
+    if (term) {
+      // Escape PostgREST/ILIKE wildcards and the comma that delimits .or() filters.
+      const safe = term.replace(/[%,()]/g, ' ')
+      query = query.or(`title.ilike.%${safe}%,company.ilike.%${safe}%`)
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(limit)
     if (error) throw error
     return (data ?? []).map((r) => ({
       id: r.id as string,

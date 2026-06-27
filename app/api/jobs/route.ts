@@ -5,7 +5,7 @@ import { JobStoreError, isJobStoreConfigured, listJobs } from '@/lib/services/jo
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!isJobStoreConfigured()) {
       return NextResponse.json(
@@ -13,7 +13,12 @@ export async function GET() {
         { status: 503 },
       )
     }
-    const jobs = await listJobs()
+    const params = new URL(request.url).searchParams
+    const q = params.get('q') ?? undefined
+    const limitRaw = Number(params.get('limit'))
+    const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : undefined
+
+    const jobs = await listJobs({ q, limit })
     return NextResponse.json({ jobs, count: jobs.length }, { status: 200 })
   } catch (err) {
     const step = err instanceof JobStoreError ? err.step : null
