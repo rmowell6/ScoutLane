@@ -12,12 +12,16 @@ import {
   saveProfile,
 } from '@/lib/services/profileStore'
 import { CandidatePreferencesSchema } from '@/lib/schemas'
+import { serverErrorBody } from '@/lib/http/errors'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
+// Bound the stored resume text (a few KB in practice); fail a pathological paste fast.
+const MAX_RESUME_CHARS = 100_000
+
 const Body = z.object({
-  resumeText: z.string().min(1),
+  resumeText: z.string().min(1).max(MAX_RESUME_CHARS),
   preferences: CandidatePreferencesSchema.optional(),
 })
 
@@ -72,7 +76,6 @@ export async function GET(request: Request) {
 
 function mapError(err: unknown, context: string) {
   const step = err instanceof ProfileStoreError ? err.step : null
-  const message = err instanceof Error ? err.message : String(err)
   console.error(`[profile] ${context} failed`, step ?? '', err)
-  return NextResponse.json({ error: 'Internal Server Error', step, message }, { status: 500 })
+  return NextResponse.json(serverErrorBody(err, step), { status: 500 })
 }

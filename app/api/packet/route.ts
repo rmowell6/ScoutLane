@@ -7,6 +7,14 @@ import { buildPacket, PacketError } from '@/lib/services/buildPacket'
 import { getStoredProfile, ProfileStoreError } from '@/lib/services/profileStore'
 import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
+import { serverErrorBody } from '@/lib/http/errors'
+
+// Bound request size before any work: a resume is a few KB of text; these ceilings fail a
+// pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
+const MAX_RESUME_CHARS = 100_000
+const MAX_JD_CHARS = 50_000
+const MAX_BANNED_TERMS = 200
+const MAX_TERM_CHARS = 200
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if needed
@@ -16,12 +24,12 @@ export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if n
 // a pooled job by id. Exactly one of each pair is required, enforced below.
 const Body = z
   .object({
-    resumeText: z.string().min(1).optional(),
+    resumeText: z.string().min(1).max(MAX_RESUME_CHARS).optional(),
     profileId: z.uuid().optional(),
-    jdText: z.string().min(1).optional(),
+    jdText: z.string().min(1).max(MAX_JD_CHARS).optional(),
     jobId: z.uuid().optional(),
     preferences: CandidatePreferencesSchema.optional(),
-    bannedTerms: z.array(z.string()).optional(),
+    bannedTerms: z.array(z.string().max(MAX_TERM_CHARS)).max(MAX_BANNED_TERMS).optional(),
   })
   .refine((b) => Boolean(b.resumeText) !== Boolean(b.profileId), {
     message: 'provide exactly one of resumeText or profileId',
@@ -112,8 +120,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(packet, { status: 200 })
   } catch (err) {
-    // Surface which step failed + its message. Step names and error messages here are
-    // diagnostics, not secrets (API keys never appear in them). Tighten before public launch.
+    // Surface which step failed (a safe identifier). The raw message is withheld in production
+    // (it can carry internal detail); the step is always safe — it's a fixed name from our code.
     const step =
       err instanceof PacketError
         ? err.step
@@ -122,11 +130,7 @@ export async function POST(request: Request) {
           : err instanceof JobStoreError
             ? `job:${err.step}`
             : null
-    const message = err instanceof Error ? err.message : String(err)
     console.error('[packet] generation failed', step ?? '', err)
-    return NextResponse.json(
-      { error: 'Internal Server Error', step, message },
-      { status: 500 },
-    )
+    return NextResponse.json(serverErrorBody(err, step), { status: 500 })
   }
 }
