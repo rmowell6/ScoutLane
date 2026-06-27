@@ -21,6 +21,7 @@ function normalize(s: string): string {
 export function indexFacts(profile: Profile): FactIndex {
   const byId = new Map<string, string>()
 
+  if (profile.summary) byId.set('summary', profile.summary)
   profile.skills.forEach((s, i) => byId.set(`skill:${i}`, s))
   profile.certs.forEach((c, i) => byId.set(`cert:${i}`, c))
   profile.roles.forEach((role, i) => {
@@ -36,15 +37,23 @@ export function indexFacts(profile: Profile): FactIndex {
   return { byId, texts }
 }
 
-/** A claim is traceable iff it names a factId that exists in the index. */
+/** A claim is traceable iff it cites a real factId, or is a faithful restatement of one fact. */
 export function traceable(claim: Claim, index: FactIndex): boolean {
   // Primary: the claim cites a real fact id.
   if (claim.factId !== null && index.byId.has(claim.factId)) return true
-  // Fallback: the claim verbatim-restates a real fact (the model paraphrased the id wrong or
-  // left it null but did not fabricate). Kept strict — a near-exact substring of a source fact,
-  // length-gated so trivial fragments can't match. Paraphrases still fail, as they should.
+  // Fallback: the claim is a FAITHFUL restatement of a single fact (model left factId null or
+  // cited it wrong but did NOT fabricate). Require near-equality, not a one-directional
+  // substring: a stripped fragment of a long fact (which can misrepresent it — e.g. dropping a
+  // leading "Failed to") must not pass, and neither may a long fabricated sentence that merely
+  // embeds a short source phrase. The claim and a fact must overlap as near-equals (the shorter
+  // covers >= 70% of the longer), and be of meaningful length.
   const t = normalize(claim.text)
-  return t.length >= 12 && index.texts.some((fact) => fact.includes(t))
+  if (t.length < 12) return false
+  return index.texts.some((fact) => {
+    if (fact === t) return true
+    const [short, long] = t.length <= fact.length ? [t, fact] : [fact, t]
+    return long.includes(short) && short.length / long.length >= 0.7
+  })
 }
 
 // ---- individual checks -----------------------------------------------------------
@@ -52,16 +61,29 @@ export function traceable(claim: Claim, index: FactIndex): boolean {
 export interface NoFabricationResult {
   ok: boolean
   unverifiable: Claim[]
+  /** Tailored skills not grounded in any profile fact (they ship verbatim into the resume). */
+  ungroundedSkills: string[]
 }
 
-/** No fabrication: every tailored claim must trace to a source fact. */
+/**
+ * No fabrication: every tailored CLAIM must trace to a source fact, AND every tailored SKILL
+ * (which ships verbatim into the resume's skills section) must appear somewhere in the profile
+ * facts. The summary and cover-letter prose are free text and are covered by banned-terms +
+ * style only — claims and skills are the structured, fully-traced surface.
+ */
 export function checkNoFabrication(
   tailored: TailoredContent,
   profile: Profile,
 ): NoFabricationResult {
   const index = indexFacts(profile)
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
-  return { ok: unverifiable.length === 0, unverifiable }
+  const profileText = index.texts.join(' \n ')
+  const ungroundedSkills = tailored.skills.filter((s) => !mentions(profileText, s))
+  return {
+    ok: unverifiable.length === 0 && ungroundedSkills.length === 0,
+    unverifiable,
+    ungroundedSkills,
+  }
 }
 
 /** Match a term as a whole word (single token) or substring (multi-word). */

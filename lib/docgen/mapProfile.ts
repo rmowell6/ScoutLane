@@ -78,19 +78,27 @@ function noEmDash(s: string): string {
   return s.replace(/\s*—\s*/g, ', ')
 }
 
-const CLOSING_RE = /^(sincerely|best regards|warm regards|kind regards|best|regards|respectfully|cordially|yours (truly|sincerely))\b/i
+// A SALUTATION line: starts with "Dear", no sentence punctuation, ends at a comma. Anchored so a
+// real body sentence opening with "Dear" (e.g. "Dear to me is the mission…") is NOT stripped.
+const SALUTATION_RE = /^dear\b[^.!?]*,\s*$/i
+// A CLOSING sign-off line: a short standalone line that is essentially just the sign-off (plus an
+// optional trailing name/placeholder). Length-gated so a body sentence merely starting with
+// "Best,"/"Regards" is NOT stripped.
+const CLOSING_RE = /^(sincerely|best regards|warm regards|kind regards|best|regards|respectfully|cordially|thanks|thank you|many thanks|yours (truly|sincerely))\b[^.!?]*$/i
+const CLOSING_MAX_LEN = 40
 
 /**
  * Drop scaffolding the model sometimes emits despite instructions — a leading "Dear …"
  * salutation, a closing sign-off line ("Sincerely, …"), a "[Your Name]" placeholder, or a bare
  * signature line. The template supplies its own salutation/closing/signature, so leaving these
- * in would duplicate the closing.
+ * in would duplicate the closing. Matchers are deliberately tight (anchored + length-gated) so a
+ * legitimate body paragraph that merely begins with one of these words is never silently deleted.
  */
 function stripLetterScaffolding(paragraphs: string[], name: string): string[] {
   const normName = name.toLowerCase().trim()
   return paragraphs.filter((p) => {
-    if (/^dear\b/i.test(p)) return false
-    if (CLOSING_RE.test(p)) return false
+    if (SALUTATION_RE.test(p)) return false
+    if (CLOSING_RE.test(p) && p.length <= CLOSING_MAX_LEN) return false
     if (/\[your name\]/i.test(p)) return false
     if (p.toLowerCase().trim() === normName) return false
     return true
@@ -109,7 +117,10 @@ export function toCoverLetterContent(
   const paragraphs = stripLetterScaffolding(
     tailored.coverLetter
       .split(/\n\s*\n/)
-      .map((p) => p.replace(/\s+/g, ' ').trim())
+      // Collapse whitespace AND strip em dashes from the body too: the style guardrail already
+      // blocks em dashes upstream, so this is a backstop that keeps the doc builder's
+      // assertNoEmDash from ever throwing on otherwise-valid content.
+      .map((p) => noEmDash(p.replace(/\s+/g, ' ').trim()))
       .filter(Boolean),
     profile.name,
   )
