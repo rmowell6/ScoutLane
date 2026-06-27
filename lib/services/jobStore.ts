@@ -2,9 +2,25 @@
 // profileStore. Lazy + degradable so importing never throws without env. Ingestion upserts on
 // (source, external_id) so re-running is idempotent (migration 0002).
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import * as z from 'zod'
 import type { IngestedJob } from '@/lib/services/ats/types'
 
 const TABLE = 'jobs'
+
+// Search term is bounded before it reaches the .or() filter: a pathological multi-KB string
+// would build a huge ILIKE pattern for no benefit.
+const MAX_Q_LEN = 100
+
+// Jobs come from external ATS feeds and are stored as-is, so a row read back is untrusted input.
+// Re-validate the shape (and bound the JD body) at the read boundary before it flows into the
+// packet pipeline — never assume the DB still holds what ingestion put there.
+const JD_MAX_LEN = 60_000
+const JobJdRowSchema = z.object({
+  id: z.string(),
+  title: z.string().nullable().optional(),
+  company: z.string().nullable().optional(),
+  jd_raw: z.string().max(JD_MAX_LEN).nullable().optional(),
+})
 
 export function isJobStoreConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
@@ -92,10 +108,13 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
       .select('id, source, title, company, location, url')
       .eq('status', 'live')
 
-    const term = q?.trim()
+    const term = q?.trim().slice(0, MAX_Q_LEN)
     if (term) {
-      // Escape PostgREST/ILIKE wildcards and the comma that delimits .or() filters.
-      const safe = term.replace(/[%,()]/g, ' ')
+      // Neutralize every character with meaning inside a PostgREST .or() ILIKE filter: the
+      // comma/parens that delimit and group filters, the % and _ LIKE wildcards, the * URL
+      // wildcard, and the \ and " used for escaping/quoting. Replace with spaces so the term
+      // matches literally and can't break out of the pattern.
+      const safe = term.replace(/[%_*,()\\"]/g, ' ')
       query = query.or(`title.ilike.%${safe}%,company.ilike.%${safe}%`)
     }
 
@@ -122,11 +141,13 @@ export async function getJobJd(id: string): Promise<{ id: string; title: string;
       .maybeSingle()
     if (error) throw error
     if (!data) return null
+    // Re-validate the stored row before trusting it downstream.
+    const row = JobJdRowSchema.parse(data)
     return {
-      id: data.id as string,
-      title: (data.title as string) ?? '',
-      company: (data.company as string) ?? '',
-      jdText: (data.jd_raw as string) ?? '',
+      id: row.id,
+      title: row.title ?? '',
+      company: row.company ?? '',
+      jdText: row.jd_raw ?? '',
     }
   })
 }
