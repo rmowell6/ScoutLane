@@ -50,8 +50,16 @@ describe('toResumeContent', () => {
 describe('toCoverLetterContent', () => {
   test('splits the cover letter into paragraphs and addresses the company', () => {
     const cl = toCoverLetterContent(profile, tailored, jobReqs, 'June 27, 2026')
-    expect(cl.greeting).toBe('Dear Acme Hiring Team,')
-    expect(cl.body).toEqual(['Para one.', 'Para two about Azure.'])
+    expect(cl.salutation).toBe('Dear Acme Hiring Team,')
+    expect(cl.reLine).toBe('Re: Senior Cloud Engineer')
+    expect(cl.paragraphs).toEqual(['Para one.', 'Para two about Azure.'])
+    expect(cl.candidate.name).toBe('Ryan Mowell')
     expect(cl.date).toBe('June 27, 2026')
+  })
+
+  test('strips em dashes from JD-derived fields so the cover letter never trips assertNoEmDash', () => {
+    const cl = toCoverLetterContent(profile, tailored, { title: 'Lead — Cloud', company: 'A — B', mustHave: [], niceToHave: [] }, 'x')
+    expect(cl.reLine.includes('—')).toBe(false)
+    expect(cl.salutation.includes('—')).toBe(false)
   })
 })

@@ -28,13 +28,20 @@ const sampleResume: ResumeContent = {
 }
 
 const sampleCover: CoverLetterContent = {
-  name: 'Ryan Mowell',
-  tagline: 'Senior Cloud Engineer',
-  contact: sampleResume.contact,
+  candidate: {
+    name: 'Ryan Mowell',
+    tagline: 'Senior Cloud Engineer',
+    location: sampleResume.contact.location,
+    phone: sampleResume.contact.phone,
+    email: sampleResume.contact.email,
+  },
   date: 'June 26, 2026',
-  greeting: 'Dear Hiring Team,',
-  body: ['I am excited to apply for the role.', 'My Azure background fits the work you described.'],
+  recipient: 'Acme, Inc.',
+  reLine: 'Re: Senior Cloud Engineer',
+  salutation: 'Dear Hiring Team,',
+  paragraphs: ['I am excited to apply for the role.', 'My Azure background fits the work you described.'],
   closing: 'Sincerely,',
+  signature: 'Ryan Mowell',
 }
 
 /** OOXML .docx files are ZIP archives — they start with the "PK" local-file-header magic. */

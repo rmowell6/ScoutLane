@@ -50,6 +50,11 @@ export function toResumeContent(
   }
 }
 
+/** Strip em dashes so the cover letter's assertNoEmDash never trips on JD-derived text. */
+function noEmDash(s: string): string {
+  return s.replace(/\s*—\s*/g, ', ')
+}
+
 export function toCoverLetterContent(
   profile: Profile,
   tailored: TailoredContent,
@@ -57,18 +62,28 @@ export function toCoverLetterContent(
   date: string,
 ): CoverLetterContent {
   // Split the tailored cover letter into paragraphs on blank lines (fall back to one block).
-  const body = tailored.coverLetter
+  const paragraphs = tailored.coverLetter
     .split(/\n\s*\n/)
     .map((p) => p.replace(/\s+/g, ' ').trim())
     .filter(Boolean)
 
+  const contact = profile.contact ?? FALLBACK_CONTACT
+  const title = jobReqs.title ?? 'Candidate'
+
   return {
-    name: profile.name,
-    tagline: jobReqs.title ?? 'Candidate',
-    contact: profile.contact ?? FALLBACK_CONTACT,
+    candidate: {
+      name: profile.name,
+      tagline: title,
+      location: contact.location,
+      phone: contact.phone,
+      email: contact.email,
+    },
     date,
-    greeting: jobReqs.company ? `Dear ${jobReqs.company} Hiring Team,` : 'Dear Hiring Team,',
-    body: body.length > 0 ? body : ['Please find my application enclosed.'],
+    recipient: jobReqs.company ? noEmDash(jobReqs.company) : '',
+    reLine: jobReqs.title ? `Re: ${noEmDash(jobReqs.title)}` : '',
+    salutation: jobReqs.company ? `Dear ${noEmDash(jobReqs.company)} Hiring Team,` : 'Dear Hiring Team,',
+    paragraphs: paragraphs.length > 0 ? paragraphs : ['Please find my application enclosed.'],
     closing: 'Sincerely,',
+    signature: profile.name,
   }
 }
