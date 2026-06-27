@@ -92,6 +92,26 @@ describe('listJobs', () => {
     expect(filter).not.toContain('(c++)')
   })
 
+  test('neutralizes every .or()/ILIKE metacharacter', async () => {
+    state.result = { data: [], error: null, count: null }
+    await listJobs({ q: 'a%b_c*d,e(f)g\\h"i' })
+    const filter = String(findCall('or')?.[1])
+    // capture just the user-supplied term inside the title ILIKE pattern
+    const term = /title\.ilike\.%(.*?)%,company/.exec(filter)?.[1] ?? ''
+    expect(term).toBe('a b c d e f g h i') // every metachar collapsed to a space
+    for (const ch of ['%', '_', '*', ',', '(', ')', '\\', '"']) {
+      expect(term).not.toContain(ch)
+    }
+  })
+
+  test('caps an overlong search term', async () => {
+    state.result = { data: [], error: null, count: null }
+    await listJobs({ q: 'x'.repeat(5000) })
+    const filter = String(findCall('or')?.[1])
+    // 100-char cap applied to each ILIKE side (plus the fixed wrapper text)
+    expect(filter.length).toBeLessThan(260)
+  })
+
   test('surfaces a DB error tagged with step "list"', async () => {
     state.result = { data: null, error: new Error('boom'), count: null }
     await expect(listJobs()).rejects.toMatchObject({ name: 'JobStoreError', step: 'list' })
@@ -132,5 +152,15 @@ describe('getJobJd', () => {
   test('returns null when not found', async () => {
     state.result = { data: null, error: null, count: null }
     expect(await getJobJd('missing')).toBeNull()
+  })
+
+  test('coerces null title/company/jd_raw to empty strings', async () => {
+    state.result = { data: { id: 'j1', title: null, company: null, jd_raw: null }, error: null, count: null }
+    expect(await getJobJd('j1')).toEqual({ id: 'j1', title: '', company: '', jdText: '' })
+  })
+
+  test('rejects a stored row whose shape is invalid (id missing)', async () => {
+    state.result = { data: { title: 'SRE', jd_raw: 'x' }, error: null, count: null }
+    await expect(getJobJd('j1')).rejects.toMatchObject({ name: 'JobStoreError', step: 'get' })
   })
 })

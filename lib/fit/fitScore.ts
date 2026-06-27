@@ -119,6 +119,11 @@ const CROSS_LANE_CAP = 6
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n))
 const round1 = (n: number) => Math.round(n * 10) / 10
 
+// Thousands separators WITHOUT toLocaleString: the engine must be reproducible on any machine,
+// and Intl/ICU output can vary by Node build (a minimal-ICU runtime would emit "215000", breaking
+// golden parity). Operates on the integer part only; comp values are whole USD amounts.
+const withThousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
 export interface CoverageResult {
   score: number
   full: number
@@ -160,7 +165,7 @@ export function scoreComp(compTopUsd: number | null, targetTopUsd: number): { sc
   else score = 45
   return {
     score,
-    note: `Posted top $${compTopUsd.toLocaleString('en-US')} vs target $${targetTopUsd.toLocaleString('en-US')} (ratio ${r.toFixed(2)}).`,
+    note: `Posted top $${withThousands(compTopUsd)} vs target $${withThousands(targetTopUsd)} (ratio ${r.toFixed(2)}).`,
   }
 }
 
