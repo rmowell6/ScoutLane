@@ -4,7 +4,7 @@
 // deterministic FitResult + tailored content — no scoring logic here. Semantics per the spec:
 // one <h1>, sections labelled by their <h2>, role="meter" for the gauge and sub-score bars (never
 // progressbar), status conveyed by text + icon (never color alone), WCAG 2.2 AA tokens.
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
 
@@ -64,25 +64,32 @@ function statusLabel(status: Status): string {
 
 function Meter({ d }: { d: FitDimension }) {
   const status = meterStatus(d.score)
+  // The role="meter" sits on the bar itself, not the wrapper: a meter is a leaf role, so prose
+  // placed inside it (the note) isn't reliably exposed. Keep the note a sibling and wire it in via
+  // aria-describedby so screen readers announce "<label>: N of 100" plus the explanation.
+  const noteId = `meter-note-${d.key}`
   return (
-    <div
-      className={`meter ${status}`}
-      role="meter"
-      aria-valuenow={d.score}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label={`${d.label}: ${d.score} of 100`}
-    >
+    <div className={`meter ${status}`}>
       <div className="meter__top">
         <span className="meter__label">{d.label}</span>
         <span className="meter__val" aria-hidden="true">
           {d.score}
         </span>
       </div>
-      <div className="meter__track" aria-hidden="true">
+      <div
+        className="meter__track"
+        role="meter"
+        aria-valuenow={d.score}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${d.label}: ${d.score} of 100`}
+        aria-describedby={noteId}
+      >
         <div className="meter__fill" style={{ '--value': d.score } as VarStyle} />
       </div>
-      <p className="meter__note">{d.note}</p>
+      <p className="meter__note" id={noteId}>
+        {d.note}
+      </p>
     </div>
   )
 }
@@ -114,7 +121,9 @@ function downloadDoc(doc: DocumentRef) {
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
     const url = URL.createObjectURL(new Blob([bytes], { type: DOCX_MIME }))
     trigger(url)
-    setTimeout(() => URL.revokeObjectURL(url), 0)
+    // Revoking on a 0ms timer can race the browser's own fetch of the blob and abort the download
+    // (notably in Firefox). Hold the URL for a comfortable window — the docx is a few KB — then free it.
+    setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
 }
 
@@ -170,17 +179,29 @@ export default function PacketView({ packet }: { packet: Packet }) {
     return { skill, status }
   })
 
+  // Move focus to the packet heading once it renders, so keyboard/screen-reader users land on the
+  // result instead of staying on the submit button above. tabIndex=-1 makes the heading focusable
+  // without adding it to the tab order.
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
+
   return (
-    <div className="packet">
+    // A <section>, not a nested <main>: the page already owns the single main landmark, and the
+    // packet's top heading is an <h2> under the page <h1>. Labelled by that heading.
+    <section className="packet" aria-labelledby="pk-title">
       <header className="topbar">
         <p className="kicker">ScoutLane · Application Packet</p>
-        <h1>{heading}</h1>
+        <h2 id="pk-title" tabIndex={-1} ref={headingRef}>
+          {heading}
+        </h2>
         <p className="gen">Assembled from your structured history · tailored to your ATS-safe template</p>
       </header>
 
-      <main>
+      <div className="packet__body">
         <section className="card" aria-labelledby="pk-role">
-          <h2 id="pk-role">Role</h2>
+          <h3 id="pk-role">Role</h3>
           {pills.length > 0 && (
             <ul className="pill-row">
               {pills.map((p) => (
@@ -196,7 +217,7 @@ export default function PacketView({ packet }: { packet: Packet }) {
         </section>
 
         <section className="card" aria-labelledby="pk-fit">
-          <h2 id="pk-fit">Fit assessment</h2>
+          <h3 id="pk-fit">Fit assessment</h3>
           <div className="gauge-row">
             <div
               className="gauge"
@@ -228,7 +249,7 @@ export default function PacketView({ packet }: { packet: Packet }) {
         {(strengths.length > 0 || risks.length > 0) && (
           <div className="grid-2">
             <section className="card" aria-labelledby="pk-why">
-              <h2 id="pk-why">Why you fit</h2>
+              <h3 id="pk-why">Why you fit</h3>
               {strengths.length > 0 ? (
                 <ul className="tight">
                   {strengths.map((d) => (
@@ -242,7 +263,7 @@ export default function PacketView({ packet }: { packet: Packet }) {
               )}
             </section>
             <section className="card" aria-labelledby="pk-watch">
-              <h2 id="pk-watch">Watch-outs</h2>
+              <h3 id="pk-watch">Watch-outs</h3>
               {risks.length > 0 || fit.hardGaps.length > 0 ? (
                 <ul className="tight">
                   {risks.map((d) => (
@@ -265,7 +286,7 @@ export default function PacketView({ packet }: { packet: Packet }) {
 
         {coverage.length > 0 && (
           <section className="card" aria-labelledby="pk-kw">
-            <h2 id="pk-kw">Keyword &amp; ATS coverage</h2>
+            <h3 id="pk-kw">Keyword &amp; ATS coverage</h3>
             <table className="data-table" aria-labelledby="pk-kw">
               <thead>
                 <tr>
@@ -301,7 +322,7 @@ export default function PacketView({ packet }: { packet: Packet }) {
         )}
 
         <section className="card" aria-labelledby="pk-docs">
-          <h2 id="pk-docs">Documents &amp; checks</h2>
+          <h3 id="pk-docs">Documents &amp; checks</h3>
           <ul className="pill-row" aria-label="Guardrail checks">
             <li>
               <span className={`badge ${guardrails.noFabrication.ok ? 'is-pass' : 'is-fail'}`}>
@@ -343,18 +364,18 @@ export default function PacketView({ packet }: { packet: Packet }) {
         </section>
 
         <section className="card" aria-labelledby="pk-next">
-          <h2 id="pk-next">Next steps</h2>
+          <h3 id="pk-next">Next steps</h3>
           <ol className="steps">
             <li>Skim the tailored resume and cover letter for anything you&apos;d phrase differently.</li>
             <li>Apply through the validated posting, not an aggregator, so you land in their ATS directly.</li>
             <li>Lead with your strongest dimension above — it&apos;s your sharpest differentiator.</li>
           </ol>
         </section>
-      </main>
+      </div>
 
       <footer>
         <p className="foot">ScoutLane · validated fit → tailored, truthful, ATS-safe documents.</p>
       </footer>
-    </div>
+    </section>
   )
 }
