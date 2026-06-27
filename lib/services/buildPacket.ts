@@ -94,18 +94,43 @@ async function generateDocuments(
   }
 }
 
+/** Carries which pipeline step failed, so the route can report it without log-diving. */
+export class PacketError extends Error {
+  constructor(
+    readonly step: string,
+    override readonly cause: unknown,
+  ) {
+    super(`packet step '${step}' failed: ${cause instanceof Error ? cause.message : String(cause)}`)
+    this.name = 'PacketError'
+  }
+}
+
+/** Tag any thrown error with the step name, and log every step's outcome + duration. */
+async function runStep<T>(step: string, fn: () => Promise<T>): Promise<T> {
+  const start = Date.now()
+  try {
+    const result = await fn()
+    console.log(`[packet] step ok: ${step} (${Date.now() - start}ms)`)
+    return result
+  } catch (err) {
+    console.error(`[packet] step failed: ${step} (${Date.now() - start}ms)`, err)
+    throw new PacketError(step, err)
+  }
+}
+
 /**
  * Run the hero pipeline end to end. `guardrails.ok` is the ship/block signal: a failed
  * no-fabrication check must NOT ship — documents stay null and the route returns it for
- * regeneration or human review (Engineering Plan §6).
+ * regeneration or human review (Engineering Plan §6). Each step is tagged so a failure
+ * surfaces which stage broke (PacketError.step).
  */
 export async function buildPacket(input: PacketInput): Promise<Packet> {
-  const profile = await structureResume(input.resumeText)
-  const jobReqs = await parseJob(input.jdText)
+  const profile = await runStep('structureResume', () => structureResume(input.resumeText))
+  const jobReqs = await runStep('parseJob', () => parseJob(input.jdText))
 
   const [fit, tailored] = await Promise.all([
-    scoreFit(profile, jobReqs),
-    tailorResume(profile, jobReqs),
+    runStep('scoreFit', () => scoreFit(profile, jobReqs)),
+    runStep('tailorResume', () => tailorResume(profile, jobReqs)),
   ])
 
   const guardrails = runGuardrails(tailored, profile, {
@@ -114,7 +139,9 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   })
 
   const documents = guardrails.ok
-    ? await generateDocuments(profile, tailored, jobReqs, input.date ?? todayString())
+    ? await runStep('generateDocuments', () =>
+        generateDocuments(profile, tailored, jobReqs, input.date ?? todayString()),
+      )
     : null
 
   return { profile, jobReqs, fit, tailored, guardrails, documents }

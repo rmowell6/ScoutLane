@@ -38,7 +38,13 @@ export function indexFacts(profile: Profile): FactIndex {
 
 /** A claim is traceable iff it names a factId that exists in the index. */
 export function traceable(claim: Claim, index: FactIndex): boolean {
-  return claim.factId !== null && index.byId.has(claim.factId)
+  // Primary: the claim cites a real fact id.
+  if (claim.factId !== null && index.byId.has(claim.factId)) return true
+  // Fallback: the claim verbatim-restates a real fact (the model paraphrased the id wrong or
+  // left it null but did not fabricate). Kept strict — a near-exact substring of a source fact,
+  // length-gated so trivial fragments can't match. Paraphrases still fail, as they should.
+  const t = normalize(claim.text)
+  return t.length >= 12 && index.texts.some((fact) => fact.includes(t))
 }
 
 // ---- individual checks -----------------------------------------------------------
@@ -106,7 +112,9 @@ export function checkStyle(text: string, options: StyleOptions = {}): StyleResul
   const { allowEmDash = false } = options
   const violations: string[] = []
   if (!allowEmDash && text.includes('—')) violations.push('contains em dash (—)')
-  if (/\s{2,}/.test(text)) violations.push('contains repeated whitespace')
+  // Flag repeated *spaces* within a line only — newlines and blank-line paragraph breaks are
+  // intentional (cover letters), so they must not trip this check.
+  if (/ {2,}/.test(text)) violations.push('contains repeated spaces')
   return { ok: violations.length === 0, violations }
 }
 

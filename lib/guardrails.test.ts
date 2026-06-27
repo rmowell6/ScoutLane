@@ -71,6 +71,12 @@ describe('checkNoFabrication', () => {
     })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
   })
+
+  test('accepts a claim that verbatim-restates a fact even with a wrong/null factId', () => {
+    // The model cited null but the text is an exact restatement of a real bullet — not fabricated.
+    const tailored = makeTailored({ claims: [{ text: 'Migrated 40 VMs to Azure', factId: null }] })
+    expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
+  })
 })
 
 describe('checkBannedTerms', () => {
@@ -95,6 +101,14 @@ describe('checkStyle', () => {
 
   test('passes clean prose', () => {
     expect(checkStyle('I led the team and shipped.').ok).toBe(true)
+  })
+
+  test('flags repeated spaces within a line', () => {
+    expect(checkStyle('I led  the team.').ok).toBe(false)
+  })
+
+  test('does NOT flag newlines or blank-line paragraph breaks', () => {
+    expect(checkStyle('First paragraph.\n\nSecond paragraph.').ok).toBe(true)
   })
 })
 
