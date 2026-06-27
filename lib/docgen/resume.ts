@@ -201,44 +201,69 @@ function headerBlock(content: ResumeContent): Paragraph[] {
 }
 
 export async function buildResumeDocx(content: ResumeContent): Promise<Buffer> {
-  const children: Paragraph[] = [
-    ...headerBlock(content),
+  // Build sections conditionally: a section's header is rendered ONLY when it has content, so an
+  // empty "Earlier Experience" or "Certifications" never leaves a dangling heading (wasted space).
+  const children: Paragraph[] = [...headerBlock(content)]
 
-    sectionHeader('Summary'),
-    new Paragraph({
-      spacing: { before: 70, after: 50, line: 284 },
-      children: [new TextRun({ text: content.summary, font: SANS, size: 21, color: INK })],
-    }),
+  if (content.summary.trim()) {
+    children.push(
+      sectionHeader('Summary'),
+      new Paragraph({
+        spacing: { before: 70, after: 50, line: 284 },
+        children: [new TextRun({ text: content.summary, font: SANS, size: 21, color: INK })],
+      }),
+    )
+  }
 
-    sectionHeader('Technical Skills'),
-    ...content.skillCategories.map((s) => skillLine(s.label, s.items)),
+  if (content.skillCategories.length > 0) {
+    children.push(
+      sectionHeader('Technical Skills'),
+      ...content.skillCategories.map((s) => skillLine(s.label, s.items)),
+    )
+  }
 
-    sectionHeader('Professional Experience'),
-    ...content.experience.flatMap((e) => [
-      jobHeader(e.company, e.dates),
-      jobTitle(e.title),
-      jobContext(e.context),
-      ...e.bullets.map(bullet),
-    ]),
+  if (content.experience.length > 0) {
+    children.push(
+      sectionHeader('Professional Experience'),
+      ...content.experience.flatMap((e) => [
+        jobHeader(e.company, e.dates),
+        jobTitle(e.title),
+        jobContext(e.context),
+        ...e.bullets.map(bullet),
+      ]),
+    )
+  }
 
-    sectionHeader('Earlier Experience'),
-    ...content.earlier.map((e) => earlierLine(e.company, e.role, e.detail)),
+  if (content.earlier.length > 0) {
+    children.push(
+      sectionHeader('Earlier Experience'),
+      ...content.earlier.map((e) => earlierLine(e.company, e.role, e.detail)),
+    )
+  }
 
-    sectionHeader('Certifications'),
-    certSub('Active'),
-    ...content.certs.active.map((c) => certItem(c.name, c.note)),
-    certSub('Previously Held'),
-    ...content.certs.previouslyHeld.map((c) => certItem(c.name, c.note)),
+  if (content.certs.active.length > 0 || content.certs.previouslyHeld.length > 0) {
+    children.push(sectionHeader('Certifications'))
+    if (content.certs.active.length > 0) {
+      children.push(certSub('Active'), ...content.certs.active.map((c) => certItem(c.name, c.note)))
+    }
+    if (content.certs.previouslyHeld.length > 0) {
+      children.push(certSub('Previously Held'), ...content.certs.previouslyHeld.map((c) => certItem(c.name, c.note)))
+    }
+  }
 
-    sectionHeader('Education'),
-    ...content.education.map((e) => eduLine(e.school, e.detail)),
+  if (content.education.length > 0) {
+    children.push(sectionHeader('Education'), ...content.education.map((e) => eduLine(e.school, e.detail)))
+  }
 
-    new Paragraph({
-      spacing: { before: 170, after: 0 },
-      alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: content.authLine, font: SANS, italics: true, size: 18, color: SLATE })],
-    }),
-  ]
+  if (content.authLine.trim()) {
+    children.push(
+      new Paragraph({
+        spacing: { before: 170, after: 0 },
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: content.authLine, font: SANS, italics: true, size: 18, color: SLATE })],
+      }),
+    )
+  }
 
   const doc = new Document({
     creator: content.name,

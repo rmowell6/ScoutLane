@@ -63,6 +63,20 @@ describe('toCoverLetterContent', () => {
     expect(cl.reLine.includes('—')).toBe(false)
     expect(cl.salutation.includes('—')).toBe(false)
   })
+
+  test('strips a model-supplied salutation, closing, [Your Name] placeholder, and signature', () => {
+    const withScaffolding: TailoredContent = {
+      ...tailored,
+      coverLetter:
+        'Dear Acme Hiring Team,\n\nI bring Azure depth.\n\nThank you for your consideration.\n\nSincerely, [Your Name]\n\nRyan Mowell',
+    }
+    const cl = toCoverLetterContent(profile, withScaffolding, jobReqs, 'June 27, 2026')
+    expect(cl.paragraphs).toEqual(['I bring Azure depth.', 'Thank you for your consideration.'])
+    // The template still supplies exactly one salutation, closing, and signature.
+    expect(cl.salutation).toBe('Dear Acme Hiring Team,')
+    expect(cl.closing).toBe('Sincerely,')
+    expect(cl.signature).toBe('Ryan Mowell')
+  })
 })
 
 describe('toFitAssessmentContent', () => {

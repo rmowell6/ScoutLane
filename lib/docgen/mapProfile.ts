@@ -78,17 +78,41 @@ function noEmDash(s: string): string {
   return s.replace(/\s*—\s*/g, ', ')
 }
 
+const CLOSING_RE = /^(sincerely|best regards|warm regards|kind regards|best|regards|respectfully|cordially|yours (truly|sincerely))\b/i
+
+/**
+ * Drop scaffolding the model sometimes emits despite instructions — a leading "Dear …"
+ * salutation, a closing sign-off line ("Sincerely, …"), a "[Your Name]" placeholder, or a bare
+ * signature line. The template supplies its own salutation/closing/signature, so leaving these
+ * in would duplicate the closing.
+ */
+function stripLetterScaffolding(paragraphs: string[], name: string): string[] {
+  const normName = name.toLowerCase().trim()
+  return paragraphs.filter((p) => {
+    if (/^dear\b/i.test(p)) return false
+    if (CLOSING_RE.test(p)) return false
+    if (/\[your name\]/i.test(p)) return false
+    if (p.toLowerCase().trim() === normName) return false
+    return true
+  })
+}
+
 export function toCoverLetterContent(
   profile: Profile,
   tailored: TailoredContent,
   jobReqs: JobReqs,
   date: string,
 ): CoverLetterContent {
-  // Split the tailored cover letter into paragraphs on blank lines (fall back to one block).
-  const paragraphs = tailored.coverLetter
-    .split(/\n\s*\n/)
-    .map((p) => p.replace(/\s+/g, ' ').trim())
-    .filter(Boolean)
+  // Split the tailored cover letter into paragraphs on blank lines (fall back to one block),
+  // then strip any salutation/closing/signature the model included so the template's own
+  // closing isn't duplicated.
+  const paragraphs = stripLetterScaffolding(
+    tailored.coverLetter
+      .split(/\n\s*\n/)
+      .map((p) => p.replace(/\s+/g, ' ').trim())
+      .filter(Boolean),
+    profile.name,
+  )
 
   const contact = profile.contact ?? FALLBACK_CONTACT
   const title = jobReqs.title ?? 'Candidate'
