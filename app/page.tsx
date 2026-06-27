@@ -34,6 +34,12 @@ interface PooledJob {
   url: string
 }
 
+/** A discovered role from /api/discover — a pooled job plus Claude's similarity verdict. */
+interface SuggestedRole extends PooledJob {
+  score: number
+  reason: string
+}
+
 type JdMode = 'paste' | 'pick'
 
 const SAMPLE_RESUME =
@@ -65,6 +71,10 @@ export default function Home() {
   const [jobsLoading, setJobsLoading] = useState(false)
   const [jobsNote, setJobsNote] = useState<string | null>(null)
   const [selectedJob, setSelectedJob] = useState<PooledJob | null>(null)
+  // Role discovery: similar roles found from the candidate's experience (lexical pre-filter + rerank).
+  const [suggested, setSuggested] = useState<SuggestedRole[]>([])
+  const [discovering, setDiscovering] = useState(false)
+  const [discoverNote, setDiscoverNote] = useState<string | null>(null)
   // Candidate preferences (feed the deterministic fit engine). Target comp + lanes are primary.
   const [targetComp, setTargetComp] = useState('')
   const [targetLanes, setTargetLanes] = useState('')
@@ -177,6 +187,35 @@ export default function Home() {
       noGoLocations,
       ...(workMode ? { workMode } : {}),
       ...(employerPref ? { employerTypePreference: employerPref } : {}),
+    }
+  }
+
+  /** Find similar roles from the candidate's experience (title-variant aware). Needs a resume. */
+  async function suggestRoles() {
+    setDiscovering(true)
+    setDiscoverNote(null)
+    try {
+      const resumePart = reuseActive ? { profileId: saved.id } : { resumeText }
+      const preferences = buildPreferences()
+      const res = await fetch('/api/discover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...resumePart, ...(preferences ? { preferences } : {}) }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setDiscoverNote((data?.message as string) ?? (data?.error as string) ?? `Discovery failed (${res.status})`)
+        setSuggested([])
+        return
+      }
+      const roles = (data as { roles: SuggestedRole[] }).roles
+      setSuggested(roles)
+      if (roles.length === 0) setDiscoverNote('No similar roles found in the pool yet.')
+    } catch (err) {
+      setDiscoverNote(err instanceof Error ? err.message : 'Discovery failed')
+      setSuggested([])
+    } finally {
+      setDiscovering(false)
     }
   }
 
@@ -326,6 +365,53 @@ export default function Home() {
                     aria-label="Search roles by title or company"
                     aria-controls="job-results"
                   />
+
+                  <div className={styles.suggestRow}>
+                    <button
+                      type="button"
+                      className={styles.secondary}
+                      onClick={suggestRoles}
+                      disabled={discovering || resumeText.trim().length === 0}
+                      title="Find pool roles similar to your experience, including ones with different titles"
+                    >
+                      {discovering ? 'Finding similar roles…' : '✨ Suggest roles from my experience'}
+                    </button>
+                    {resumeText.trim().length === 0 && (
+                      <span className={styles.jobSub}>Add your resume first.</span>
+                    )}
+                  </div>
+                  <p className={styles.srOnly} role="status">
+                    {discovering
+                      ? 'Finding roles similar to your experience…'
+                      : suggested.length > 0
+                        ? `${suggested.length} similar role${suggested.length === 1 ? '' : 's'} found`
+                        : ''}
+                  </p>
+                  {discoverNote && <span className={styles.jobMeta}>{discoverNote}</span>}
+                  {suggested.length > 0 && (
+                    <ul className={styles.jobList} aria-label="Suggested roles from your experience">
+                      {suggested.map((job) => (
+                        <li key={`sug-${job.id}`}>
+                          <button
+                            type="button"
+                            className={selectedJob?.id === job.id ? styles.jobItemOn : styles.jobItem}
+                            onClick={() => setSelectedJob(job)}
+                            aria-pressed={selectedJob?.id === job.id}
+                          >
+                            <span className={styles.jobTitle}>
+                              <span className={styles.suggestScore}>{job.score}</span> {job.title}
+                            </span>
+                            <span className={styles.jobSub}>
+                              {job.company}
+                              {job.location ? ` · ${job.location}` : ''}
+                            </span>
+                            <span className={styles.suggestReason}>{job.reason}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
                   {selectedJob && (
                     <div className={styles.selectedJob}>
                       <span>
