@@ -1,0 +1,243 @@
+{
+  "version": "1.0.0",
+  "generatedBy": "fit_score.js",
+  "note": "Cross-implementation parity contract. assessFit(input) MUST deep-equal expected for each case.",
+  "cases": [
+    {
+      "name": "Jack Henry — Infrastructure Engineering Manager (stretch)",
+      "input": {
+        "roleId": "jack-henry-infra-eng-mgr",
+        "title": "Infrastructure Engineering Manager",
+        "roleTypeMatch": "solid",
+        "mustHaveSkills": [
+          "azure",
+          "networking",
+          "storage",
+          "infrastructure as code",
+          "people management"
+        ],
+        "candidateSkills": [
+          "azure",
+          "networking",
+          "storage",
+          "compliance",
+          "vmware"
+        ],
+        "adjacentSkills": [
+          "infrastructure as code"
+        ],
+        "seniorityMatch": "step_up",
+        "compTopUsd": 215000,
+        "targetCompTopUsd": 170000,
+        "employerType": "direct",
+        "location": "remote_us",
+        "locationFlags": {
+          "travelModerate": true
+        },
+        "vertical": "match",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 82,
+        "band": "Strong fit",
+        "base": 81.7,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 80,
+            "note": "Target-title fit: solid."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 70,
+            "note": "3 of 5 must-haves matched, 1 partial."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 55,
+            "note": "Level fit: step_up."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 100,
+            "note": "Posted top $215,000 vs target $170,000 (ratio 1.26)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 100,
+            "note": "Employer type: direct."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 92,
+            "note": "remote_us (−some travel)."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 90,
+            "note": "Vertical: match."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cox / RapidScale — Senior or Lead VMware Engineer (bullseye)",
+      "input": {
+        "roleId": "rapidscale-vmware-engineer",
+        "title": "Senior or Lead VMware Engineer",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "vsphere/esxi",
+          "cisco ucs",
+          "enterprise storage",
+          "backup/dr",
+          "nsx"
+        ],
+        "candidateSkills": [
+          "vsphere/esxi",
+          "cisco ucs",
+          "enterprise storage",
+          "backup/dr",
+          "azure",
+          "powershell"
+        ],
+        "adjacentSkills": [
+          "nsx"
+        ],
+        "seniorityMatch": "exact",
+        "compTopUsd": 169100,
+        "targetCompTopUsd": 170000,
+        "employerType": "managed_services",
+        "location": "hybrid_confirm",
+        "locationFlags": {
+          "onCall": true,
+          "travelModerate": true
+        },
+        "vertical": "adjacent",
+        "requiredCerts": [
+          "vcp-dcv",
+          "vcp-nv",
+          "vcp-dtm"
+        ],
+        "heldCerts": [
+          "vcp-dcv",
+          "vcp-nv",
+          "vcp-dtm"
+        ],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 2
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 88,
+        "band": "Best fit",
+        "base": 86.2,
+        "bonus": 2,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 90,
+            "note": "4 of 5 must-haves matched, 1 partial."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 85,
+            "note": "Posted top $169,100 vs target $170,000 (ratio 0.99)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 70,
+            "note": "Employer type: managed_services."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 61,
+            "note": "hybrid_confirm (−on-call, −some travel)."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 70,
+            "note": "Vertical: adjacent."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 100,
+            "note": "3 of 3 required certs held."
+          }
+        ]
+      }
+    }
+  ]
+}
