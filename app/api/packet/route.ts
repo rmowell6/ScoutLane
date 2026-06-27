@@ -3,7 +3,7 @@
 // pinned now so the contract is stable.
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
-import { buildPacket } from '@/lib/services/buildPacket'
+import { buildPacket, PacketError } from '@/lib/services/buildPacket'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // seconds; Fluid Compute allows more, raise if needed
@@ -37,7 +37,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(packet, { status: 200 })
   } catch (err) {
-    console.error('[packet] generation failed', err) // log server-side
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 }) // generic to client
+    // Surface which pipeline step failed + its message. Step names and error messages here
+    // are diagnostics, not secrets (API keys never appear in them). Tighten before public launch.
+    const step = err instanceof PacketError ? err.step : null
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[packet] generation failed', step ?? '', err)
+    return NextResponse.json(
+      { error: 'Internal Server Error', step, message },
+      { status: 500 },
+    )
   }
 }

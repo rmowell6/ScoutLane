@@ -27,6 +27,7 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 - **LLM steps that return data use structured outputs**: `anthropic.messages.parse({ output_config: { format: zodOutputFormat(Schema) } })`, then read `message.parsed_output`. Never hand-parse JSON out of text.
 - **Doc generation** (`lib/docgen/*`) runs only in routes with `export const runtime = 'nodejs'` (docx `Packer.toBuffer` needs Node `Buffer`).
 - **Guardrails run after the model**: `lib/guardrails.ts` checks no-fabrication (claims trace to profile facts), ATS-safety, and style. A failed check blocks or flags — it never ships.
+- **Error handling + logging in every step (required)**: every multi-step pipeline, service, and build process must localize failures. Wrap each step so a thrown error carries *which step failed* (see `PacketError`/`runStep` in `lib/services/buildPacket.ts`) and log each step's outcome + duration server-side (`[area] step ok/failed: <name> (<ms>)`). Route handlers map failures to HTTP and include a **safe** step identifier + message (no secrets — API keys never appear in error text). Never swallow an error silently.
 
 ## Gotchas
 - Next 16: `cookies()`, `headers()`, and route `params` are **async** — `await` them. GET route handlers are **not cached** by default.
