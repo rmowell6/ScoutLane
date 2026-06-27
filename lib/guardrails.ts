@@ -38,7 +38,13 @@ export function indexFacts(profile: Profile): FactIndex {
 
 /** A claim is traceable iff it names a factId that exists in the index. */
 export function traceable(claim: Claim, index: FactIndex): boolean {
-  return claim.factId !== null && index.byId.has(claim.factId)
+  // Primary: the claim cites a real fact id.
+  if (claim.factId !== null && index.byId.has(claim.factId)) return true
+  // Fallback: the claim verbatim-restates a real fact (the model paraphrased the id wrong or
+  // left it null but did not fabricate). Kept strict — a near-exact substring of a source fact,
+  // length-gated so trivial fragments can't match. Paraphrases still fail, as they should.
+  const t = normalize(claim.text)
+  return t.length >= 12 && index.texts.some((fact) => fact.includes(t))
 }
 
 // ---- individual checks -----------------------------------------------------------

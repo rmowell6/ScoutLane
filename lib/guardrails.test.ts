@@ -71,6 +71,12 @@ describe('checkNoFabrication', () => {
     })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
   })
+
+  test('accepts a claim that verbatim-restates a fact even with a wrong/null factId', () => {
+    // The model cited null but the text is an exact restatement of a real bullet — not fabricated.
+    const tailored = makeTailored({ claims: [{ text: 'Migrated 40 VMs to Azure', factId: null }] })
+    expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
+  })
 })
 
 describe('checkBannedTerms', () => {

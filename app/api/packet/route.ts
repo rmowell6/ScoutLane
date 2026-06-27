@@ -28,9 +28,24 @@ export async function POST(request: Request) {
     const packet = await buildPacket(parsed.data)
 
     // Never ship a failed guardrail silently — surface it for regeneration / human review.
+    // A 422 here is NOT request validation (that's 400 above); it means the generated packet
+    // failed a guardrail. Spell out exactly which check tripped and why, so it's debuggable.
     if (!packet.guardrails.ok) {
+      const g = packet.guardrails
+      const reasons: string[] = []
+      if (!g.noFabrication.ok) {
+        reasons.push(
+          `no-fabrication: ${g.noFabrication.unverifiable.length} claim(s) do not trace to a profile fact: ` +
+            g.noFabrication.unverifiable.map((c) => `"${c.text}"`).join('; '),
+        )
+      }
+      if (!g.bannedTerms.ok) reasons.push(`banned-terms: ${g.bannedTerms.violations.join(', ')}`)
+      if (!g.style.ok) reasons.push(`style: ${g.style.violations.join('; ')}`)
+      if (g.ats && !g.ats.ok) reasons.push(`ats: ${g.ats.problems.join('; ')}`)
+
+      console.error('[packet] guardrail blocked:', reasons.join(' | '))
       return NextResponse.json(
-        { error: 'Guardrail check failed', guardrails: packet.guardrails },
+        { error: 'Guardrail check failed', reasons, guardrails: g },
         { status: 422 },
       )
     }
