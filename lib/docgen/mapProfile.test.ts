@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { toCoverLetterContent, toResumeContent } from '@/lib/docgen/mapProfile'
-import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
+import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
 const profile: Profile = {
   name: 'Ryan Mowell',
@@ -61,5 +61,37 @@ describe('toCoverLetterContent', () => {
     const cl = toCoverLetterContent(profile, tailored, { title: 'Lead — Cloud', company: 'A — B', mustHave: [], niceToHave: [] }, 'x')
     expect(cl.reLine.includes('—')).toBe(false)
     expect(cl.salutation.includes('—')).toBe(false)
+  })
+})
+
+describe('toFitAssessmentContent', () => {
+  const fit: FitScore = {
+    overall: 62,
+    subs: [
+      { label: 'skills', score: 75, note: 'Strong overlap.' },
+      { label: 'experience', score: 55, note: 'Adjacent.' },
+    ],
+    reasonCodes: ['strong-domain', 'mid_seniority'],
+  }
+
+  test('derives band/recommendation, maps dimensions, and humanizes reason codes', () => {
+    const fa = toFitAssessmentContent(profile, fit, jobReqs, 'June 27, 2026')
+    expect(fa.candidateName).toBe('Ryan Mowell')
+    expect(fa.roleTitle).toBe('Senior Cloud Engineer')
+    expect(fa.company).toBe('Acme')
+    expect(fa.overall).toBe(62)
+    expect(fa.band).toBe('Solid fit')
+    expect(fa.recommendation.length).toBeGreaterThan(0)
+    expect(fa.dimensions).toEqual([
+      { label: 'skills', score: 75, note: 'Strong overlap.' },
+      { label: 'experience', score: 55, note: 'Adjacent.' },
+    ])
+    expect(fa.reasonCodes).toEqual(['Strong domain', 'Mid seniority'])
+  })
+
+  test('falls back to a generic role label when the JD has no title', () => {
+    const fa = toFitAssessmentContent(profile, fit, { mustHave: [], niceToHave: [] }, 'x')
+    expect(fa.roleTitle).toBe('Target role')
+    expect(fa.company).toBe('')
   })
 })

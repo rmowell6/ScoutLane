@@ -9,9 +9,11 @@
 //  - "Earlier Experience" is empty; the recent/earlier split needs role recency metadata.
 //  - Role context lines are omitted (the schema has no per-role context yet).
 // Everything rendered still traces to real Profile facts — the guardrail runs independently.
-import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 import type { ResumeContent } from '@/lib/docgen/resume'
 import type { CoverLetterContent } from '@/lib/docgen/coverLetter'
+import type { FitAssessmentContent } from '@/lib/docgen/fitAssessment'
+import { fitBand, humanizeCode } from '@/lib/fit'
 
 const FALLBACK_CONTACT = { location: '', phone: '', email: '' }
 
@@ -47,6 +49,26 @@ export function toResumeContent(
       detail: [e.degree, e.field, e.year].filter(Boolean).join(', '),
     })),
     authLine: 'Authorized to work in the U.S. for any employer',
+  }
+}
+
+export function toFitAssessmentContent(
+  profile: Profile,
+  fit: FitScore,
+  jobReqs: JobReqs,
+  date: string,
+): FitAssessmentContent {
+  const { band, recommendation } = fitBand(fit.overall)
+  return {
+    candidateName: profile.name,
+    roleTitle: jobReqs.title ?? 'Target role',
+    company: jobReqs.company ?? '',
+    date,
+    overall: fit.overall,
+    band,
+    recommendation,
+    dimensions: fit.subs.map((s) => ({ label: s.label, score: s.score, note: s.note })),
+    reasonCodes: fit.reasonCodes.map(humanizeCode),
   }
 }
 

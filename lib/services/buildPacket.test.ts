@@ -25,9 +25,11 @@ vi.mock('@/lib/guardrails', () => ({
 }))
 vi.mock('@/lib/docgen/resume', () => ({ buildResumeDocx: async () => Buffer.from('r') }))
 vi.mock('@/lib/docgen/coverLetter', () => ({ buildCoverLetterDocx: async () => Buffer.from('c') }))
+vi.mock('@/lib/docgen/fitAssessment', () => ({ buildFitAssessmentDocx: async () => Buffer.from('f') }))
 vi.mock('@/lib/docgen/mapProfile', () => ({
   toResumeContent: () => ({}),
   toCoverLetterContent: () => ({}),
+  toFitAssessmentContent: () => ({}),
 }))
 vi.mock('@/lib/storage', () => ({
   isStorageConfigured: () => false,
@@ -56,6 +58,9 @@ describe('buildPacket profile vs resumeText', () => {
     expect(structureResume).not.toHaveBeenCalled()
     expect(packet.profile).toEqual(PROFILE)
     expect(packet.documents?.storage).toBe('inline')
+    // The packet now ships three documents incl. the fit assessment.
+    expect(packet.documents?.fitAssessment.filename).toContain('Fit_Assessment')
+    expect(packet.documents?.fitAssessment.base64).toBeTruthy()
   })
 
   test('stateless path: raw resumeText calls structureResume', async () => {

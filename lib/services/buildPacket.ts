@@ -9,7 +9,8 @@ import { runGuardrails, type GuardrailReport } from '@/lib/guardrails'
 import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
 import { buildResumeDocx } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx } from '@/lib/docgen/coverLetter'
-import { toCoverLetterContent, toResumeContent } from '@/lib/docgen/mapProfile'
+import { buildFitAssessmentDocx } from '@/lib/docgen/fitAssessment'
+import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
 import { isStorageConfigured, uploadDocx } from '@/lib/storage'
 import type { FitScore, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
@@ -37,6 +38,7 @@ export interface PacketDocuments {
   storage: 'supabase' | 'inline'
   resume: DocumentRef
   coverLetter: DocumentRef
+  fitAssessment: DocumentRef
 }
 
 export interface Packet {
@@ -61,28 +63,33 @@ async function generateDocuments(
   profile: Profile,
   tailored: TailoredContent,
   jobReqs: JobReqs,
+  fit: FitScore,
   date: string,
 ): Promise<PacketDocuments> {
-  const [resumeBuf, coverBuf] = await Promise.all([
+  const [resumeBuf, coverBuf, fitBuf] = await Promise.all([
     buildResumeDocx(toResumeContent(profile, tailored, jobReqs)),
     buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date)),
+    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, jobReqs, date)),
   ])
 
   const base = safeName(profile.name)
   const resumeName = `${base}_Resume.docx`
   const coverName = `${base}_Cover_Letter.docx`
+  const fitName = `${base}_Fit_Assessment.docx`
 
   if (isStorageConfigured()) {
     try {
       const id = crypto.randomUUID()
-      const [r, c] = await Promise.all([
+      const [r, c, f] = await Promise.all([
         uploadDocx(resumeBuf, 'resumes', `${id}-resume`, resumeName),
         uploadDocx(coverBuf, 'cover-letters', `${id}-cover`, coverName),
+        uploadDocx(fitBuf, 'fit-assessments', `${id}-fit`, fitName),
       ])
       return {
         storage: 'supabase',
         resume: { filename: resumeName, signedUrl: r.signedUrl },
         coverLetter: { filename: coverName, signedUrl: c.signedUrl },
+        fitAssessment: { filename: fitName, signedUrl: f.signedUrl },
       }
     } catch (err) {
       // Bucket missing or transient error — fall back to inline so the packet still ships.
@@ -94,6 +101,7 @@ async function generateDocuments(
     storage: 'inline',
     resume: { filename: resumeName, base64: resumeBuf.toString('base64') },
     coverLetter: { filename: coverName, base64: coverBuf.toString('base64') },
+    fitAssessment: { filename: fitName, base64: fitBuf.toString('base64') },
   }
 }
 
@@ -149,7 +157,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
 
   const documents = guardrails.ok
     ? await runStep('generateDocuments', () =>
-        generateDocuments(profile, tailored, jobReqs, input.date ?? todayString()),
+        generateDocuments(profile, tailored, jobReqs, fit, input.date ?? todayString()),
       )
     : null
 

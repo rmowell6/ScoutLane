@@ -380,6 +380,118 @@
   flex-wrap: wrap;
 }
 
+.fitHead {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fitSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.fitBand {
+  font-size: 20px;
+  font-weight: 700;
+  color: #6ee7a0;
+}
+
+.fitRole {
+  font-size: 13px;
+  color: #8b9099;
+}
+
+.fitRecommendation {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #c4c8ce;
+}
+
+.reasonCodes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reasonChip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(176, 104, 44, 0.14);
+  color: #e0b489;
+  border: 1px solid rgba(176, 104, 44, 0.35);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid #2a2e37;
+  padding-top: 18px;
+}
+
+.previewHead {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8b9099;
+}
+
+.previewBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e8eaed;
+}
+
+.skillChips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.skillChip {
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: #1f2937;
+  border: 1px solid #2a2e37;
+  color: #c4c8ce;
+}
+
+.claimList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e8eaed;
+}
+
+.coverPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d4d8de;
+}
+
+.coverPreview p {
+  margin: 0;
+}
+
 .scoreBadge {
   display: flex;
   align-items: baseline;

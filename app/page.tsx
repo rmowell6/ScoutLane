@@ -6,6 +6,7 @@
 // This is a thin client: all generation and the no-fabrication guardrail live server-side.
 import { useEffect, useState } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
+import { fitBand, humanizeCode } from '@/lib/fit'
 import styles from './page.module.css'
 
 /** A saved profile + the resume snapshot it was structured from (for staleness detection). */
@@ -400,24 +401,48 @@ function ErrorPanel({ error }: { error: ApiError }) {
 }
 
 function PacketResult({ packet }: { packet: Packet }) {
-  const { fit, guardrails, documents } = packet
+  const { fit, tailored, jobReqs, guardrails, documents } = packet
+  const { band, recommendation } = fitBand(fit.overall)
+  const roleLine = [jobReqs.title, jobReqs.company].filter(Boolean).join('  ·  ')
+  const coverParagraphs = tailored.coverLetter
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+
   return (
     <section className={styles.panel}>
-      <div className={styles.scoreRow}>
+      {/* Fit assessment */}
+      <div className={styles.fitHead}>
         <div className={styles.scoreBadge}>
           <span className={styles.scoreNumber}>{fit.overall}</span>
           <span className={styles.scoreOutOf}>/ 100</span>
         </div>
-        <div className={styles.scoreSubs}>
-          {fit.subs.map((s) => (
-            <div key={s.label} className={styles.sub}>
-              <span className={styles.subLabel}>{s.label}</span>
-              <span className={styles.subScore}>{s.score}</span>
-              <span className={styles.subNote}>{s.note}</span>
-            </div>
-          ))}
+        <div className={styles.fitSummary}>
+          <span className={styles.fitBand}>{band}</span>
+          {roleLine && <span className={styles.fitRole}>{roleLine}</span>}
+          <p className={styles.fitRecommendation}>{recommendation}</p>
         </div>
       </div>
+
+      <div className={styles.scoreSubs}>
+        {fit.subs.map((s) => (
+          <div key={s.label} className={styles.sub}>
+            <span className={styles.subLabel}>{s.label}</span>
+            <span className={styles.subScore}>{s.score}</span>
+            <span className={styles.subNote}>{s.note}</span>
+          </div>
+        ))}
+      </div>
+
+      {fit.reasonCodes.length > 0 && (
+        <div className={styles.reasonCodes}>
+          {fit.reasonCodes.map((c) => (
+            <span key={c} className={styles.reasonChip}>
+              {humanizeCode(c)}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className={styles.guardrails}>
         <GuardrailBadge ok={guardrails.noFabrication.ok} label="No fabrication" />
@@ -426,8 +451,50 @@ function PacketResult({ packet }: { packet: Packet }) {
         {guardrails.ats && <GuardrailBadge ok={guardrails.ats.ok} label="ATS-safe" />}
       </div>
 
+      {/* Tailored content preview — every claim traces to a profile fact (guardrail enforced). */}
+      <div className={styles.preview}>
+        <h3 className={styles.previewHead}>Tailored summary</h3>
+        <p className={styles.previewBody}>{tailored.summary}</p>
+
+        {tailored.skills.length > 0 && (
+          <>
+            <h3 className={styles.previewHead}>Skills</h3>
+            <div className={styles.skillChips}>
+              {tailored.skills.map((s) => (
+                <span key={s} className={styles.skillChip}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
+
+        {tailored.claims.length > 0 && (
+          <>
+            <h3 className={styles.previewHead}>Key achievements</h3>
+            <ul className={styles.claimList}>
+              {tailored.claims.map((c, i) => (
+                <li key={i}>{c.text}</li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {coverParagraphs.length > 0 && (
+          <>
+            <h3 className={styles.previewHead}>Cover letter</h3>
+            <div className={styles.coverPreview}>
+              {coverParagraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
       {documents ? (
         <div className={styles.downloads}>
+          <DownloadButton doc={documents.fitAssessment} label="Download fit assessment (.docx)" />
           <DownloadButton doc={documents.resume} label="Download resume (.docx)" />
           <DownloadButton doc={documents.coverLetter} label="Download cover letter (.docx)" />
         </div>

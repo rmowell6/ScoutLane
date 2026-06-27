@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { buildResumeDocx, type ResumeContent } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx, type CoverLetterContent } from '@/lib/docgen/coverLetter'
+import { buildFitAssessmentDocx, type FitAssessmentContent } from '@/lib/docgen/fitAssessment'
 
 const sampleResume: ResumeContent = {
   name: 'Ryan Mowell',
@@ -57,6 +58,40 @@ describe('docgen', () => {
 
   test('buildCoverLetterDocx produces a non-trivial .docx buffer', async () => {
     const buf = await buildCoverLetterDocx(sampleCover)
+    expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('buildFitAssessmentDocx produces a non-trivial .docx buffer', async () => {
+    const content: FitAssessmentContent = {
+      candidateName: 'Ryan Mowell',
+      roleTitle: 'Senior Cloud Engineer',
+      company: 'Acme',
+      date: 'June 27, 2026',
+      overall: 62,
+      band: 'Solid fit',
+      recommendation: 'A solid match — apply, and lean into the strongest dimensions.',
+      dimensions: [
+        { label: 'skills', score: 75, note: 'Strong Azure overlap.' },
+        { label: 'experience', score: 55, note: 'Adjacent but not exact.' },
+      ],
+      reasonCodes: ['Strong domain', 'Mid seniority'],
+    }
+    const buf = await buildFitAssessmentDocx(content)
+    expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('buildFitAssessmentDocx tolerates empty dimensions and reason codes', async () => {
+    const buf = await buildFitAssessmentDocx({
+      candidateName: 'Ada',
+      roleTitle: '',
+      company: '',
+      date: 'x',
+      overall: 30,
+      band: 'Reach',
+      recommendation: 'A reach for now.',
+      dimensions: [],
+      reasonCodes: [],
+    })
     expect(isDocxBuffer(buf)).toBe(true)
   })
 })
