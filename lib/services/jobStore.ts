@@ -16,11 +16,18 @@ const MAX_Q_LEN = 100
 // Re-validate the shape (and bound the JD body) at the read boundary before it flows into the
 // packet pipeline — never assume the DB still holds what ingestion put there.
 const JD_MAX_LEN = 60_000
+// Truncate (don't reject) an oversized stored JD on read: capping with .max() would THROW, which
+// would brick an otherwise-valid job whose description was written before the write-side cap existed
+// (the ATS write path was previously unbounded). Degrade gracefully instead.
 const JobJdRowSchema = z.object({
   id: z.string(),
   title: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
-  jd_raw: z.string().max(JD_MAX_LEN).nullable().optional(),
+  jd_raw: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((s) => (s ?? '').slice(0, JD_MAX_LEN)),
 })
 
 export function isJobStoreConfigured(): boolean {
@@ -75,7 +82,9 @@ function toRow(j: IngestedJob, now: string) {
     company: j.company,
     location: j.location,
     url: j.url,
-    jd_raw: j.jdText,
+    // Bound on write like jobBoardStore does — an oversized ATS description must not produce a row
+    // that the read-side cap would otherwise have to reject.
+    jd_raw: (j.jdText ?? '').slice(0, JD_MAX_LEN),
     status: 'live',
     validated_at: now,
   }
@@ -95,18 +104,43 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
 }
 
 /**
- * Delete stale postings: rows whose `validated_at` predates `cutoffIso`. Every ingest run stamps
- * `validated_at = now` on each live posting it sees, so a row that hasn't been re-validated since the
- * cutoff is gone from every upstream feed and should leave the pool. The 14-day window (set by the
- * caller) is wide enough to ride out a transient provider outage without evicting still-live jobs.
+ * Soft-expire stale postings — REVERSIBLY — but ONLY for sources confirmed live this run. A row is
+ * flipped 'live' -> 'expired' iff (a) its `source` is in `sources` (a source ScoutLane actually
+ * re-observed successfully this run), (b) it is still 'live', and (c) its `validated_at` predates
+ * `cutoffIso`. Because every successful upsert re-stamps `validated_at = now` AND `status = 'live'`,
+ * a posting that reappears later automatically un-expires. This is the safe replacement for an
+ * unconditional DELETE: a provider/leg that failed this run is NOT in `sources`, so its still-live
+ * rows can never be aged out by a run that never actually saw that source (no silent data loss).
  * Rows with a null `validated_at` (e.g. user-supplied targets) never match `<` and are preserved.
- * Returns the number of rows removed.
+ * Returns the number of rows expired.
  */
-export async function pruneStaleJobs(cutoffIso: string): Promise<number> {
-  return runStep('prune', async () => {
+export async function expireStaleJobs(sources: string[], cutoffIso: string): Promise<number> {
+  if (sources.length === 0) return 0
+  return runStep('expire', async () => {
+    const { error, count } = await db()
+      .from(TABLE)
+      .update({ status: 'expired' }, { count: 'exact' })
+      .eq('status', 'live')
+      .in('source', sources)
+      .lt('validated_at', cutoffIso)
+    if (error) throw error
+    return count ?? 0
+  })
+}
+
+/**
+ * Physically reclaim rows that have been soft-expired and NOT re-seen since the (longer) `cutoffIso`.
+ * Safe to run unconditionally and across all sources: a posting that reappeared was already flipped
+ * back to 'live' by its upsert, so only genuinely-gone postings remain 'expired' past the window.
+ * This is the second, well-separated stage — a wrongly-expired row has the full reclaim window to
+ * come back before any irreversible delete. Returns the number of rows deleted.
+ */
+export async function reclaimExpiredJobs(cutoffIso: string): Promise<number> {
+  return runStep('reclaim', async () => {
     const { error, count } = await db()
       .from(TABLE)
       .delete({ count: 'exact' })
+      .eq('status', 'expired')
       .lt('validated_at', cutoffIso)
     if (error) throw error
     return count ?? 0

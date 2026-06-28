@@ -8,10 +8,12 @@
 // idempotently on (source, external_id), so re-running is safe.
 import { NextResponse } from 'next/server'
 import { ingestAll } from '@/lib/services/ats'
-import { upsertJobs, pruneStaleJobs, isJobStoreConfigured } from '@/lib/services/jobStore'
+import { upsertJobs, expireStaleJobs, reclaimExpiredJobs, isJobStoreConfigured } from '@/lib/services/jobStore'
 import { upsertJobBoardJobs } from '@/lib/services/jobBoardStore'
 import { cleanupOldDocs, isStorageConfigured } from '@/lib/storage'
 import { isApifyDay } from '@/lib/ingest/apifySchedule'
+import { claimApifyRun } from '@/lib/ingest/apifyRunLock'
+import { prunableAtsProviders, prunableBoardSources } from '@/lib/ingest/prunePlan'
 import { authorizeCron } from '@/lib/http/cronAuth'
 import { serverErrorBody } from '@/lib/http/errors'
 import { JobAggregator } from '@/src/jobBoards/aggregator'
@@ -19,11 +21,14 @@ import { JobAggregator } from '@/src/jobBoards/aggregator'
 export const runtime = 'nodejs'
 export const maxDuration = 120 // matches the existing ingest routes (proven to deploy here)
 
-// Retention: a posting unseen by every feed for this long is treated as gone and pruned from the
-// pool. Wide enough to survive a transient provider outage (a job blips out for a day or two and
-// comes back) without letting dead listings accumulate. Generated packet files are abandoned far
-// sooner — their signed download URLs expire in an hour — so they sweep on a 1-day window.
+// Retention: a posting from a source confirmed live this run but unseen for this long is soft-
+// expired (reversibly hidden). Wide enough to survive a transient provider outage (a job blips out
+// for a day or two and comes back) without hiding still-live jobs. Expired rows are physically
+// reclaimed only after the much longer RECLAIM window, so a wrongly-expired posting has a long grace
+// period to reappear first. Generated packet files are abandoned far sooner — their signed download
+// URLs expire in an hour — so they sweep on a 1-day window.
 const JOB_RETENTION_MS = 14 * 24 * 60 * 60 * 1000
+const JOB_RECLAIM_MS = 30 * 24 * 60 * 60 * 1000
 const DOC_RETENTION_MS = 24 * 60 * 60 * 1000
 
 // Broad IT sweep. No `query` (each provider falls back to its IT-category default, maximising
@@ -86,8 +91,16 @@ async function ingestBoards(now: string) {
   // apifyDays() (default 1/11/21 → exactly 3 runs ≈ $4.17, comfortably under $5 with headroom, and
   // those three days exist in every month so the count never surprises). Master switch stays
   // APIFY_INGEST=on; cadence is tunable via APIFY_INGEST_DAYS without a code change.
+  // claimApifyRun is the LAST, atomic condition (short-circuited so it only runs on an enabled Apify
+  // day) — it claims a per-UTC-day marker so a cron double-fire or post-timeout re-entry can't bill
+  // the metered actors twice. It fails closed (no claim -> no spend). The free boards above are
+  // unmetered and run every invocation regardless.
   const apifyToken = process.env.APIFY_API_TOKEN
-  const runApify = Boolean(apifyToken) && process.env.APIFY_INGEST === 'on' && isApifyDay(now)
+  const runApify =
+    Boolean(apifyToken) &&
+    process.env.APIFY_INGEST === 'on' &&
+    isApifyDay(now) &&
+    (await claimApifyRun(now))
   if (runApify && apifyToken) {
     const { ApifyProvider } = await import('@/src/jobBoards/providers/apify')
     // Cap the actor run just under the aggregator's per-provider timeout so a slow scrape fails as a
@@ -148,18 +161,31 @@ async function handleIngestAll(request: Request) {
     const boardsUpserted = boardsSettled.status === 'fulfilled' ? boardsSettled.value.upserted : 0
     const upserted = atsUpserted + boardsUpserted
 
-    // Housekeeping runs AFTER both legs upsert (so live postings just got `validated_at = now` and
-    // won't be pruned) and is isolated: a cleanup failure must not fail the ingest the cron exists
-    // to do. Each leg reports its own ok/result so a problem is visible without sinking the response.
-    const cutoffIso = new Date(Date.now() - JOB_RETENTION_MS).toISOString()
-    const [pruneSettled, docsSettled] = await Promise.allSettled([
-      pruneStaleJobs(cutoffIso),
+    // Housekeeping runs AFTER both legs upsert and is isolated (a cleanup failure must not fail the
+    // ingest the cron exists to do). Retention is gated on CONFIRMED re-observation: only sources
+    // that actually succeeded this run are eligible to soft-expire their stale rows — a failed
+    // provider/leg is excluded, so its still-live postings can never be aged out by a run that never
+    // saw it. Expire is reversible (the next successful upsert un-expires); physical reclaim of
+    // long-expired rows is a separate, much-later stage.
+    const atsSources = atsSettled.status === 'fulfilled' ? atsSettled.value.sources : []
+    const boardSources = boardsSettled.status === 'fulfilled' ? boardsSettled.value.sources : []
+    const prunableSources = [...prunableAtsProviders(atsSources), ...prunableBoardSources(boardSources)]
+
+    const expireCutoffIso = new Date(Date.now() - JOB_RETENTION_MS).toISOString()
+    const reclaimCutoffIso = new Date(Date.now() - JOB_RECLAIM_MS).toISOString()
+    const [expireSettled, reclaimSettled, docsSettled] = await Promise.allSettled([
+      expireStaleJobs(prunableSources, expireCutoffIso),
+      reclaimExpiredJobs(reclaimCutoffIso),
       isStorageConfigured() ? cleanupOldDocs(DOC_RETENTION_MS) : Promise.resolve(0),
     ])
-    const prunedJobs =
-      pruneSettled.status === 'fulfilled'
-        ? { ok: true, removed: pruneSettled.value }
-        : { ok: false, error: errMsg(pruneSettled.reason) }
+    const expiredJobs =
+      expireSettled.status === 'fulfilled'
+        ? { ok: true, expired: expireSettled.value, sources: prunableSources }
+        : { ok: false, error: errMsg(expireSettled.reason) }
+    const reclaimedJobs =
+      reclaimSettled.status === 'fulfilled'
+        ? { ok: true, removed: reclaimSettled.value }
+        : { ok: false, error: errMsg(reclaimSettled.reason) }
     const prunedDocs =
       docsSettled.status === 'fulfilled'
         ? { ok: true, removed: docsSettled.value }
@@ -167,10 +193,14 @@ async function handleIngestAll(request: Request) {
 
     console.log(
       `[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok}); ` +
-        `pruned ${prunedJobs.ok ? prunedJobs.removed : 'failed'} jobs, ` +
+        `expired ${expiredJobs.ok ? expiredJobs.expired : 'failed'} jobs, ` +
+        `reclaimed ${reclaimedJobs.ok ? reclaimedJobs.removed : 'failed'}, ` +
         `${prunedDocs.ok ? prunedDocs.removed : 'failed'} docs`,
     )
-    return NextResponse.json({ upserted, ats, boards, prunedJobs, prunedDocs }, { status: 200 })
+    return NextResponse.json(
+      { upserted, ats, boards, expiredJobs, reclaimedJobs, prunedDocs },
+      { status: 200 },
+    )
   } catch (err) {
     console.error('[ingest-all] failed', err)
     return NextResponse.json(serverErrorBody(err, null), { status: 500 })
