@@ -49,6 +49,22 @@ provider lights up only when its vars are present:
 
 All are **server-only**. `USAJOBS_USER_AGENT` defaults to `ScoutLane/1.0` if unset.
 
+### Apify cadence (metered — does not run daily)
+
+Apify is the one **metered** source: Wellfound is **$0.99/run flat** and Dice ~**$0.004/result**,
+billed against Apify's **$5/month** free credit. Running it daily (30×/mo) would cost ~$30 and blow
+the credit, so the Apify leg is gated to a few fixed days each month while the free boards keep
+refreshing **every day**:
+
+- `APIFY_INGEST` — master switch. Apify runs only when this is exactly `on` (default off).
+- `APIFY_INGEST_DAYS` — comma-separated days-of-month it may run. **Default `1,11,21`** → exactly 3
+  runs/month ≈ **$4.17** (3 × $0.99 Wellfound + 3 × ~$0.40 Dice), under the $5 credit with headroom.
+  Those days exist in every month, so the run count never surprises. Widen it (e.g. `1,8,15,22`) only
+  if you have paid Apify credit — 4+ runs/month can exceed the free $5.
+
+The other keyed boards (JSearch 200 req/mo, Adzuna, USAJobs) and the free boards are all well within
+their free limits at one run/day, which is the most frequent a Vercel Hobby cron allows.
+
 ## 3. Deploy
 
 Push to `main` (or open/refresh the PR for a Preview deploy). Vercel runs `next build` — the
