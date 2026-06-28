@@ -1,7 +1,7 @@
 // Supabase Storage helper for generated documents (Engineering Plan §4.7).
 // Lazy by design: the client is constructed on first use, so importing this module never throws
 // when env is absent (keeps unit tests / builds that import the pipeline working without secrets).
-import { createClient } from '@supabase/supabase-js'
+import { serverSupabase } from '@/lib/supabaseServer'
 
 const BUCKET = 'documents'
 const DOCX_CONTENT_TYPE =
@@ -13,10 +13,7 @@ export function isStorageConfigured(): boolean {
 }
 
 function storageClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY // server-only; bypasses RLS
-  if (!url || !key) throw new Error('Supabase storage is not configured')
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  return serverSupabase() // server-only; bypasses RLS; reused across calls
 }
 
 /**

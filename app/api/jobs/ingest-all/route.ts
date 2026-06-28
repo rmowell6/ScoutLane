@@ -162,7 +162,10 @@ async function handleIngestAll(request: Request) {
     const upserted = atsUpserted + boardsUpserted
 
     // Housekeeping runs AFTER both legs upsert and is isolated (a cleanup failure must not fail the
-    // ingest the cron exists to do). Retention is gated on CONFIRMED re-observation: only sources
+    // ingest the cron exists to do). NOTE (cloud-8): the legs run in parallel but housekeeping runs
+    // after them serially, so on a slow day it can be cut off by the 120s budget — accepted, because
+    // expire/reclaim/sweep are all idempotent and simply run on the next daily invocation.
+    // Retention is gated on CONFIRMED re-observation: only sources
     // that actually succeeded this run are eligible to soft-expire their stale rows — a failed
     // provider/leg is excluded, so its still-live postings can never be aged out by a run that never
     // saw it. Expire is reversible (the next successful upsert un-expires); physical reclaim of
@@ -191,15 +194,21 @@ async function handleIngestAll(request: Request) {
         ? { ok: true, removed: docsSettled.value }
         : { ok: false, error: legError(docsSettled.reason) }
 
+    // Observability (reliability-38): make a bad run alertable instead of a silent 200. A TOTAL
+    // failure (both legs failed) returns 500 so it surfaces on the Vercel cron dashboard and to any
+    // uptime monitor; a partial run stays 200 but carries `degraded: true` (also set when nothing was
+    // upserted) so a body-inspecting monitor can alert without the run looking healthy.
+    const totalFailure = !ats.ok && !boards.ok
+    const degraded = totalFailure || upserted === 0
     console.log(
-      `[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok}); ` +
+      `[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok}, degraded ${degraded}); ` +
         `expired ${expiredJobs.ok ? expiredJobs.expired : 'failed'} jobs, ` +
         `reclaimed ${reclaimedJobs.ok ? reclaimedJobs.removed : 'failed'}, ` +
         `${prunedDocs.ok ? prunedDocs.removed : 'failed'} docs`,
     )
     return NextResponse.json(
-      { upserted, ats, boards, expiredJobs, reclaimedJobs, prunedDocs },
-      { status: 200 },
+      { upserted, degraded, ats, boards, expiredJobs, reclaimedJobs, prunedDocs },
+      { status: totalFailure ? 500 : 200 },
     )
   } catch (err) {
     console.error('[ingest-all] failed', err)

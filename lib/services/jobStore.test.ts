@@ -36,6 +36,7 @@ vi.mock('@supabase/supabase-js', () => ({ createClient: () => ({ from: () => mak
 import {
   expireStaleJobs,
   getJobJd,
+  getPoolStats,
   isJobStoreConfigured,
   listJobs,
   reclaimExpiredJobs,
@@ -200,6 +201,20 @@ describe('reclaimExpiredJobs', () => {
       name: 'JobStoreError',
       step: 'reclaim',
     })
+  })
+})
+
+describe('getPoolStats', () => {
+  test('reports the live count and the most recent validated_at', async () => {
+    state.result = { data: { validated_at: '2026-06-28T03:00:00Z' }, error: null, count: 42 }
+    const stats = await getPoolStats()
+    expect(stats).toEqual({ live: 42, lastIngestAt: '2026-06-28T03:00:00Z' })
+    expect(findCall('eq')).toEqual(['eq', 'status', 'live'])
+  })
+
+  test('returns 0 / null on an empty pool', async () => {
+    state.result = { data: null, error: null, count: 0 }
+    expect(await getPoolStats()).toEqual({ live: 0, lastIngestAt: null })
   })
 })
 

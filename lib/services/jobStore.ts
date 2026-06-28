@@ -1,8 +1,9 @@
 // Job pool persistence (M3). Server-only — uses the Supabase SECRET key (bypasses RLS), like
 // profileStore. Lazy + degradable so importing never throws without env. Ingestion upserts on
 // (source, external_id) so re-running is idempotent (migration 0002).
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { type SupabaseClient } from '@supabase/supabase-js'
 import * as z from 'zod'
+import { serverSupabase } from '@/lib/supabaseServer'
 import type { IngestedJob } from '@/lib/services/ats/types'
 import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
 
@@ -35,10 +36,11 @@ export function isJobStoreConfigured(): boolean {
 }
 
 function db(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY
-  if (!url || !key) throw new JobStoreError('configure', new Error('job store is not configured'))
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  try {
+    return serverSupabase()
+  } catch (err) {
+    throw new JobStoreError('configure', err)
+  }
 }
 
 export class JobStoreError extends Error {
@@ -208,6 +210,33 @@ export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise
       url: (r.url as string) ?? '',
       snippet: ((r.jd_raw as string | null) ?? '').slice(0, snippetChars),
     }))
+  })
+}
+
+/**
+ * Pool freshness for the readiness check (/health): how many live jobs, and when the pool was last
+ * refreshed (max validated_at). A stale/empty pool means the ingest cron has silently stopped — this
+ * makes that observable from outside. Best-effort: the caller treats a throw as "stats unavailable".
+ */
+export async function getPoolStats(): Promise<{ live: number; lastIngestAt: string | null }> {
+  return runStep('stats', async () => {
+    const client = db()
+    const [{ count, error: countErr }, { data, error: dataErr }] = await Promise.all([
+      client.from(TABLE).select('id', { count: 'exact', head: true }).eq('status', 'live'),
+      client
+        .from(TABLE)
+        .select('validated_at')
+        .eq('status', 'live')
+        .order('validated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ])
+    if (countErr) throw countErr
+    if (dataErr) throw dataErr
+    return {
+      live: count ?? 0,
+      lastIngestAt: (data?.validated_at as string | null) ?? null,
+    }
   })
 }
 

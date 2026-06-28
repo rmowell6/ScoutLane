@@ -11,15 +11,13 @@
 // NOTE: a session-level pg_advisory_lock would be WRONG here — supabase-js runs over the
 // transaction-mode pooler, where the lock evaporates between statements. A durable marker row also
 // survives across separate invocations within the day (a lock only covers concurrent overlap).
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { type SupabaseClient } from '@supabase/supabase-js'
+import { serverSupabase } from '@/lib/supabaseServer'
 
 const TABLE = 'ingest_run_markers'
 
 function db(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY // server-only; bypasses RLS
-  if (!url || !key) throw new Error('ingest run lock is not configured')
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  return serverSupabase() // server-only; bypasses RLS; reused across calls
 }
 
 /** UTC-day run key, e.g. 'apify:2026-06-21'. UTC matches isApifyDay's getUTCDate(). */
