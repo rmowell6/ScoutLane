@@ -78,6 +78,9 @@ export default function Home() {
   const [suggested, setSuggested] = useState<SuggestedRole[]>([])
   const [discovering, setDiscovering] = useState(false)
   const [discoverNote, setDiscoverNote] = useState<string | null>(null)
+  // "Pick from pool" has two views: browse (search the full list) and suggestions (AI matches).
+  // suggestMode hides the generic list once the user asks for suggestions.
+  const [suggestMode, setSuggestMode] = useState(false)
   // Candidate preferences (feed the deterministic fit engine). Target comp + lanes are primary.
   const [targetComp, setTargetComp] = useState('')
   const [targetLanes, setTargetLanes] = useState('')
@@ -195,6 +198,7 @@ export default function Home() {
 
   /** Find similar roles from the candidate's experience (title-variant aware). Needs a resume. */
   async function suggestRoles() {
+    setSuggestMode(true) // switch to the suggestions view (hides the generic browse list)
     setDiscovering(true)
     setDiscoverNote(null)
     try {
@@ -292,6 +296,7 @@ export default function Home() {
 
   function pickMode(mode: JdMode) {
     setJdMode(mode)
+    setSuggestMode(false) // always land on browse when (re)entering the pool picker
     if (mode === 'paste') setSelectedJob(null)
   }
 
@@ -366,23 +371,43 @@ export default function Home() {
                     className={styles.search}
                     type="search"
                     value={jobQuery}
-                    onChange={(e) => setJobQuery(e.target.value)}
+                    onChange={(e) => {
+                      setJobQuery(e.target.value)
+                      setSuggestMode(false) // typing a search returns to browsing the full list
+                    }}
                     placeholder="Search roles by title or company…"
                     aria-label="Search roles by title or company"
                     aria-controls="job-results"
                   />
 
                   <div className={styles.suggestRow}>
-                    <button
-                      type="button"
-                      className={styles.secondary}
-                      onClick={suggestRoles}
-                      disabled={discovering || resumeText.trim().length === 0}
-                      title="Find pool roles similar to your experience, including ones with different titles"
-                    >
-                      {discovering ? 'Finding similar roles…' : '✨ Suggest roles from my experience'}
-                    </button>
-                    {resumeText.trim().length === 0 && (
+                    {!suggestMode ? (
+                      <button
+                        type="button"
+                        className={styles.secondary}
+                        onClick={suggestRoles}
+                        disabled={discovering || resumeText.trim().length === 0}
+                        title="Find pool roles similar to your experience, including ones with different titles"
+                      >
+                        {discovering ? 'Finding similar roles…' : '✨ Suggest roles from my experience'}
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.secondary}
+                          onClick={suggestRoles}
+                          disabled={discovering || resumeText.trim().length === 0}
+                          title="Re-run the suggestions (e.g. after changing your preferences)"
+                        >
+                          {discovering ? 'Refreshing…' : '↻ Refresh suggestions'}
+                        </button>
+                        <button type="button" className={styles.clearLink} onClick={() => setSuggestMode(false)}>
+                          Browse all roles
+                        </button>
+                      </>
+                    )}
+                    {resumeText.trim().length === 0 && !suggestMode && (
                       <span className={styles.jobSub}>Add your resume first.</span>
                     )}
                   </div>
@@ -393,13 +418,16 @@ export default function Home() {
                         ? `${suggested.length} similar role${suggested.length === 1 ? '' : 's'} found`
                         : ''}
                   </p>
-                  {discoverNote && <span className={styles.jobMeta}>{discoverNote}</span>}
-                  {suggested.length > 0 && (
+                  {suggestMode && discovering && <span className={styles.jobMeta}>Finding roles…</span>}
+                  {suggestMode && !discovering && discoverNote && (
+                    <span className={styles.jobMeta}>{discoverNote}</span>
+                  )}
+                  {suggestMode && suggested.length > 0 && (
                     <span className={styles.jobSub}>
                       AI-suggested matches based on your experience — review each posting before applying.
                     </span>
                   )}
-                  {suggested.length > 0 && (
+                  {suggestMode && suggested.length > 0 && (
                     <ul className={styles.jobList} aria-label="Suggested roles from your experience">
                       {suggested.map((job) => (
                         <li key={`sug-${job.id}`} className={styles.jobRow}>
@@ -456,13 +484,16 @@ export default function Home() {
                       </span>
                     </div>
                   )}
-                  <p className={styles.srOnly} role="status">
-                    {jobsLoading
-                      ? 'Searching roles…'
-                      : jobResults.length > 0
-                        ? `${jobResults.length} role${jobResults.length === 1 ? '' : 's'} found`
-                        : (jobsNote ?? 'No roles found.')}
-                  </p>
+                  {!suggestMode && (
+                    <p className={styles.srOnly} role="status">
+                      {jobsLoading
+                        ? 'Searching roles…'
+                        : jobResults.length > 0
+                          ? `${jobResults.length} role${jobResults.length === 1 ? '' : 's'} found`
+                          : (jobsNote ?? 'No roles found.')}
+                    </p>
+                  )}
+                  {!suggestMode && (
                   <ul id="job-results" className={styles.jobList} aria-label="Job search results" aria-busy={jobsLoading}>
                     {jobsLoading && <li className={styles.jobMeta}>Loading…</li>}
                     {!jobsLoading && jobResults.length === 0 && (
@@ -495,6 +526,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+                  )}
                 </div>
               )}
             </div>
