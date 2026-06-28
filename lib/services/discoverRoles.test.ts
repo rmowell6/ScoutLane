@@ -28,7 +28,7 @@ vi.mock('@/lib/anthropic', () => ({
 import { discoverRoles } from './discoverRoles'
 
 const PROFILE: Profile = {
-  name: 'Ryan',
+  name: 'Jordan',
   summary: 'Cloud engineer',
   skills: ['Azure', 'VMware'],
   certs: [],

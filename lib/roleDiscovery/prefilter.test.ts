@@ -3,7 +3,7 @@ import { candidateTerms, prefilter, scoreJob, type MatchableJob } from './prefil
 import type { Profile } from '@/lib/schemas'
 
 const PROFILE: Profile = {
-  name: 'Ryan',
+  name: 'Jordan',
   summary: 'Cloud engineer',
   skills: ['Azure', 'VMware', 'Incident Response', 'PowerShell'],
   certs: ['VCP-DCV'],
