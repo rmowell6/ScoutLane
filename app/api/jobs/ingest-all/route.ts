@@ -42,9 +42,14 @@ async function ingestAts(now: string) {
 
 async function ingestBoards(now: string) {
   // Free providers default on; keyed providers light up only when their env vars are set.
+  // timeoutMs (per provider) is raised above the 15s default so the Apify scrapers (Dice/Wellfound)
+  // have time to finish — the fast providers still resolve immediately, so this only affects slow ones.
   const aggregator = new JobAggregator({
+    timeoutMs: 60_000,
     providers: {
-      himalayas: { enabled: true },
+      // Himalayas changed its API endpoint (the old /api/jobs now 404s) and it can't be verified
+      // from CI; disabled until the new URL is confirmed (Arbeitnow/Remotive/RemoteOK cover remote).
+      himalayas: { enabled: false },
       arbeitnow: { enabled: true },
       remotive: { enabled: true },
       remoteok: { enabled: true },
@@ -68,7 +73,9 @@ async function ingestBoards(now: string) {
   // Apify (Dice + Wellfound) is dynamically imported so apify-client only loads when configured.
   if (process.env.APIFY_API_TOKEN) {
     const { ApifyProvider } = await import('@/src/jobBoards/providers/apify')
-    aggregator.addProvider(new ApifyProvider({ apiToken: process.env.APIFY_API_TOKEN }))
+    // Cap the actor run just under the aggregator's per-provider timeout so a slow scrape fails as a
+    // clean timeout rather than hanging the whole cron.
+    aggregator.addProvider(new ApifyProvider({ apiToken: process.env.APIFY_API_TOKEN, actorTimeoutMs: 55_000 }))
   }
 
   const result = await aggregator.search(SEARCH)

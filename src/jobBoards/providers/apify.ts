@@ -283,7 +283,7 @@ export class ApifyProvider implements JobBoardProvider {
     // Ref: https://docs.apify.com/api/client/js/docs/class/ActorClient#call
     const run = await this.client
       .actor(this.diceActorId)
-      .call({ searchUrl }, { timeoutSecs: Math.floor(this.actorTimeoutMs / 1000) });
+      .call({ searchUrl }, { timeout: Math.floor(this.actorTimeoutMs / 1000), waitSecs: Math.floor(this.actorTimeoutMs / 1000) });
 
     const { items } = await this.client
       .dataset(run.defaultDatasetId)
@@ -310,7 +310,7 @@ export class ApifyProvider implements JobBoardProvider {
 
     const run = await this.client
       .actor(this.wellfoundActorId)
-      .call(input, { timeoutSecs: Math.floor(this.actorTimeoutMs / 1000) });
+      .call(input, { timeout: Math.floor(this.actorTimeoutMs / 1000), waitSecs: Math.floor(this.actorTimeoutMs / 1000) });
 
     const { items } = await this.client
       .dataset(run.defaultDatasetId)
