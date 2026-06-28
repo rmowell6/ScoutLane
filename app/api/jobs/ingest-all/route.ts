@@ -107,7 +107,11 @@ async function ingestBoards(now: string) {
   }
 }
 
-export async function POST(request: Request) {
+// Vercel Cron invokes the configured path with an HTTP GET (and auto-attaches
+// `Authorization: Bearer $CRON_SECRET`), so the scheduled refresh MUST be reachable via GET — a
+// POST-only handler returns 405 before any code runs and the cron silently never ingests. We export
+// both: GET for the scheduler, POST for manual/curl runs. authorizeCron reads the header either way.
+async function handleIngestAll(request: Request) {
   try {
     const auth = authorizeCron(request)
     if (auth === 'unauthorized') {
@@ -172,6 +176,9 @@ export async function POST(request: Request) {
     return NextResponse.json(serverErrorBody(err, null), { status: 500 })
   }
 }
+
+export const GET = handleIngestAll
+export const POST = handleIngestAll
 
 function errMsg(reason: unknown): string {
   return reason instanceof Error ? reason.message : String(reason)

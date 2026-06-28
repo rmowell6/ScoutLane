@@ -30,7 +30,9 @@ function authorize(request: Request): AuthResult {
   return safeEqual(request.headers.get('authorization') ?? '', `Bearer ${secret}`) ? 'ok' : 'unauthorized'
 }
 
-export async function POST(request: Request) {
+// Exported for both GET (so this manual route is also cron-/browser-triggerable, like ingest-all —
+// Vercel Cron sends GET) and POST (existing curl callers). authorize() reads the header either way.
+async function handleIngest(request: Request) {
   try {
     const auth = authorize(request)
     if (auth === 'unauthorized') {
@@ -77,3 +79,6 @@ export async function POST(request: Request) {
     return NextResponse.json(serverErrorBody(err, step), { status: 500 })
   }
 }
+
+export const GET = handleIngest
+export const POST = handleIngest
