@@ -64,8 +64,9 @@ function deduplicateJobs(jobs: Job[]): Job[] {
   const priority = (source: string) => PRIORITY.indexOf(source);
 
   for (const job of jobs) {
-    // URL dedup
-    const normUrl = job.url.split('?')[0].toLowerCase();
+    // URL dedup — null-safe: a single provider returning a job with no url/title must never crash
+    // the whole aggregation (one bad job would otherwise drop every other provider's results).
+    const normUrl = (job.url ?? '').split('?')[0].toLowerCase();
     const existing = byUrl.get(normUrl);
     if (existing) {
       if (priority(job.source) > priority(existing.source)) {
@@ -75,8 +76,8 @@ function deduplicateJobs(jobs: Job[]): Job[] {
     }
     byUrl.set(normUrl, job);
 
-    // Fuzzy dedup: title + company
-    const fuzzyKey = `${job.title.toLowerCase().replace(/\W+/g, '')}|${job.company
+    // Fuzzy dedup: title + company (null-safe)
+    const fuzzyKey = `${(job.title ?? '').toLowerCase().replace(/\W+/g, '')}|${(job.company ?? '')
       .toLowerCase()
       .replace(/\W+/g, '')}`;
 

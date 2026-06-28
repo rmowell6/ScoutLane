@@ -47,7 +47,10 @@ async function ingestBoards(now: string) {
   const aggregator = new JobAggregator({
     timeoutMs: 60_000,
     providers: {
-      himalayas: { enabled: true }, // browse endpoint corrected to /jobs/api (limit capped at 20)
+      // Himalayas OFF: the /jobs/api browse feed has a different JSON shape than the vendored
+      // mapper expects, so it emitted url-less jobs. Re-enable once the mapping matches a real
+      // browse-feed payload (paste a sample and I'll fix the field mapping).
+      himalayas: { enabled: false },
       arbeitnow: { enabled: true },
       remotive: { enabled: true },
       remoteok: { enabled: true },

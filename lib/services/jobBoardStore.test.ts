@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { toJobBoardRow, dedupeRows, type JobBoardRow } from './jobBoardStore'
+import { toJobBoardRow, dedupeRows, isStorableJob, type JobBoardRow } from './jobBoardStore'
 import type { Job } from '@/src/jobBoards/types'
 
 function job(overrides: Partial<Job> = {}): Job {
@@ -54,6 +54,17 @@ describe('toJobBoardRow', () => {
   test('caps an oversized description', () => {
     const row = toJobBoardRow(job({ description: 'x'.repeat(80_000) }), NOW)
     expect(row.jd_raw.length).toBe(60_000)
+  })
+})
+
+describe('isStorableJob', () => {
+  test('accepts a job with url, title, and source', () => {
+    expect(isStorableJob(job())).toBe(true)
+  })
+  test('rejects jobs missing url or title (malformed provider output)', () => {
+    expect(isStorableJob(job({ url: '' }))).toBe(false)
+    expect(isStorableJob(job({ url: undefined as never }))).toBe(false)
+    expect(isStorableJob(job({ title: '   ' }))).toBe(false)
   })
 })
 

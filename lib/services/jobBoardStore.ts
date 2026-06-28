@@ -67,12 +67,19 @@ export function dedupeRows(rows: JobBoardRow[]): JobBoardRow[] {
   return [...byKey.values()]
 }
 
+/** A job is storable only if it has the fields the pool/discovery actually need. Drops malformed
+ *  provider output (e.g. a feed whose shape doesn't match its mapper) instead of polluting the pool. */
+export function isStorableJob(job: Job): boolean {
+  return Boolean(job && job.url?.trim() && job.title?.trim() && job.source?.trim())
+}
+
 /** Upsert job-board jobs idempotently on (source, external_id). Returns the count written. */
 export async function upsertJobBoardJobs(jobs: Job[], now: string): Promise<number> {
-  if (jobs.length === 0) return 0
+  const valid = jobs.filter(isStorableJob)
+  if (valid.length === 0) return 0
   const start = Date.now()
   try {
-    const rows = dedupeRows(jobs.map((j) => toJobBoardRow(j, now)))
+    const rows = dedupeRows(valid.map((j) => toJobBoardRow(j, now)))
     const { error, count } = await db()
       .from(TABLE)
       .upsert(rows, { onConflict: 'source,external_id', count: 'exact' })
