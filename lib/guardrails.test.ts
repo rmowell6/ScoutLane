@@ -3,6 +3,7 @@ import type { Profile, TailoredContent } from '@/lib/schemas'
 import {
   checkAtsSafe,
   checkBannedTerms,
+  checkBulletsGrounded,
   checkNoFabrication,
   checkStyle,
   indexFacts,
@@ -134,6 +135,80 @@ describe('checkNoFabrication', () => {
     // "10 years" (years excluded) and "2 roles" (no scope unit) must not flag.
     const tailored = makeTailored({ summary: 'Over 10 years across 2 roles delivering Azure work.' })
     expect(checkNoFabrication(tailored, makeProfile()).ungroundedMetrics).toEqual([])
+  })
+})
+
+describe('checkBulletsGrounded (ai-26 — ground shipped bullets against the source resume)', () => {
+  const SOURCE = [
+    'Platform Engineer at Analytical Engines.',
+    'Migrated 40 VMs to Azure and cut backup costs 30%.',
+    'Maintained VMware clusters and disaster recovery runbooks.',
+  ].join('\n')
+
+  test('skips (degrades open) when no source text is available', () => {
+    const r = checkBulletsGrounded(makeProfile(), undefined)
+    expect(r).toEqual({ ok: true, skipped: true, ungroundedMetrics: [], flagged: [] })
+  })
+
+  test('passes when shipped bullets + their metrics trace to the source resume', () => {
+    const r = checkBulletsGrounded(makeProfile(), SOURCE)
+    expect(r.ok).toBe(true)
+    expect(r.ungroundedMetrics).toEqual([])
+  })
+
+  test('BLOCKS an invented quantity introduced into a bullet (number absent from the source)', () => {
+    // structureResume "embellished" a real bullet with a fabricated figure not in the source.
+    const profile = makeProfile({
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure', 'Saved $2,000,000 in cloud spend'],
+        },
+      ],
+    })
+    const r = checkBulletsGrounded(profile, SOURCE)
+    expect(r.ok).toBe(false)
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/2,000,000|2000000|\$/)
+  })
+
+  test('FLAGS (does not block) a bullet with low word-overlap to the source', () => {
+    const profile = makeProfile({
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Spearheaded blockchain quantum cryptography orchestration initiatives'],
+        },
+      ],
+      summary: undefined,
+    })
+    const r = checkBulletsGrounded(profile, SOURCE)
+    expect(r.ok).toBe(true) // no invented metric -> not blocked
+    expect(r.flagged.length).toBeGreaterThan(0) // but surfaced for review
+    expect(r.flagged[0]?.overlap).toBeLessThan(0.5)
+  })
+
+  test('runGuardrails blocks overall when a bullet asserts an ungrounded metric', () => {
+    const profile = makeProfile({
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Reduced incidents 95%'], // 95% appears nowhere in the source
+        },
+      ],
+      summary: undefined,
+    })
+    const report = runGuardrails(makeTailored(), profile, { sourceResumeText: SOURCE })
+    expect(report.bulletsGrounded.ok).toBe(false)
+    expect(report.ok).toBe(false)
   })
 })
 

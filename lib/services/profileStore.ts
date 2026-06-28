@@ -53,6 +53,8 @@ export interface StoredProfile {
   profile: Profile
   /** Candidate preferences saved with the profile; null when none were provided. */
   preferences: CandidatePreferences | null
+  /** The original uploaded resume text — ground truth for the no-fabrication guardrail (ai-26). */
+  sourceResume: string
 }
 
 /** Persist a structured profile + its source text + optional preferences. Returns the new id. */
@@ -85,7 +87,7 @@ export async function getStoredProfile(id: string): Promise<StoredProfile | null
   return runStep('select', async () => {
     const { data, error } = await db()
       .from(TABLE)
-      .select('structured, preferences')
+      .select('structured, preferences, source_resume')
       .eq('id', id)
       .maybeSingle()
     if (error) throw error
@@ -99,6 +101,6 @@ export async function getStoredProfile(id: string): Promise<StoredProfile | null
       const prefs = CandidatePreferencesSchema.safeParse(data.preferences)
       if (prefs.success) preferences = prefs.data // tolerate legacy/partial prefs: ignore if invalid
     }
-    return { profile: parsed.data, preferences }
+    return { profile: parsed.data, preferences, sourceResume: (data.source_resume as string | null) ?? '' }
   })
 }

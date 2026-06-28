@@ -21,6 +21,9 @@ export interface PacketInput {
   resumeText?: string
   /** A pre-structured profile (reuse path) — when set, structureResume is skipped. */
   profile?: Profile
+  /** Original resume text for the reuse path (the stateless path uses resumeText). Grounds the
+   *  shipped bullets/summary against the source in the no-fabrication guardrail (ai-26). */
+  sourceResumeText?: string
   /** Candidate preferences (target comp/lane drive the fit engine; rest are persisted context). */
   preferences?: CandidatePreferences
   /** Sensitive terms that may appear only if present in the profile (e.g. ['Kubernetes']). */
@@ -173,6 +176,9 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     bannedTerms: [...new Set([...BANNED_TERMS, ...(input.bannedTerms ?? [])])],
     style: { allowEmDash: STYLE_RULES.allowEmDash },
     atsDoc,
+    // Ground shipped bullets against the source resume: the raw text on the stateless path, or the
+    // stored source on the reuse path. The profile itself is LLM-derived, so it can't be the truth.
+    sourceResumeText: input.resumeText ?? input.sourceResumeText,
   })
 
   const documents = guardrails.ok

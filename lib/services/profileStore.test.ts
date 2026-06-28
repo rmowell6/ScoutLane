@@ -96,6 +96,21 @@ describe('saveProfile / getProfile', () => {
     expect(result?.preferences).toMatchObject({ targetCompTopUsd: 170000, targetLanes: ['Cloud Engineer'] })
   })
 
+  test('getStoredProfile returns the original source resume text (for guardrail grounding)', async () => {
+    state.selectResult = {
+      data: { structured: PROFILE, preferences: null, source_resume: 'the original resume text' },
+      error: null,
+    }
+    const result = await getStoredProfile('row-123')
+    expect(result?.sourceResume).toBe('the original resume text')
+  })
+
+  test('getStoredProfile defaults sourceResume to empty string when the column is null', async () => {
+    state.selectResult = { data: { structured: PROFILE, preferences: null, source_resume: null }, error: null }
+    const result = await getStoredProfile('row-123')
+    expect(result?.sourceResume).toBe('')
+  })
+
   test('getStoredProfile tolerates absent preferences (null)', async () => {
     state.selectResult = { data: { structured: PROFILE, preferences: null }, error: null }
     const result = await getStoredProfile('row-123')
