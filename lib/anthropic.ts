@@ -13,3 +13,28 @@ export const MODELS = {
 } as const
 
 export type ModelKey = keyof typeof MODELS
+
+/**
+ * Read the validated structured output from an `anthropic.messages.parse(...)` result, turning the
+ * two silent failure modes into clear, debuggable errors:
+ *  - `stop_reason === 'max_tokens'`: the model ran out of output budget mid-JSON, so `parsed_output`
+ *    is partial/invalid. This must surface as an explicit truncation error (raise max_tokens), NOT
+ *    an opaque "no structured output" — the two need different fixes.
+ *  - `parsed_output` null for any other reason: the model returned nothing parseable.
+ * Centralized here so every model call site handles truncation consistently.
+ */
+export function readParsed<T>(
+  message: { stop_reason: string | null; parsed_output: T | null },
+  label: string,
+  maxTokens: number,
+): T {
+  if (message.stop_reason === 'max_tokens') {
+    throw new Error(
+      `${label}: response hit the ${maxTokens}-token output cap and was truncated (partial JSON). Increase max_tokens.`,
+    )
+  }
+  if (message.parsed_output == null) {
+    throw new Error(`${label}: no structured output returned`)
+  }
+  return message.parsed_output
+}

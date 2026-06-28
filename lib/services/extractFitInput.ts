@@ -5,10 +5,15 @@
 // The LLM only classifies/extracts — it never produces a score. Untrusted resume/JD text is
 // isolated as labeled data, never placed in the system prompt (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS } from '@/lib/anthropic'
+import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
 import { FitSignalsSchema, assembleFitInput } from '@/lib/fit/fitSignals'
+import { groundCandidateSignals } from '@/lib/fit/groundSignals'
 import type { FitInput } from '@/lib/fit/fitScore'
 import type { CandidatePreferences, JobReqs, Profile } from '@/lib/schemas'
+
+// Lots of short skill/cert tokens plus the categoricals; 1500 risked truncation on skill-dense
+// resumes. 3000 gives headroom; readParsed turns a real overflow into an explicit truncation error.
+const MAX_TOKENS = 3000
 
 const EXTRACT_INSTRUCTIONS = [
   'You extract structured hiring-fit SIGNALS from a candidate profile and a job description.',
@@ -47,7 +52,7 @@ export async function extractFitInput(
 ): Promise<FitInput> {
   const message = await anthropic.messages.parse({
     model: MODELS.score,
-    max_tokens: 1500,
+    max_tokens: MAX_TOKENS,
     system: [{ type: 'text', text: EXTRACT_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
     output_config: { format: zodOutputFormat(FitSignalsSchema) },
     messages: [
@@ -68,7 +73,13 @@ export async function extractFitInput(
     ],
   })
 
-  const signals = message.parsed_output
-  if (!signals) throw new Error('extractFitInput: no structured output returned')
-  return assembleFitInput(signals, preferences, jobReqs)
+  const signals = readParsed(message, 'extractFitInput', MAX_TOKENS)
+
+  // Drop any candidate-side skill/cert the extractor asserted that the profile facts don't support,
+  // so a hallucinated token can't inflate coverage and the fit score (the JD-side lists are kept).
+  const { signals: grounded, dropped } = groundCandidateSignals(signals, profile)
+  if (dropped.length > 0) {
+    console.warn(`[fit] dropped ${dropped.length} ungrounded candidate token(s): ${dropped.join(', ')}`)
+  }
+  return assembleFitInput(grounded, preferences, jobReqs)
 }
