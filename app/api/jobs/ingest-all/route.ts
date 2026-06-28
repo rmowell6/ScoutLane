@@ -47,9 +47,7 @@ async function ingestBoards(now: string) {
   const aggregator = new JobAggregator({
     timeoutMs: 60_000,
     providers: {
-      // Himalayas changed its API endpoint (the old /api/jobs now 404s) and it can't be verified
-      // from CI; disabled until the new URL is confirmed (Arbeitnow/Remotive/RemoteOK cover remote).
-      himalayas: { enabled: false },
+      himalayas: { enabled: true }, // browse endpoint corrected to /jobs/api (limit capped at 20)
       arbeitnow: { enabled: true },
       remotive: { enabled: true },
       remoteok: { enabled: true },
