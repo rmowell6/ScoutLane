@@ -261,29 +261,27 @@ export class ApifyProvider implements JobBoardProvider {
   // ---------------------------------------------------------------------------
 
   private async searchDice(params: SearchParams): Promise<Job[]> {
-    // Build Dice search URL — the actor scrapes from a URL
-    const qs = new URLSearchParams({
-      q: params.query ?? 'software engineer',
-      countryCode: params.country?.toUpperCase() ?? 'US',
-      radius: '30',
-      radiusUnit: 'mi',
-      page: '1',
-      pageSize: String(Math.min(params.pageSize ?? DEFAULT_PAGE_SIZE, 100)),
-      language: 'en',
-    });
+    // worldunboxer/dice-jobs-scraper input schema (keyword is required).
+    const input: Record<string, unknown> = {
+      keyword: params.query ?? 'software engineer',
+      job_entries: Math.min(params.pageSize ?? DEFAULT_PAGE_SIZE, 100),
+      posted_date: 'ANY',
+      easy_apply: false,
+      willing_to_sponsor: false,
+    };
+    // location + radius only make sense together; omit for a national search.
+    if (params.location) {
+      input.location = params.location;
+      input.radius = 50;
+      input.unit = 'mi';
+    }
+    if (params.remote) input.work_settings = ['Remote'];
+    if (params.type === 'contract') input.employment_type = ['CONTRACTS'];
+    else if (params.type === 'part-time') input.employment_type = ['PARTTIME'];
 
-    if (params.remote) qs.set('filters.workplaceTypes', 'Remote');
-    if (params.type === 'contract') qs.set('filters.employmentType', 'CONTRACTS');
-    if (params.type === 'part-time') qs.set('filters.employmentType', 'PARTTIME');
-    if (params.location && !params.remote) qs.set('location', params.location);
-
-    const searchUrl = `https://www.dice.com/jobs?${qs}`;
-
-    // Run actor synchronously and get dataset items in one call
-    // Ref: https://docs.apify.com/api/client/js/docs/class/ActorClient#call
     const run = await this.client
       .actor(this.diceActorId)
-      .call({ searchUrl }, { timeout: Math.floor(this.actorTimeoutMs / 1000), waitSecs: Math.floor(this.actorTimeoutMs / 1000) });
+      .call(input, { timeout: Math.floor(this.actorTimeoutMs / 1000), waitSecs: Math.floor(this.actorTimeoutMs / 1000) });
 
     const { items } = await this.client
       .dataset(run.defaultDatasetId)
@@ -298,15 +296,19 @@ export class ApifyProvider implements JobBoardProvider {
   // ---------------------------------------------------------------------------
 
   private async searchWellfound(params: SearchParams): Promise<Job[]> {
+    // memo23/wellfound-jobs-scraper input schema: it scrapes from startUrls (Wellfound job pages),
+    // with a US residential proxy. Wellfound is startup/tech-dense, so the base /jobs feed is on-target.
     const input: Record<string, unknown> = {
-      // The $0.99/run actor accepts a keyword search string
-      search: params.query ?? 'software engineer',
-      maxJobs: Math.min(params.pageSize ?? DEFAULT_PAGE_SIZE, 100),
+      startUrls: ['https://wellfound.com/jobs'],
+      enrichCompanyProfile: false,
+      enrichEmails: false,
+      enrichJobDetail: false,
+      proxy: {
+        useApifyProxy: true,
+        apifyProxyGroups: ['RESIDENTIAL'],
+        apifyProxyCountry: 'US',
+      },
     };
-
-    if (params.remote) input.remote = true;
-    if (params.location) input.location = params.location;
-    if (params.tags?.length) input.roles = params.tags;
 
     const run = await this.client
       .actor(this.wellfoundActorId)
