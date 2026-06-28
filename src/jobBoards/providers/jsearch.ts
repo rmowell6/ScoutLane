@@ -152,8 +152,8 @@ export class JSearchProvider implements JobBoardProvider {
 
     const qs = new URLSearchParams({
       query,
-      page: String(page),
       num_pages: '1',
+      date_posted: 'all',
     });
 
     if (params.location) qs.set('location', params.location);
@@ -161,7 +161,8 @@ export class JSearchProvider implements JobBoardProvider {
     if (params.salaryMin) qs.set('job_min_salary', String(params.salaryMin));
     if (params.country) qs.set('country', params.country);
 
-    const url = `https://jsearch.p.rapidapi.com/search?${qs}`;
+    // JSearch v5 renamed the search endpoint /search -> /search-v2 (the old path 404s).
+    const url = `https://jsearch.p.rapidapi.com/search-v2?${qs}`;
 
     try {
       const data = await fetchJSON<JSearchResponse>(
