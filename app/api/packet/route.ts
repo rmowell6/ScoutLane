@@ -142,6 +142,21 @@ export async function POST(request: Request) {
 
     return NextResponse.json(packet, { status: 200 })
   } catch (err) {
+    // Document generation is the final pipeline step: the fit assessment + guardrails already
+    // succeeded, but building/uploading the .docx files failed. Give the user a concrete, safe
+    // explanation of WHY no documents came back instead of a bare "Internal Server Error".
+    if (err instanceof PacketError && err.step === 'generateDocuments') {
+      console.error('[packet] document generation failed', err)
+      return NextResponse.json(
+        {
+          error: "We couldn't generate your documents",
+          step: 'generateDocuments',
+          message:
+            'Your fit assessment was ready, but the résumé and cover-letter files failed to build. Please try again — if it keeps happening, remove unusual formatting or special characters from your resume and retry.',
+        },
+        { status: 500 },
+      )
+    }
     // Surface which step failed (a safe identifier). The raw message is withheld in production
     // (it can carry internal detail); the step is always safe — it's a fixed name from our code.
     const step =

@@ -57,11 +57,17 @@ export type JobReqs = z.infer<typeof JobReqsSchema>
 // ---- Candidate preferences -------------------------------------------------------
 // User-set signals the deterministic fit engine needs but a resume doesn't contain. Distinct
 // from the LLM-structured Profile (these are chosen by the candidate, never inferred from text).
-// In rubric 1.0.0 the engine math uses targetCompTopUsd + targetLanes; workMode / noGoLocations /
-// employerTypePreference are persisted for personalization and given to the extractor as context.
+// In rubric 1.0.0 the engine math uses targetCompTopUsd + targetLanes; workModes / employmentTypes /
+// noGoLocations / employerTypePreference are persisted for personalization and given to the extractor
+// + discovery re-rank as context. workModes and employmentTypes are MULTI-select (a candidate is
+// commonly open to more than one).
 
 export const WorkModeSchema = z.enum(['remote', 'hybrid', 'onsite', 'flexible'])
 export type WorkMode = z.infer<typeof WorkModeSchema>
+
+// Employment arrangement the candidate is open to. 'contract' covers contracting/contract-to-hire.
+export const EmploymentTypeSchema = z.enum(['full-time', 'part-time', 'contract', 'internship', 'freelance'])
+export type EmploymentType = z.infer<typeof EmploymentTypeSchema>
 
 export const EmployerTypePrefSchema = z.enum([
   'direct',
@@ -77,7 +83,10 @@ export const CandidatePreferencesSchema = z.object({
   targetCompTopUsd: z.number().positive().nullable().optional(),
   /** Target roles/lanes, e.g. ['Cloud Engineer', 'VMware Engineer'] — sets role-type fit. */
   targetLanes: z.array(z.string()).default([]),
-  workMode: WorkModeSchema.optional(),
+  /** Work modes the candidate is open to (multi-select). */
+  workModes: z.array(WorkModeSchema).default([]),
+  /** Employment types the candidate is open to (multi-select), e.g. full-time + contract. */
+  employmentTypes: z.array(EmploymentTypeSchema).default([]),
   noGoLocations: z.array(z.string()).default([]),
   employerTypePreference: EmployerTypePrefSchema.optional(),
 })

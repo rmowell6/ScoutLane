@@ -68,7 +68,13 @@ describe('saveProfile / getProfile', () => {
 
   test('saveProfile persists structured + source + preferences and returns the new id', async () => {
     state.insertResult = { data: { id: 'row-123' }, error: null }
-    const prefs = { targetCompTopUsd: 170000, targetLanes: ['Cloud Engineer'], noGoLocations: [] }
+    const prefs = {
+      targetCompTopUsd: 170000,
+      targetLanes: ['Cloud Engineer'],
+      workModes: [],
+      employmentTypes: [],
+      noGoLocations: [],
+    }
     const { id } = await saveProfile(PROFILE, 'raw resume text', prefs)
     expect(id).toBe('row-123')
     expect(state.lastInsert).toEqual({ source_resume: 'raw resume text', structured: PROFILE, preferences: prefs })

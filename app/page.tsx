@@ -55,6 +55,23 @@ const SAMPLE_RESUME =
 const SAMPLE_JD =
   'Senior Cloud Engineer.\nMust have: Azure, VMware, security monitoring.\nNice to have: Terraform.'
 
+// Multi-select preference options. Values MUST match the Zod enums in lib/schemas.ts
+// (WorkModeSchema / EmploymentTypeSchema).
+const WORK_MODE_OPTIONS = [
+  { value: 'remote', label: 'Remote' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'onsite', label: 'Onsite' },
+  { value: 'flexible', label: 'Flexible' },
+] as const
+
+const EMPLOYMENT_TYPE_OPTIONS = [
+  { value: 'full-time', label: 'Full-time' },
+  { value: 'part-time', label: 'Part-time' },
+  { value: 'contract', label: 'Contract / Contracting' },
+  { value: 'internship', label: 'Internship' },
+  { value: 'freelance', label: 'Freelance' },
+] as const
+
 export default function Home() {
   const [resumeText, setResumeText] = useState('')
   const [jdText, setJdText] = useState('')
@@ -84,7 +101,9 @@ export default function Home() {
   // Candidate preferences (feed the deterministic fit engine). Target comp + lanes are primary.
   const [targetComp, setTargetComp] = useState('')
   const [targetLanes, setTargetLanes] = useState('')
-  const [workMode, setWorkMode] = useState('')
+  // Multi-select: a candidate is commonly open to more than one work mode / employment type.
+  const [workModes, setWorkModes] = useState<string[]>([])
+  const [employmentTypes, setEmploymentTypes] = useState<string[]>([])
   const [employerPref, setEmployerPref] = useState('')
   const [noGo, setNoGo] = useState('')
 
@@ -184,16 +203,29 @@ export default function Home() {
     const hasComp = Number.isFinite(comp) && comp > 0
     const lanes = targetLanes.split(',').map((s) => s.trim()).filter(Boolean)
     const noGoLocations = noGo.split(',').map((s) => s.trim()).filter(Boolean)
-    if (!hasComp && lanes.length === 0 && !workMode && !employerPref && noGoLocations.length === 0) {
+    if (
+      !hasComp &&
+      lanes.length === 0 &&
+      workModes.length === 0 &&
+      employmentTypes.length === 0 &&
+      !employerPref &&
+      noGoLocations.length === 0
+    ) {
       return undefined
     }
     return {
       targetCompTopUsd: hasComp ? comp : null,
       targetLanes: lanes,
+      workModes,
+      employmentTypes,
       noGoLocations,
-      ...(workMode ? { workMode } : {}),
       ...(employerPref ? { employerTypePreference: employerPref } : {}),
     }
+  }
+
+  /** Toggle a value in a multi-select chip group. */
+  function toggleIn(value: string, setter: React.Dispatch<React.SetStateAction<string[]>>) {
+    setter((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
   }
 
   /** Find similar roles from the candidate's experience (title-variant aware). Needs a resume. */
@@ -556,16 +588,20 @@ export default function Home() {
                   placeholder="e.g. Cloud Engineer, VMware Engineer"
                 />
               </label>
-              <label className={styles.prefField}>
-                <span className={styles.prefLabel}>Preferred work mode</span>
-                <select className={styles.prefInput} value={workMode} onChange={(e) => setWorkMode(e.target.value)}>
-                  <option value="">No preference</option>
-                  <option value="remote">Remote</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="onsite">Onsite</option>
-                  <option value="flexible">Flexible</option>
-                </select>
-              </label>
+              <ChipGroup
+                legend="Preferred work mode"
+                hint="select any that apply"
+                options={WORK_MODE_OPTIONS}
+                selected={workModes}
+                onToggle={(v) => toggleIn(v, setWorkModes)}
+              />
+              <ChipGroup
+                legend="Employment type"
+                hint="select any that apply"
+                options={EMPLOYMENT_TYPE_OPTIONS}
+                selected={employmentTypes}
+                onToggle={(v) => toggleIn(v, setEmploymentTypes)}
+              />
               <label className={styles.prefField}>
                 <span className={styles.prefLabel}>Preferred employer type</span>
                 <select
@@ -636,6 +672,46 @@ export default function Home() {
         {error && <ErrorPanel error={error} />}
         {packet && <PacketView packet={packet} sourceUrl={packetSourceUrl} />}
       </main>
+    </div>
+  )
+}
+
+/** A multi-select group of toggle chips (replaces a single-choice <select>). */
+function ChipGroup({
+  legend,
+  hint,
+  options,
+  selected,
+  onToggle,
+}: {
+  legend: string
+  hint?: string
+  options: readonly { value: string; label: string }[]
+  selected: string[]
+  onToggle: (value: string) => void
+}) {
+  return (
+    <div className={styles.prefField}>
+      <span className={styles.prefLabel}>
+        {legend}
+        {hint && <span className={styles.prefsHint}> — {hint}</span>}
+      </span>
+      <div className={styles.chipGroup} role="group" aria-label={legend}>
+        {options.map((o) => {
+          const on = selected.includes(o.value)
+          return (
+            <button
+              key={o.value}
+              type="button"
+              className={on ? styles.chipOn : styles.chip}
+              aria-pressed={on}
+              onClick={() => onToggle(o.value)}
+            >
+              {o.label}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

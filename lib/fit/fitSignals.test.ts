@@ -25,7 +25,7 @@ const JOB: JobReqs = { title: 'Cloud Engineer', mustHave: [], niceToHave: [] }
 
 describe('assembleFitInput', () => {
   test('uses the candidate target comp when provided', () => {
-    const input = assembleFitInput(SIGNALS, { targetCompTopUsd: 170000, targetLanes: [], noGoLocations: [] }, JOB)
+    const input = assembleFitInput(SIGNALS, { targetCompTopUsd: 170000, targetLanes: [], workModes: [], employmentTypes: [], noGoLocations: [] }, JOB)
     expect(input.targetCompTopUsd).toBe(170000)
     expect(input.title).toBe('Cloud Engineer')
     expect(input.lanesSurfaced).toBe(1)
@@ -45,7 +45,7 @@ describe('assembleFitInput', () => {
   })
 
   test('feeds straight into the deterministic engine', () => {
-    const input = assembleFitInput(SIGNALS, { targetCompTopUsd: 170000, targetLanes: [], noGoLocations: [] }, JOB)
+    const input = assembleFitInput(SIGNALS, { targetCompTopUsd: 170000, targetLanes: [], workModes: [], employmentTypes: [], noGoLocations: [] }, JOB)
     const result = assessFit(input)
     expect(result.overall).toBeGreaterThan(0)
     expect(result.dimensions).toHaveLength(8)
