@@ -9,6 +9,7 @@ import { getStoredProfile, ProfileStoreError } from '@/lib/services/profileStore
 import { isJobStoreConfigured, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type Profile } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
+import { rateLimit } from '@/lib/http/rateLimit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -27,6 +28,10 @@ const Body = z
 
 export async function POST(request: Request) {
   try {
+    // Per-IP throttle first: discovery runs a structuring call + a Claude re-rank per request.
+    const limited = rateLimit(request, 'discover')
+    if (limited) return limited
+
     // Discovery needs the pool; surface a clear 503 if storage isn't wired rather than an empty list.
     if (!isJobStoreConfigured()) {
       return NextResponse.json(

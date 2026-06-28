@@ -109,3 +109,23 @@ them and returns signed download URLs, and without it falls back to returning th
   cron only runs on Production — keep the endpoint idempotent.
 - **Secrets:** `.env.local` is gitignored and never committed; production secrets live only in
   Vercel's encrypted env store and CI's `${{ secrets.* }}`.
+
+## Security posture (POC)
+
+Auth is deliberately deferred for the POC, so the public routes rely on these controls:
+
+- **Per-IP rate limiting** on the LLM-backed routes (`/api/packet`, `/api/discover`, `/api/profile`,
+  `/api/extract`). Defaults per minute: packet 5, discover 10, profile 10, extract 20. Override any
+  of them without a redeploy via `RATE_LIMIT_PACKET` / `RATE_LIMIT_DISCOVER` / `RATE_LIMIT_PROFILE`
+  / `RATE_LIMIT_EXTRACT`. The counter is **per serverless instance** (a deliberate zero-dependency
+  POC tradeoff); for a hard cross-instance guarantee, back it with a shared store (Upstash Redis).
+- **Anthropic spend cap (REQUIRED backstop).** Rate limiting is the per-request control; it does not
+  survive an attacker who rotates IPs. Set a **monthly spend limit / usage cap** on the Anthropic API
+  organization (ideally a dedicated workspace for ScoutLane) plus a billing alert. This is the only
+  control that bounds worst-case dollar loss independent of app code.
+- **Bearer-capability ids.** Until auth lands, a `profileId` (and a pooled `jobId`) is a bearer
+  capability — whoever holds the UUID can fetch it. Treat profile ids as secrets, don't log them in
+  full, and rely on the profile rate limit to blunt enumeration. When auth is wired, gate
+  `getStoredProfile` reads on `user_id` (the column already exists, nullable, on `profiles`).
+- **Public job pool** is column-scoped (migration `0006`): anon/authenticated can read only the
+  display columns of `live` jobs, never the full `jd_raw` body or internal columns.

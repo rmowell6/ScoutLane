@@ -5,12 +5,17 @@
 import { NextResponse } from 'next/server'
 import { ExtractError, MAX_RESUME_BYTES, extractResumeText } from '@/lib/services/extractResumeText'
 import { serverErrorBody } from '@/lib/http/errors'
+import { rateLimit } from '@/lib/http/rateLimit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
+    // Throttle uploads per-IP (no LLM here, but bound parse/CPU floods).
+    const limited = rateLimit(request, 'extract')
+    if (limited) return limited
+
     let form: FormData
     try {
       form = await request.formData()

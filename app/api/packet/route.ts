@@ -8,6 +8,7 @@ import { getStoredProfile, ProfileStoreError } from '@/lib/services/profileStore
 import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
+import { rateLimit } from '@/lib/http/rateLimit'
 
 // Bound request size before any work: a resume is a few KB of text; these ceilings fail a
 // pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
@@ -40,6 +41,11 @@ const Body = z
 
 export async function POST(request: Request) {
   try {
+    // Abuse control FIRST: this route fans out to ~4 paid model calls, so cap per-IP frequency
+    // before any work (the Anthropic spend cap is the absolute backstop — see DEPLOY.md).
+    const limited = rateLimit(request, 'packet')
+    if (limited) return limited
+
     const json = await request.json().catch(() => null)
     const parsed = Body.safeParse(json)
     if (!parsed.success) {

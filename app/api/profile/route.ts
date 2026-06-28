@@ -13,6 +13,7 @@ import {
 } from '@/lib/services/profileStore'
 import { CandidatePreferencesSchema } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
+import { rateLimit } from '@/lib/http/rateLimit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -35,6 +36,9 @@ function notConfigured() {
 
 export async function POST(request: Request) {
   try {
+    const limited = rateLimit(request, 'profile')
+    if (limited) return limited
+
     if (!isProfileStoreConfigured()) return notConfigured()
 
     const json = await request.json().catch(() => null)
@@ -56,6 +60,11 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    // Throttle the id lookup too: until auth lands, the profile id is a BEARER CAPABILITY (whoever
+    // holds the UUID can rehydrate the profile), so rate-limiting blunts brute-force enumeration.
+    const limited = rateLimit(request, 'profile')
+    if (limited) return limited
+
     if (!isProfileStoreConfigured()) return notConfigured()
 
     const id = new URL(request.url).searchParams.get('id')
