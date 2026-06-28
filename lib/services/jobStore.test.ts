@@ -15,6 +15,11 @@ function makeQuery() {
     or: (...a: unknown[]) => (state.calls.push(['or', ...a]), q),
     order: (...a: unknown[]) => (state.calls.push(['order', ...a]), q),
     limit: (...a: unknown[]) => (state.calls.push(['limit', ...a]), q),
+    // Mutating builders are chainable and resolved via the thenable `then` below (terminal await).
+    update: (...a: unknown[]) => (state.calls.push(['update', ...a]), q),
+    delete: (...a: unknown[]) => (state.calls.push(['delete', ...a]), q),
+    in: (...a: unknown[]) => (state.calls.push(['in', ...a]), q),
+    lt: (...a: unknown[]) => (state.calls.push(['lt', ...a]), q),
     upsert: (...a: unknown[]) => {
       state.calls.push(['upsert', ...a])
       return Promise.resolve(state.result)
@@ -28,7 +33,14 @@ function makeQuery() {
 
 vi.mock('@supabase/supabase-js', () => ({ createClient: () => ({ from: () => makeQuery() }) }))
 
-import { getJobJd, isJobStoreConfigured, listJobs, upsertJobs } from './jobStore'
+import {
+  expireStaleJobs,
+  getJobJd,
+  isJobStoreConfigured,
+  listJobs,
+  reclaimExpiredJobs,
+  upsertJobs,
+} from './jobStore'
 
 const JOB: IngestedJob = {
   provider: 'greenhouse',
@@ -140,6 +152,54 @@ describe('upsertJobs', () => {
       status: 'live',
     })
     expect(up?.[2]).toMatchObject({ onConflict: 'source,external_id' })
+  })
+})
+
+describe('expireStaleJobs', () => {
+  test('returns 0 without touching the DB when the prunable source list is empty', async () => {
+    const n = await expireStaleJobs([], '2026-06-14T00:00:00Z')
+    expect(n).toBe(0)
+    expect(state.calls).toHaveLength(0)
+  })
+
+  test('soft-expires only live rows of the given sources older than the cutoff', async () => {
+    state.result = { data: null, error: null, count: 3 }
+    const n = await expireStaleJobs(['greenhouse', 'jsearch'], '2026-06-14T00:00:00Z')
+    expect(n).toBe(3)
+    // update sets status='expired'; scoped by status='live', source IN (...), validated_at < cutoff
+    const update = findCall('update')
+    expect(update?.[1]).toEqual({ status: 'expired' })
+    expect(update?.[2]).toMatchObject({ count: 'exact' })
+    expect(findCall('eq')).toEqual(['eq', 'status', 'live'])
+    expect(findCall('in')).toEqual(['in', 'source', ['greenhouse', 'jsearch']])
+    expect(findCall('lt')).toEqual(['lt', 'validated_at', '2026-06-14T00:00:00Z'])
+  })
+
+  test('tags a DB error with step "expire"', async () => {
+    state.result = { data: null, error: new Error('boom'), count: null }
+    await expect(expireStaleJobs(['greenhouse'], '2026-06-14T00:00:00Z')).rejects.toMatchObject({
+      name: 'JobStoreError',
+      step: 'expire',
+    })
+  })
+})
+
+describe('reclaimExpiredJobs', () => {
+  test('deletes only already-expired rows older than the (longer) reclaim cutoff', async () => {
+    state.result = { data: null, error: null, count: 2 }
+    const n = await reclaimExpiredJobs('2026-05-29T00:00:00Z')
+    expect(n).toBe(2)
+    expect(findCall('delete')).toBeDefined()
+    expect(findCall('eq')).toEqual(['eq', 'status', 'expired'])
+    expect(findCall('lt')).toEqual(['lt', 'validated_at', '2026-05-29T00:00:00Z'])
+  })
+
+  test('tags a DB error with step "reclaim"', async () => {
+    state.result = { data: null, error: new Error('boom'), count: null }
+    await expect(reclaimExpiredJobs('2026-05-29T00:00:00Z')).rejects.toMatchObject({
+      name: 'JobStoreError',
+      step: 'reclaim',
+    })
   })
 })
 

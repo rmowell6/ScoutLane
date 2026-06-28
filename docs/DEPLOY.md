@@ -89,9 +89,11 @@ them and returns signed download URLs, and without it falls back to returning th
 
 1. **Storage bucket:** create a **private** bucket named `documents` (Storage → New bucket).
    `/api/packet` uploads under `resumes/` and `cover-letters/` and returns 1-hour signed URLs.
-2. **Database schema (optional now):** apply `supabase/migrations/0001_init.sql` (SQL Editor, or
-   `supabase db push`). It creates `profiles` / `jobs` / `generations` with RLS enabled. The
-   current pipeline is stateless, so these are forward-scaffolding — not required to run packets.
+2. **Database schema:** apply the migrations in `supabase/migrations/` **in order** (`0001`–`0005`)
+   via the SQL Editor or `supabase db push`. They create `profiles` / `jobs` / `generations` with
+   RLS, the ingest indexes, and the `ingest_run_markers` table (the Apify per-day cost guard). Each
+   is idempotent (`if not exists`), so re-running is safe. The unified ingest cron needs these
+   applied; the stateless packet path does not.
 3. **Env vars:** ensure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and
    `SUPABASE_SECRET_KEY` are set in Vercel (Production + Preview). The secret key is server-only.
 
