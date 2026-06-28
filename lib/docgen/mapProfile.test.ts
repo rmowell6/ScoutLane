@@ -4,15 +4,15 @@ import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 import type { FitResult } from '@/lib/fit/fitScore'
 
 const profile: Profile = {
-  name: 'Ryan Mowell',
-  contact: { location: 'Lebanon, OH', phone: '555', email: 'r@example.com' },
+  name: 'Jordan Rivera',
+  contact: { location: 'Austin, TX', phone: '555', email: 'j@example.com' },
   summary: 'Original summary.',
   skills: ['Azure', 'VMware', 'Veeam', 'PowerShell'],
   roles: [
-    { company: 'Signature Performance', title: 'Cloud Engineer', startDate: '2024', endDate: null, bullets: ['Ran Azure under HIPAA'] },
+    { company: 'Northwind Health', title: 'Cloud Engineer', startDate: '2024', endDate: null, bullets: ['Ran Azure under HIPAA'] },
   ],
   certs: ['VCP-DCV'],
-  education: [{ school: 'Sinclair', degree: 'AAS', field: 'Network Engineering', year: '2015' }],
+  education: [{ school: 'Riverside Community College', degree: 'AAS', field: 'Network Engineering', year: '2015' }],
 }
 
 const tailored: TailoredContent = {
@@ -29,7 +29,7 @@ describe('toResumeContent', () => {
     const rc = toResumeContent(profile, tailored, jobReqs)
     expect(rc.tagline).toBe('Senior Cloud Engineer')
     expect(rc.summary).toBe('Tailored summary for the role.')
-    expect(rc.contact.location).toBe('Lebanon, OH')
+    expect(rc.contact.location).toBe('Austin, TX')
     expect(rc.experience[0]?.dates).toBe('2024 – Present')
     expect(rc.certs.active[0]?.name).toBe('VCP-DCV')
     expect(rc.education[0]?.detail).toContain('Network Engineering')
@@ -54,7 +54,7 @@ describe('toCoverLetterContent', () => {
     expect(cl.salutation).toBe('Dear Acme Hiring Team,')
     expect(cl.reLine).toBe('Re: Senior Cloud Engineer')
     expect(cl.paragraphs).toEqual(['Para one.', 'Para two about Azure.'])
-    expect(cl.candidate.name).toBe('Ryan Mowell')
+    expect(cl.candidate.name).toBe('Jordan Rivera')
     expect(cl.date).toBe('June 27, 2026')
   })
 
@@ -68,14 +68,14 @@ describe('toCoverLetterContent', () => {
     const withScaffolding: TailoredContent = {
       ...tailored,
       coverLetter:
-        'Dear Acme Hiring Team,\n\nI bring Azure depth.\n\nThank you for your consideration.\n\nSincerely, [Your Name]\n\nRyan Mowell',
+        'Dear Acme Hiring Team,\n\nI bring Azure depth.\n\nThank you for your consideration.\n\nSincerely, [Your Name]\n\nJordan Rivera',
     }
     const cl = toCoverLetterContent(profile, withScaffolding, jobReqs, 'June 27, 2026')
     expect(cl.paragraphs).toEqual(['I bring Azure depth.', 'Thank you for your consideration.'])
     // The template still supplies exactly one salutation, closing, and signature.
     expect(cl.salutation).toBe('Dear Acme Hiring Team,')
     expect(cl.closing).toBe('Sincerely,')
-    expect(cl.signature).toBe('Ryan Mowell')
+    expect(cl.signature).toBe('Jordan Rivera')
   })
 
   test('does NOT strip body paragraphs that merely begin with a closing/salutation word', () => {
@@ -110,7 +110,7 @@ describe('toFitAssessmentContent', () => {
 
   test('maps the FitResult onto the doc content (band, math, dimensions, hard gaps)', () => {
     const fa = toFitAssessmentContent(profile, fit, jobReqs, 'June 27, 2026')
-    expect(fa.candidateName).toBe('Ryan Mowell')
+    expect(fa.candidateName).toBe('Jordan Rivera')
     expect(fa.roleTitle).toBe('Senior Cloud Engineer')
     expect(fa.overall).toBe(82)
     expect(fa.band).toBe('Strong fit')

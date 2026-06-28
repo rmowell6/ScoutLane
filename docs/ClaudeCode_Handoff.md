@@ -1,6 +1,6 @@
 # ScoutLane → Claude Code Handoff Guide
 
-**Prepared for:** Ryan · **Date:** June 26, 2026
+**Prepared for:** ScoutLane · **Date:** June 26, 2026
 
 This is how to hand the ScoutLane build to Claude Code (the CLI) so it builds well: when to migrate, how to set up, the optimized prompts to paste, and the working habits that keep it on the rails.
 
@@ -99,7 +99,7 @@ Follow the Engineering Plan exactly:
 Plan first. Then build, run typecheck + lint + tests until green, and stop.
 ```
 
-(My existing docx builders to port: `Ryan_Resume_Build_*.js` and the cover-letter builders — bring them into the repo so Claude can adapt them.)
+(My existing docx builders to port: `Resume_Build_*.js` and the cover-letter builders — bring them into the repo so Claude can adapt them.)
 
 **Later milestones** follow the same shape: name the milestone, point at the plan, list the concrete deliverables, demand TDD on anything safety-critical, end with "plan first, verify green, stop."
 

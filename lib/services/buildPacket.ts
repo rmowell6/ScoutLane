@@ -169,7 +169,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
 
   const guardrails = runGuardrails(tailored, profile, {
     // BANNED_TERMS is a mandatory floor: callers may ADD watched terms, never remove the standing
-    // ones (the Ryan corrections in profileRules.ts must never regress).
+    // ones (the standing corrections in profileRules.ts must never regress).
     bannedTerms: [...new Set([...BANNED_TERMS, ...(input.bannedTerms ?? [])])],
     style: { allowEmDash: STYLE_RULES.allowEmDash },
     atsDoc,

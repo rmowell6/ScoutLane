@@ -1,4 +1,4 @@
-// Cover-letter builder — faithful port of Ryan_CoverLetter_Build.js (the master generator).
+// Cover-letter builder — faithful port of the cover-letter generator (the master generator).
 // Shares the LOCKED resume design tokens so the resume and cover letter look cohesive.
 // Single-column, ATS-safe, dark text on light. assertNoEmDash throws so an em dash can never
 // ship (the SPEC style rule, enforced in code). Runs only under runtime='nodejs'.
