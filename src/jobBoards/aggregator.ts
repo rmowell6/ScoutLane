@@ -41,60 +41,60 @@ export interface SourceStatus {
 // Deduplication
 // ---------------------------------------------------------------------------
 
+// Provider priority (higher index = preferred when two providers share the SAME url).
+const DEDUP_PRIORITY = [
+  'arbeitnow',
+  'remoteok',
+  'remotive',
+  'himalayas',
+  'usajobs',
+  'adzuna',
+  'jsearch',
+];
+
+/** Epoch ms for a job, NaN-safe (an Invalid Date sorts/ties as 0, never poisons comparisons). */
+function jobTime(job: Job): number {
+  const t = job.postedAt instanceof Date ? job.postedAt.getTime() : NaN;
+  return Number.isNaN(t) ? 0 : t;
+}
+
 /**
- * Remove duplicate jobs. Strategy:
- * 1. Exact URL match → keep highest-quality source
- * 2. Fuzzy match on normalised title + company → keep most recent
+ * Remove duplicate jobs. The normalized URL is the AUTHORITATIVE identity of a posting: two distinct
+ * URLs are two distinct jobs, period. We dedup in a SINGLE keyed pass — keeping the higher-priority
+ * source when two providers surface the same URL — and return that map's values.
+ *
+ * The old implementation kept a second fuzzy (title+company) map and returned the set INTERSECTION of
+ * the two, which (a) dropped BOTH copies of a same-URL cross-provider duplicate when the later job
+ * out-prioritized the earlier one, and (b) collapsed genuinely-distinct postings that merely shared
+ * a title+company but had different URLs. We do neither: title+company is too coarse to decide
+ * identity, and the storage layer already keys on (source, external_id), so URL-only dedup is correct
+ * and order-invariant.
  */
-function deduplicateJobs(jobs: Job[]): Job[] {
+export function deduplicateJobs(jobs: Job[]): Job[] {
+  const priority = (source: string) => DEDUP_PRIORITY.indexOf(source);
   const byUrl = new Map<string, Job>();
-  const byKey = new Map<string, Job>();
-
-  // Provider priority (higher index = preferred when deduping)
-  const PRIORITY = [
-    'arbeitnow',
-    'remoteok',
-    'remotive',
-    'himalayas',
-    'usajobs',
-    'adzuna',
-    'jsearch',
-  ];
-
-  const priority = (source: string) => PRIORITY.indexOf(source);
+  const urlless: Job[] = [];
 
   for (const job of jobs) {
-    // URL dedup — null-safe: a single provider returning a job with no url/title must never crash
-    // the whole aggregation (one bad job would otherwise drop every other provider's results).
+    // Null-safe: one provider's url-less/garbage job must never crash the whole aggregation. Url-less
+    // jobs bypass URL dedup (so they don't all collapse under the '' key) — isStorableJob drops them
+    // downstream anyway, but never let one annihilate another here.
     const normUrl = (job.url ?? '').split('?')[0].toLowerCase();
-    const existing = byUrl.get(normUrl);
-    if (existing) {
-      if (priority(job.source) > priority(existing.source)) {
-        byUrl.set(normUrl, job);
-      }
+    if (!normUrl) {
+      urlless.push(job);
       continue;
     }
-    byUrl.set(normUrl, job);
-
-    // Fuzzy dedup: title + company (null-safe)
-    const fuzzyKey = `${(job.title ?? '').toLowerCase().replace(/\W+/g, '')}|${(job.company ?? '')
-      .toLowerCase()
-      .replace(/\W+/g, '')}`;
-
-    const existingFuzzy = byKey.get(fuzzyKey);
-    if (existingFuzzy) {
-      // Keep the newer posting
-      const keep = job.postedAt > existingFuzzy.postedAt ? job : existingFuzzy;
-      byKey.set(fuzzyKey, keep);
-    } else {
-      byKey.set(fuzzyKey, job);
+    const existing = byUrl.get(normUrl);
+    if (!existing || priority(job.source) > priority(existing.source)) {
+      byUrl.set(normUrl, job);
     }
   }
 
-  // Union: keep anything that survived both passes
-  const urlSet = new Set(byUrl.values());
-  const fuzzySet = new Set(byKey.values());
-  return [...new Set([...urlSet].filter((j) => fuzzySet.has(j)))];
+  const kept = [...byUrl.values(), ...urlless];
+  console.log(
+    `[boards] dedupe: in=${jobs.length} kept=${kept.length} (urlless=${urlless.length})`,
+  );
+  return kept;
 }
 
 // ---------------------------------------------------------------------------
@@ -209,8 +209,8 @@ export class JobAggregator {
       allJobs = deduplicateJobs(allJobs);
     }
 
-    // Sort: newest first
-    allJobs.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
+    // Sort: newest first (NaN-safe — an invalid provider date sorts as epoch 0, never poisons it)
+    allJobs.sort((a, b) => jobTime(b) - jobTime(a));
 
     return {
       jobs: allJobs,

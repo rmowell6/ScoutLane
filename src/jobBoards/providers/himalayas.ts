@@ -16,8 +16,10 @@ import type {
 import {
   fetchJSON,
   buildId,
+  mapEach,
   normaliseJobType,
   parseSalaryString,
+  safeDate,
   DEFAULT_PAGE_SIZE,
 } from './base';
 
@@ -52,7 +54,7 @@ interface HimalayasJob {
 
 function mapJob(raw: HimalayasJob, source: string): Job {
   const location =
-    raw.locationRestrictions.length > 0
+    (raw.locationRestrictions?.length ?? 0) > 0
       ? raw.locationRestrictions.join(', ')
       : 'Remote';
 
@@ -67,11 +69,11 @@ function mapJob(raw: HimalayasJob, source: string): Job {
     type: normaliseJobType(raw.jobType),
     salary: parseSalaryString(raw.salaryRange),
     description: raw.description,
-    tags: raw.categories,
+    tags: raw.categories ?? [],
     url: raw.url,
     applyUrl: raw.applicationUrl,
-    postedAt: new Date(raw.createdAt),
-    expiresAt: raw.expiresAt ? new Date(raw.expiresAt) : undefined,
+    postedAt: safeDate(raw.createdAt),
+    expiresAt: raw.expiresAt ? safeDate(raw.expiresAt) : undefined,
   };
 }
 
@@ -105,7 +107,7 @@ export class HimalayasProvider implements JobBoardProvider {
     try {
       const data = await fetchJSON<HimalayasResponse>(url, {}, this.config.timeoutMs);
       return {
-        jobs: (data.jobs ?? []).map((j) => mapJob(j, this.name)),
+        jobs: mapEach(data.jobs, (j) => mapJob(j, this.name)),
         // The browse feed returns jobs without a `meta` block — fall back to the count we got.
         total: data.meta?.total ?? (data.jobs ?? []).length,
         page,

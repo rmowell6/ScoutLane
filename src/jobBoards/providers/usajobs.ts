@@ -16,7 +16,9 @@ import type {
 import {
   fetchJSON,
   buildId,
+  mapEach,
   normaliseJobType,
+  safeDate,
   DEFAULT_PAGE_SIZE,
 } from './base';
 
@@ -101,16 +103,17 @@ function mapJob(item: USAJobsItem, source: string): Job {
 
   const jobType = normaliseJobType(d.PositionSchedule?.[0]?.Name);
 
+  // Guard the nested arrays — a row missing JobCategory/JobGrade must not throw and drop the batch.
   const tags = [
-    ...d.JobCategory.map((c) => c.Name),
-    ...d.JobGrade.map((g) => g.Code),
+    ...(d.JobCategory ?? []).map((c) => c.Name),
+    ...(d.JobGrade ?? []).map((g) => g.Code),
   ].filter(Boolean);
 
   return {
     id: buildId(source, d.PositionID),
     source,
     title: d.PositionTitle,
-    company: d.DepartmentName || d.OrganizationName,
+    company: d.DepartmentName || d.OrganizationName || 'Unknown',
     location: d.PositionLocationDisplay,
     remote: details?.RemoteIndicator ?? false,
     type: jobType,
@@ -119,8 +122,8 @@ function mapJob(item: USAJobsItem, source: string): Job {
     tags,
     url: d.PositionURI,
     applyUrl: d.ApplyURI?.[0],
-    postedAt: new Date(d.PublicationStartDate),
-    expiresAt: d.ApplicationCloseDate ? new Date(d.ApplicationCloseDate) : undefined,
+    postedAt: safeDate(d.PublicationStartDate),
+    expiresAt: d.ApplicationCloseDate ? safeDate(d.ApplicationCloseDate) : undefined,
   };
 }
 
@@ -166,7 +169,7 @@ export class USAJobsProvider implements JobBoardProvider {
 
       const sr = data.SearchResult;
       return {
-        jobs: sr.SearchResultItems.map((i) => mapJob(i, this.name)),
+        jobs: mapEach(sr.SearchResultItems, (i) => mapJob(i, this.name)),
         total: sr.SearchResultCountAll,
         page,
         pageSize,
