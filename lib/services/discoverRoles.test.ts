@@ -90,6 +90,17 @@ describe('discoverRoles', () => {
     expect(state.lastContent).toContain('<preferences>{}</preferences>')
   })
 
+  test('excludes clearly-non-US postings before ranking (US-only default)', async () => {
+    state.pool = [
+      { ...job('us', 'Azure Platform Engineer', 'vmware'), location: 'Austin, TX' },
+      { ...job('intl', 'Azure Platform Engineer', 'vmware'), location: 'Tokyo, Japan' },
+    ]
+    state.parsed = { roles: [{ id: 'us', score: 80, reason: 'fit' }] }
+    await discoverRoles(PROFILE)
+    expect(state.lastContent).toContain('"id":"us"')
+    expect(state.lastContent).not.toContain('"id":"intl"')
+  })
+
   test('tags a failing step via DiscoverError', async () => {
     state.pool = [job('a', 'Azure Engineer', 'vmware')]
     const { anthropic } = await import('@/lib/anthropic')
