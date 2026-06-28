@@ -105,8 +105,9 @@ export class HimalayasProvider implements JobBoardProvider {
     try {
       const data = await fetchJSON<HimalayasResponse>(url, {}, this.config.timeoutMs);
       return {
-        jobs: data.jobs.map((j) => mapJob(j, this.name)),
-        total: data.meta.total,
+        jobs: (data.jobs ?? []).map((j) => mapJob(j, this.name)),
+        // The browse feed returns jobs without a `meta` block — fall back to the count we got.
+        total: data.meta?.total ?? (data.jobs ?? []).length,
         page,
         pageSize,
         source: this.name,
