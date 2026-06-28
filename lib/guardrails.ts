@@ -213,12 +213,78 @@ export function checkAtsSafe(doc: AtsDocModel): AtsResult {
   return { ok: problems.length === 0, problems }
 }
 
+// ---- shipped-bullet grounding (ai-26) --------------------------------------------
+// The resume EXPERIENCE bullets + summary that actually ship come from the structured profile — and
+// the profile is itself LLM-derived (structureResume), so the claim-tracing above grounds them only
+// CIRCULARLY (against the very profile a structuring hallucination would have corrupted). Ground the
+// shipped bullets against the ORIGINAL uploaded resume text instead. Per the chosen policy:
+//   - BLOCK: an invented QUANTITY in a bullet/summary whose number is absent from the source resume
+//     (the most damaging fabrication class; reuses the metric grounding → near-zero false positives).
+//   - FLAG (non-blocking): a bullet whose content words barely overlap the source resume — surfaced
+//     for review, NOT blocked, because structureResume legitimately rephrases/condenses.
+
+const OVERLAP_FLAG_THRESHOLD = 0.5
+
+/** Significant lowercased word tokens (length >= 4 drops most stopwords). */
+function contentTokens(s: string): Set<string> {
+  return new Set(normalize(s).split(/[^a-z0-9]+/).filter((t) => t.length >= 4))
+}
+
+/** Fraction of a text's content tokens that also appear in the source resume. */
+function sourceOverlap(text: string, sourceTokens: Set<string>): number {
+  const tokens = contentTokens(text)
+  if (tokens.size === 0) return 1
+  let hit = 0
+  for (const t of tokens) if (sourceTokens.has(t)) hit++
+  return hit / tokens.size
+}
+
+export interface BulletsGroundedResult {
+  /** Blocking pass/fail: false iff a shipped bullet/summary asserts an ungrounded quantity. */
+  ok: boolean
+  /** True when no source resume was available to check against — degrade OPEN (don't block). */
+  skipped: boolean
+  /** Invented quantities in a shipped bullet/summary, absent from the source resume (BLOCKING). */
+  ungroundedMetrics: string[]
+  /** Bullets/summary with low source-word overlap — surfaced for review, NOT blocking. */
+  flagged: { text: string; overlap: number }[]
+}
+
+/**
+ * Ground the shipped experience bullets + summary against the ORIGINAL resume text. `ok` is driven
+ * ONLY by the metric block; low-overlap bullets are flagged for review but never block (rephrasing
+ * is legitimate). With no source text, the check is skipped (ok:true) so it can't block packets for
+ * profiles saved before the source was threaded through.
+ */
+export function checkBulletsGrounded(profile: Profile, sourceResumeText?: string): BulletsGroundedResult {
+  const source = (sourceResumeText ?? '').trim()
+  if (!source) return { ok: true, skipped: true, ungroundedMetrics: [], flagged: [] }
+
+  const sourceTokens = contentTokens(source)
+  const shipped: string[] = []
+  if (profile.summary) shipped.push(profile.summary)
+  for (const role of profile.roles) for (const bullet of role.bullets) shipped.push(bullet)
+
+  const ungroundedMetrics: string[] = []
+  const flagged: { text: string; overlap: number }[] = []
+  for (const text of shipped) {
+    ungroundedMetrics.push(...ungroundedMetricsIn(text, source))
+    const overlap = sourceOverlap(text, sourceTokens)
+    if (overlap < OVERLAP_FLAG_THRESHOLD) {
+      flagged.push({ text, overlap: Math.round(overlap * 100) / 100 })
+    }
+  }
+  return { ok: ungroundedMetrics.length === 0, skipped: false, ungroundedMetrics, flagged }
+}
+
 // ---- aggregate -------------------------------------------------------------------
 
 export interface GuardrailOptions {
   bannedTerms?: string[]
   style?: StyleOptions
   atsDoc?: AtsDocModel
+  /** Original uploaded resume text — grounds the shipped profile bullets/summary against it (ai-26). */
+  sourceResumeText?: string
 }
 
 export interface GuardrailReport {
@@ -227,6 +293,7 @@ export interface GuardrailReport {
   bannedTerms: BannedTermsResult
   style: StyleResult
   ats: AtsResult | null
+  bulletsGrounded: BulletsGroundedResult
 }
 
 /** Run all guardrails and roll up a single pass/fail report. */
@@ -240,7 +307,8 @@ export function runGuardrails(
   const styleText = [tailored.summary, tailored.coverLetter, ...tailored.claims.map((c) => c.text)].join('\n')
   const style = checkStyle(styleText, options.style)
   const ats = options.atsDoc ? checkAtsSafe(options.atsDoc) : null
+  const bulletsGrounded = checkBulletsGrounded(profile, options.sourceResumeText)
 
-  const ok = noFabrication.ok && bannedTerms.ok && style.ok && (ats?.ok ?? true)
-  return { ok, noFabrication, bannedTerms, style, ats }
+  const ok = noFabrication.ok && bannedTerms.ok && style.ok && (ats?.ok ?? true) && bulletsGrounded.ok
+  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded }
 }

@@ -55,9 +55,11 @@ export async function POST(request: Request) {
       )
     }
 
-    // Reuse path: load the stored profile (+ its saved preferences) and hand it to the pipeline.
+    // Reuse path: load the stored profile (+ its saved preferences + original source text) and hand
+    // it to the pipeline. The source text grounds the shipped bullets in the no-fabrication guardrail.
     let profile: Profile | undefined
     let storedPreferences: CandidatePreferences | null = null
+    let sourceResumeText: string | undefined
     if (parsed.data.profileId) {
       const stored = await getStoredProfile(parsed.data.profileId)
       if (!stored) {
@@ -65,6 +67,7 @@ export async function POST(request: Request) {
       }
       profile = stored.profile
       storedPreferences = stored.preferences
+      sourceResumeText = stored.sourceResume
     }
     // Request preferences win over the profile's saved ones; fall back to saved.
     const preferences = parsed.data.preferences ?? storedPreferences ?? undefined
@@ -89,6 +92,7 @@ export async function POST(request: Request) {
       jdText: jdText as string,
       resumeText: parsed.data.resumeText,
       profile,
+      sourceResumeText,
       preferences,
       bannedTerms: parsed.data.bannedTerms,
     })
@@ -118,6 +122,12 @@ export async function POST(request: Request) {
               g.noFabrication.ungroundedMetrics.map((m) => `"${m}"`).join(', '),
           )
         }
+      }
+      if (!g.bulletsGrounded.ok) {
+        reasons.push(
+          `no-fabrication (experience): ${g.bulletsGrounded.ungroundedMetrics.length} quantified claim(s) in the resume bullets/summary not grounded in the SOURCE resume: ` +
+            g.bulletsGrounded.ungroundedMetrics.map((m) => `"${m}"`).join(', '),
+        )
       }
       if (!g.bannedTerms.ok) reasons.push(`banned-terms: ${g.bannedTerms.violations.join(', ')}`)
       if (!g.style.ok) reasons.push(`style: ${g.style.violations.join('; ')}`)
