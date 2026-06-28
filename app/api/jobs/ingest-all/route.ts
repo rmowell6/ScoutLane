@@ -68,8 +68,11 @@ async function ingestBoards(now: string) {
     },
   })
 
-  // Apify (Dice + Wellfound) is dynamically imported so apify-client only loads when configured.
-  if (process.env.APIFY_API_TOKEN) {
+  // Apify (Dice + Wellfound) is OFF: the two Store actors require actor-specific input schemas
+  // (Dice wants `keyword`, Wellfound wants `startUrls`) that the vendored module doesn't supply, so
+  // every run failed input validation. Re-enable by setting APIFY_INGEST=on once the actor inputs
+  // are wired to match (paste each actor's Input schema from the Apify console and I'll map them).
+  if (process.env.APIFY_API_TOKEN && process.env.APIFY_INGEST === 'on') {
     const { ApifyProvider } = await import('@/src/jobBoards/providers/apify')
     // Cap the actor run just under the aggregator's per-provider timeout so a slow scrape fails as a
     // clean timeout rather than hanging the whole cron.
