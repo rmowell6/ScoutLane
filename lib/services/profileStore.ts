@@ -74,6 +74,10 @@ export async function saveProfile(
 /**
  * Load a stored profile (+ preferences) by id. Returns null when no row matches. Both stored
  * JSON blobs are re-validated with their schema — never trust persisted shape blindly.
+ *
+ * SECURITY (auth deferred): the `id` is a BEARER CAPABILITY — there is no ownership check, so anyone
+ * holding the UUID can read this profile's PII. The route rate-limits to blunt enumeration. When
+ * auth is wired, add a `user_id` predicate here (the column already exists on `profiles`).
  */
 export async function getStoredProfile(id: string): Promise<StoredProfile | null> {
   return runStep('select', async () => {

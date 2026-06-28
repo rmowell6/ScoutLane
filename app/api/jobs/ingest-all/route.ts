@@ -151,11 +151,11 @@ async function handleIngestAll(request: Request) {
     const ats =
       atsSettled.status === 'fulfilled'
         ? { ok: true, ...atsSettled.value }
-        : { ok: false, error: errMsg(atsSettled.reason) }
+        : { ok: false, error: legError(atsSettled.reason) }
     const boards =
       boardsSettled.status === 'fulfilled'
         ? { ok: true, ...boardsSettled.value }
-        : { ok: false, error: errMsg(boardsSettled.reason) }
+        : { ok: false, error: legError(boardsSettled.reason) }
 
     const atsUpserted = atsSettled.status === 'fulfilled' ? atsSettled.value.upserted : 0
     const boardsUpserted = boardsSettled.status === 'fulfilled' ? boardsSettled.value.upserted : 0
@@ -181,15 +181,15 @@ async function handleIngestAll(request: Request) {
     const expiredJobs =
       expireSettled.status === 'fulfilled'
         ? { ok: true, expired: expireSettled.value, sources: prunableSources }
-        : { ok: false, error: errMsg(expireSettled.reason) }
+        : { ok: false, error: legError(expireSettled.reason) }
     const reclaimedJobs =
       reclaimSettled.status === 'fulfilled'
         ? { ok: true, removed: reclaimSettled.value }
-        : { ok: false, error: errMsg(reclaimSettled.reason) }
+        : { ok: false, error: legError(reclaimSettled.reason) }
     const prunedDocs =
       docsSettled.status === 'fulfilled'
         ? { ok: true, removed: docsSettled.value }
-        : { ok: false, error: errMsg(docsSettled.reason) }
+        : { ok: false, error: legError(docsSettled.reason) }
 
     console.log(
       `[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok}); ` +
@@ -212,4 +212,13 @@ export const POST = handleIngestAll
 
 function errMsg(reason: unknown): string {
   return reason instanceof Error ? reason.message : String(reason)
+}
+
+// A failed leg's raw reason can carry internal detail (a JobStoreError wraps DB messages). This
+// route is CRON_SECRET-gated, but redact in production anyway (defense-in-depth, consistent with
+// serverErrorBody) — the full error is always logged server-side. Per-source provider statuses
+// inside ats/boards are upstream-origin and bounded, so they're left as-is for the cron report.
+const isProd = process.env.NODE_ENV === 'production'
+function legError(reason: unknown): string {
+  return isProd ? 'upstream error (see server logs)' : errMsg(reason)
 }
