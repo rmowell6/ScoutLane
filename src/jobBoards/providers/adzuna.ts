@@ -16,8 +16,10 @@ import type {
 import {
   fetchJSON,
   buildId,
+  mapEach,
   normaliseJobType,
   parseSalaryString,
+  safeDate,
   DEFAULT_PAGE_SIZE,
 } from './base';
 
@@ -62,20 +64,25 @@ function mapJob(raw: AdzunaJob, source: string): Job {
         }
       : undefined;
 
+  // Guard nested objects — a row missing company/location/category must not throw (mapEach would
+  // skip it, but optional-chaining keeps the common partial row usable).
+  const locationName = raw.location?.display_name ?? '';
+  const title = raw.title ?? '';
+
   return {
     id: buildId(source, raw.id),
     source,
-    title: raw.title,
-    company: raw.company.display_name,
-    location: raw.location.display_name,
-    remote: raw.location.display_name.toLowerCase().includes('remote') ||
-            raw.title.toLowerCase().includes('remote'),
+    title,
+    company: raw.company?.display_name ?? 'Unknown',
+    location: locationName,
+    remote:
+      locationName.toLowerCase().includes('remote') || title.toLowerCase().includes('remote'),
     type: normaliseJobType(raw.contract_type ?? raw.contract_time),
     salary,
-    description: raw.description,
-    tags: [raw.category.tag],
+    description: raw.description ?? '',
+    tags: raw.category?.tag ? [raw.category.tag] : [],
     url: raw.redirect_url,
-    postedAt: new Date(raw.created),
+    postedAt: safeDate(raw.created),
   };
 }
 
@@ -116,7 +123,7 @@ export class AdzunaProvider implements JobBoardProvider {
     try {
       const data = await fetchJSON<AdzunaResponse>(url, {}, this.config.timeoutMs);
       return {
-        jobs: data.results.map((j) => mapJob(j, this.name)),
+        jobs: mapEach(data.results, (j) => mapJob(j, this.name)),
         total: data.count,
         page,
         pageSize,

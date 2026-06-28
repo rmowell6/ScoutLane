@@ -2,19 +2,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // ScoutLane — Job Boards Module
 // Public API
+//
+// NOTE: the in-memory/file cache layer (MemoryCache/FileCache/CachedAggregator) that shipped with
+// the original module was removed — ScoutLane caches via the Supabase `jobs` table (the daily cron
+// is the only thing that hits provider APIs), so those classes were dead code and a read-only-FS
+// trap on serverless. Use JobAggregator directly.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Aggregators ──────────────────────────────────────────────────────────────
+// ── Aggregator ───────────────────────────────────────────────────────────────
 
-export { JobAggregator } from './aggregator';
+export { JobAggregator, deduplicateJobs } from './aggregator';
 export type { AggregatedResult, SourceStatus } from './aggregator';
-
-// Cached wrapper (recommended entry point for production use)
-export { CachedAggregator } from './CachedAggregator';
-export type {
-  CachedAggregatorConfig,
-  CachedSearchResult,
-} from './CachedAggregator';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -32,18 +30,6 @@ export { USAJobsProvider } from './providers/usajobs';
 export { JSearchProvider } from './providers/jsearch';
 export { ApifyProvider } from './providers/apify';
 export type { ApifyProviderConfig } from './providers/apify';
-
-// ── Cache ─────────────────────────────────────────────────────────────────────
-
-export { MemoryCache } from './cache/MemoryCache';
-export type { MemoryCacheOptions } from './cache/MemoryCache';
-
-export { FileCache } from './cache/FileCache';
-export type { FileCacheOptions } from './cache/FileCache';
-
-export { buildCacheKey, buildAggregatorKey } from './cache/key';
-export type { IJobCache, CacheEntry, CacheStats } from './cache/types';
-export { TTL } from './cache/types';
 
 // ── Core Types ────────────────────────────────────────────────────────────────
 

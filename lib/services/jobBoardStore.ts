@@ -67,8 +67,14 @@ export function dedupeRows(rows: JobBoardRow[]): JobBoardRow[] {
   return [...byKey.values()]
 }
 
-/** A job is storable only if it has the fields the pool/discovery actually need. Drops malformed
- *  provider output (e.g. a feed whose shape doesn't match its mapper) instead of polluting the pool. */
+/**
+ * CONTRACT GUARD (vendored shape drift). The vendored module's `Job` shape is mapped to a row above;
+ * this is the single chokepoint that protects the pool when a provider's payload drifts from what its
+ * mapper expects (as the Himalayas browse feed once did, emitting url-less jobs). A job is storable
+ * only if it has the fields the pool/discovery actually need — url, title, source. Anything else is
+ * dropped here instead of polluting the pool. If a new provider is added or a feed changes shape,
+ * this is the invariant to keep green.
+ */
 export function isStorableJob(job: Job): boolean {
   return Boolean(job && job.url?.trim() && job.title?.trim() && job.source?.trim())
 }
