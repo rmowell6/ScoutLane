@@ -86,7 +86,8 @@ export class HimalayasProvider implements JobBoardProvider {
 
   async search(params: SearchParams): Promise<JobSearchResult> {
     const page = params.page ?? 1;
-    const pageSize = params.pageSize ?? DEFAULT_PAGE_SIZE;
+    // The Himalayas BROWSE endpoint caps `limit` at 20.
+    const pageSize = Math.min(params.pageSize ?? DEFAULT_PAGE_SIZE, 20);
 
     const qs = new URLSearchParams({
       limit: String(pageSize),
@@ -98,7 +99,8 @@ export class HimalayasProvider implements JobBoardProvider {
     if (params.type) qs.set('jobType', params.type);
     if (params.location) qs.set('locationRestrictions', params.location);
 
-    const url = `https://himalayas.app/api/jobs?${qs}`;
+    // Browse-all-jobs feed (path is /jobs/api, not /api/jobs).
+    const url = `https://himalayas.app/jobs/api?${qs}`;
 
     try {
       const data = await fetchJSON<HimalayasResponse>(url, {}, this.config.timeoutMs);
