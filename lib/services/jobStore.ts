@@ -4,6 +4,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import * as z from 'zod'
 import type { IngestedJob } from '@/lib/services/ats/types'
+import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
 
 const TABLE = 'jobs'
 
@@ -127,6 +128,32 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
       company: (r.company as string) ?? '',
       location: (r.location as string | null) ?? null,
       url: (r.url as string) ?? '',
+    }))
+  })
+}
+
+/**
+ * Fetch the live pool for role discovery: light metadata plus a truncated JD snippet (enough to
+ * carry each posting's skill vocabulary for the lexical pre-filter) — newest first. The snippet is
+ * capped server-side so a huge JD can't bloat the candidate set.
+ */
+export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise<MatchableJob[]> {
+  return runStep('listForMatch', async () => {
+    const { data, error } = await db()
+      .from(TABLE)
+      .select('id, source, title, company, location, url, jd_raw')
+      .eq('status', 'live')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    if (error) throw error
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      provider: (r.source as string) ?? 'unknown',
+      title: (r.title as string) ?? 'Untitled role',
+      company: (r.company as string) ?? '',
+      location: (r.location as string | null) ?? null,
+      url: (r.url as string) ?? '',
+      snippet: ((r.jd_raw as string | null) ?? '').slice(0, snippetChars),
     }))
   })
 }
