@@ -61,7 +61,8 @@ function preferencesForPrompt(preferences?: CandidatePreferences): Record<string
   const out: Record<string, unknown> = {}
   if (p.targetLanes?.length) out.targetLanes = p.targetLanes
   if (p.targetCompTopUsd) out.targetCompTopUsd = p.targetCompTopUsd
-  if (p.workMode) out.workMode = p.workMode
+  if (p.workModes?.length) out.workModes = p.workModes
+  if (p.employmentTypes?.length) out.employmentTypes = p.employmentTypes
   if (p.employerTypePreference) out.employerTypePreference = p.employerTypePreference
   if (p.noGoLocations?.length) out.noGoLocations = p.noGoLocations
   return out

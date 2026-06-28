@@ -493,3 +493,44 @@
   outline: none;
   border-color: #4c8bf5;
 }
+
+/* Multi-select chip group (work mode / employment type). */
+.chipGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip,
+.chipOn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #2a2e37;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.chip {
+  background: #15171c;
+  color: #a9adb4;
+}
+
+.chip:hover {
+  border-color: #3a3f4a;
+  color: #e8eaed;
+}
+
+.chipOn {
+  background: #4c8bf5;
+  border-color: #4c8bf5;
+  color: #fff;
+}
+
+.chip:focus-visible,
+.chipOn:focus-visible {
+  outline: 2px solid #4c8bf5;
+  outline-offset: 2px;
+}

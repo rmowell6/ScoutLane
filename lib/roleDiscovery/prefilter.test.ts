@@ -17,7 +17,12 @@ function job(p: Partial<MatchableJob>): MatchableJob {
 
 describe('candidateTerms', () => {
   test('keeps multi-word skills as phrases and adds tokens, dropping stopwords', () => {
-    const terms = candidateTerms(PROFILE, { targetLanes: ['Platform Engineer'], noGoLocations: [] })
+    const terms = candidateTerms(PROFILE, {
+      targetLanes: ['Platform Engineer'],
+      workModes: [],
+      employmentTypes: [],
+      noGoLocations: [],
+    })
     expect(terms).toContain('incident response') // phrase preserved
     expect(terms).toContain('azure')
     expect(terms).toContain('vmware')

@@ -73,12 +73,14 @@ describe('discoverRoles', () => {
       targetCompTopUsd: 175000,
       targetLanes: ['Cloud Engineer'],
       noGoLocations: ['California'],
-      workMode: 'remote',
+      workModes: ['remote'],
+      employmentTypes: ['contract'],
     })
     expect(state.lastContent).toContain('<preferences>')
     expect(state.lastContent).toContain('175000')
     expect(state.lastContent).toContain('California')
     expect(state.lastContent).toContain('remote')
+    expect(state.lastContent).toContain('contract')
     // employerTypePreference wasn't set, so it must not appear in the block
     expect(state.lastContent).not.toContain('employerTypePreference')
   })
