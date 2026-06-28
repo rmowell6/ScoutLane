@@ -6,6 +6,7 @@ const state = vi.hoisted(() => ({
   pool: [] as MatchableJob[],
   parsed: { roles: [] as Array<{ id: string; score: number; reason: string }> },
   parseCalls: 0,
+  lastContent: '' as string,
 }))
 
 vi.mock('./jobStore', () => ({
@@ -17,8 +18,9 @@ vi.mock('@/lib/anthropic', () => ({
   MODELS: { screen: 'claude-haiku-4-5' },
   anthropic: {
     messages: {
-      parse: vi.fn(async () => {
+      parse: vi.fn(async (args: { messages: Array<{ content: string }> }) => {
         state.parseCalls++
+        state.lastContent = args.messages[0]?.content ?? ''
         return { parsed_output: state.parsed }
       }),
     },
@@ -44,6 +46,7 @@ afterEach(() => {
   state.pool = []
   state.parsed = { roles: [] }
   state.parseCalls = 0
+  state.lastContent = ''
 })
 
 describe('discoverRoles', () => {
@@ -61,6 +64,30 @@ describe('discoverRoles', () => {
     expect(state.parseCalls).toBe(1)
     expect(out).toHaveLength(1)
     expect(out[0]).toMatchObject({ id: 'a', score: 88, title: 'Azure Platform Engineer', reason: 'same Azure/VMware work' })
+  })
+
+  test('passes only the SET preferences into the rerank prompt', async () => {
+    state.pool = [job('a', 'Azure Platform Engineer', 'vmware')]
+    state.parsed = { roles: [{ id: 'a', score: 80, reason: 'fit' }] }
+    await discoverRoles(PROFILE, {
+      targetCompTopUsd: 175000,
+      targetLanes: ['Cloud Engineer'],
+      noGoLocations: ['California'],
+      workMode: 'remote',
+    })
+    expect(state.lastContent).toContain('<preferences>')
+    expect(state.lastContent).toContain('175000')
+    expect(state.lastContent).toContain('California')
+    expect(state.lastContent).toContain('remote')
+    // employerTypePreference wasn't set, so it must not appear in the block
+    expect(state.lastContent).not.toContain('employerTypePreference')
+  })
+
+  test('sends an empty preferences block when none are set (pure-similarity ranking)', async () => {
+    state.pool = [job('a', 'Azure Platform Engineer', 'vmware')]
+    state.parsed = { roles: [{ id: 'a', score: 80, reason: 'fit' }] }
+    await discoverRoles(PROFILE)
+    expect(state.lastContent).toContain('<preferences>{}</preferences>')
   })
 
   test('tags a failing step via DiscoverError', async () => {

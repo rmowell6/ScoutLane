@@ -60,6 +60,8 @@ export default function Home() {
   const [jdText, setJdText] = useState('')
   const [loading, setLoading] = useState(false)
   const [packet, setPacket] = useState<Packet | null>(null)
+  // The source posting URL the packet was built from (pool path only), so the result links to apply.
+  const [packetSourceUrl, setPacketSourceUrl] = useState<string | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadNote, setUploadNote] = useState<string | null>(null)
@@ -224,6 +226,7 @@ export default function Home() {
     e.preventDefault()
     setLoading(true)
     setPacket(null)
+    setPacketSourceUrl(null)
     setError(null)
     try {
       // Resume: reuse the saved profile when the text is unchanged; else send raw text.
@@ -245,6 +248,8 @@ export default function Home() {
         )
         return
       }
+      // Remember the source posting (pool path) so the rendered packet can link straight to apply.
+      setPacketSourceUrl(jdMode === 'pick' && selectedJob?.url ? selectedJob.url : null)
       setPacket(data as Packet)
     } catch (err) {
       setError({ error: err instanceof Error ? err.message : 'Network error' })
@@ -397,7 +402,7 @@ export default function Home() {
                   {suggested.length > 0 && (
                     <ul className={styles.jobList} aria-label="Suggested roles from your experience">
                       {suggested.map((job) => (
-                        <li key={`sug-${job.id}`}>
+                        <li key={`sug-${job.id}`} className={styles.jobRow}>
                           <button
                             type="button"
                             className={selectedJob?.id === job.id ? styles.jobItemOn : styles.jobItem}
@@ -413,6 +418,16 @@ export default function Home() {
                             </span>
                             <span className={styles.suggestReason}>{job.reason}</span>
                           </button>
+                          {job.url && (
+                            <a
+                              className={styles.sourceLink}
+                              href={job.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              View original posting ↗
+                            </a>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -424,9 +439,21 @@ export default function Home() {
                         <strong>{selectedJob.title}</strong> — {selectedJob.company}
                         {selectedJob.location ? ` · ${selectedJob.location}` : ''}
                       </span>
-                      <button type="button" className={styles.clearLink} onClick={() => setSelectedJob(null)}>
-                        clear
-                      </button>
+                      <span className={styles.selectedJobActions}>
+                        {selectedJob.url && (
+                          <a
+                            className={styles.sourceLink}
+                            href={selectedJob.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            View posting ↗
+                          </a>
+                        )}
+                        <button type="button" className={styles.clearLink} onClick={() => setSelectedJob(null)}>
+                          clear
+                        </button>
+                      </span>
                     </div>
                   )}
                   <p className={styles.srOnly} role="status">
@@ -442,7 +469,7 @@ export default function Home() {
                       <li className={styles.jobMeta}>{jobsNote ?? 'No roles found.'}</li>
                     )}
                     {jobResults.map((job) => (
-                      <li key={job.id}>
+                      <li key={job.id} className={styles.jobRow}>
                         <button
                           type="button"
                           className={selectedJob?.id === job.id ? styles.jobItemOn : styles.jobItem}
@@ -455,6 +482,16 @@ export default function Home() {
                             {job.location ? ` · ${job.location}` : ''}
                           </span>
                         </button>
+                        {job.url && (
+                          <a
+                            className={styles.sourceLink}
+                            href={job.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            View original posting ↗
+                          </a>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -565,7 +602,7 @@ export default function Home() {
         </form>
 
         {error && <ErrorPanel error={error} />}
-        {packet && <PacketView packet={packet} />}
+        {packet && <PacketView packet={packet} sourceUrl={packetSourceUrl} />}
       </main>
     </div>
   )
