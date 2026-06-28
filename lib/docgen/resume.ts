@@ -1,5 +1,5 @@
 // ATS-safe resume builder — ported from resume_template_build.js, the LOCKED design system
-// (Ryan_Resume_Template_SPEC.md). Design tokens, builder recipes, and section structure are
+// (the resume template spec). Design tokens, builder recipes, and section structure are
 // preserved EXACTLY; only the content is parameterized by ResumeContent so it works for any
 // target role. Runs only in routes with runtime='nodejs' (Packer.toBuffer needs Node Buffer).
 //

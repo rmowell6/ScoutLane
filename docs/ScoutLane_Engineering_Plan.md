@@ -1,6 +1,6 @@
 # ScoutLane — Engineering Plan & Verified Reference
 
-**Prepared for:** Ryan Mowell · **Date:** June 26, 2026 · **Companion to:** `ScoutLane_POC_Build_Plan.md`
+**Prepared for:** ScoutLane · **Date:** June 26, 2026 · **Companion to:** `ScoutLane_POC_Build_Plan.md`
 
 Every code snippet and version in this document was checked against the **official documentation fetched today** (Next.js, Vercel, Supabase, Anthropic, docx, Zod, Vitest, Playwright, OWASP, GitHub Actions). Sources are listed in §12. Where a doc was ambiguous or JS-gated, it is flagged inline. Re-verify patch/minor versions at implementation time; the major versions and APIs below are current as of mid-2026.
 
@@ -292,7 +292,7 @@ export async function buildResumeDocx(profile: Profile): Promise<Buffer> {
   const doc = new Document({
     sections: [{ children: [
       new Paragraph({ children: [new TextRun({ text: profile.name, bold: true })] }),
-      // ... port the existing Ryan_Resume_Build_*.js builders here, parameterized ...
+      // ... port the existing Resume_Build_*.js builders here, parameterized ...
     ]}],
   })
   return Packer.toBuffer(doc)   // Buffer in Node; Uint8Array in browser — keep this server-side

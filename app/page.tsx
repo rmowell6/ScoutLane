@@ -36,10 +36,11 @@ interface PooledJob {
 
 type JdMode = 'paste' | 'pick'
 
+// Fully fictional sample persona — no real PII (this string ships to the browser).
 const SAMPLE_RESUME =
-  'Ryan Mowell — Cloud Engineer\nLebanon, OH · ryan@example.com\n\n' +
+  'Jordan Rivera — Cloud Engineer\nAustin, TX · jordan.rivera@example.com\n\n' +
   'Skills: Azure, VMware, Veeam, PowerShell, Microsoft Sentinel, Azure Virtual Desktop\n\n' +
-  'Experience:\nSignature Performance — Cloud Engineer (2024–present)\n' +
+  'Experience:\nNorthwind Health — Cloud Engineer (2024–present)\n' +
   '- Built and ran hybrid Azure infrastructure under HIPAA compliance\n' +
   '- Deployed Microsoft Sentinel for security monitoring across the estate\n' +
   '- Rolled out Azure Virtual Desktop for remote staff\n\n' +

@@ -34,10 +34,10 @@ describe('extractResumeText', () => {
     const result = await extractResumeText({
       filename: 'r.txt',
       mimeType: 'text/plain',
-      bytes: bytesOf('Ryan Mowell\nCloud Engineer'),
+      bytes: bytesOf('Jordan Rivera\nCloud Engineer'),
     })
     expect(result.kind).toBe('txt')
-    expect(result.text).toBe('Ryan Mowell\nCloud Engineer')
+    expect(result.text).toBe('Jordan Rivera\nCloud Engineer')
   })
 
   test('extracts text from a real .docx (round-trip via docx + mammoth)', async () => {

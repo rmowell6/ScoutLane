@@ -1,9 +1,9 @@
-// Ryan Mowell's standing content rules, lifted from Ryan_Resume_Template_SPEC.md
+// The reference profile's standing content rules, lifted from the resume template spec
 // ("Standing content rules"). These are enforced in code by the guardrails — the
 // no-fabrication promise is mechanical, not a prompt suggestion (CLAUDE.md invariant).
 //
 // When ScoutLane becomes multi-user these move to a per-profile record; for now they
-// encode the corrections that must never regress.
+// encode the corrections that must never regress. (Persona values are fictional samples.)
 
 /** Terms that must NEVER appear unless literally present in the profile facts. */
 export const BANNED_TERMS: string[] = [
@@ -12,7 +12,7 @@ export const BANNED_TERMS: string[] = [
   'AKS',
   'containers',
   'container',
-  // "Azure landing zones were never deployed by Ryan" — block the phrase outright.
+  // The reference profile never deployed Azure landing zones — block the phrase outright.
   'Azure landing zones',
   'landing zone',
 ]
@@ -28,7 +28,7 @@ export const STYLE_RULES = {
  */
 export const FACT_NOTES: string[] = [
   'Terraform is working knowledge only (Associate coursework, no exam, no heavy production use).',
-  'AVD deployments belong at Signature Performance and Tempoe only.',
-  'Veeam belongs in the Signature Performance role and the skills section.',
-  'Preserve both education entries: Sinclair Community College and Kettering Fairmont High School.',
+  'AVD deployments belong at Northwind Health and Contoso only.',
+  'Veeam belongs in the Northwind Health role and the skills section.',
+  'Preserve both education entries: Riverside Community College and Lincoln High School.',
 ]

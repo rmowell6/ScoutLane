@@ -1,6 +1,6 @@
 # ScoutLane — Packet-First POC Build Plan
 
-**Prepared for:** Ryan Mowell · **Date:** June 26, 2026 · **Status:** v1 build runbook
+**Prepared for:** ScoutLane · **Date:** June 26, 2026 · **Status:** v1 build runbook
 **Scope decision:** Packet-first proof of concept · **Stack decision:** scalable / least-rework (see §2)
 
 This is an execution runbook, not a pitch. It assumes you'll build it yourself with Claude Code. The headline: **most of this is porting code we already wrote**, not new invention — see the reuse map in §7.
@@ -144,9 +144,9 @@ The point: steps 1–4 and 6 are prompts/logic we've written, and 5 and 7 are te
 
 | Existing artifact (Job Search folder) | Where it goes |
 |---|---|
-| `Ryan_Resume_Build_*.js` (docx-js builders) | `lib/docgen/resume.ts` — the template engine, parameterized by profile JSON |
-| `Ryan_Mowell_CoverLetter_*` builders | `lib/docgen/coverLetter.ts` |
-| `Ryan_Resume_Template_SPEC.md` (rules) | `lib/guardrails.ts` (truth/ATS/style checks) + the structuring prompt |
+| `Resume_Build_*.js` (docx-js builders) | `lib/docgen/resume.ts` — the template engine, parameterized by profile JSON |
+| `CoverLetter_*` builders | `lib/docgen/coverLetter.ts` |
+| `Resume_Template_SPEC.md` (rules) | `lib/guardrails.ts` (truth/ATS/style checks) + the structuring prompt |
 | `Application_Packet_*.html` template | `components/Packet.tsx` |
 | The rollup composite-fit rubric | the `/api/rank` and `/api/packet` scoring prompt |
 | The weekly rollup scheduled task | `/api/cron/ingest` + the ranking prompt (Phase 2) |
@@ -181,9 +181,9 @@ scoutlane/
     IntakeForm.tsx
   lib/
     anthropic.ts             # SDK client + prompts (rubric, structuring, tailoring)
-    docgen/resume.ts         # from Ryan_Resume_Build_*.js
+    docgen/resume.ts         # from Resume_Build_*.js
     docgen/coverLetter.ts
-    guardrails.ts            # from Ryan_Resume_Template_SPEC.md
+    guardrails.ts            # from Resume_Template_SPEC.md
     validateJob.ts
     db.ts                    # Supabase client
   supabase/                  # schema migrations

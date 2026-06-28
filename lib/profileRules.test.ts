@@ -4,7 +4,7 @@ import { BANNED_TERMS } from '@/lib/profileRules'
 import type { Profile, TailoredContent } from '@/lib/schemas'
 
 const profile: Profile = {
-  name: 'Ryan Mowell',
+  name: 'Jordan Rivera',
   summary: 'Cloud engineer.',
   skills: ['Azure', 'VMware', 'Veeam'],
   roles: [],
@@ -19,7 +19,7 @@ const tailoredWith = (summary: string): TailoredContent => ({
   coverLetter: '',
 })
 
-describe('Ryan standing rules (enforced in code)', () => {
+describe('reference profile standing rules (enforced in code)', () => {
   test('BANNED_TERMS blocks Kubernetes/Docker, which are not in the profile', () => {
     const result = checkBannedTerms(tailoredWith('Expert in Kubernetes and Docker.'), profile, BANNED_TERMS)
     expect(result.ok).toBe(false)

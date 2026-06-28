@@ -11,7 +11,7 @@ with no env vars (the `proxy.ts` middleware skips session refresh until Supabase
 
 ## 1. Import the project
 
-1. Vercel → **Add New… → Project** → import `rmowell6/ScoutLane`.
+1. Vercel → **Add New… → Project** → import `<your-org>/ScoutLane`.
 2. Framework preset: **Next.js** (auto-detected; also pinned in `vercel.json`).
 3. Build command `next build`, output handled by Vercel — leave defaults.
 4. **Node.js version:** **24.x** — pinned by `engines.node` in `package.json` and `.nvmrc`, and
