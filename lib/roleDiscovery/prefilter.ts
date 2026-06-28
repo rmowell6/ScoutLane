@@ -92,17 +92,18 @@ function escapeRe(s: string): string {
 }
 
 /**
- * Score every posting and return the top K with any overlap, highest first. Ties break by a
- * stable fallback (newer-first is preserved by the input order, so we keep it stable on score).
+ * Score every posting and return the top K, highest first. `minScore` is the relevance floor — a
+ * posting must clear it to qualify (default 1 = any overlap; a higher floor trims long-tail roles
+ * that share only one incidental keyword). Ties break by input order (recency-stable).
  */
-export function prefilter(jobs: MatchableJob[], terms: string[], topK: number): ScoredJob[] {
+export function prefilter(jobs: MatchableJob[], terms: string[], topK: number, minScore = 1): ScoredJob[] {
   if (terms.length === 0) return []
   const scored = jobs
     .map((job) => {
       const { score, hits } = scoreJob(job, terms)
       return { ...job, lexScore: score, hits }
     })
-    .filter((j) => j.lexScore > 0)
+    .filter((j) => j.lexScore >= minScore)
   // Stable sort by score desc; equal scores keep their incoming (recency) order.
   scored.sort((a, b) => b.lexScore - a.lexScore)
   return scored.slice(0, topK)

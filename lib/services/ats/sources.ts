@@ -14,4 +14,15 @@ export const SOURCES: AtsSource[] = [
   // Ashby: api.ashbyhq.com/posting-api/job-board/<token> (canonical slug is lowercase)
   { provider: 'ashby', token: 'ramp', company: 'Ramp' },
   { provider: 'ashby', token: 'notion', company: 'Notion' },
+
+  // ---- Infrastructure / cloud / IT-dense boards (added for role-discovery relevance) ----
+  // These companies are engineering-heavy and post many cloud / infra / platform / security
+  // roles, so the pool has more matches for that career path. Tokens are best-effort: the ingest
+  // report flags any that 404 (slug changed) — prune those when you see them in production.
+  { provider: 'greenhouse', token: 'cloudflare', company: 'Cloudflare' },
+  { provider: 'greenhouse', token: 'hashicorp', company: 'HashiCorp' },
+  { provider: 'greenhouse', token: 'elastic', company: 'Elastic' },
+  { provider: 'greenhouse', token: 'confluent', company: 'Confluent' },
+  { provider: 'greenhouse', token: 'databricks', company: 'Databricks' },
+  { provider: 'greenhouse', token: 'digitalocean', company: 'DigitalOcean' },
 ]

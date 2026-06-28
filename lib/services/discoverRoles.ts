@@ -7,6 +7,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS } from '@/lib/anthropic'
 import { listJobsForMatch } from './jobStore'
 import { candidateTerms, prefilter } from '@/lib/roleDiscovery/prefilter'
+import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
 import { RoleRankSchema, assembleDiscoveries, type DiscoveredRole } from '@/lib/roleDiscovery/rerank'
 import type { CandidatePreferences, Profile } from '@/lib/schemas'
 
@@ -17,16 +18,29 @@ export interface DiscoverOptions {
   shortlist?: number
   /** How many ranked roles to return. */
   topN?: number
+  /** Lexical relevance floor for the pre-filter (drop weaker-than-this overlaps). */
+  minLexScore?: number
+  /** Drop clearly-non-US postings before ranking (default true; the product assumes US auth). */
+  usOnly?: boolean
 }
 
-const DEFAULTS = { poolLimit: 150, shortlist: 24, topN: 8 } as const
+// poolLimit scores the WHOLE live pool in memory (cheap keyword matching) so relevant roles aren't
+// crowded out by the newest postings; only `shortlist` candidates go to the (paid) re-rank.
+// minLexScore is the relevance floor — drop roles that share only one incidental keyword.
+const DEFAULTS = { poolLimit: 1000, shortlist: 30, topN: 10, minLexScore: 2 } as const
 
 const RERANK_INSTRUCTIONS = [
   'You match a candidate to job postings by SIMILARITY OF WORK, not by job-title wording.',
   'Different employers name the same work differently (e.g. "Cloud Engineer" vs "Platform Engineer"',
   'vs "Infrastructure Engineer"), so judge on the overlap between the candidate’s real skills/roles',
   'and each posting’s responsibilities — reward strong title-variant matches, not just literal title',
-  'matches. Score each role 0–100 for how well it fits the candidate’s actual experience, and give a',
+  'matches.',
+  'STAY IN THE CANDIDATE’S PROFESSIONAL FIELD: only suggest roles in the same discipline/function as',
+  'their actual experience (e.g. infrastructure / cloud / IT / security-engineering for an',
+  'infrastructure engineer). EXCLUDE roles in unrelated functions — sales, account management,',
+  'marketing, recruiting, finance, customer support, design — even when they share a buzzword, UNLESS',
+  'the candidate’s own background is in that function. A role in a different field is NOT a match.',
+  'Score each role 0–100 for how well it fits the candidate’s actual experience, and give a',
   'ONE-sentence reason that names the connection, e.g. same VMware and Azure work titled Platform Engineer.',
   'The reason may reference ONLY skills, certs, or roles that appear in the candidate data provided —',
   'never claim the candidate has a skill or experience that is not listed there (no fabrication).',
@@ -85,12 +99,15 @@ export async function discoverRoles(
   preferences?: CandidatePreferences,
   options: DiscoverOptions = {},
 ): Promise<DiscoveredRole[]> {
-  const { poolLimit, shortlist, topN } = { ...DEFAULTS, ...options }
+  const { poolLimit, shortlist, topN, minLexScore } = { ...DEFAULTS, ...options }
+  const usOnly = options.usOnly ?? true
 
   const pool = await runStep('listForMatch', () => listJobsForMatch(poolLimit))
-  // Stage 1: deterministic lexical pre-filter (no model call).
+  // Stage 1 (deterministic, no model call): default to US-located roles, then lexically pre-filter
+  // the whole pool down to the most relevant shortlist.
+  const scoped = usOnly ? pool.filter((j) => isUsLocation(j.location)) : pool
   const terms = candidateTerms(profile, preferences)
-  const candidates = prefilter(pool, terms, shortlist)
+  const candidates = prefilter(scoped, terms, shortlist, minLexScore)
   if (candidates.length === 0) return []
 
   // Stage 2: Claude re-rank by true similarity across title variance.
