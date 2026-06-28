@@ -22,7 +22,10 @@ export const SOURCES: AtsSource[] = [
   { provider: 'greenhouse', token: 'cloudflare', company: 'Cloudflare' },
   { provider: 'greenhouse', token: 'hashicorp', company: 'HashiCorp' },
   { provider: 'greenhouse', token: 'elastic', company: 'Elastic' },
-  { provider: 'greenhouse', token: 'confluent', company: 'Confluent' },
   { provider: 'greenhouse', token: 'databricks', company: 'Databricks' },
-  { provider: 'greenhouse', token: 'digitalocean', company: 'DigitalOcean' },
+  // NOTE: 'confluent' and 'digitalocean' returned 404 (no public Greenhouse board at that slug),
+  // so they were dropped and swapped for two more data/infra boards below. Still best-effort —
+  // verify against the next ingest report and prune/correct any that 404.
+  { provider: 'greenhouse', token: 'mongodb', company: 'MongoDB' },
+  { provider: 'greenhouse', token: 'datadog', company: 'Datadog' },
 ]
