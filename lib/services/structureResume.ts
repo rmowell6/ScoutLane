@@ -1,8 +1,13 @@
 // Resume structuring: raw resume text -> schema-validated Profile (LLM + Zod).
 // The resume is untrusted third-party text — isolated as labeled data (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS } from '@/lib/anthropic'
+import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
 import { ProfileSchema, type Profile } from '@/lib/schemas'
+
+// A full resume structures into a sizeable Profile JSON (roles + bullets + skills + education); 2000
+// tokens risked truncation on long resumes, which surfaced as an opaque parse failure. 4000 gives
+// headroom, and readParsed turns a genuine overflow into an explicit truncation error.
+const MAX_TOKENS = 4000
 
 // PLACEHOLDER — replace with the resume SPEC structuring rules. Plumbing is final.
 const STRUCTURE_INSTRUCTIONS = [
@@ -15,7 +20,7 @@ const STRUCTURE_INSTRUCTIONS = [
 export async function structureResume(resumeText: string): Promise<Profile> {
   const message = await anthropic.messages.parse({
     model: MODELS.screen,
-    max_tokens: 2000,
+    max_tokens: MAX_TOKENS,
     system: [{ type: 'text', text: STRUCTURE_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
     output_config: { format: zodOutputFormat(ProfileSchema) },
     messages: [
@@ -30,7 +35,5 @@ export async function structureResume(resumeText: string): Promise<Profile> {
     ],
   })
 
-  const profile = message.parsed_output
-  if (!profile) throw new Error('structureResume: no structured output returned')
-  return profile
+  return readParsed(message, 'structureResume', MAX_TOKENS)
 }

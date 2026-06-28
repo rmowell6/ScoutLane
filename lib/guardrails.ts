@@ -127,8 +127,17 @@ export function checkNoFabrication(
   }
 }
 
-/** Match a term as a whole word (single token) or substring (multi-word). */
-function mentions(haystack: string, term: string): boolean {
+/**
+ * Match a term as a whole word (single token) or substring (multi-word).
+ *
+ * NOTE (ai-28): grounding checks below match a tailored skill/term against the WHOLE flattened
+ * profile-fact text (skills + certs + role bullets + summary + education), not just the structured
+ * skills/certs lists. This is deliberate: a skill evidenced only in an experience bullet ("led the
+ * Azure migration") is genuinely present in the profile and must be allowed to ship — restricting
+ * grounding to the skills list alone would block legitimate, fact-backed tailoring. The whole-word
+ * match for single tokens keeps incidental substring hits (java vs javascript) from passing.
+ */
+export function mentions(haystack: string, term: string): boolean {
   const t = normalize(term)
   if (!t) return false
   if (/\s/.test(t)) return haystack.includes(t)
