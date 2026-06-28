@@ -154,7 +154,7 @@ function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
   )
 }
 
-export default function PacketView({ packet }: { packet: Packet }) {
+export default function PacketView({ packet, sourceUrl }: { packet: Packet; sourceUrl?: string | null }) {
   const { fit, fitInput, jobReqs, guardrails, documents } = packet
   const roleTitle = jobReqs.title ?? 'Target role'
   const heading = jobReqs.company ? `${jobReqs.company} — ${roleTitle}` : roleTitle
@@ -357,6 +357,13 @@ export default function PacketView({ packet }: { packet: Packet }) {
                 <DocButton doc={documents.resume} label="résumé" />
                 <DocButton doc={documents.coverLetter} label="cover letter" />
               </div>
+              {sourceUrl && (
+                <p style={{ margin: '12px 0 0' }}>
+                  <a className="apply-btn" href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                    Apply to this posting ↗
+                  </a>
+                </p>
+              )}
             </>
           ) : (
             <p className="muted">A guardrail blocked this packet, so no documents were generated.</p>
@@ -367,7 +374,19 @@ export default function PacketView({ packet }: { packet: Packet }) {
           <h3 id="pk-next">Next steps</h3>
           <ol className="steps">
             <li>Skim the tailored resume and cover letter for anything you&apos;d phrase differently.</li>
-            <li>Apply through the validated posting, not an aggregator, so you land in their ATS directly.</li>
+            <li>
+              {sourceUrl ? (
+                <>
+                  Apply through{' '}
+                  <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                    the validated posting ↗
+                  </a>
+                  , not an aggregator, so you land in their ATS directly.
+                </>
+              ) : (
+                'Apply through the validated posting, not an aggregator, so you land in their ATS directly.'
+              )}
+            </li>
             <li>Lead with your strongest dimension above — it&apos;s your sharpest differentiator.</li>
           </ol>
         </section>

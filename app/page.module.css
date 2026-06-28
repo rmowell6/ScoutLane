@@ -210,6 +210,33 @@
   padding: 8px 4px;
 }
 
+.jobRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sourceLink {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8fb8ff;
+  text-decoration: none;
+  padding: 2px 2px 0;
+}
+
+.sourceLink:hover {
+  color: #b9d2ff;
+  text-decoration: underline;
+}
+
+.selectedJobActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
 .jobItem,
 .jobItemOn {
   width: 100%;
