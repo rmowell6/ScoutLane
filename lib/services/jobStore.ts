@@ -94,6 +94,25 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
   })
 }
 
+/**
+ * Delete stale postings: rows whose `validated_at` predates `cutoffIso`. Every ingest run stamps
+ * `validated_at = now` on each live posting it sees, so a row that hasn't been re-validated since the
+ * cutoff is gone from every upstream feed and should leave the pool. The 14-day window (set by the
+ * caller) is wide enough to ride out a transient provider outage without evicting still-live jobs.
+ * Rows with a null `validated_at` (e.g. user-supplied targets) never match `<` and are preserved.
+ * Returns the number of rows removed.
+ */
+export async function pruneStaleJobs(cutoffIso: string): Promise<number> {
+  return runStep('prune', async () => {
+    const { error, count } = await db()
+      .from(TABLE)
+      .delete({ count: 'exact' })
+      .lt('validated_at', cutoffIso)
+    if (error) throw error
+    return count ?? 0
+  })
+}
+
 export interface ListJobsOptions {
   /** Case-insensitive search over title + company. */
   q?: string

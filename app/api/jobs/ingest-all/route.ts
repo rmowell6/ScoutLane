@@ -8,14 +8,23 @@
 // idempotently on (source, external_id), so re-running is safe.
 import { NextResponse } from 'next/server'
 import { ingestAll } from '@/lib/services/ats'
-import { upsertJobs, isJobStoreConfigured } from '@/lib/services/jobStore'
+import { upsertJobs, pruneStaleJobs, isJobStoreConfigured } from '@/lib/services/jobStore'
 import { upsertJobBoardJobs } from '@/lib/services/jobBoardStore'
+import { cleanupOldDocs, isStorageConfigured } from '@/lib/storage'
+import { isApifyDay } from '@/lib/ingest/apifySchedule'
 import { authorizeCron } from '@/lib/http/cronAuth'
 import { serverErrorBody } from '@/lib/http/errors'
 import { JobAggregator } from '@/src/jobBoards/aggregator'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // matches the existing ingest routes (proven to deploy here)
+
+// Retention: a posting unseen by every feed for this long is treated as gone and pruned from the
+// pool. Wide enough to survive a transient provider outage (a job blips out for a day or two and
+// comes back) without letting dead listings accumulate. Generated packet files are abandoned far
+// sooner — their signed download URLs expire in an hour — so they sweep on a 1-day window.
+const JOB_RETENTION_MS = 14 * 24 * 60 * 60 * 1000
+const DOC_RETENTION_MS = 24 * 60 * 60 * 1000
 
 // Broad IT sweep. No `query` (each provider falls back to its IT-category default, maximising
 // breadth) and `remote` is intentionally NOT forced — the app serves onsite/hybrid candidates too,
@@ -71,21 +80,26 @@ async function ingestBoards(now: string) {
     },
   })
 
-  // Apify (Dice + Wellfound) is OFF: the two Store actors require actor-specific input schemas
-  // (Dice wants `keyword`, Wellfound wants `startUrls`) that the vendored module doesn't supply, so
-  // every run failed input validation. Re-enable by setting APIFY_INGEST=on once the actor inputs
-  // are wired to match (paste each actor's Input schema from the Apify console and I'll map them).
-  if (process.env.APIFY_API_TOKEN && process.env.APIFY_INGEST === 'on') {
+  // Apify (Dice + Wellfound) is METERED against a $5/month free credit — Wellfound is $0.99/run flat
+  // and Dice ~$0.004/result — so unlike the free boards above it CANNOT run every day (30 daily runs
+  // would cost ~$30 and blow the credit). It instead runs only on the fixed days-of-month in
+  // apifyDays() (default 1/11/21 → exactly 3 runs ≈ $4.17, comfortably under $5 with headroom, and
+  // those three days exist in every month so the count never surprises). Master switch stays
+  // APIFY_INGEST=on; cadence is tunable via APIFY_INGEST_DAYS without a code change.
+  const apifyToken = process.env.APIFY_API_TOKEN
+  const runApify = Boolean(apifyToken) && process.env.APIFY_INGEST === 'on' && isApifyDay(now)
+  if (runApify && apifyToken) {
     const { ApifyProvider } = await import('@/src/jobBoards/providers/apify')
     // Cap the actor run just under the aggregator's per-provider timeout so a slow scrape fails as a
     // clean timeout rather than hanging the whole cron.
-    aggregator.addProvider(new ApifyProvider({ apiToken: process.env.APIFY_API_TOKEN, actorTimeoutMs: 55_000 }))
+    aggregator.addProvider(new ApifyProvider({ apiToken: apifyToken, actorTimeoutMs: 55_000 }))
   }
 
   const result = await aggregator.search(SEARCH)
   const upserted = await upsertJobBoardJobs(result.jobs, now)
   return {
     upserted,
+    apifyRan: runApify,
     sourcesOk: result.sources.filter((s) => !s.error).length,
     sourcesTotal: result.sources.length,
     durationMs: result.durationMs,
@@ -129,8 +143,30 @@ export async function POST(request: Request) {
     const atsUpserted = atsSettled.status === 'fulfilled' ? atsSettled.value.upserted : 0
     const boardsUpserted = boardsSettled.status === 'fulfilled' ? boardsSettled.value.upserted : 0
     const upserted = atsUpserted + boardsUpserted
-    console.log(`[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok})`)
-    return NextResponse.json({ upserted, ats, boards }, { status: 200 })
+
+    // Housekeeping runs AFTER both legs upsert (so live postings just got `validated_at = now` and
+    // won't be pruned) and is isolated: a cleanup failure must not fail the ingest the cron exists
+    // to do. Each leg reports its own ok/result so a problem is visible without sinking the response.
+    const cutoffIso = new Date(Date.now() - JOB_RETENTION_MS).toISOString()
+    const [pruneSettled, docsSettled] = await Promise.allSettled([
+      pruneStaleJobs(cutoffIso),
+      isStorageConfigured() ? cleanupOldDocs(DOC_RETENTION_MS) : Promise.resolve(0),
+    ])
+    const prunedJobs =
+      pruneSettled.status === 'fulfilled'
+        ? { ok: true, removed: pruneSettled.value }
+        : { ok: false, error: errMsg(pruneSettled.reason) }
+    const prunedDocs =
+      docsSettled.status === 'fulfilled'
+        ? { ok: true, removed: docsSettled.value }
+        : { ok: false, error: errMsg(docsSettled.reason) }
+
+    console.log(
+      `[ingest-all] done: ${upserted} upserted (ats ${ats.ok}, boards ${boards.ok}); ` +
+        `pruned ${prunedJobs.ok ? prunedJobs.removed : 'failed'} jobs, ` +
+        `${prunedDocs.ok ? prunedDocs.removed : 'failed'} docs`,
+    )
+    return NextResponse.json({ upserted, ats, boards, prunedJobs, prunedDocs }, { status: 200 })
   } catch (err) {
     console.error('[ingest-all] failed', err)
     return NextResponse.json(serverErrorBody(err, null), { status: 500 })
