@@ -35,4 +35,14 @@ describe('isApifyDay', () => {
     expect(isApifyDay('2026-06-15T03:00:00.000Z', env)).toBe(true)
     expect(isApifyDay('2026-06-11T03:00:00.000Z', env)).toBe(false)
   })
+
+  // cloud-13: the cron fires at 03:00 UTC and gating is UTC-based, so the day boundary is consistent.
+  // The 1st (an Apify day) is reached cleanly at a month rollover; the prior month's last day is not.
+  test('handles month boundaries at the cron hour (03:00 UTC)', () => {
+    expect(isApifyDay('2026-07-01T03:00:00.000Z', {})).toBe(true) // 1st of July = Apify day
+    expect(isApifyDay('2026-06-30T03:00:00.000Z', {})).toBe(false) // 30th = not an Apify day
+    expect(isApifyDay('2026-03-01T03:00:00.000Z', {})).toBe(true) // day after Feb's last day
+    expect(isApifyDay('2026-02-28T03:00:00.000Z', {})).toBe(false) // Feb 28 (last day, non-leap)
+    expect(isApifyDay('2026-12-31T03:00:00.000Z', {})).toBe(false) // year-end, day 31, not gated
+  })
 })

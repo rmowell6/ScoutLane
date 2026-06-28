@@ -4,7 +4,8 @@
 //
 // Lazy + degradable like lib/storage.ts: the client is built on first use, so importing this
 // module never throws when env is absent (keeps unit tests / builds working without secrets).
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { type SupabaseClient } from '@supabase/supabase-js'
+import { serverSupabase } from '@/lib/supabaseServer'
 import { CandidatePreferencesSchema, ProfileSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 
 const TABLE = 'profiles'
@@ -15,10 +16,11 @@ export function isProfileStoreConfigured(): boolean {
 }
 
 function db(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY // server-only; bypasses RLS
-  if (!url || !key) throw new ProfileStoreError('configure', new Error('profile store is not configured'))
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  try {
+    return serverSupabase() // server-only; bypasses RLS; reused across calls
+  } catch (err) {
+    throw new ProfileStoreError('configure', err)
+  }
 }
 
 /** Carries which persistence step failed, so the route can report it without log-diving. */

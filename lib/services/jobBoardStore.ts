@@ -3,7 +3,8 @@
 // left untouched per the integration handoff). The ATS module owns `IngestedJob`; the job-board
 // module has its own `Job` shape, so this is the bridge: map `Job` -> the shared row shape and
 // upsert idempotently on (source, external_id).
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { type SupabaseClient } from '@supabase/supabase-js'
+import { serverSupabase } from '@/lib/supabaseServer'
 import { JobStoreError } from './jobStore'
 import type { Job } from '@/src/jobBoards/types'
 
@@ -17,10 +18,11 @@ export function isJobBoardStoreConfigured(): boolean {
 }
 
 function db(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY
-  if (!url || !key) throw new JobStoreError('configure', new Error('job store is not configured'))
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+  try {
+    return serverSupabase()
+  } catch (err) {
+    throw new JobStoreError('configure', err)
+  }
 }
 
 export interface JobBoardRow {
