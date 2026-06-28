@@ -106,6 +106,12 @@ export async function POST(request: Request) {
               g.noFabrication.ungroundedSkills.map((s) => `"${s}"`).join(', '),
           )
         }
+        if (g.noFabrication.ungroundedMetrics.length > 0) {
+          reasons.push(
+            `no-fabrication: ${g.noFabrication.ungroundedMetrics.length} quantified claim(s) in the summary/cover letter not grounded in the profile: ` +
+              g.noFabrication.ungroundedMetrics.map((m) => `"${m}"`).join(', '),
+          )
+        }
       }
       if (!g.bannedTerms.ok) reasons.push(`banned-terms: ${g.bannedTerms.violations.join(', ')}`)
       if (!g.style.ok) reasons.push(`style: ${g.style.violations.join('; ')}`)

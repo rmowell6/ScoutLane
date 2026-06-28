@@ -63,13 +63,51 @@ export interface NoFabricationResult {
   unverifiable: Claim[]
   /** Tailored skills not grounded in any profile fact (they ship verbatim into the resume). */
   ungroundedSkills: string[]
+  /** Quantified claims in the free-text summary / cover-letter body whose number is absent from
+   *  the profile facts (e.g. an invented "cut costs 40%" or "team of 12"). */
+  ungroundedMetrics: string[]
+}
+
+// ---- prose metric grounding ------------------------------------------------------
+// The summary and cover-letter BODY are free prose, not structured claims, so the claim/skill
+// traces below don't cover them. The most common and most damaging fabrication in that prose is an
+// invented QUANTITY — "cut costs 40%", "$2M saved", "team of 12", "managed 200 servers". We extract
+// numbers bound to a metric context and require each to appear in the profile facts. Bare numbers
+// and 4-digit years are deliberately NOT gated (too ambiguous — e.g. a computed "10 years").
+
+const METRIC_RE = new RegExp(
+  [
+    String.raw`\d[\d,]*(?:\.\d+)?\s*%`, // 40%, 1,200%
+    String.raw`\d[\d,]*(?:\.\d+)?\s*percent\b`, // 40 percent
+    String.raw`\$\s?\d[\d,]*(?:\.\d+)?(?:\s*(?:k|m|b|million|billion|thousand))?`, // $2M, $500,000
+    String.raw`team\s+of\s+\d[\d,]*`, // team of 12
+    // a count bound to a candidate-scope unit (years intentionally excluded)
+    String.raw`\d[\d,]*(?:\.\d+)?\+?\s*(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b`,
+  ].join('|'),
+  'gi',
+)
+
+/** Pull comma-stripped numeric tokens out of a string (e.g. "$500,000" -> ["500000"]). */
+function numbersIn(s: string): string[] {
+  return (s.match(/\d[\d,]*(?:\.\d+)?/g) ?? []).map((n) => n.replace(/,/g, ''))
+}
+
+/** Metric phrases in the prose whose number appears nowhere in the profile facts. */
+function ungroundedMetricsIn(prose: string, profileText: string): string[] {
+  const profileNums = new Set(numbersIn(profileText))
+  const flagged: string[] = []
+  for (const phrase of prose.match(METRIC_RE) ?? []) {
+    const nums = numbersIn(phrase)
+    if (nums.length > 0 && !nums.some((n) => profileNums.has(n))) flagged.push(phrase.trim())
+  }
+  return flagged
 }
 
 /**
- * No fabrication: every tailored CLAIM must trace to a source fact, AND every tailored SKILL
- * (which ships verbatim into the resume's skills section) must appear somewhere in the profile
- * facts. The summary and cover-letter prose are free text and are covered by banned-terms +
- * style only — claims and skills are the structured, fully-traced surface.
+ * No fabrication: every tailored CLAIM must trace to a source fact; every tailored SKILL (which
+ * ships verbatim into the resume's skills section) must appear in the profile facts; and the
+ * free-text summary + cover-letter body must not assert a QUANTIFIED metric (%, money, team/scope
+ * count) whose number isn't in the profile facts. Style + banned-terms cover the rest of the prose.
  */
 export function checkNoFabrication(
   tailored: TailoredContent,
@@ -79,10 +117,13 @@ export function checkNoFabrication(
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
   const profileText = index.texts.join(' \n ')
   const ungroundedSkills = tailored.skills.filter((s) => !mentions(profileText, s))
+  const prose = `${tailored.summary}\n${tailored.coverLetter}`
+  const ungroundedMetrics = ungroundedMetricsIn(prose, profileText)
   return {
-    ok: unverifiable.length === 0 && ungroundedSkills.length === 0,
+    ok: unverifiable.length === 0 && ungroundedSkills.length === 0 && ungroundedMetrics.length === 0,
     unverifiable,
     ungroundedSkills,
+    ungroundedMetrics,
   }
 }
 

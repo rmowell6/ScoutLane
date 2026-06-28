@@ -390,6 +390,11 @@ export default function Home() {
                   </p>
                   {discoverNote && <span className={styles.jobMeta}>{discoverNote}</span>}
                   {suggested.length > 0 && (
+                    <span className={styles.jobSub}>
+                      AI-suggested matches based on your experience — review each posting before applying.
+                    </span>
+                  )}
+                  {suggested.length > 0 && (
                     <ul className={styles.jobList} aria-label="Suggested roles from your experience">
                       {suggested.map((job) => (
                         <li key={`sug-${job.id}`}>

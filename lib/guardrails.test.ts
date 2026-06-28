@@ -107,6 +107,34 @@ describe('checkNoFabrication', () => {
     const tailored = makeTailored({ skills: ['Azure', 'VMware'] })
     expect(checkNoFabrication(tailored, makeProfile()).ungroundedSkills).toEqual([])
   })
+
+  test('flags an invented percentage in the summary (number absent from profile facts)', () => {
+    // Profile bullets carry "40 VMs" and "30%"; 55% is fabricated.
+    const tailored = makeTailored({ summary: 'Platform engineer who cut costs 55% last quarter.' })
+    const result = checkNoFabrication(tailored, makeProfile())
+    expect(result.ok).toBe(false)
+    expect(result.ungroundedMetrics).toContain('55%')
+  })
+
+  test('passes a quantified claim whose number IS in the profile facts', () => {
+    const tailored = makeTailored({ summary: 'Cut backup costs 30% and migrated 40 VMs.' })
+    expect(checkNoFabrication(tailored, makeProfile()).ungroundedMetrics).toEqual([])
+  })
+
+  test('flags an invented scope/currency claim in the cover-letter body', () => {
+    const tailored = makeTailored({
+      coverLetter: 'I led a team of 12 and saved $2M in licensing for your team.',
+    })
+    const result = checkNoFabrication(tailored, makeProfile())
+    expect(result.ok).toBe(false)
+    expect(result.ungroundedMetrics.join(' ')).toMatch(/team of 12|\$2M/i)
+  })
+
+  test('does NOT gate bare counts or 4-digit years (too ambiguous)', () => {
+    // "10 years" (years excluded) and "2 roles" (no scope unit) must not flag.
+    const tailored = makeTailored({ summary: 'Over 10 years across 2 roles delivering Azure work.' })
+    expect(checkNoFabrication(tailored, makeProfile()).ungroundedMetrics).toEqual([])
+  })
 })
 
 describe('checkBannedTerms', () => {
