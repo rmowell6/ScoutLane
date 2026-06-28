@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored job-board aggregation module — kept as delivered (see @ts-nocheck headers).
+    // Our own integration code (lib/services/jobBoardStore.ts, the ingest route) stays linted.
+    "src/jobBoards/**",
   ]),
 ]);
 

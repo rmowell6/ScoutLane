@@ -29,9 +29,25 @@ Add them for **Production** (and Preview if you want PR previews to be fully fun
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | all | `sb_publishable_...` |
 | `SUPABASE_SECRET_KEY` | **server only** | `sb_secret_...` — bypasses RLS; never expose |
 | `ANTHROPIC_API_KEY` | **server only** | `sk-ant-...` |
-| `CRON_SECRET` | server only | Phase 2 cron auth |
+| `CRON_SECRET` | server only | Cron auth (required for the ingest routes in production) |
 
 Never prefix a secret with `NEXT_PUBLIC_` — only `NEXT_PUBLIC_*` values are shipped to the browser.
+
+### Job-board providers (all OPTIONAL — `/api/jobs/ingest-all`)
+
+The unified ingest cron pulls ATS boards plus a job-board aggregator. Four aggregator sources are
+**free with no key** (Himalayas, Arbeitnow, Remotive, RemoteOK) and run automatically — but they are
+**remote-only** boards. To add **US onsite/hybrid** coverage, set any of these free-tier keys; each
+provider lights up only when its vars are present:
+
+| Variable | Provider | Coverage | Get a key |
+|---|---|---|---|
+| `JSEARCH_RAPIDAPI_KEY` | JSearch | Indeed + LinkedIn + Glassdoor + ZipRecruiter (200 req/mo) | rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch |
+| `ADZUNA_APP_ID` + `ADZUNA_APP_KEY` | Adzuna | US + international IT | developer.adzuna.com/signup |
+| `USAJOBS_API_KEY` (+ `USAJOBS_USER_AGENT`) | USAJobs | US federal IT (onsite) | developer.usajobs.gov/apirequest |
+| `APIFY_API_TOKEN` | Apify | Dice.com + Wellfound ($5/mo credit) | console.apify.com/settings/integrations |
+
+All are **server-only**. `USAJOBS_USER_AGENT` defaults to `ScoutLane/1.0` if unset.
 
 ## 3. Deploy
 
