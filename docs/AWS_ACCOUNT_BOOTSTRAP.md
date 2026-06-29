@@ -17,10 +17,13 @@
 - A **durable email** you control for the AWS root account — ideally a shared alias (e.g.
   `aws@yourdomain` or `scoutlane.aws@gmail.com`), **not** a personal inbox, so ownership transfers cleanly.
 - A **payment card** and **phone** (AWS verifies both at signup).
-- The **domain name** you want — e.g. `scoutlane.app` or `scoutlane.com`. Decide `.app` vs `.com`:
-  - `.app` reads modern/tech and is on the **HSTS preload list** → browsers **always** force HTTPS
-    (fine — Vercel/ACM issue TLS automatically; you just can never serve plain HTTP).
-  - `.com` is the safe, universally-recognized default.
+- The **domain name** you want. **Default to `scoutlane.com`** — `.com` is universally recognized and
+  trust-building (it matters for a product whose whole pitch is honesty), and people type/say `.com`
+  by default. If `scoutlane.com` is taken, fall back in this order: `getscoutlane.com`,
+  `tryscoutlane.com`, `usescoutlane.com`, then `scoutlane.app` as a last resort.
+  - `.app`'s one perk is HSTS-preload (forced HTTPS), but that's moot — Vercel/ACM give you HTTPS
+    automatically. Optional power move: register the `.com` as primary **and** grab `scoutlane.app`
+    cheaply to 301-redirect to it.
 - Access to the **Vercel project** (`scout-lane`) and the **Supabase** project (for auth URLs + SMTP).
 - ~45–60 minutes.
 
@@ -56,8 +59,9 @@ and a budget alert exists.
 
 1. Sign in as your **admin** identity. Go to **Route 53** → **Registered domains** → **Register
    domains**.
-2. Search your domain, add it to the cart, and check the **annual price** (≈ **$14/yr** for `.com`,
-   ≈ **$20/yr** for `.app` — confirm in-console; TLDs vary).
+2. **Search `scoutlane.com` first.** If it's available, take it (≈ **$14/yr** — confirm in-console).
+   If it's taken, use the fallback order above (`getscoutlane.com` → `tryscoutlane.com` →
+   `usescoutlane.com` → `scoutlane.app`). Add it to the cart.
 3. Fill in registrant contact details. **Enable privacy protection** (free for most TLDs — hides your
    personal info from public WHOIS).
 4. **Enable auto-renew** (so the domain can't lapse).
@@ -78,8 +82,8 @@ it under Route 53 → **Hosted zones**.
 > CloudFront/ALB instead — same hosted zone, different records.)
 
 1. In **Vercel** → project **scout-lane** → **Settings → Domains** → **Add** your domain (add both the
-   apex `scoutlane.app` and `www.scoutlane.app`). Vercel will show the **exact DNS records to create**.
-   - Read the values Vercel shows (or run `vercel domains inspect scoutlane.app`). Use **those** —
+   apex `scoutlane.com` and `www.scoutlane.com`). Vercel will show the **exact DNS records to create**.
+   - Read the values Vercel shows (or run `vercel domains inspect scoutlane.com`). Use **those** —
      Vercel now issues per-project records (e.g. `xyz.vercel-dns-016.com`); the legacy values
      (`A 76.76.21.21`, `CNAME cname.vercel-dns.com`) still work but prefer what the dashboard prints.
    - The **apex** (`@`) must be an **A** (or ALIAS) record — a CNAME at the apex violates DNS rules.
@@ -90,7 +94,7 @@ it under Route 53 → **Hosted zones**.
 3. Wait for DNS to propagate (minutes to ~1 hour). Vercel auto-issues the **TLS certificate** once the
    records resolve; the domain flips to **Valid Configuration** in the Vercel dashboard.
 
-**Phase 3 done when:** `https://scoutlane.app` loads the ScoutLane landing with a valid certificate.
+**Phase 3 done when:** `https://scoutlane.com` loads the ScoutLane landing with a valid certificate.
 
 > **Important — registrar vs. nameservers:** because you registered *in* Route 53, the domain's
 > nameservers already point at its Route 53 hosted zone by default, so adding records in that zone is
@@ -104,16 +108,16 @@ it under Route 53 → **Hosted zones**.
 Once the domain serves the app, repoint authentication so sign-in works on the real URL:
 
 1. **Supabase** → **Authentication → URL Configuration**:
-   - Set **Site URL** to `https://scoutlane.app`.
-   - Add `https://scoutlane.app/**` (and `https://www.scoutlane.app/**` if used) to **Redirect URLs**.
+   - Set **Site URL** to `https://scoutlane.com`.
+   - Add `https://scoutlane.com/**` (and `https://www.scoutlane.com/**` if used) to **Redirect URLs**.
 2. **Google OAuth** (Google Cloud Console → the OAuth client):
-   - **Authorized JavaScript origins:** `https://scoutlane.app`
-   - **Authorized redirect URIs:** `https://scoutlane.app/auth/callback`
+   - **Authorized JavaScript origins:** `https://scoutlane.com`
+   - **Authorized redirect URIs:** `https://scoutlane.com/auth/callback`
 3. **Vercel env** — if any `NEXT_PUBLIC_*` var hardcodes the site URL, update it to the new domain and
    redeploy. (ScoutLane derives the callback origin at runtime, so this is usually just the auth URLs
    above — double-check after deploy.)
 
-**Phase 4 done when:** magic-link **and** Google sign-in both complete on `https://scoutlane.app`.
+**Phase 4 done when:** magic-link **and** Google sign-in both complete on `https://scoutlane.com`.
 
 ---
 
@@ -122,12 +126,12 @@ Once the domain serves the app, repoint authentication so sign-in works on the r
 > Magic-link sign-in + waitlist confirmations deliver far better from your own domain. Since you're in
 > AWS, use **SES** as Supabase's custom SMTP. **Start this early — SES production access takes ~24h.**
 
-1. **SES** → **Verified identities** → **Create identity** → **Domain** → `scoutlane.app`.
+1. **SES** → **Verified identities** → **Create identity** → **Domain** → `scoutlane.com`.
    - SES generates **DKIM** CNAME records (and recommends SPF + DMARC). Add all of them to the Route 53
      hosted zone:
      - **DKIM:** the 3 CNAMEs SES provides.
      - **SPF:** a TXT record on the sending subdomain, e.g. `v=spf1 include:amazonses.com ~all`.
-     - **DMARC:** a TXT at `_dmarc.scoutlane.app`, e.g. `v=DMARC1; p=none; rua=mailto:dmarc@scoutlane.app`.
+     - **DMARC:** a TXT at `_dmarc.scoutlane.com`, e.g. `v=DMARC1; p=none; rua=mailto:dmarc@scoutlane.com`.
    - Wait until SES shows the identity **Verified** + DKIM **successful**.
 2. **Request production access:** SES → **Account dashboard** → **Request production access**. New
    accounts are in a **sandbox** (≤200 emails/day, only to *verified* recipients). Choose
@@ -137,11 +141,11 @@ Once the domain serves the app, repoint authentication so sign-in works on the r
    scoped IAM user). Note the **SMTP endpoint** (e.g. `email-smtp.us-east-1.amazonaws.com`), username,
    and password.
 4. **Point Supabase at SES:** Supabase → **Project Settings → Authentication → SMTP Settings** →
-   enable **Custom SMTP**; set sender (`no-reply@scoutlane.app`), host (the SES endpoint), port `587`,
+   enable **Custom SMTP**; set sender (`no-reply@scoutlane.com`), host (the SES endpoint), port `587`,
    and the SMTP username/password. Send a test.
 
 **Phase 5 done when:** SES is **out of sandbox**, DKIM/SPF/DMARC verify, and a Supabase test email
-arrives from `@scoutlane.app` (not in spam).
+arrives from `@scoutlane.com` (not in spam).
 
 ---
 
