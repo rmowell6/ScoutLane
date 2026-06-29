@@ -704,13 +704,18 @@
 }
 .miniDim {
   display: grid;
-  grid-template-columns: 1fr 36px;
+  /* label | bar | score — three columns for the row's three children (mirrors .dimItem).
+     A 2-column track wrapped the score onto its own line under the bar. */
+  grid-template-columns: 88px 1fr 22px;
   gap: 6px;
   align-items: center;
 }
 .miniDimLbl {
   font-size: 10px;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .miniDimBg {
   background: #edeeef;
