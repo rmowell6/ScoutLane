@@ -99,6 +99,12 @@
   color: var(--slate);
 }
 
+.inlineLink {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .trustStrip {
   display: flex;
   gap: 0.6rem;

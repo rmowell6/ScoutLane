@@ -27,6 +27,7 @@ const DEFAULT_LIMITS: Record<string, number> = {
   profile: 10, // 1 structuring call (POST) / a stored-profile read (GET)
   extract: 20, // no LLM, but still bound upload floods
   jobs: 30, // no LLM — a DB-backed list read; loosest, but still bound enumeration
+  waitlist: 5, // anonymous signup capture — tight, to stop a single IP flooding the list
 }
 
 export interface RateLimitResult {
