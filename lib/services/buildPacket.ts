@@ -13,7 +13,11 @@ import { buildCoverLetterDocx } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx } from '@/lib/docgen/fitAssessment'
 import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
 import { isStorageConfigured, uploadDocx } from '@/lib/storage'
+import themes from '@/lib/style/themes.json'
+import fonts from '@/lib/style/fonts.json'
+import { resolveAssessmentAccent } from '@/lib/style/assessmentAccent'
 import type { CandidatePreferences, JobReqs, Profile, TailoredContent } from '@/lib/schemas'
+import type { Theme, FontPair, StyleRecord } from '@/lib/style/types'
 
 export interface PacketInput {
   jdText: string
@@ -26,6 +30,8 @@ export interface PacketInput {
   sourceResumeText?: string
   /** Candidate preferences (target comp/lane drive the fit engine; rest are persisted context). */
   preferences?: CandidatePreferences
+  /** Style override (theme + font). Absent → master default (navy_copper / cambria_calibri). */
+  style?: StyleRecord
   /** Sensitive terms that may appear only if present in the profile (e.g. ['Kubernetes']). */
   bannedTerms?: string[]
   /** Date string for the cover letter; defaults to today (injectable for tests). */
@@ -73,11 +79,22 @@ async function generateDocuments(
   jobReqs: JobReqs,
   fit: FitResult,
   date: string,
+  style: StyleRecord,
 ): Promise<PacketDocuments> {
+  // Resolve the Theme + FontPair objects from the style ids, falling back to the master entries
+  // (defensive: an unknown id must never crash generation). The assessment uses the collision-
+  // guarded accent, not theme.accent directly.
+  const allThemes = themes.themes as Theme[]
+  const allFonts = fonts.pairs as FontPair[]
+  const theme = allThemes.find((t) => t.id === style.theme) ?? allThemes.find((t) => t.master)
+  const font = allFonts.find((f) => f.id === style.font) ?? allFonts.find((f) => f.master)
+  if (!theme || !font) throw new Error('Style data is missing a master theme/font')
+  const accent = resolveAssessmentAccent(theme)
+
   const [resumeBuf, coverBuf, fitBuf] = await Promise.all([
-    buildResumeDocx(toResumeContent(profile, tailored, jobReqs)),
-    buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date)),
-    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, jobReqs, date)),
+    buildResumeDocx(toResumeContent(profile, tailored, jobReqs), theme, font),
+    buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date), theme, font),
+    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, jobReqs, date), theme, accent),
   ])
 
   const base = safeName(profile.name)
@@ -181,11 +198,17 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     sourceResumeText: input.resumeText ?? input.sourceResumeText,
   })
 
+  // Style: caller override, else the master default (same output as before this feature existed).
+  const style = input.style ?? MASTER_STYLE
+
   const documents = guardrails.ok
     ? await runStep('generateDocuments', () =>
-        generateDocuments(profile, tailored, jobReqs, fit, input.date ?? todayString()),
+        generateDocuments(profile, tailored, jobReqs, fit, input.date ?? todayString(), style),
       )
     : null
 
   return { profile, jobReqs, fit, fitInput, tailored, guardrails, documents }
 }
+
+/** The master skin — navy_copper / cambria_calibri. Absent style → identical output to pre-feature. */
+const MASTER_STYLE: StyleRecord = { theme: 'navy_copper', font: 'cambria_calibri', source: 'default' }

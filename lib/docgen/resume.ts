@@ -1,10 +1,16 @@
 // ATS-safe resume builder — ported from resume_template_build.js, the LOCKED design system
-// (the resume template spec). Design tokens, builder recipes, and section structure are
-// preserved EXACTLY; only the content is parameterized by ResumeContent so it works for any
-// target role. Runs only in routes with runtime='nodejs' (Packer.toBuffer needs Node Buffer).
+// (the resume template spec). Builder recipes and section structure are preserved EXACTLY; the
+// content is parameterized by ResumeContent and the color/typography by a Theme + FontPair so the
+// same skeleton renders in any of the style themes. Runs only in routes with runtime='nodejs'
+// (Packer.toBuffer needs Node Buffer).
 //
 // Non-negotiable design principle: legibility never depends on a background fill — all text is
-// DARK on a LIGHT surface; structure comes from type scale, the copper accent, and BORDER rules.
+// DARK on a LIGHT surface; structure comes from type scale, the accent, and BORDER rules.
+//
+// Color token mapping (Theme): NAVY→primary, INK→fixed '1A1A1A' (body never themed), SLATE→slate,
+// WASH→wash. The copper accent splits by use: GRAPHICS (rules, ■ markers, • separators, bullets)
+// use theme.accent; accent-colored TEXT (dates, taglines, cert sub-labels) uses theme.accentText
+// (guaranteed ≥ 4.5:1 on white). Fonts: SERIF→font.head, SANS→font.body.
 import {
   AlignmentType,
   BorderStyle,
@@ -17,16 +23,7 @@ import {
   TextRun,
   type IParagraphOptions,
 } from 'docx'
-
-// ---- design tokens (locked) ------------------------------------------------------
-const SERIF = 'Cambria'
-const SANS = 'Calibri'
-
-const NAVY = '16335B' // name, section headers, company/school names
-const COPPER = 'B0682C' // the single accent
-const INK = '1A1A1A' // body
-const SLATE = '55606E' // muted / context
-const WASH = 'EAEEF4' // very light header wash (text stays dark)
+import type { Theme, FontPair } from '@/lib/style/types'
 
 // ---- content model ---------------------------------------------------------------
 export interface ContactInfo {
@@ -72,123 +69,137 @@ export interface ResumeContent {
   authLine: string
 }
 
-// ---- builders (recipes preserved verbatim) ---------------------------------------
-const headLine = (
-  children: TextRun[],
-  opts: { before?: number; after?: number; line?: number; border?: IParagraphOptions['border'] } = {},
-) =>
-  new Paragraph({
-    shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
-    spacing: { before: opts.before ?? 0, after: opts.after ?? 0, line: opts.line ?? 240 },
-    alignment: AlignmentType.CENTER,
-    border: opts.border,
-    children,
-  })
+export async function buildResumeDocx(
+  content: ResumeContent,
+  theme: Theme,
+  font: FontPair,
+): Promise<Buffer> {
+  // ---- design tokens (per-theme; recipes below are byte-for-byte the locked design) ----------
+  const SERIF = font.head
+  const SANS = font.body
+  const NAVY = theme.primary // name, section headers, company/school names
+  const ACCENT = theme.accent // GRAPHIC accent: rules, ■ markers, • separators, bullets
+  const ACCENT_TEXT = theme.accentText // accent-colored TEXT: dates, taglines, cert sub-labels
+  const INK = '1A1A1A' // body — never themed
+  const SLATE = theme.slate // muted / context
+  const WASH = theme.wash // very light header wash (text stays dark)
 
-const sectionHeader = (text: string) =>
-  new Paragraph({
-    spacing: { before: 240, after: 100 },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 16, color: NAVY, space: 6 } },
-    children: [
-      new TextRun({ text: '■  ', font: SANS, size: 22, color: COPPER }),
-      new TextRun({ text: text.toUpperCase(), font: SERIF, bold: true, size: 26, color: NAVY, characterSpacing: 44 }),
-    ],
-  })
+  // ---- builders (recipes preserved verbatim; only tokens are parameterized) -------------------
+  const headLine = (
+    children: TextRun[],
+    opts: { before?: number; after?: number; line?: number; border?: IParagraphOptions['border'] } = {},
+  ) =>
+    new Paragraph({
+      shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
+      spacing: { before: opts.before ?? 0, after: opts.after ?? 0, line: opts.line ?? 240 },
+      alignment: AlignmentType.CENTER,
+      border: opts.border,
+      children,
+    })
 
-const bullet = (text: string) =>
-  new Paragraph({
-    numbering: { reference: 'rb', level: 0 },
-    spacing: { before: 20, after: 20, line: 262 },
-    children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
-  })
+  const sectionHeader = (text: string) =>
+    new Paragraph({
+      spacing: { before: 240, after: 100 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 16, color: NAVY, space: 6 } },
+      children: [
+        new TextRun({ text: '■  ', font: SANS, size: 22, color: ACCENT }),
+        new TextRun({ text: text.toUpperCase(), font: SERIF, bold: true, size: 26, color: NAVY, characterSpacing: 44 }),
+      ],
+    })
 
-const jobHeader = (company: string, dates: string) =>
-  new Paragraph({
-    spacing: { before: 170, after: 0 },
-    tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
-    children: [
-      new TextRun({ text: company, font: SERIF, bold: true, size: 24, color: NAVY }),
-      new TextRun({ text: '\t' + dates, font: SANS, bold: true, size: 20, color: COPPER }),
-    ],
-  })
+  const bullet = (text: string) =>
+    new Paragraph({
+      numbering: { reference: 'rb', level: 0 },
+      spacing: { before: 20, after: 20, line: 262 },
+      children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
+    })
 
-const jobTitle = (title: string) =>
-  new Paragraph({
-    spacing: { before: 2, after: 60 },
-    children: [new TextRun({ text: title, font: SANS, italics: true, size: 21, color: SLATE })],
-  })
+  const jobHeader = (company: string, dates: string) =>
+    new Paragraph({
+      spacing: { before: 170, after: 0 },
+      tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
+      children: [
+        new TextRun({ text: company, font: SERIF, bold: true, size: 24, color: NAVY }),
+        new TextRun({ text: '\t' + dates, font: SANS, bold: true, size: 20, color: ACCENT_TEXT }),
+      ],
+    })
 
-const jobContext = (text: string) =>
-  new Paragraph({
-    spacing: { before: 0, after: 58, line: 262 },
-    children: [new TextRun({ text, font: SANS, size: 20, color: SLATE })],
-  })
+  const jobTitle = (title: string) =>
+    new Paragraph({
+      spacing: { before: 2, after: 60 },
+      children: [new TextRun({ text: title, font: SANS, italics: true, size: 21, color: SLATE })],
+    })
 
-const skillLine = (cat: string, items: string) =>
-  new Paragraph({
-    spacing: { before: 24, after: 24, line: 266 },
-    children: [
-      new TextRun({ text: cat, font: SANS, bold: true, size: 21, color: NAVY }),
-      new TextRun({ text: '   ', font: SANS, size: 21 }),
-      new TextRun({ text: items, font: SANS, size: 21, color: INK }),
-    ],
-  })
+  const jobContext = (text: string) =>
+    new Paragraph({
+      spacing: { before: 0, after: 58, line: 262 },
+      children: [new TextRun({ text, font: SANS, size: 20, color: SLATE })],
+    })
 
-const earlierLine = (co: string, role: string, detail: string) =>
-  new Paragraph({
-    spacing: { before: 50, after: 36, line: 264 },
-    children: [
-      new TextRun({ text: co, font: SERIF, bold: true, size: 21, color: NAVY }),
-      new TextRun({ text: '   •   ', font: SANS, size: 20, color: COPPER }),
-      new TextRun({ text: role + '.  ', font: SANS, italics: true, size: 20, color: SLATE }),
-      new TextRun({ text: detail, font: SANS, size: 20, color: SLATE }),
-    ],
-  })
+  const skillLine = (cat: string, items: string) =>
+    new Paragraph({
+      spacing: { before: 24, after: 24, line: 266 },
+      children: [
+        new TextRun({ text: cat, font: SANS, bold: true, size: 21, color: NAVY }),
+        new TextRun({ text: '   ', font: SANS, size: 21 }),
+        new TextRun({ text: items, font: SANS, size: 21, color: INK }),
+      ],
+    })
 
-const certSub = (t: string) =>
-  new Paragraph({
-    spacing: { before: 64, after: 14 },
-    children: [new TextRun({ text: t.toUpperCase(), font: SANS, bold: true, size: 18, color: COPPER, characterSpacing: 34 })],
-  })
+  const earlierLine = (co: string, role: string, detail: string) =>
+    new Paragraph({
+      spacing: { before: 50, after: 36, line: 264 },
+      children: [
+        new TextRun({ text: co, font: SERIF, bold: true, size: 21, color: NAVY }),
+        new TextRun({ text: '   •   ', font: SANS, size: 20, color: ACCENT }),
+        new TextRun({ text: role + '.  ', font: SANS, italics: true, size: 20, color: SLATE }),
+        new TextRun({ text: detail, font: SANS, size: 20, color: SLATE }),
+      ],
+    })
 
-const certItem = (name: string, note?: string) =>
-  new Paragraph({
-    numbering: { reference: 'rb', level: 0 },
-    spacing: { before: 16, after: 16, line: 264 },
-    children: [
-      new TextRun({ text: name, font: SANS, bold: true, size: 21, color: INK }),
-      ...(note ? [new TextRun({ text: '  ' + note, font: SANS, italics: true, size: 19, color: SLATE })] : []),
-    ],
-  })
+  const certSub = (t: string) =>
+    new Paragraph({
+      spacing: { before: 64, after: 14 },
+      children: [new TextRun({ text: t.toUpperCase(), font: SANS, bold: true, size: 18, color: ACCENT_TEXT, characterSpacing: 34 })],
+    })
 
-const eduLine = (school: string, detail: string) =>
-  new Paragraph({
-    spacing: { before: 44, after: 32, line: 264 },
-    children: [
-      new TextRun({ text: school, font: SERIF, bold: true, size: 22, color: NAVY }),
-      new TextRun({ text: '   •   ', font: SANS, size: 20, color: COPPER }),
-      new TextRun({ text: detail, font: SANS, size: 21, color: INK }),
-    ],
-  })
+  const certItem = (name: string, note?: string) =>
+    new Paragraph({
+      numbering: { reference: 'rb', level: 0 },
+      spacing: { before: 16, after: 16, line: 264 },
+      children: [
+        new TextRun({ text: name, font: SANS, bold: true, size: 21, color: INK }),
+        ...(note ? [new TextRun({ text: '  ' + note, font: SANS, italics: true, size: 19, color: SLATE })] : []),
+      ],
+    })
 
-function headerBlock(content: ResumeContent): Paragraph[] {
-  return [
+  const eduLine = (school: string, detail: string) =>
+    new Paragraph({
+      spacing: { before: 44, after: 32, line: 264 },
+      children: [
+        new TextRun({ text: school, font: SERIF, bold: true, size: 22, color: NAVY }),
+        new TextRun({ text: '   •   ', font: SANS, size: 20, color: ACCENT }),
+        new TextRun({ text: detail, font: SANS, size: 21, color: INK }),
+      ],
+    })
+
+  const headerBlock = (c: ResumeContent): Paragraph[] => [
     new Paragraph({
       spacing: { before: 0, after: 0, line: 40 },
-      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: COPPER, space: 0 } },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: ACCENT, space: 0 } },
       children: [new TextRun({ text: '', font: SANS, size: 2 })],
     }),
     headLine([new TextRun({ text: '', font: SANS, size: 12 })], { line: 150 }),
-    headLine([new TextRun({ text: content.name.toUpperCase(), font: SERIF, bold: true, size: 52, color: NAVY, characterSpacing: 84 })], { line: 540 }),
-    headLine([new TextRun({ text: content.tagline.toUpperCase(), font: SANS, bold: true, size: 22, color: COPPER, characterSpacing: 66 })], { before: 30, line: 250 }),
-    headLine([new TextRun({ text: content.subtitle, font: SANS, size: 20, color: SLATE, characterSpacing: 16 })], { before: 12, line: 235 }),
+    headLine([new TextRun({ text: c.name.toUpperCase(), font: SERIF, bold: true, size: 52, color: NAVY, characterSpacing: 84 })], { line: 540 }),
+    headLine([new TextRun({ text: c.tagline.toUpperCase(), font: SANS, bold: true, size: 22, color: ACCENT_TEXT, characterSpacing: 66 })], { before: 30, line: 250 }),
+    headLine([new TextRun({ text: c.subtitle, font: SANS, size: 20, color: SLATE, characterSpacing: 16 })], { before: 12, line: 235 }),
     headLine(
       [
-        new TextRun({ text: content.contact.location, font: SANS, size: 19, color: INK }),
-        new TextRun({ text: '       •       ', font: SANS, size: 19, color: COPPER }),
-        new TextRun({ text: content.contact.phone, font: SANS, size: 19, color: INK }),
-        new TextRun({ text: '       •       ', font: SANS, size: 19, color: COPPER }),
-        new TextRun({ text: content.contact.email, font: SANS, size: 19, color: INK }),
+        new TextRun({ text: c.contact.location, font: SANS, size: 19, color: INK }),
+        new TextRun({ text: '       •       ', font: SANS, size: 19, color: ACCENT }),
+        new TextRun({ text: c.contact.phone, font: SANS, size: 19, color: INK }),
+        new TextRun({ text: '       •       ', font: SANS, size: 19, color: ACCENT }),
+        new TextRun({ text: c.contact.email, font: SANS, size: 19, color: INK }),
       ],
       { before: 80, line: 250 },
     ),
@@ -198,9 +209,7 @@ function headerBlock(content: ResumeContent): Paragraph[] {
       border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: NAVY, space: 0 } },
     }),
   ]
-}
 
-export async function buildResumeDocx(content: ResumeContent): Promise<Buffer> {
   // Build sections conditionally: a section's header is rendered ONLY when it has content, so an
   // empty "Earlier Experience" or "Certifications" never leaves a dangling heading (wasted space).
   const children: Paragraph[] = [...headerBlock(content)]
@@ -279,7 +288,7 @@ export async function buildResumeDocx(content: ResumeContent): Promise<Buffer> {
               format: LevelFormat.BULLET,
               text: '▪',
               alignment: AlignmentType.LEFT,
-              style: { paragraph: { indent: { left: 350, hanging: 196 } }, run: { color: COPPER } },
+              style: { paragraph: { indent: { left: 350, hanging: 196 } }, run: { color: ACCENT } },
             },
           ],
         },
