@@ -9,8 +9,11 @@ import type { Packet } from '@/lib/services/buildPacket'
 import PacketView from '@/components/Packet'
 import PacketFeedback from '@/components/PacketFeedback'
 import { track, EVENTS } from '@/lib/analytics'
+import { Inter } from 'next/font/google'
 import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
 import styles from './page.module.css'
+
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
 
 /** A saved profile + the resume snapshot it was structured from (for staleness detection). */
 interface SavedProfile {
@@ -361,27 +364,22 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${inter.variable}`}>
+      {/* Sticky brand nav — matches the marketing site. Sign-out posts to the route handler
+          (POST avoids prefetch/CSRF logout). */}
+      <nav className={styles.nav}>
+        <span className={styles.navWordmark}>
+          <span className={styles.logoS}>Scout</span>Lane
+        </span>
+        <form method="post" action="/auth/sign-out">
+          <button type="submit" className={styles.navSignout}>
+            Sign out
+          </button>
+        </form>
+      </nav>
       <main className={styles.main}>
         <header className={styles.header}>
-          {/* Sign-out posts to the route handler (POST avoids prefetch/CSRF logout). */}
-          <form method="post" action="/auth/sign-out" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              type="submit"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#5B6470',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                padding: 0,
-              }}
-            >
-              Sign out
-            </button>
-          </form>
-          <h1 className={styles.title}>ScoutLane</h1>
+          <h1 className={styles.title}>New application packet</h1>
           <p className={styles.tagline}>
             Paste a resume and a job description. Get a fit assessment plus a tailored,
             ATS-safe resume and cover letter — built only from facts in the resume, with a
