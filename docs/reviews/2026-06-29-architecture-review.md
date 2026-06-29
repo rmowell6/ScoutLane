@@ -13,10 +13,12 @@
 |---|---|---|
 | 0 | Static scan + recon | ✅ done |
 | 1 | Security deep-dive | ✅ done (28 findings) |
-| 2 | App correctness | ⏳ pending |
+| 2 | App correctness | ✅ done (37 findings) |
 | 3 | EKS-readiness | ✅ done (57→25 deduped) |
-| 4 | Reliability + perf + cost | ⏳ pending |
-| 5 | Synthesis + EKS target-state design | ⏳ pending |
+| 4 | Reliability + perf + cost | ⛔ BLOCKED — hit session limit (resets 4:30am UTC); resume |
+| 5 | Synthesis + EKS target-state design | ⏳ pending (after B4) |
+
+> **RESUME (after 4:30am UTC):** re-run Batch 4 (script at `…/workflows/scripts/scoutlane-reliability-review-wf_556b4890-f41.js`, or just re-issue the reliability workflow), then Batch 5 synthesis + the EKS target-state design doc. All findings to date are committed below; no work is lost.
 
 ---
 
@@ -91,5 +93,32 @@
 | E-23 | LOW | observability | Fail-open + guardrail-block events logged but not **alertable**. | Dedicated metrics + CloudWatch/Prometheus alerts (page on sustained fail-open). | S |
 | E-24 | INFO | container | All 12 routes need the Node runtime (mammoth/unpdf/docx) — favorable (no edge split). | Base on `node:24-slim` (glibc, not alpine/musl for pdf.js) pinned by **digest**; CI smoke-test extract+packet in-image. | S |
 | E-25 | INFO | data | Supabase access is all PostgREST/Storage over HTTPS — works cross-cloud unchanged; no pooler wiring needed. | If a direct-Postgres feature is ever added, route via Supavisor pooler + cap per-pod pool. | S |
+
+### Batch 2 — app correctness (deduped; 37 raw → 25; 6/6 HIGH-CRIT verified)
+
+> Cross-batch corroboration: the `guardrails.ts:52` factId gap was found **independently** by both the security and correctness batches → high confidence (logged once as B1-1; not repeated here).
+
+| ID | SEV | Location | Finding | Recommendation | Eff |
+|----|-----|----------|---------|----------------|-----|
+| C-1 | HIGH | `lib/guardrails.ts:149` | `mentions()` uses `\b…\b` for single-token skills — **false-blocks any skill with a non-word char**: C++, C#, F#, .NET, Node.js. A legit, listed skill reads as "fabricated" → packet blocked (same false-block class as the dash bug). 3 finders flagged this. | Replace `\b` with non-word/string-edge boundary checks tolerant of `#`/`+`/`.` edges; add regression tests for C++/C#/.NET. | M |
+| C-2 | MED | `lib/guardrails.ts:110` | Metric grounding matches the **bare number** only, ignoring unit/magnitude — an invented quantity passes if any coincidental matching digit exists in the profile ("$5M" grounded by an unrelated "5"). | Ground the full metric token (number + unit/magnitude), e.g. require the normalized phrase ("40 %", "$2 m") in the source. | M |
+| C-3 | MED | `lib/guardrails.ts:87-113` | **Quadratic regex / CPU DoS** — the metric scan over a 100k-char numeric paste was measured at ~57s CPU (blocks the event loop; EKS-relevant under load). | Cap the text length fed to the scan (slice source/prose to a few KB) and bound digit runs (`\d{1,15}`). | S |
+| C-4 | MED | `lib/fit/fitScore.ts:156`, `lib/fit/fitSignals.ts:52` | `scoreComp` **divides by zero → "ratio NaN"** ships into the Fit Assessment when JD comp extracts as 0 and no target comp set. | Treat `compTopUsd<=0`/`targetTopUsd<=0` as null → neutral 65 branch. | S |
+| C-5 | MED | `app/sign-in/page.tsx:48-52` | **Hydration mismatch** — the `?error=` state is read from `window` in a `useState` lazy initializer (server renders null, client renders the banner). *(This was my earlier fix to dodge the setState-in-effect lint — needs a better pattern.)* | Read `?error=` after mount in a one-time effect, or via a server component / `useSearchParams` in a Suspense boundary. | S |
+| C-6 | MED | `lib/services/parseJob.ts:35` | Bypasses `readParsed` — truncation mislabeled as "no structured output" (corroborates B1-18; raised to MED). | `return readParsed(message,'parseJob',1500)`; consider raising max_tokens. | S |
+| C-7 | MED | `app/api/discover/route.ts:68`, `profileStore`/`structureResume` direct calls | Standalone `structureResume` calls in /discover and /profile **lose their step tag** on failure (no `runStep` wrapper). | Wrap in a runStep-style tagger, or map untagged errors in the route catch. | S |
+| C-8 | MED | `app/api/packet/route.ts:73-99` | Packet reuse/pooled-job path returns **500 (not 503)** when Supabase store is unconfigured (inconsistent with profile route's 503). | Detect the `configure` step in the catch → map to 503 "not configured". | S |
+| C-9 | MED | `lib/services/jobStore.ts:179-213` | `listJobs`/`listJobsForMatch` trust untyped DB rows with `as string` casts and **skip the Zod re-validation the module mandates** (only `getJobJd` validates). | Add a Zod row schema mirroring `JobJdRowSchema`; `safeParse` each row. | S |
+| C-10 | MED | `lib/supabaseServer.ts:12` | Supabase client is **untyped** (no `Database` generic) → every `.select()` row is `any` across the store layer (defeats strict). | `supabase gen types typescript` → `createClient<Database>()`. | M |
+| C-11 | MED (test gaps) | route/service tests | **Untested critical paths**: packet 422 guardrail-block (the product invariant!), transient→503, profile/job 404; `cronAuth` (fail-closed + constant-time); `checkRateLimitShared` (Postgres path + fail-open); `buildPacket` failure/block branches; 4 hero LLM services; /api/{extract,profile,discover}. | Add the targeted tests (most are trivial since deps are already mockable). | M |
+| C-12 | LOW | `lib/fit/fitSignals.ts:71` | Cross-lane conviction bonus is **dead code** (`lanesSurfaced` always 1 in the hero pipeline). | Thread a real `lanesSurfaced`, or remove the dead bonus. | M |
+| C-13 | LOW | `lib/services/buildPacket.ts:76` | `safeName` strips all non-ASCII — **mangles accented/CJK candidate names** in packet filenames. | Keep Unicode letters (`\p{L}\p{N}` with `u` flag); strip only FS-unsafe chars. | S |
+| C-14 | LOW | `lib/docgen/mapProfile.ts:35` | Resume renders a "Technical Skills" heading even with **zero skills**. | Return `[]` skillCategories when empty so the builder's length gate suppresses it. | S |
+| C-15 | LOW | `app/sign-in/page.tsx:119` | Turnstile widget **never renders if the script is already cached** (bfcache / client re-entry) → captcha can't complete. | On mount, if `window.turnstile` exists, call `renderTurnstile()`. | S |
+| C-16 | LOW | `lib/guardrails.ts:324` | `checkCertStatus` uses first `indexOf` — a cert re-listed under Previously-Held after an Active mention isn't flagged. | Scan all occurrences. | S |
+| C-17 | LOW | `lib/services/ats/index.ts:27` | Per-source upstream error strings returned **raw in prod** from ingest endpoints (inconsistent with `legError` redaction). | Route through prod redaction. | S |
+| C-18 | LOW | misc casts | `buildPacket.ts:178` (`resumeText as string` defeats narrowing), `profileStore.ts:122` (`source_resume` cast unchecked), `buildPacket.ts:95` (theme/font JSON `as Theme[]` unvalidated at 5 sites). | Narrow without casts; validate the style JSON once with Zod at module load. | S |
+| C-19 | LOW | `lib/services/buildPacket.ts:362` | Shipped resume role **bullets never pass through `checkStyle`** (em-dash/space) — only tailored summary/cover/claims do. | Include `profile.roles[].bullets` in styleText, or confirm `resume.ts` gates them. | S |
+| C-20 | INFO | `lib/services/buildPacket.ts:116` | Storage upload can **orphan files** on partial `Promise.all` failure (acceptable given cleanup cron). | Best-effort delete succeeded paths in the catch (low priority). | S |
 
 _Subsequent batches appended below as they complete._
