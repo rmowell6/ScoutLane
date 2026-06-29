@@ -10,6 +10,7 @@ import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } f
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
 import { requireUser } from '@/lib/auth'
+import { isTransientAnthropicError } from '@/lib/anthropic'
 
 // Bound request size before any work: a resume is a few KB of text; these ceilings fail a
 // pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
@@ -177,6 +178,19 @@ export async function POST(request: Request) {
           : err instanceof JobStoreError
             ? `job:${err.step}`
             : null
+    // A transient model overload (429/529/5xx) is not a crash — return 503 + a retry hint instead
+    // of a generic 500, so the user knows to try again rather than seeing "internal error".
+    if (isTransientAnthropicError(err)) {
+      console.warn('[packet] transient upstream error, returning 503', step ?? '')
+      return NextResponse.json(
+        {
+          error: 'Service busy',
+          step,
+          message: 'The generation service is briefly busy. Please try again in a moment.',
+        },
+        { status: 503 },
+      )
+    }
     console.error('[packet] generation failed', step ?? '', err)
     return NextResponse.json(serverErrorBody(err, step), { status: 500 })
   }

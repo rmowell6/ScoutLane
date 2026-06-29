@@ -11,6 +11,7 @@ import { CandidatePreferencesSchema, type Profile } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
 import { requireUser } from '@/lib/auth'
+import { isTransientAnthropicError } from '@/lib/anthropic'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -78,6 +79,19 @@ export async function POST(request: Request) {
           : err instanceof JobStoreError
             ? `job:${err.step}`
             : null
+    // A transient model overload is not a crash — return 503 + a clear retry hint (the client
+    // auto-retries once) instead of an opaque 500 "internal error".
+    if (isTransientAnthropicError(err)) {
+      console.warn('[discover] transient upstream error, returning 503', step ?? '')
+      return NextResponse.json(
+        {
+          error: 'Service busy',
+          step,
+          message: 'The role-matching service is briefly busy. Please try again in a moment.',
+        },
+        { status: 503 },
+      )
+    }
     console.error('[discover] failed', step ?? '', err)
     return NextResponse.json(serverErrorBody(err, step), { status: 500 })
   }

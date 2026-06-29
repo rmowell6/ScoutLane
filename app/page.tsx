@@ -241,11 +241,18 @@ export default function Home() {
     try {
       const resumePart = reuseActive ? { profileId: saved.id } : { resumeText }
       const preferences = buildPreferences()
-      const res = await fetch('/api/discover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...resumePart, ...(preferences ? { preferences } : {}) }),
-      })
+      const body = JSON.stringify({ ...resumePart, ...(preferences ? { preferences } : {}) })
+      const post = () =>
+        fetch('/api/discover', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })
+
+      // Discovery is idempotent and the model API can be briefly busy (503). Retry once after a short
+      // pause so a transient overload doesn't force the user to click again.
+      let res = await post()
+      if (res.status === 503) {
+        setDiscoverNote('Matching service is busy — retrying…')
+        await new Promise((r) => setTimeout(r, 1500))
+        res = await post()
+      }
       const data = await res.json().catch(() => null)
       if (!res.ok) {
         setDiscoverNote((data?.message as string) ?? (data?.error as string) ?? `Discovery failed (${res.status})`)
