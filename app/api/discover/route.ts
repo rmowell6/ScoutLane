@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     let profile: Profile
     let preferences = parsed.data.preferences
     if (parsed.data.profileId) {
-      const stored = await getStoredProfile(parsed.data.profileId)
+      const stored = await getStoredProfile(parsed.data.profileId, user.id)
       if (!stored) {
         return NextResponse.json({ error: 'Profile not found', profileId: parsed.data.profileId }, { status: 404 })
       }

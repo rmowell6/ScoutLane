@@ -61,12 +61,15 @@ export interface StoredProfile {
 export async function saveProfile(
   profile: Profile,
   sourceResume: string,
-  preferences?: CandidatePreferences | null,
+  preferences: CandidatePreferences | null | undefined,
+  userId: string,
 ): Promise<{ id: string }> {
   return runStep('insert', async () => {
     const { data, error } = await db()
       .from(TABLE)
-      .insert({ source_resume: sourceResume, structured: profile, preferences: preferences ?? null })
+      // Stamp the owner so reads can be scoped to them (Auth Phase B). The server uses the secret
+      // key (bypasses RLS), so this column — not RLS alone — is what enforces ownership in code.
+      .insert({ user_id: userId, source_resume: sourceResume, structured: profile, preferences: preferences ?? null })
       .select('id')
       .single()
     if (error) throw error
@@ -91,19 +94,19 @@ function coerceLegacyCerts(structured: unknown): unknown {
 }
 
 /**
- * Load a stored profile (+ preferences) by id. Returns null when no row matches. Both stored
- * JSON blobs are re-validated with their schema — never trust persisted shape blindly.
- *
- * SECURITY (auth deferred): the `id` is a BEARER CAPABILITY — there is no ownership check, so anyone
- * holding the UUID can read this profile's PII. The route rate-limits to blunt enumeration. When
- * auth is wired, add a `user_id` predicate here (the column already exists on `profiles`).
+ * Load a stored profile (+ preferences) by id, SCOPED TO ITS OWNER (Auth Phase B). The query filters
+ * on user_id, so a caller can only read their own profile even if they hold someone else's UUID —
+ * the id is no longer a bearer capability. A row owned by another user (or a legacy row with a null
+ * user_id) returns null, identical to "not found" (we don't reveal existence). Stored JSON is
+ * re-validated with its schema — never trust persisted shape blindly.
  */
-export async function getStoredProfile(id: string): Promise<StoredProfile | null> {
+export async function getStoredProfile(id: string, userId: string): Promise<StoredProfile | null> {
   return runStep('select', async () => {
     const { data, error } = await db()
       .from(TABLE)
       .select('structured, preferences, source_resume')
       .eq('id', id)
+      .eq('user_id', userId)
       .maybeSingle()
     if (error) throw error
     if (!data) return null
