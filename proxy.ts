@@ -24,7 +24,12 @@ export async function proxy(request: NextRequest) {
 // excluded from the redirect gate on purpose: they self-authorize (requireUser → 401 JSON, or
 // authorizeCron → bearer secret) so machine callers get a status code, not an HTML login redirect.
 function isPublicPath(pathname: string): boolean {
-  return pathname === '/sign-in' || pathname.startsWith('/auth/') || pathname.startsWith('/api/')
+  return (
+    pathname === '/' || // marketing landing (M4) — the public front door
+    pathname === '/sign-in' ||
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/api/')
+  )
 }
 
 async function refreshSession(

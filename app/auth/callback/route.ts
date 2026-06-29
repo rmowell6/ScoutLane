@@ -7,22 +7,25 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
+// Where a successful sign-in lands by default: the gated app home (the public landing is '/').
+const POST_LOGIN_HOME = '/app'
+
 /**
  * Resolve the post-login `next` target to a SAME-ORIGIN path, defeating open redirects. A naive
  * `startsWith('/')` check is bypassable: `/\evil.com` and `/%2F%2Fevil.com` both pass it yet the
  * browser (or a downstream `new URL`) can treat them as protocol-relative and navigate off-site.
  * Instead resolve `next` against our own origin and accept it ONLY if the resolved origin still
  * matches — then hand back just the path+query+hash so the caller can't be tricked into an absolute
- * URL. Anything cross-origin, malformed, or absolute collapses to '/'.
+ * URL. Anything cross-origin, malformed, or absolute collapses to the app home.
  */
 export function safeNext(next: string | null, origin: string): string {
-  if (!next) return '/'
+  if (!next) return POST_LOGIN_HOME
   try {
     const resolved = new URL(next, origin)
-    if (resolved.origin !== origin) return '/'
+    if (resolved.origin !== origin) return POST_LOGIN_HOME
     return resolved.pathname + resolved.search + resolved.hash
   } catch {
-    return '/'
+    return POST_LOGIN_HOME
   }
 }
 
