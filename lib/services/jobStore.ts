@@ -31,6 +31,22 @@ const JobJdRowSchema = z.object({
     .transform((s) => (s ?? '').slice(0, JD_MAX_LEN)),
 })
 
+// Light picker-row shape, validated at the read boundary (same "DB rows are untrusted" rule as
+// JobJdRowSchema). Missing/blank columns coerce to safe display defaults rather than leaking `null`
+// or an unchecked cast into the UI; a row that can't be coerced is dropped by the caller, not thrown.
+const JobListRowSchema = z.object({
+  id: z.string(),
+  source: z.string().nullable().optional().transform((s) => s ?? 'unknown'),
+  title: z.string().nullable().optional().transform((s) => s ?? 'Untitled role'),
+  company: z.string().nullable().optional().transform((s) => s ?? ''),
+  location: z.string().nullable().optional().transform((s) => s ?? null),
+  url: z.string().nullable().optional().transform((s) => s ?? ''),
+})
+
+function toStoredJob(row: z.infer<typeof JobListRowSchema>): StoredJob {
+  return { id: row.id, provider: row.source, title: row.title, company: row.company, location: row.location, url: row.url }
+}
+
 export function isJobStoreConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
 }
@@ -176,14 +192,13 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
 
     const { data, error } = await query.order('created_at', { ascending: false }).limit(limit)
     if (error) throw error
-    return (data ?? []).map((r) => ({
-      id: r.id as string,
-      provider: (r.source as string) ?? 'unknown',
-      title: (r.title as string) ?? 'Untitled role',
-      company: (r.company as string) ?? '',
-      location: (r.location as string | null) ?? null,
-      url: (r.url as string) ?? '',
-    }))
+    // Validate each row; skip (don't throw on) a malformed one so one bad row can't brick the picker.
+    const out: StoredJob[] = []
+    for (const r of data ?? []) {
+      const parsed = JobListRowSchema.safeParse(r)
+      if (parsed.success) out.push(toStoredJob(parsed.data))
+    }
+    return out
   })
 }
 

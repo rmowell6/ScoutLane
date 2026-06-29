@@ -155,6 +155,12 @@ export function coverage(
 // compensation: posted top-of-band vs the candidate's target top
 export function scoreComp(compTopUsd: number | null, targetTopUsd: number): { score: number; note: string } {
   if (compTopUsd == null) return { score: 65, note: 'Comp not posted (neutral).' }
+  // A non-positive or non-finite target (user left it blank/0, or an upstream fallback) makes the
+  // ratio Infinity/NaN — which would silently bucket to a misleading score. Treat it as "no usable
+  // target" and return the same neutral value as an unposted comp rather than fabricating a verdict.
+  if (!Number.isFinite(targetTopUsd) || targetTopUsd <= 0 || !Number.isFinite(compTopUsd) || compTopUsd <= 0) {
+    return { score: 65, note: 'Comp target unavailable (neutral).' }
+  }
   const r = compTopUsd / targetTopUsd
   let score: number
   if (r >= 1.1) score = 100

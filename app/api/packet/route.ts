@@ -4,8 +4,8 @@
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { buildPacket, PacketError } from '@/lib/services/buildPacket'
-import { getStoredProfile, ProfileStoreError } from '@/lib/services/profileStore'
-import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
+import { getStoredProfile, isProfileStoreConfigured, ProfileStoreError } from '@/lib/services/profileStore'
+import { getJobJd, isJobStoreConfigured, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
@@ -62,6 +62,22 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Invalid request', issues: z.flattenError(parsed.error) },
         { status: 400 },
+      )
+    }
+
+    // A profileId/jobId path needs the store wired. Surface a clear 503 (service misconfigured,
+    // retryable) up front rather than letting the store throw deep in the pipeline and mapping to a
+    // misleading 500. The stateless paths (resumeText + jdText) don't touch the store, so skip.
+    if (parsed.data.profileId && !isProfileStoreConfigured()) {
+      return NextResponse.json(
+        { error: 'Profile store not configured', message: 'Supabase secret key is not set' },
+        { status: 503 },
+      )
+    }
+    if (parsed.data.jobId && !isJobStoreConfigured()) {
+      return NextResponse.json(
+        { error: 'Job store not configured', message: 'Supabase secret key is not set' },
+        { status: 503 },
       )
     }
 
