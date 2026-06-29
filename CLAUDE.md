@@ -42,3 +42,6 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 - Small commits, one concern each. **A task is done only when typecheck + lint + tests are green.**
 - Enable RLS on every user table, even before auth is wired.
 - When unsure about syntax/versions, trust `docs/ScoutLane_Engineering_Plan.md` over training memory.
+
+## Code review
+- **Always ground code reviews in the architecture we've actually built.** Before reviewing, (re)read the current architecture in `docs/ScoutLane_POC_Build_Plan.md`, `docs/ScoutLane_Engineering_Plan.md`, and the latest review under `docs/reviews/`, then judge the diff against *those* patterns and invariants (thin handlers → services, structured outputs + `readParsed`, guardrails-after-model, per-step error handling, RLS, the no-fabrication/no-scraping product invariant) — not against generic best practice in the abstract.

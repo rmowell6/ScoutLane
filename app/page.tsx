@@ -4,6 +4,7 @@
 // CTA routes invited users to sign-in.
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import WaitlistForm from '@/components/WaitlistForm'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
@@ -68,14 +69,20 @@ export default function LandingPage() {
           tailored, ATS-safe resume and cover letter — generated only from your real history.
         </p>
         <div className={styles.ctaRow}>
-          <Link href="/sign-in" className={styles.primaryCta}>
-            Sign in
-          </Link>
+          <a href="#waitlist" className={styles.primaryCta}>
+            Request access
+          </a>
           <a href="#how" className={styles.secondaryCta}>
             See how it works
           </a>
         </div>
-        <p className={styles.inviteNote}>Access is invite-only while we’re in early access.</p>
+        <p className={styles.inviteNote}>
+          Early access is invite-only. Already invited?{' '}
+          <Link href="/sign-in" className={styles.inlineLink}>
+            Sign in
+          </Link>
+          .
+        </p>
       </section>
 
       <section className={styles.trustStrip}>
@@ -113,14 +120,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className={styles.closing}>
-        <h2 className={styles.closingTitle}>Ready when you are.</h2>
+      <section id="waitlist" className={styles.closing}>
+        <h2 className={styles.closingTitle}>Request early access</h2>
         <p className={styles.closingBody}>
-          If you’ve been invited, sign in to generate your first packet.
+          Leave your email and we’ll send an invite when a spot opens. Already invited?{' '}
+          <Link href="/sign-in" className={styles.inlineLink}>
+            Sign in
+          </Link>
+          .
         </p>
-        <Link href="/sign-in" className={styles.primaryCta}>
-          Sign in
-        </Link>
+        <WaitlistForm />
       </section>
 
       <footer className={styles.footer}>
