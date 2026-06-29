@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
+import { packetSkinVars, styleNames } from '@/lib/style/skin'
 
 /** Allow CSS custom properties (e.g. --value) in inline styles. */
 type VarStyle = CSSProperties & Record<`--${string}`, string | number>
@@ -155,9 +156,14 @@ function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
 }
 
 export default function PacketView({ packet, sourceUrl }: { packet: Packet; sourceUrl?: string | null }) {
-  const { fit, fitInput, jobReqs, guardrails, documents } = packet
+  const { fit, fitInput, jobReqs, guardrails, documents, style, styleWhy } = packet
   const roleTitle = jobReqs.title ?? 'Target role'
   const heading = jobReqs.company ? `${jobReqs.company} — ${roleTitle}` : roleTitle
+
+  // Re-skin the preview to the style the documents were built with, so the on-screen packet matches
+  // the .docx. Status colors stay fixed (handled in packet.css); only brand/accent/wash/font shift.
+  const skin = packetSkinVars(style.theme, style.font) as CSSProperties
+  const styleLabel = styleNames(style.theme, style.font)
 
   const pills = [
     jobReqs.comp,
@@ -190,13 +196,18 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   return (
     // A <section>, not a nested <main>: the page already owns the single main landmark, and the
     // packet's top heading is an <h2> under the page <h1>. Labelled by that heading.
-    <section className="packet" aria-labelledby="pk-title">
+    <section className="packet" style={skin} aria-labelledby="pk-title">
       <header className="topbar">
         <p className="kicker">ScoutLane · Application Packet</p>
         <h2 id="pk-title" tabIndex={-1} ref={headingRef}>
           {heading}
         </h2>
         <p className="gen">Assembled from your structured history · tailored to your ATS-safe template</p>
+        <p className="gen">
+          Style: {styleLabel.theme} · {styleLabel.font}
+          {style.source === 'recommended' ? ' (recommended)' : style.source === 'user' ? ' (your pick)' : ''}
+          {styleWhy ? ` — ${styleWhy}` : ''}
+        </p>
       </header>
 
       <div className="packet__body">

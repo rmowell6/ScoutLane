@@ -6,6 +6,7 @@ import { parseJob } from './parseJob'
 import { extractFitInput } from './extractFitInput'
 import { assessFit, type FitInput, type FitResult } from '@/lib/fit/fitScore'
 import { tailorResume } from './tailorResume'
+import { recommendStyle } from './recommendStyle'
 import { runGuardrails, type GuardrailReport } from '@/lib/guardrails'
 import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
 import { buildResumeDocx } from '@/lib/docgen/resume'
@@ -63,6 +64,10 @@ export interface Packet {
   guardrails: GuardrailReport
   /** Generated docs — null when a guardrail blocked the packet (nothing ships). */
   documents: PacketDocuments | null
+  /** The style actually applied to the documents (user override, recommendation, or master). */
+  style: StyleRecord
+  /** Why the style was chosen — present for a recommendation; absent for an explicit user pick. */
+  styleWhy?: string
 }
 
 function safeName(name: string): string {
@@ -171,9 +176,16 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   const jobReqs = await runStep('parseJob', () => parseJob(input.jdText))
 
   // Fit: the LLM EXTRACTS signals (fuzzy), then the deterministic engine SCORES them (exact).
-  const [fitInput, tailored] = await Promise.all([
+  // Style recommendation rides in the same parallel batch when the caller didn't pick a style, so
+  // it adds no wall-clock (a cheap Haiku call alongside the Sonnet ones) and never blocks shipping
+  // (recommendStyle is fail-soft). Skip it entirely when the user already chose a style.
+  const needRecommend = !input.style
+  const [fitInput, tailored, recommendation] = await Promise.all([
     runStep('extractFitInput', () => extractFitInput(profile, jobReqs, input.preferences)),
     runStep('tailorResume', () => tailorResume(profile, jobReqs)),
+    needRecommend
+      ? runStep('recommendStyle', () => recommendStyle(profile, jobReqs))
+      : Promise.resolve(null),
   ])
   const fit = assessFit(fitInput)
 
@@ -198,8 +210,10 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     sourceResumeText: input.resumeText ?? input.sourceResumeText,
   })
 
-  // Style: caller override, else the master default (same output as before this feature existed).
-  const style = input.style ?? MASTER_STYLE
+  // Style precedence: explicit user pick → recommendation → master default. The master fallback
+  // means an absent style + a failed recommendation still produces the pre-feature output.
+  const style: StyleRecord = input.style ?? recommendation?.style ?? MASTER_STYLE
+  const styleWhy = input.style ? undefined : recommendation?.why
 
   const documents = guardrails.ok
     ? await runStep('generateDocuments', () =>
@@ -207,7 +221,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
       )
     : null
 
-  return { profile, jobReqs, fit, fitInput, tailored, guardrails, documents }
+  return { profile, jobReqs, fit, fitInput, tailored, guardrails, documents, style, styleWhy }
 }
 
 /** The master skin — navy_copper / cambria_calibri. Absent style → identical output to pre-feature. */
