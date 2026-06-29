@@ -10,7 +10,10 @@
 // captcha is skipped.
 import { useCallback, useRef, useState, useSyncExternalStore } from 'react'
 import Script from 'next/script'
+import { Inter } from 'next/font/google'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] })
 
 // Minimal typing for the Cloudflare Turnstile global (loaded via <Script>).
 interface TurnstileApi {
@@ -125,13 +128,16 @@ export default function SignInPage() {
   }
 
   return (
-    <main style={styles.main}>
+    <main className={inter.className} style={styles.main}>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
         onLoad={renderTurnstile}
       />
       <div style={styles.card}>
+        <div style={styles.wordmark}>
+          <span style={styles.wordmarkScout}>Scout</span>Lane
+        </div>
         <h1 style={styles.title}>Sign in to ScoutLane</h1>
         <p style={styles.subtitle}>Access is invite-only. Use the email you were invited with.</p>
 
@@ -175,18 +181,21 @@ export default function SignInPage() {
 
 // Inline styles keep the auth boundary self-contained (no new global CSS); matches the POC's
 // lightweight UI footprint.
+// "Signal" palette — warm off-white + forest green, matching the marketing site + app reskin.
 const styles: Record<string, React.CSSProperties> = {
-  main: { minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem', background: '#F5F6F8' },
-  card: { width: '100%', maxWidth: 380, background: '#fff', borderRadius: 12, padding: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
-  title: { margin: '0 0 0.5rem', fontSize: '1.4rem', color: '#1A1A1A' },
-  subtitle: { margin: '0 0 1.25rem', fontSize: '0.9rem', color: '#5B6470' },
+  main: { minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem', background: '#F5F3EF', color: '#111827' },
+  card: { width: '100%', maxWidth: 400, background: '#fff', border: '1px solid #E1DAD1', borderRadius: 16, padding: '2rem', boxShadow: '0 4px 24px rgba(6,95,70,0.06)' },
+  wordmark: { fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.4px', color: '#111827', marginBottom: '1rem' },
+  wordmarkScout: { color: '#065F46' },
+  title: { margin: '0 0 0.5rem', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#111827' },
+  subtitle: { margin: '0 0 1.25rem', fontSize: '0.9rem', color: '#4B5563' },
   form: { display: 'flex', flexDirection: 'column', gap: '0.6rem' },
-  label: { fontSize: '0.8rem', fontWeight: 600, color: '#1A1A1A' },
-  input: { padding: '0.6rem 0.75rem', borderRadius: 8, border: '1px solid #D2D7DE', fontSize: '0.95rem' },
+  label: { fontSize: '0.8rem', fontWeight: 600, color: '#111827' },
+  input: { padding: '0.7rem 0.85rem', borderRadius: 8, border: '1.5px solid #E1DAD1', background: '#fff', color: '#111827', fontSize: '0.95rem' },
   turnstile: { minHeight: 65 },
-  primaryBtn: { padding: '0.65rem', borderRadius: 8, border: 'none', background: '#1F3A5F', color: '#fff', fontWeight: 600, cursor: 'pointer' },
-  googleBtn: { width: '100%', padding: '0.65rem', borderRadius: 8, border: '1px solid #D2D7DE', background: '#fff', color: '#1A1A1A', fontWeight: 600, cursor: 'pointer' },
+  primaryBtn: { padding: '0.7rem', borderRadius: 8, border: 'none', background: '#065F46', color: '#fff', fontWeight: 700, cursor: 'pointer' },
+  googleBtn: { width: '100%', padding: '0.7rem', borderRadius: 8, border: '1.5px solid #E1DAD1', background: '#fff', color: '#111827', fontWeight: 600, cursor: 'pointer' },
   divider: { textAlign: 'center', margin: '1rem 0', color: '#9AA2AD', fontSize: '0.8rem' },
-  error: { background: '#FDECEC', color: '#A1232B', padding: '0.6rem 0.75rem', borderRadius: 8, fontSize: '0.85rem', margin: '0 0 1rem' },
-  sent: { background: '#EAF6EC', color: '#1E6B2E', padding: '0.75rem', borderRadius: 8, fontSize: '0.9rem' },
+  error: { background: '#FEF2F2', color: '#991B1B', border: '1px solid #FECACA', padding: '0.6rem 0.75rem', borderRadius: 8, fontSize: '0.85rem', margin: '0 0 1rem' },
+  sent: { background: '#ECFDF5', color: '#065F46', border: '1px solid #6EE7B7', padding: '0.85rem', borderRadius: 8, fontSize: '0.9rem' },
 }
