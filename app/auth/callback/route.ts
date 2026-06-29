@@ -7,16 +7,29 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
-/** Only allow same-origin relative redirects (no open-redirect via the `next` param). */
-function safeNext(next: string | null): string {
-  if (next && next.startsWith('/') && !next.startsWith('//')) return next
-  return '/'
+/**
+ * Resolve the post-login `next` target to a SAME-ORIGIN path, defeating open redirects. A naive
+ * `startsWith('/')` check is bypassable: `/\evil.com` and `/%2F%2Fevil.com` both pass it yet the
+ * browser (or a downstream `new URL`) can treat them as protocol-relative and navigate off-site.
+ * Instead resolve `next` against our own origin and accept it ONLY if the resolved origin still
+ * matches — then hand back just the path+query+hash so the caller can't be tricked into an absolute
+ * URL. Anything cross-origin, malformed, or absolute collapses to '/'.
+ */
+export function safeNext(next: string | null, origin: string): string {
+  if (!next) return '/'
+  try {
+    const resolved = new URL(next, origin)
+    if (resolved.origin !== origin) return '/'
+    return resolved.pathname + resolved.search + resolved.hash
+  } catch {
+    return '/'
+  }
 }
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = safeNext(searchParams.get('next'))
+  const next = safeNext(searchParams.get('next'), origin)
 
   // Provider-reported error (e.g. user denied access, or the allowlist trigger rejected sign-up).
   const providerError = searchParams.get('error_description') ?? searchParams.get('error')

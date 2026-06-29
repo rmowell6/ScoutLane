@@ -79,7 +79,8 @@ export async function extractFitInput(
   // so a hallucinated token can't inflate coverage and the fit score (the JD-side lists are kept).
   const { signals: grounded, dropped } = groundCandidateSignals(signals, profile)
   if (dropped.length > 0) {
-    console.warn(`[fit] dropped ${dropped.length} ungrounded candidate token(s): ${dropped.join(', ')}`)
+    // Count only — the dropped tokens are candidate skills/certs lifted from the resume (user PII).
+    console.warn(`[fit] dropped ${dropped.length} ungrounded candidate token(s)`)
   }
   return assembleFitInput(grounded, preferences, jobReqs)
 }

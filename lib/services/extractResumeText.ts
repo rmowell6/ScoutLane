@@ -10,6 +10,33 @@ export type ResumeFileKind = 'pdf' | 'docx' | 'txt'
 /** Hard cap on uploaded resume size. Resumes are small; this bounds parser work + memory. */
 export const MAX_RESUME_BYTES = 5 * 1024 * 1024 // 5 MB
 
+/**
+ * Hard cap on EXTRACTED text length. A small compressed upload can decompress to a huge amount of
+ * text (a "zip/PDF bomb"): DOCX is a zip, and a PDF can carry pathological content streams. Capping
+ * the size we accept after parsing bounds the cost of every downstream step (LLM tokens, guardrail
+ * scans) regardless of how cheaply the attacker produced the bytes. Generous vs a real resume
+ * (~3–10k chars) but a firm ceiling. Over-long output is truncated, not rejected, so a legitimate
+ * long CV still works.
+ */
+export const MAX_RESUME_CHARS = 200_000
+
+/**
+ * First-bytes signatures we verify before dispatching a parser, so a file can't lie about its type
+ * (e.g. a PDF renamed `.docx`, or an executable renamed `.pdf`) to reach a parser it shouldn't.
+ * TXT has no signature — anything decodes as text — so it's intentionally absent and skipped.
+ */
+const MAGIC: Partial<Record<ResumeFileKind, readonly number[][]>> = {
+  pdf: [[0x25, 0x50, 0x44, 0x46]], // "%PDF"
+  docx: [[0x50, 0x4b, 0x03, 0x04], [0x50, 0x4b, 0x05, 0x06], [0x50, 0x4b, 0x07, 0x08]], // ZIP (incl. empty/spanned)
+}
+
+/** Whether `bytes` begins with one of the expected magic-byte signatures for `kind` (txt: always true). */
+function hasMagic(kind: ResumeFileKind, bytes: Uint8Array): boolean {
+  const sigs = MAGIC[kind]
+  if (!sigs) return true // txt — no signature to check
+  return sigs.some((sig) => sig.every((byte, i) => bytes[i] === byte))
+}
+
 /** Carries which extraction step failed, so the route can report it without log-diving. */
 export class ExtractError extends Error {
   constructor(
@@ -108,6 +135,12 @@ export async function extractResumeText(input: {
   const kind = detectKind(filename, mimeType)
   if (!kind) throw new ExtractError('detect-kind', new Error(`unsupported file type: ${filename} (${mimeType})`))
 
+  // Content must match the claimed kind: a mislabeled file (PDF renamed .docx, binary renamed .pdf)
+  // is rejected before it ever reaches a parser, closing a type-confusion vector on untrusted input.
+  if (!hasMagic(kind, bytes)) {
+    throw new ExtractError('verify-magic', new Error(`file content does not match ${kind} (bad signature)`))
+  }
+
   const raw = await runStep(`parse-${kind}`, async () => {
     switch (kind) {
       case 'pdf':
@@ -119,7 +152,13 @@ export async function extractResumeText(input: {
     }
   })
 
-  const text = tidy(raw)
+  // Cap BEFORE tidy() so a decompression bomb can't blow up regex work on a huge string first.
+  const bounded = raw.length > MAX_RESUME_CHARS ? raw.slice(0, MAX_RESUME_CHARS) : raw
+  if (bounded.length < raw.length) {
+    console.warn(`[extract] output truncated to ${MAX_RESUME_CHARS} chars (was ${raw.length})`)
+  }
+
+  const text = tidy(bounded)
   if (text.length === 0) throw new ExtractError('empty-text', new Error('no extractable text in file'))
 
   return { text, kind }

@@ -117,17 +117,21 @@ export async function POST(request: Request) {
     // raw guardrails object for debugging. The precise technical detail is logged server-side.
     if (!packet.guardrails.ok) {
       const friendly = describeGuardrailFailure(packet.guardrails)
+      // Log COUNTS per failing check, never the offending strings: the unverifiable claims, skills,
+      // and metrics are verbatim resume / cover-letter content (user PII) and must not land in logs.
+      // The full guardrails object is returned to the authenticated caller for debugging instead.
+      const nf = packet.guardrails.noFabrication
       console.error(
         '[packet] guardrail blocked:',
         JSON.stringify({
-          noFabrication: packet.guardrails.noFabrication.ok,
-          ungroundedSkills: packet.guardrails.noFabrication.ungroundedSkills,
-          unverifiable: packet.guardrails.noFabrication.unverifiable.map((c) => c.text),
-          ungroundedMetrics: packet.guardrails.noFabrication.ungroundedMetrics,
-          bulletsGrounded: packet.guardrails.bulletsGrounded.ungroundedMetrics,
-          bannedTerms: packet.guardrails.bannedTerms.violations,
-          style: packet.guardrails.style.violations,
-          ats: packet.guardrails.ats?.problems ?? null,
+          noFabrication: nf.ok,
+          ungroundedSkills: nf.ungroundedSkills.length,
+          unverifiable: nf.unverifiable.length,
+          ungroundedMetrics: nf.ungroundedMetrics.length,
+          bulletsGrounded: packet.guardrails.bulletsGrounded.ungroundedMetrics.length,
+          bannedTerms: packet.guardrails.bannedTerms.violations.length,
+          style: packet.guardrails.style.violations.length,
+          ats: packet.guardrails.ats?.problems.length ?? null,
         }),
       )
       return NextResponse.json(
