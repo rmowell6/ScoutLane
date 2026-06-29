@@ -5,6 +5,17 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
+  // Auth-code rescue: Supabase redirects to its configured Site URL ("/") — not the app's
+  // `redirectTo` (/auth/callback) — whenever the redirect allowlist doesn't match, so an OAuth /
+  // magic-link `?code=` can land on any non-auth page instead of the callback. Forward it to
+  // /auth/callback (which exchanges the code) so sign-in completes regardless of where it lands.
+  const { pathname, searchParams } = request.nextUrl
+  if (!pathname.startsWith('/auth/') && (searchParams.has('code') || searchParams.has('error_description'))) {
+    const callback = request.nextUrl.clone()
+    callback.pathname = '/auth/callback'
+    return NextResponse.redirect(callback) // preserves the existing query (code / error)
+  }
+
   const response = NextResponse.next({ request })
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
