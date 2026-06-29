@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
 import { packetSkinVars, styleNames } from '@/lib/style/skin'
+import { track, EVENTS } from '@/lib/analytics'
 
 /** Allow CSS custom properties (e.g. --value) in inline styles. */
 type VarStyle = CSSProperties & Record<`--${string}`, string | number>
@@ -145,6 +146,8 @@ function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
       className="download-btn"
       onClick={() => {
         downloadDoc(doc)
+        // Activation funnel: downloading a tailored doc is the "opened a packet" signal.
+        track(EVENTS.packetOpened, { doc: label })
         setDone(true)
         setTimeout(() => setDone(false), 2500)
       }}

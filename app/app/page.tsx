@@ -7,6 +7,8 @@
 import { useEffect, useState } from 'react'
 import type { Packet } from '@/lib/services/buildPacket'
 import PacketView from '@/components/Packet'
+import PacketFeedback from '@/components/PacketFeedback'
+import { track, EVENTS } from '@/lib/analytics'
 import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
 import styles from './page.module.css'
 
@@ -78,6 +80,8 @@ export default function Home() {
   const [jdText, setJdText] = useState('')
   const [loading, setLoading] = useState(false)
   const [packet, setPacket] = useState<Packet | null>(null)
+  // Increments on each successful generation so the per-packet feedback prompt resets (used as key).
+  const [genId, setGenId] = useState(0)
   // The source posting URL the packet was built from (pool path only), so the result links to apply.
   const [packetSourceUrl, setPacketSourceUrl] = useState<string | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
@@ -115,6 +119,12 @@ export default function Home() {
   // Load/search the job pool while in "pick" mode. Debounced; runs on entering pick mode and on
   // each query change. setState lands inside the async callback (not the effect body), so it
   // doesn't trip the synchronous-setState lint rule.
+  // Activation-funnel entry: an authenticated user opened the app (this route is auth-gated, so a
+  // mount here means a signed-in session). Fired once per app load.
+  useEffect(() => {
+    track(EVENTS.signedIn)
+  }, [])
+
   useEffect(() => {
     if (jdMode !== 'pick') return
     const q = jobQuery.trim()
@@ -301,6 +311,10 @@ export default function Home() {
       // Remember the source posting (pool path) so the rendered packet can link straight to apply.
       setPacketSourceUrl(jdMode === 'pick' && selectedJob?.url ? selectedJob.url : null)
       setPacket(data as Packet)
+      // Activation funnel (Phase-0 ~60% threshold): a packet was generated. Bump the id so the
+      // per-packet feedback prompt resets for this new result.
+      setGenId((n) => n + 1)
+      track(EVENTS.packetGenerated, { jdMode, reuseProfile: reuseActive })
     } catch (err) {
       setError({ error: err instanceof Error ? err.message : 'Network error' })
     } finally {
@@ -752,7 +766,12 @@ export default function Home() {
         </form>
 
         {error && <ErrorPanel error={error} />}
-        {packet && <PacketView packet={packet} sourceUrl={packetSourceUrl} />}
+        {packet && (
+          <>
+            <PacketView packet={packet} sourceUrl={packetSourceUrl} />
+            <PacketFeedback key={genId} />
+          </>
+        )}
       </main>
     </div>
   )
