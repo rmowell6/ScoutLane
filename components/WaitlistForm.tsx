@@ -85,33 +85,47 @@ export default function WaitlistForm() {
   )
 }
 
+// Dark-theme styling to sit inside the landing's closing card (deep slate surface).
+const INPUT_BG = 'rgba(255,255,255,0.05)'
+const INPUT_BORDER = '1px solid rgba(255,255,255,0.16)'
 const styles: Record<string, React.CSSProperties> = {
-  form: { display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: 480, margin: '0 auto', textAlign: 'left' },
+  form: { display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: 440, margin: '0 auto', textAlign: 'left' },
   row: { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' },
   input: {
     flex: '1 1 220px',
-    padding: '0.7rem 0.8rem',
-    borderRadius: 8,
-    border: '1px solid #d2d7de',
+    padding: '0.75rem 0.85rem',
+    borderRadius: 10,
+    border: INPUT_BORDER,
+    background: INPUT_BG,
+    color: '#eef1f6',
     fontSize: '0.95rem',
   },
   noteInput: {
-    padding: '0.6rem 0.8rem',
-    borderRadius: 8,
-    border: '1px solid #e3e7ec',
+    padding: '0.65rem 0.85rem',
+    borderRadius: 10,
+    border: '1px solid rgba(255,255,255,0.1)',
+    background: INPUT_BG,
+    color: '#eef1f6',
     fontSize: '0.85rem',
-    color: '#1a1a1a',
   },
   button: {
     flex: '0 0 auto',
-    padding: '0.7rem 1.3rem',
-    borderRadius: 8,
+    padding: '0.75rem 1.4rem',
+    borderRadius: 10,
     border: 'none',
-    background: '#1f3a5f',
-    color: '#fff',
-    fontWeight: 600,
+    background: 'linear-gradient(180deg, #e3955f, #cf7e44)',
+    color: '#1a1208',
+    fontWeight: 700,
     cursor: 'pointer',
   },
-  success: { background: '#E8F3EC', color: '#1B5E36', padding: '0.8rem 1rem', borderRadius: 8, fontSize: '0.95rem', textAlign: 'center' },
-  error: { color: '#A1232B', fontSize: '0.85rem', margin: 0 },
+  success: {
+    background: 'rgba(110,231,168,0.12)',
+    color: '#8af0b5',
+    border: '1px solid rgba(110,231,168,0.28)',
+    padding: '0.85rem 1rem',
+    borderRadius: 10,
+    fontSize: '0.95rem',
+    textAlign: 'center',
+  },
+  error: { color: '#f0a3a3', fontSize: '0.85rem', margin: 0 },
 }
