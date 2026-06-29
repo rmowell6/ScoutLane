@@ -129,6 +129,13 @@ describe('saveProfile / getProfile', () => {
     expect(await getStoredProfile('missing')).toBeNull()
   })
 
+  test('getStoredProfile coerces legacy string[] certs to the object shape', async () => {
+    const legacy = { ...PROFILE, certs: ['VCP-DCV', 'AWS SA Associate'] }
+    state.selectResult = { data: { structured: legacy, preferences: null }, error: null }
+    const result = await getStoredProfile('row-123')
+    expect(result?.profile.certs).toEqual([{ name: 'VCP-DCV' }, { name: 'AWS SA Associate' }])
+  })
+
   test('getStoredProfile rejects with step "validate" when stored shape is corrupt', async () => {
     state.selectResult = { data: { structured: { name: 123 }, preferences: null }, error: null }
     await expect(getStoredProfile('row-123')).rejects.toMatchObject({

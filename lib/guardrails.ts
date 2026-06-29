@@ -23,7 +23,7 @@ export function indexFacts(profile: Profile): FactIndex {
 
   if (profile.summary) byId.set('summary', profile.summary)
   profile.skills.forEach((s, i) => byId.set(`skill:${i}`, s))
-  profile.certs.forEach((c, i) => byId.set(`cert:${i}`, c))
+  profile.certs.forEach((c, i) => byId.set(`cert:${i}`, c.name))
   profile.roles.forEach((role, i) => {
     byId.set(`role:${i}:title`, role.title)
     byId.set(`role:${i}:company`, role.company)
@@ -277,6 +277,50 @@ export function checkBulletsGrounded(profile: Profile, sourceResumeText?: string
   return { ok: ungroundedMetrics.length === 0, skipped: false, ungroundedMetrics, flagged }
 }
 
+// ---- cert currency (defense-in-depth) --------------------------------------------
+// structureResume classifies each cert active vs previously_held; mapProfile renders by that status.
+// This catches the dangerous MISCLASSIFICATION — a cert shipped as Active that the SOURCE resume
+// marked previously-held (expired/lapsed/"held N years"/under a Previously-Held heading). FLAG only
+// (non-blocking): heuristic, and the corrected data flow is the primary guard; this is a safety net.
+
+const PREV_HELD_HEADER_RE =
+  /previously[\s-]*held|formerly[\s-]*held|(?:past|prior|expired|inactive|former)\s+certifications?/i
+const INLINE_PREV_RE = /\(\s*(?:expired|lapsed|inactive|no longer\b|former\b|held\s+\d+\s+years?)[^)]*\)/i
+
+export interface CertStatusResult {
+  ok: boolean
+  /** No source resume to check against — degrade OPEN (don't flag). */
+  skipped: boolean
+  /** Active certs that look previously-held in the source resume (likely misclassified). */
+  suspicious: string[]
+}
+
+/**
+ * Flag active certs that the SOURCE resume appears to mark as previously-held. Non-blocking: a true
+ * positive means structureResume mis-set the status and the doc would overstate the cert as current.
+ */
+export function checkCertStatus(profile: Profile, sourceResumeText?: string): CertStatusResult {
+  const source = (sourceResumeText ?? '').trim()
+  if (!source) return { ok: true, skipped: true, suspicious: [] }
+
+  const lower = source.toLowerCase()
+  const header = PREV_HELD_HEADER_RE.exec(source)
+  const prevRegionStart = header?.index ?? -1
+
+  const suspicious: string[] = []
+  for (const cert of profile.certs) {
+    if (cert.status === 'previously_held') continue // correctly classified — nothing to flag
+    const name = normalize(cert.name)
+    if (!name) continue
+    const idx = lower.indexOf(name)
+    if (idx === -1) continue
+    const inPrevRegion = prevRegionStart !== -1 && idx > prevRegionStart
+    const inlineCue = INLINE_PREV_RE.test(source.slice(idx, idx + cert.name.length + 40))
+    if (inPrevRegion || inlineCue) suspicious.push(cert.name)
+  }
+  return { ok: suspicious.length === 0, skipped: false, suspicious }
+}
+
 // ---- aggregate -------------------------------------------------------------------
 
 export interface GuardrailOptions {
@@ -294,6 +338,8 @@ export interface GuardrailReport {
   style: StyleResult
   ats: AtsResult | null
   bulletsGrounded: BulletsGroundedResult
+  /** Non-blocking flag: active certs that look previously-held in the source resume. */
+  certStatus: CertStatusResult
 }
 
 /** Run all guardrails and roll up a single pass/fail report. */
@@ -308,7 +354,9 @@ export function runGuardrails(
   const style = checkStyle(styleText, options.style)
   const ats = options.atsDoc ? checkAtsSafe(options.atsDoc) : null
   const bulletsGrounded = checkBulletsGrounded(profile, options.sourceResumeText)
+  const certStatus = checkCertStatus(profile, options.sourceResumeText)
 
+  // certStatus is a NON-BLOCKING flag (surfaced for review), so it is deliberately excluded from `ok`.
   const ok = noFabrication.ok && bannedTerms.ok && style.ok && (ats?.ok ?? true) && bulletsGrounded.ok
-  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded }
+  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded, certStatus }
 }

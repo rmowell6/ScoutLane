@@ -59,7 +59,7 @@ export function candidateTerms(profile: Profile, preferences?: CandidatePreferen
   }
 
   profile.skills.forEach(addPhrase)
-  profile.certs.forEach(addPhrase)
+  profile.certs.forEach((c) => addPhrase(c.name))
   profile.roles.forEach((r) => addPhrase(r.title))
   ;(preferences?.targetLanes ?? []).forEach(addPhrase)
 
