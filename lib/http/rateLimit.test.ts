@@ -49,11 +49,13 @@ describe('checkRateLimit', () => {
 })
 
 describe('rateLimit (handler gate)', () => {
-  test('returns null under budget and a 429 response once the default packet budget is exceeded', () => {
+  // No Supabase env in unit tests → rateLimit uses the in-memory LRU fallback, so behavior here is
+  // the per-instance limiter (the shared Postgres path runs in production).
+  test('returns null under budget and a 429 response once the default packet budget is exceeded', async () => {
     const ip = '10.5.0.1'
     // default packet budget is 5/min
-    for (let i = 0; i < 5; i++) expect(rateLimit(req(ip), 'packet')).toBeNull()
-    const blocked = rateLimit(req(ip), 'packet')
+    for (let i = 0; i < 5; i++) expect(await rateLimit(req(ip), 'packet')).toBeNull()
+    const blocked = await rateLimit(req(ip), 'packet')
     expect(blocked).not.toBeNull()
     expect(blocked?.status).toBe(429)
     expect(blocked?.headers.get('Retry-After')).toBeTruthy()

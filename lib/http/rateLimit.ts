@@ -4,12 +4,14 @@
 // This is the per-request control (OWASP API4:2023, Unrestricted Resource Consumption); the absolute
 // ceiling is an Anthropic org-level spend cap, documented in DEPLOY.md as the non-bypassable backstop.
 //
-// IMPLEMENTATION NOTE: the counter is a module-scope LRU, so it is PER serverless instance — the
-// effective limit is N x (warm instances). That is a deliberate POC tradeoff: a zero-dependency
-// speed bump against cost-amplification floods. A hard, cross-instance guarantee needs a shared
-// store (e.g. Upstash Redis); swap the store here without touching the handlers if that's needed.
+// IMPLEMENTATION NOTE: the authoritative counter is a SHARED Postgres counter (migration 0011) via
+// the atomic `rate_limit_hit` RPC, so one budget is enforced across all serverless instances. The
+// module-scope LRU below remains as a fallback ONLY: it's used when the Supabase secrets are absent
+// (CI unit tests) or if the shared query errors (fail-open on the shared layer — a counter hiccup must
+// not 500 real users; the Anthropic org spend cap is the non-bypassable backstop).
 import { LRUCache } from 'lru-cache'
 import { NextResponse } from 'next/server'
+import { serverSupabase } from '@/lib/supabaseServer'
 
 // key -> recent request timestamps (ms), oldest-first, pruned to the window on each check.
 const buckets = new LRUCache<string, number[]>({ max: 10_000, ttl: 10 * 60_000 })
@@ -77,13 +79,48 @@ export function checkRateLimit(
   return { ok: true }
 }
 
+/** Whether the shared (Postgres) counter is usable — i.e. the server Supabase secrets are present. */
+function isSharedStoreConfigured(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
+}
+
+/**
+ * Shared, cross-instance check via the `rate_limit_hit` RPC (migration 0011). On multiple serverless
+ * instances this is the ONLY way to enforce one real budget — the in-memory LRU counts per instance.
+ * Atomic in the DB (no read-modify-write race). Falls back to the local LRU when the store isn't
+ * configured (CI unit tests) or the query errors (FAIL-OPEN on the shared layer: a counter hiccup must
+ * not 500 real users — the Anthropic spend cap is the non-bypassable backstop).
+ */
+async function checkRateLimitShared(
+  request: Request,
+  route: string,
+  limit: number,
+  windowMs: number,
+): Promise<RateLimitResult> {
+  if (!isSharedStoreConfigured()) return checkRateLimit(request, route, limit, windowMs)
+  try {
+    const { data, error } = await serverSupabase().rpc('rate_limit_hit', {
+      p_key: `${route}:${clientIp(request)}`,
+      p_limit: limit,
+      p_window_seconds: Math.max(1, Math.ceil(windowMs / 1000)),
+    })
+    if (error) throw error
+    const row = (Array.isArray(data) ? data[0] : data) as { allowed: boolean; retry_after: number } | undefined
+    if (!row) throw new Error('rate_limit_hit returned no row')
+    return row.allowed ? { ok: true } : { ok: false, retryAfter: row.retry_after }
+  } catch (err) {
+    console.warn('[ratelimit] shared store failed, allowing (fail-open)', err)
+    return { ok: true }
+  }
+}
+
 /**
  * Handler gate: returns a 429 response when the caller is over the route's budget, else null. Use as
- * the FIRST line of a handler: `const limited = rateLimit(request, 'packet'); if (limited) return limited`.
+ * the FIRST line of a handler: `const limited = await rateLimit(request, 'packet'); if (limited) return limited`.
  * The body is generic — never leak the key or any secret.
  */
-export function rateLimit(request: Request, route: string): NextResponse | null {
-  const result = checkRateLimit(request, route, limitFor(route))
+export async function rateLimit(request: Request, route: string): Promise<NextResponse | null> {
+  const result = await checkRateLimitShared(request, route, limitFor(route), WINDOW_MS)
   if (result.ok) return null
   return NextResponse.json(
     { error: 'Too many requests' },
