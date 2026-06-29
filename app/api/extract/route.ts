@@ -14,7 +14,7 @@ export const maxDuration = 60
 export async function POST(request: Request) {
   try {
     // Throttle uploads per-IP (no LLM here, but bound parse/CPU floods).
-    const limited = rateLimit(request, 'extract')
+    const limited = await rateLimit(request, 'extract')
     if (limited) return limited
 
     const user = await requireUser()

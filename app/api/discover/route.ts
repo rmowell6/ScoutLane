@@ -31,7 +31,7 @@ const Body = z
 export async function POST(request: Request) {
   try {
     // Per-IP throttle first: discovery runs a structuring call + a Claude re-rank per request.
-    const limited = rateLimit(request, 'discover')
+    const limited = await rateLimit(request, 'discover')
     if (limited) return limited
 
     const user = await requireUser()

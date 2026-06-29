@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   try {
     // Abuse control FIRST: this route fans out to ~4 paid model calls, so cap per-IP frequency
     // before any work (the Anthropic spend cap is the absolute backstop — see DEPLOY.md).
-    const limited = rateLimit(request, 'packet')
+    const limited = await rateLimit(request, 'packet')
     if (limited) return limited
 
     // Gated route: a signed-in user is required (access is invite-only).
