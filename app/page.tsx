@@ -34,7 +34,10 @@ export default function LandingPage() {
           <li><a href="#how">How it works</a></li>
           <li><a href="#pledge">Our pledge</a></li>
         </ul>
-        <a href="#waitlist" className={styles.navCta}>Request access</a>
+        <div className={styles.navRight}>
+          <Link href="/sign-in" className={styles.navSignin}>Sign in</Link>
+          <a href="#waitlist" className={styles.navCta}>Request access</a>
+        </div>
       </nav>
 
       {/* HERO — Before → After */}
@@ -114,9 +117,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className={`${styles.ctaRow} ${styles.centerRow}`}>
-            <a href="#waitlist" className={styles.btnPrimary}>Get early access →</a>
-          </div>
         </div>
       </section>
 
