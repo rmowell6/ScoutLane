@@ -1,6 +1,7 @@
 /* Marketing landing — premium dark (M4 redesign). Self-contained theme: the .page wrapper owns its
    background + a full dark token set, so it never inherits the OS light/dark preference and can't
-   render dark-on-dark. Palette: deep slate base, near-white text, navy + warm copper accents.
+   render dark-on-dark. Palette: deep slate base, near-white text, navy + indigo/violet accent
+   (intentionally distinct from AWS's Squid Ink + orange).
    No framework; mobile-first; AA-contrast; honors prefers-reduced-motion. */
 
 .page {
@@ -14,9 +15,10 @@
   --text-muted: #b3bccb; /* body */
   --text-dim: #828d9d; /* captions */
   --navy: #3d5e8c; /* brand navy, lifted for legibility on dark */
-  --copper: #e3955f; /* warm accent */
-  --copper-strong: #cf7e44;
-  --copper-soft: rgba(227, 149, 95, 0.14);
+  --accent: #aab2ff; /* light indigo — legible as text/UI accent on the dark base (AA) */
+  --accent-strong: #6d5ef0; /* deeper indigo for borders/edges */
+  --accent-soft: rgba(109, 94, 240, 0.14);
+  --cta: linear-gradient(180deg, #7c6ef2, #5b4ce6); /* CTA fill — deep indigo→violet, white text */
 
   position: relative;
   isolation: isolate;
@@ -36,7 +38,7 @@
   z-index: -1;
   background:
     radial-gradient(60% 60% at 25% 0%, rgba(61, 94, 140, 0.28), transparent 70%),
-    radial-gradient(50% 50% at 85% 10%, rgba(227, 149, 95, 0.16), transparent 70%);
+    radial-gradient(50% 50% at 85% 10%, rgba(109, 94, 240, 0.16), transparent 70%);
   filter: blur(8px);
   pointer-events: none;
 }
@@ -79,7 +81,7 @@
   background: var(--surface-strong);
 }
 .navCta:hover {
-  border-color: var(--copper);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -108,9 +110,9 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--copper);
-  background: var(--copper-soft);
-  border: 1px solid rgba(227, 149, 95, 0.25);
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(109, 94, 240, 0.25);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   margin-bottom: 1.1rem;
@@ -123,7 +125,7 @@
   color: var(--text);
 }
 .headlineAccent {
-  color: var(--copper);
+  color: var(--accent);
 }
 .subhead {
   font-size: clamp(1.05rem, 1.6vw, 1.22rem);
@@ -144,17 +146,17 @@
 }
 .primaryCta {
   display: inline-block;
-  background: linear-gradient(180deg, var(--copper), var(--copper-strong));
-  color: #1a1208;
+  background: var(--cta);
+  color: #fff;
   font-weight: 700;
   padding: 0.8rem 1.6rem;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(227, 149, 95, 0.25);
+  box-shadow: 0 8px 24px rgba(109, 94, 240, 0.3);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .primaryCta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(227, 149, 95, 0.34);
+  box-shadow: 0 12px 30px rgba(109, 94, 240, 0.34);
 }
 .secondaryCta {
   display: inline-block;
@@ -167,7 +169,7 @@
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .secondaryCta:hover {
-  border-color: var(--copper);
+  border-color: var(--accent);
   background: var(--surface-strong);
 }
 
@@ -177,7 +179,7 @@
   color: var(--text-dim);
 }
 .inlineLink {
-  color: var(--copper);
+  color: var(--accent);
   font-weight: 600;
 }
 .inlineLink:hover {
@@ -254,7 +256,7 @@
 }
 .gaugeValue {
   fill: none;
-  stroke: var(--copper);
+  stroke: var(--accent);
   stroke-width: 9;
   stroke-linecap: round;
 }
@@ -303,8 +305,8 @@
   color: #6ee7a8;
 }
 .covWarn {
-  background: var(--copper-soft);
-  color: var(--copper);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .docThumbs {
@@ -352,7 +354,7 @@
   font-size: 0.92rem;
 }
 .trustDot {
-  color: var(--copper);
+  color: var(--accent);
 }
 
 /* ── Generic sections ──────────────────────────────────────────────────────── */
@@ -368,7 +370,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--accent);
   margin-bottom: 0.6rem;
 }
 .sectionTitle {
@@ -413,9 +415,9 @@
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 10px;
-  background: var(--copper-soft);
-  border: 1px solid rgba(227, 149, 95, 0.3);
-  color: var(--copper);
+  background: var(--accent-soft);
+  border: 1px solid rgba(109, 94, 240, 0.3);
+  color: var(--accent);
   font-weight: 700;
   margin-bottom: 1rem;
 }
@@ -449,7 +451,7 @@
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .card:hover {
-  border-color: var(--copper);
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 .cardEyebrow {
@@ -458,7 +460,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--copper);
+  color: var(--accent);
   margin-bottom: 0.7rem;
 }
 .cardTitle {
