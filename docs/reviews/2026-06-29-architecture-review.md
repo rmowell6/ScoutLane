@@ -1,7 +1,7 @@
 # ScoutLane — Architecture & Security Review (2026-06-29)
 
 **Lenses:** security architect · full-stack dev · senior cloud/EKS architect · reliability/cost · Claude Code hygiene
-**Target:** harden the POC and prepare migration to **AWS EKS**.
+**Target:** harden the POC and prepare migration to **AWS ECS on Fargate** _(corrected from EKS — see `2026-06-29-ecs-fargate-target-state.md`; the Batch 3 gaps are platform-agnostic, only their implementation mapping changed)_.
 **Method:** exhaustive, multi-agent (parallel finders per sub-area + adversarial verification). Read-only — no code changes until the remediation set is approved.
 **Codebase at review:** ~9.9k LOC TS/TSX · Next.js 16 (App Router) on Vercel · Supabase (Auth + Postgres + Storage) · Anthropic SDK · 40 test files · CI in `.github/workflows/ci.yml`.
 
@@ -15,10 +15,8 @@
 | 1 | Security deep-dive | ✅ done (28 findings) |
 | 2 | App correctness | ✅ done (37 findings) |
 | 3 | EKS-readiness | ✅ done (57→25 deduped) |
-| 4 | Reliability + perf + cost | ⛔ BLOCKED — hit session limit (resets 4:30am UTC); resume |
-| 5 | Synthesis + EKS target-state design | ⏳ pending (after B4) |
-
-> **RESUME (after 4:30am UTC):** re-run Batch 4 (script at `…/workflows/scripts/scoutlane-reliability-review-wf_556b4890-f41.js`, or just re-issue the reliability workflow), then Batch 5 synthesis + the EKS target-state design doc. All findings to date are committed below; no work is lost.
+| 4 | Reliability + perf + cost | ✅ done (30 findings) |
+| 5 | Synthesis + ECS target-state design | ✅ done (design doc + roadmap below) |
 
 ---
 
@@ -121,4 +119,53 @@
 | C-19 | LOW | `lib/services/buildPacket.ts:362` | Shipped resume role **bullets never pass through `checkStyle`** (em-dash/space) — only tailored summary/cover/claims do. | Include `profile.roles[].bullets` in styleText, or confirm `resume.ts` gates them. | S |
 | C-20 | INFO | `lib/services/buildPacket.ts:116` | Storage upload can **orphan files** on partial `Promise.all` failure (acceptable given cleanup cron). | Best-effort delete succeeded paths in the catch (low priority). | S |
 
-_Subsequent batches appended below as they complete._
+### Batch 4 — reliability + performance + cost (deduped; 30 raw → 18; 1/1 HIGH verified)
+
+| ID | SEV | Location | Finding | Recommendation | Eff |
+|----|-----|----------|---------|----------------|-----|
+| R-1 | HIGH | `lib/anthropic.ts:8` + all 6 call sites | Anthropic client has **no per-request `timeout`** → SDK default **10 min, retried ×4**. A single hung model call blows the 120s budget → opaque **504 + full token spend**, and the careful `isTransientAnthropicError→503` mapping never runs. | Set explicit per-call `timeout` (≈25–30s Haiku, 45–60s Sonnet) sized to budget; cap retries so `timeout×(retries+1)≤budget`; share an `AbortSignal` wall-clock deadline. | M |
+| R-2 | MED | `lib/services/buildPacket.ts:186` | Parallel `Promise.all` is fail-fast: first rejection unwinds, but the **sibling paid model calls keep running** (billed, discarded); no partial salvage. | `allSettled` + a shared `AbortController` to cancel siblings on a fatal rejection. | M |
+| R-3 | MED | `lib/supabaseServer.ts:20`, `buildPacket.ts:116`, `rateLimit.ts:102` | Supabase Storage uploads / upserts / rate-limit RPC have **no per-call timeout** — a hung tail upload (after all 4 model calls spent tokens) can 504 the request. | Bounded `fetch` (`AbortSignal.timeout`) in the Supabase client; reserve a tail budget; timeout→ the existing inline fallback. | M |
+| R-4 | MED | `lib/services/*` (6 system prompts) | `cache_control` markers are a **no-op** — each system block is below the model's minimum cacheable prefix; the comments mislead. | Either remove the markers+comments, OR make caching real (move the large repeated profile/JD into a cached prefix, fan out after first token). | M |
+| R-5 | MED | `lib/services/buildPacket.ts:179` + `jobStore.ts` | Pooled-job **`parseJob` is recomputed every packet** against the same posting (only style signals are cached). | Persist parsed `JobReqs` on the job row (`job_reqs` jsonb), read on the `jobId` path (mirror the style-signals cache). | M |
+| R-6 | MED | `lib/services/discoverRoles.ts:147` | Re-rank sends full **36-char UUIDs** and asks the model to echo them — inflates in/out tokens + UUID-echo errors (corroborates the #50 follow-up). | Use compact integer indices 0..N-1; map back in `assembleDiscoveries`. | M |
+| R-7 | MED | `supabase/migrations/0011_rate_limit.sql` | `rate_limit_counters` **grows unboundedly** — no TTL/cleanup of expired windows. | Daily idempotent cleanup (`delete … where window_start < now()-interval '1 day'`) or opportunistic purge. | S |
+| R-8 | MED | `lib/style/skin.ts:8` | Full `themes.json`+`fonts.json` (mostly server-only prose: `designer`/`recruiter`/`character`) **shipped to the browser**. | Split a slim client file (`{id,name,primary,accent,wash,body}`); keep the rich data server-side. | M |
+| R-9 | MED | `lib/services/buildPacket.ts:133` | Up to 3 docx **base64-inlined into the JSON response** (~2.3× peak memory; no streaming). | Prefer the signed-URL path; on fallback, a single download endpoint; encode/release one buffer at a time. | M |
+| R-10 | MED | `app/page.tsx:714` | **No loading/progress UI** during the ≤120s packet wait (just a button label). | Skeleton + indeterminate progress + ETA; ideally stream step-level progress. | M |
+| R-11 | MED | `app/api/packet/route.ts:24` | 120s I/O-bound requests with **no per-instance concurrency cap/queue** — a burst pins memory across overlapping long requests. | Semaphore around `buildPacket` → 503+Retry-After when saturated (also an ECS task-sizing input). | M |
+| R-12 | MED | `app/api/jobs/ingest-all/route.ts:108` | Apify actor timeout **doesn't bound the leg's wall-clock**; a slow scrape eats the cron budget and still bills. | Race strictly below the actor budget; abort the actor run on race-timeout. | M |
+| R-13 | LOW | `src/jobBoards/aggregator.ts:167,195` | `withTimeout` leaks the timer + never aborts the loser (held connection); O(n²) `concat`-in-loop accumulation. | `clearTimeout` in `.finally`; thread `AbortController`; `push(...)`/`flat()` once. | S |
+| R-14 | LOW | `lib/services/extractFitInput.ts:64` | Sends the **entire profile** (incl. contact PII) when only a subset drives extraction. | Send a trimmed projection (as `recommendStyle` does). | S |
+| R-15 | LOW | services | `max_tokens` budgets oversized with **no token/cost accounting**. | Read `message.usage` in `runStep` (`in/out/cache` per step) — the basis for cost metrics (E-11/E-20). | S |
+| R-16 | LOW | `lib/services/jobStore.ts:173` | ILIKE title/company search has **no trigram index** — seq scan per keyword search as the pool grows. | `pg_trgm` + GIN index on `lower(title)`/`lower(company)` if the pool grows into the thousands. | S |
+| R-17 | LOW | `components/Packet.tsx:165`, `app/layout.tsx:6` | PacketView recomputes sorts/Sets each render (no `useMemo`); fonts lack `display:'swap'`; `Geist_Mono` loaded but unused. | `useMemo` derived values; `display:'swap'`; drop unused mono font. | S |
+| R-18 | INFO | `0001`/`0009` | `profiles.user_id` / `generations.user_id` have **no index** (fine at current scale; needed when user-scoped listing is wired). | Add indexes when those queries land. | S |
+
+---
+
+## Batch 5 — Synthesis & prioritized remediation roadmap
+
+**Totals:** 4 deep batches + static scan → **~87 deduped findings** (1 HIGH-sev confirmed at R-1; the rest MED/LOW/INFO after adversarial verification; **0** CRIT in the running app — the only CRITs are the *EKS/ECS migration* prerequisites, which are "missing infra," not bugs). **Verified-clean positives** are documented in Batch 1.
+
+### Cross-batch corroboration (highest confidence — found independently by ≥2 batches)
+- **`guardrails.ts:52` factId laundering** (B1-1 + C-2) — the no-fabrication gate is a no-op for any cited claim.
+- **Rate-limiter fails fully open** (B1-4 + R-Low + E-…) — should fall back to the local LRU.
+- **`parseJob` skips `readParsed`** (B1-18 + C-6 + R-Low).
+- **discover UUID echo** inflates tokens (R-6 + the #50 follow-up).
+- **aggregator `withTimeout` doesn't abort** (B1-14 + R-13).
+
+### Recommended remediation, grouped into shippable PRs (priority order)
+
+| PR | Theme | Findings | Why first |
+|----|-------|----------|-----------|
+| **P1 — Guardrail integrity** | the product differentiator | B1-1/C-2 (factId text-diff), **C-1** (`mentions()` `\b` false-blocks C++/C#/.NET), B1-2 (qualitative prose), C-2 (metric unit grounding), C-3 (ReDoS cap) | Restores the "no-fabrication" guarantee **and** stops a live false-block class (same family as the dash bug already shipped). High user + trust impact, low effort. |
+| **P2 — Abuse & cost controls** | reliability/$ | **R-1** (Anthropic timeouts), B1-4 (rate-limit fail-to-LRU), R-7 (counter cleanup), R-2 (abort siblings), R-11 (concurrency cap) | R-1 is the lone HIGH; protects spend + removes 504s. |
+| **P3 — Security hardening** | security | B1-7 (open-redirect), B1-8/B1-9 (PII in logs), B1-5/B1-6 (extract bomb + magic-bytes), B1-10 (`/api/jobs` gate), B1-12 (RPC search_path + revoke), B1-13 (redirect:'error') | Discrete, mostly-S fixes; closes the real security gaps. |
+| **P4 — Correctness & tests** | correctness | C-4 (NaN), C-6 (readParsed), C-8 (503 mapping), C-5 (hydration), C-9/C-10 (typed rows), C-11 (the untested 422/cron/rate-limit/route paths) | Locks the invariant with tests; removes latent bugs. |
+| **P5 — Cost/perf optimization** | $/latency | R-4 (cache_control), R-5 (parseJob cache), R-6 (short ids), R-8 (client bundle), R-9 (docx streaming), R-10 (loading UI) | Token/$ + UX wins; do after correctness. |
+| **MIG — ECS Fargate migration** | cloud | E-1…E-25 + the app-code prereqs (standalone, SIGTERM, `/api/health`, structured logs+request-id, metrics+token cost, config validation, XFF, `generations` write) → then IaC | Big track; app-code prereqs land as small PRs first, then infra per `ecs-fargate-target-state.md`. |
+
+> **Nothing here is shipped.** Pick the PR set(s) to execute and I'll implement them on branches with the usual typecheck/lint/test/build gate + adversarial self-review.
+
+_End of review._
