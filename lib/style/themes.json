@@ -1,0 +1,211 @@
+{
+  "$schema": "scoutlane.resume.themes/v1",
+  "description": "ScoutLane resume + cover letter + assessment theme palette system. All themes share one ATS-safe, single-column skeleton; only `primary` and `accent` change between themes. `wash` is an optional light header tint (text on it MUST stay dark). Legibility never depends on a background fill.",
+  "rules": {
+    "atsSafe": true,
+    "singleColumn": true,
+    "noTables": true,
+    "noTextBoxes": true,
+    "noImages": true,
+    "darkTextOnLightOnly": true,
+    "neverReverseOutText": true,
+    "fonts": {
+      "headings": "Cambria",
+      "body": "Calibri",
+      "renderTwins": {
+        "Cambria": "Caladea",
+        "Calibri": "Carlito"
+      }
+    },
+    "accentTextNote": "Use `accent` for graphic elements (rules, markers, swatches, gauge arcs). Use `accentText` for any accent-colored TEXT (dates, tagline) — it is the accent darkened to >=4.5:1 on white for WCAG AA text. Picker UI must render theme accents only as graphics, never as text."
+  },
+  "sharedNeutrals": {
+    "ink": "1A1A1A",
+    "hairline": "C2CAD6"
+  },
+  "master": "navy_copper",
+  "themes": [
+    {
+      "id": "navy_copper",
+      "order": 1,
+      "master": true,
+      "name": "Navy & Copper",
+      "primary": "16335B",
+      "accent": "B0682C",
+      "slate": "55606E",
+      "wash": "EAEEF4",
+      "designer": "Deep navy authority with a warm copper accent, a pairing most templates never reach for. Serif name on a faint blue-grey wash, copper rules and markers.",
+      "recruiter": "Premium and a little warm without being loud. Distinctive in a cold-blue insurance or finance stack; safe for conservative reviewers, still memorable.",
+      "bestFor": [
+        "insurance",
+        "finance",
+        "general senior",
+        "regulated industries"
+      ],
+      "accentText": "AB652B"
+    },
+    {
+      "id": "ink_teal",
+      "order": 2,
+      "name": "Ink & Teal",
+      "primary": "13343B",
+      "accent": "0F8A8A",
+      "slate": "566066",
+      "wash": "E9F1F1",
+      "designer": "Deep petrol-ink with a clean teal. Cooler and more modern than copper; teal signals technical without going neon.",
+      "recruiter": "Current and engineering-forward. Great for cloud, platform, and DevOps roles at tech-leaning employers. More builder than executive.",
+      "bestFor": [
+        "cloud",
+        "devops",
+        "platform engineering",
+        "tech-leaning"
+      ],
+      "accentText": "0E8383"
+    },
+    {
+      "id": "charcoal_amber",
+      "order": 3,
+      "name": "Charcoal & Amber",
+      "primary": "262626",
+      "accent": "C8881C",
+      "slate": "5A5A5A",
+      "wash": "F1EEE7",
+      "designer": "Near-black charcoal with a confident amber-gold. The neutral primary lets the warm amber do all the talking. Warm paper-tone wash.",
+      "recruiter": "Reads like a well-made editorial document. Amber is eye-catching among blue resumes. Versatile across industries; senior and design-aware.",
+      "bestFor": [
+        "versatile",
+        "design-aware",
+        "general",
+        "creative-adjacent"
+      ],
+      "accentText": "9E6B16"
+    },
+    {
+      "id": "forest_stone",
+      "order": 4,
+      "name": "Forest & Stone",
+      "primary": "1E3D32",
+      "accent": "9C6B3F",
+      "slate": "586057",
+      "wash": "ECEFE9",
+      "designer": "Deep forest green with a muted bronze-stone accent. Organic and grounded; green is rare on resumes so it registers instantly.",
+      "recruiter": "Calm, mature, uncommon. Stands out by being unexpected, not bright. Suits healthcare, manufacturing, operations leadership.",
+      "bestFor": [
+        "healthcare",
+        "manufacturing",
+        "operations",
+        "sustainability"
+      ],
+      "accentText": "9C6B3F"
+    },
+    {
+      "id": "oxford_burgundy",
+      "order": 5,
+      "name": "Oxford & Burgundy",
+      "primary": "1C2E4A",
+      "accent": "7B2D3A",
+      "slate": "535B69",
+      "wash": "EBEDF2",
+      "designer": "Oxford-blue with a deep burgundy accent, the most classically establishment pairing. Burgundy adds gravitas where copper adds warmth.",
+      "recruiter": "Seasoned, credible, executive. Excellent for finance, insurance, legal-adjacent, or director-track roles. Never looks risky.",
+      "bestFor": [
+        "finance",
+        "insurance",
+        "legal",
+        "director-track",
+        "executive"
+      ],
+      "accentText": "7B2D3A"
+    },
+    {
+      "id": "slate_rust",
+      "order": 6,
+      "name": "Slate & Rust",
+      "primary": "33414E",
+      "accent": "B5532A",
+      "slate": "5C6670",
+      "wash": "EDEFF1",
+      "designer": "Cool blue-slate primary with a punchy rust-orange. Softer than navy, the rust gives it energy. Clean, contemporary, industrial.",
+      "recruiter": "Approachable but sharp. Less formal than navy, more vivid than teal. Good for mid-market and roles where modern-and-capable beats buttoned-up.",
+      "bestFor": [
+        "mid-market",
+        "tech-adjacent ops",
+        "modern enterprise"
+      ],
+      "accentText": "B5532A"
+    },
+    {
+      "id": "graphite_electric",
+      "order": 7,
+      "name": "Graphite & Electric Blue",
+      "primary": "2B2F36",
+      "accent": "1F6FEB",
+      "slate": "585E66",
+      "wash": "EAEFF6",
+      "designer": "Graphite with a saturated electric blue, the most overtly tech option. Bright blue used only on thin rules, markers, and dates so it never overwhelms.",
+      "recruiter": "Signals software, cloud, modern IT loudly. Best for startups and engineering orgs. Slightly bold for the most conservative insurers.",
+      "bestFor": [
+        "startups",
+        "software",
+        "FAANG-style",
+        "engineering orgs"
+      ],
+      "accentText": "1F6FEB"
+    },
+    {
+      "id": "espresso_sage",
+      "order": 8,
+      "name": "Espresso & Sage",
+      "primary": "3A2E25",
+      "accent": "6E8B6B",
+      "slate": "5F5950",
+      "wash": "EFEDE6",
+      "designer": "Warm espresso-brown primary with a soft sage-green accent. Unusual and warm; brown reads softer than black, sage is calming. Boutique feel.",
+      "recruiter": "Memorable for being warm and human among corporate blue. Suits design-aware, people-centric, or smaller-company cultures.",
+      "bestFor": [
+        "small companies",
+        "people-centric",
+        "design-aware",
+        "nonprofit"
+      ],
+      "accentText": "627C5F"
+    },
+    {
+      "id": "midnight_gold",
+      "order": 9,
+      "name": "Midnight & Gold",
+      "primary": "16203A",
+      "accent": "A9852F",
+      "slate": "535A68",
+      "wash": "EAECF3",
+      "designer": "Very deep midnight-navy with an antique gold accent. The richest, most premium pairing; gold reads luxury when muted, not yellow.",
+      "recruiter": "Top-tier executive polish. Conveys seniority and prestige; great for leadership, principal, or director-level applications.",
+      "bestFor": [
+        "executive",
+        "leadership",
+        "principal",
+        "director-level",
+        "prestige"
+      ],
+      "accentText": "907128"
+    },
+    {
+      "id": "steel_crimson",
+      "order": 10,
+      "name": "Steel & Crimson",
+      "primary": "2E3B47",
+      "accent": "B23B3B",
+      "slate": "5B6470",
+      "wash": "ECEEF1",
+      "designer": "Steel-blue-grey primary with a clear crimson accent. The boldest warm accent in the set, high energy and high visibility, kept disciplined by clean structure.",
+      "recruiter": "Commands attention; crimson pulls the eye to the name and dates. Confident, a touch assertive. Strong for competitive roles where standing out fast matters.",
+      "bestFor": [
+        "competitive roles",
+        "sales-adjacent",
+        "high-visibility",
+        "bold candidates"
+      ],
+      "accentText": "B23B3B"
+    }
+  ]
+}

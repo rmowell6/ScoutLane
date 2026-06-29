@@ -1,0 +1,151 @@
+{
+  "$schema": "scoutlane.resume.fonts/v1",
+  "description": "ScoutLane font pairings. All fonts are Microsoft Office / Windows core — they render identically in Office on Windows and parse cleanly in ATS. The .docx always specifies the real MS font names listed here. Linux metric-twins (Caladea, Carlito, Gelasio, Tinos, EB Garamond) are preview-only and must NEVER appear in output documents.",
+  "master": "cambria_calibri",
+  "msFontAllowlist": [
+    "Cambria",
+    "Calibri",
+    "Georgia",
+    "Verdana",
+    "Garamond",
+    "Constantia",
+    "Corbel",
+    "Arial",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Book Antiqua",
+    "Tahoma",
+    "Palatino Linotype",
+    "Franklin Gothic Medium"
+  ],
+  "linuxPreviewTwins": {
+    "Cambria": "Caladea",
+    "Calibri": "Carlito",
+    "Georgia": "Gelasio",
+    "Times New Roman": "Tinos",
+    "Garamond": "EB Garamond"
+  },
+  "pairs": [
+    {
+      "id": "cambria_calibri",
+      "order": 1,
+      "master": true,
+      "name": "Cambria / Calibri",
+      "head": "Cambria",
+      "body": "Calibri",
+      "character": "Warm professional — a classic serif heading paired with a humanist sans body. The default ScoutLane look: authoritative without stiffness.",
+      "formality": 3,
+      "distinct": 2,
+      "warmth": 4,
+      "bestFor": ["insurance", "finance", "general", "regulated", "senior"]
+    },
+    {
+      "id": "georgia_verdana",
+      "order": 2,
+      "name": "Georgia / Verdana",
+      "head": "Georgia",
+      "body": "Verdana",
+      "character": "Legible classic — Georgia's serifs give headings weight; Verdana's wide letterforms maximize body readability at small sizes. Reliable across contexts.",
+      "formality": 4,
+      "distinct": 2,
+      "warmth": 3,
+      "bestFor": ["general", "accessible", "traditional", "operations", "healthcare"]
+    },
+    {
+      "id": "garamond_calibri",
+      "order": 3,
+      "name": "Garamond / Calibri",
+      "head": "Garamond",
+      "body": "Calibri",
+      "character": "Refined executive — Garamond's old-style elegance in the heading, Calibri's clean modernity in the body. The contrast signals depth and polish.",
+      "formality": 4,
+      "distinct": 3,
+      "warmth": 2,
+      "bestFor": ["executive", "legal", "finance", "consulting", "director-track"]
+    },
+    {
+      "id": "constantia_corbel",
+      "order": 4,
+      "name": "Constantia / Corbel",
+      "head": "Constantia",
+      "body": "Corbel",
+      "character": "Modern polished — two Vista-era ClearType faces designed to work together. Constantia's curved serifs paired with Corbel's geometric sans reads fresh and considered.",
+      "formality": 3,
+      "distinct": 2,
+      "warmth": 2,
+      "bestFor": ["modern enterprise", "corporate", "professional", "mid-market"]
+    },
+    {
+      "id": "calibri_calibri",
+      "order": 5,
+      "name": "Calibri / Calibri",
+      "head": "Calibri",
+      "body": "Calibri",
+      "character": "Clean minimal — one typeface throughout. The heading weight differentiates levels; nothing competes for attention. Pure function.",
+      "formality": 2,
+      "distinct": 1,
+      "warmth": 2,
+      "bestFor": ["tech", "startups", "minimal", "modern", "software", "engineering orgs"]
+    },
+    {
+      "id": "times_arial",
+      "order": 6,
+      "name": "Times New Roman / Arial",
+      "head": "Times New Roman",
+      "body": "Arial",
+      "character": "Bulletproof traditional — the two most universally supported typefaces. Zero style risk; parses in every ATS without question. Conservative by design.",
+      "formality": 5,
+      "distinct": 1,
+      "warmth": 2,
+      "bestFor": ["legal", "academic", "traditional", "conservative", "government"]
+    },
+    {
+      "id": "trebuchet_georgia",
+      "order": 7,
+      "name": "Trebuchet MS / Georgia",
+      "head": "Trebuchet MS",
+      "body": "Georgia",
+      "character": "Friendly credible — Trebuchet's humanist geometry in the heading feels approachable, Georgia's serifs in the body keep it grounded and readable.",
+      "formality": 3,
+      "distinct": 3,
+      "warmth": 4,
+      "bestFor": ["nonprofit", "education", "people-centric", "healthcare", "small companies"]
+    },
+    {
+      "id": "bookantiqua_tahoma",
+      "order": 8,
+      "name": "Book Antiqua / Tahoma",
+      "head": "Book Antiqua",
+      "body": "Tahoma",
+      "character": "Executive warmth — Book Antiqua's old-world serif gravitas paired with Tahoma's clean, legible sans. Authoritative but approachable.",
+      "formality": 4,
+      "distinct": 3,
+      "warmth": 4,
+      "bestFor": ["executive", "senior", "finance", "insurance", "classic", "director-level"]
+    },
+    {
+      "id": "palatino_franklin",
+      "order": 9,
+      "name": "Palatino Linotype / Franklin Gothic Medium",
+      "head": "Palatino Linotype",
+      "body": "Franklin Gothic Medium",
+      "character": "Distinctive premium — Palatino's calligraphic elegance against Franklin Gothic's assertive weight. The pairing has presence; best when the role calls for it.",
+      "formality": 4,
+      "distinct": 5,
+      "warmth": 3,
+      "bestFor": ["executive", "creative-adjacent", "distinctive", "prestige", "principal", "leadership"]
+    },
+    {
+      "id": "tahoma_tahoma",
+      "order": 10,
+      "name": "Tahoma / Tahoma",
+      "head": "Tahoma",
+      "body": "Tahoma",
+      "character": "High-legibility technical — Tahoma's pixel-hinted design maximizes clarity at all sizes. One face, engineered for readability. Functional and no-frills.",
+      "formality": 2,
+      "distinct": 2,
+      "warmth": 2,
+      "bestFor": ["technical", "IT", "engineering orgs", "high-legibility", "devops", "cloud"]
+    }
+  ]
+}
