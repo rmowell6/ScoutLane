@@ -15,6 +15,7 @@ import { isApifyDay } from '@/lib/ingest/apifySchedule'
 import { claimApifyRun } from '@/lib/ingest/apifyRunLock'
 import { prunableAtsProviders, prunableBoardSources } from '@/lib/ingest/prunePlan'
 import { authorizeCron } from '@/lib/http/cronAuth'
+import { purgeExpiredRateLimits } from '@/lib/http/rateLimit'
 import { serverErrorBody } from '@/lib/http/errors'
 import { JobAggregator } from '@/src/jobBoards/aggregator'
 
@@ -176,11 +177,15 @@ async function handleIngestAll(request: Request) {
 
     const expireCutoffIso = new Date(Date.now() - JOB_RETENTION_MS).toISOString()
     const reclaimCutoffIso = new Date(Date.now() - JOB_RECLAIM_MS).toISOString()
-    const [expireSettled, reclaimSettled, docsSettled] = await Promise.allSettled([
+    const [expireSettled, reclaimSettled, docsSettled, rateLimitSettled] = await Promise.allSettled([
       expireStaleJobs(prunableSources, expireCutoffIso),
       reclaimExpiredJobs(reclaimCutoffIso),
       isStorageConfigured() ? cleanupOldDocs(DOC_RETENTION_MS) : Promise.resolve(0),
+      purgeExpiredRateLimits(), // P2/R-7: bound rate_limit_counters growth
     ])
+    if (rateLimitSettled.status === 'rejected') {
+      console.warn('[ingest-all] rate-limit purge failed', legError(rateLimitSettled.reason))
+    }
     const expiredJobs =
       expireSettled.status === 'fulfilled'
         ? { ok: true, expired: expireSettled.value, sources: prunableSources }

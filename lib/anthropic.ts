@@ -1,11 +1,18 @@
 import Anthropic from '@anthropic-ai/sdk'
 
 // Reads ANTHROPIC_API_KEY from the environment (server-only — never expose to the browser).
-// maxRetries is raised from the SDK default (2) to 4: the model API returns transient 429/529
-// (overloaded) bursts that occasionally outlast two retries, surfacing to the user as an opaque
-// 500. The SDK retries these with exponential backoff + jitter and honors Retry-After, so more
-// retries trade a little latency on a struggling call for far fewer user-visible failures.
-export const anthropic = new Anthropic({ maxRetries: 4 })
+//
+// timeout (P2/R-1): the SDK default request timeout is 10 MINUTES and request timeouts are themselves
+// retried, so a single hung model call could wait far longer than the /api/packet 120s budget — the
+// function got killed by the platform (opaque 504, full token spend, the isTransientAnthropicError→503
+// mapping never reached). A 45s per-attempt timeout bounds a hung call to ~45s (it then errors and
+// maps cleanly), while still covering legitimate Sonnet latency (tailoring is typically <30s).
+//
+// maxRetries 2 (was 4): the timeout changes the trade-off — timeout×(retries+1) must stay near the
+// budget, so retries are capped at 2 (≈135s worst case for a persistently-failing single call). Two
+// retries with exponential backoff + Retry-After still absorb the common brief 429/529 overload; the
+// org-level spend cap remains the non-bypassable backstop.
+export const anthropic = new Anthropic({ maxRetries: 2, timeout: 45_000 })
 
 /**
  * True when an error (or its wrapped cause) is a TRANSIENT upstream model failure — an overload /
