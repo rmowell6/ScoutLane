@@ -32,6 +32,9 @@ const Body = z
     jobId: z.uuid().optional(),
     preferences: CandidatePreferencesSchema.optional(),
     bannedTerms: z.array(z.string().max(MAX_TERM_CHARS)).max(MAX_BANNED_TERMS).optional(),
+    // Optional explicit style pick (theme + font ids). Absent → the server recommends one. Ids are
+    // loose strings; buildPacket falls back to the master skin if an id is unknown (never crashes).
+    style: z.object({ theme: z.string().min(1).max(64), font: z.string().min(1).max(64) }).optional(),
   })
   .refine((b) => Boolean(b.resumeText) !== Boolean(b.profileId), {
     message: 'provide exactly one of resumeText or profileId',
@@ -100,6 +103,8 @@ export async function POST(request: Request) {
       sourceResumeText,
       preferences,
       bannedTerms: parsed.data.bannedTerms,
+      // An explicit pick is a user override (source 'user'); absent → the pipeline recommends one.
+      style: parsed.data.style ? { ...parsed.data.style, source: 'user' } : undefined,
     })
 
     // Never ship a failed guardrail silently — surface it for regeneration / human review.

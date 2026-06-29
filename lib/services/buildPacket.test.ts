@@ -33,6 +33,14 @@ vi.mock('./extractFitInput', () => ({
 vi.mock('./tailorResume', () => ({
   tailorResume: vi.fn(async () => ({ summary: 's', skills: [], claims: [], coverLetter: 'c' })),
 }))
+// Style recommendation is mocked: buildPacket calls it only when the caller didn't pick a style.
+const recommendStyle = vi.hoisted(() =>
+  vi.fn(async () => ({
+    style: { theme: 'forest_stone', font: 'georgia_verdana', source: 'recommended' },
+    why: 'because',
+  })),
+)
+vi.mock('./recommendStyle', () => ({ recommendStyle }))
 vi.mock('@/lib/guardrails', () => ({
   runGuardrails: () => ({
     ok: true,
@@ -105,21 +113,30 @@ describe('buildPacket style threading', () => {
     return { theme: theme?.id ?? '', font: font?.id ?? '' }
   }
 
-  beforeEach(() => buildResumeDocx.mockClear())
-
-  test('absent style → master skin (navy_copper / cambria_calibri)', async () => {
-    await buildPacket({ profile: PROFILE, jdText: 'JD', date: 'x' })
-    expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'navy_copper', font: 'cambria_calibri' })
+  beforeEach(() => {
+    buildResumeDocx.mockClear()
+    recommendStyle.mockClear()
   })
 
-  test('explicit style is resolved from ids and threaded to the builders', async () => {
-    await buildPacket({
+  test('absent style → the recommendation is threaded to the builders + returned', async () => {
+    const packet = await buildPacket({ profile: PROFILE, jdText: 'JD', date: 'x' })
+    expect(recommendStyle).toHaveBeenCalledOnce()
+    expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'forest_stone', font: 'georgia_verdana' })
+    expect(packet.style).toEqual({ theme: 'forest_stone', font: 'georgia_verdana', source: 'recommended' })
+    expect(packet.styleWhy).toBe('because')
+  })
+
+  test('explicit style wins and skips the recommender', async () => {
+    const packet = await buildPacket({
       profile: PROFILE,
       jdText: 'JD',
       date: 'x',
       style: { theme: 'ink_teal', font: 'tahoma_tahoma', source: 'user' },
     })
+    expect(recommendStyle).not.toHaveBeenCalled()
     expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'ink_teal', font: 'tahoma_tahoma' })
+    expect(packet.style.source).toBe('user')
+    expect(packet.styleWhy).toBeUndefined()
   })
 
   test('unknown style ids fall back to the master skin (never crash)', async () => {

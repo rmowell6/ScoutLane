@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import type { Packet } from '@/lib/services/buildPacket'
 import PacketView from '@/components/Packet'
+import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
 import styles from './page.module.css'
 
 /** A saved profile + the resume snapshot it was structured from (for staleness detection). */
@@ -106,6 +107,10 @@ export default function Home() {
   const [employmentTypes, setEmploymentTypes] = useState<string[]>([])
   const [employerPref, setEmployerPref] = useState('')
   const [noGo, setNoGo] = useState('')
+  // Style: 'recommended' lets the server pick a theme/font from the role; 'custom' sends an override.
+  const [styleMode, setStyleMode] = useState<'recommended' | 'custom'>('recommended')
+  const [themeId, setThemeId] = useState('navy_copper')
+  const [fontId, setFontId] = useState('cambria_calibri')
 
   // Load/search the job pool while in "pick" mode. Debounced; runs on entering pick mode and on
   // each query change. setState lands inside the async callback (not the effect body), so it
@@ -270,7 +275,9 @@ export default function Home() {
       // JD: a picked pooled job sends its id; otherwise the pasted text.
       const jdPart = jdMode === 'pick' && selectedJob ? { jobId: selectedJob.id } : { jdText }
       const preferences = buildPreferences()
-      const payload = { ...resumePart, ...jdPart, ...(preferences ? { preferences } : {}) }
+      // Only send a style when the user picked one; otherwise the server recommends.
+      const stylePart = styleMode === 'custom' ? { style: { theme: themeId, font: fontId } } : {}
+      const payload = { ...resumePart, ...jdPart, ...(preferences ? { preferences } : {}), ...stylePart }
       const res = await fetch('/api/packet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -642,6 +649,57 @@ export default function Home() {
                   placeholder="e.g. California"
                 />
               </label>
+            </div>
+          </details>
+
+          <details className={styles.prefs}>
+            <summary className={styles.prefsSummary}>
+              Style <span className={styles.prefsHint}>— theme &amp; font for your documents (optional)</span>
+            </summary>
+            <div className={styles.prefsGrid}>
+              <label className={styles.prefField}>
+                <span className={styles.prefLabel}>How to choose</span>
+                <select
+                  className={styles.prefInput}
+                  value={styleMode}
+                  onChange={(e) => setStyleMode(e.target.value === 'custom' ? 'custom' : 'recommended')}
+                >
+                  <option value="recommended">Recommended for this role</option>
+                  <option value="custom">Choose my own</option>
+                </select>
+              </label>
+              {styleMode === 'custom' && (
+                <>
+                  <label className={styles.prefField}>
+                    <span className={styles.prefLabel}>Theme (color)</span>
+                    <select
+                      className={styles.prefInput}
+                      value={themeId}
+                      onChange={(e) => setThemeId(e.target.value)}
+                    >
+                      {THEME_OPTIONS.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className={styles.prefField}>
+                    <span className={styles.prefLabel}>Font pairing</span>
+                    <select
+                      className={styles.prefInput}
+                      value={fontId}
+                      onChange={(e) => setFontId(e.target.value)}
+                    >
+                      {FONT_OPTIONS.map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
             </div>
           </details>
 
