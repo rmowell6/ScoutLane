@@ -128,7 +128,7 @@ export async function discoverRoles(
             JSON.stringify({
               summary: profile.summary,
               skills: profile.skills,
-              certs: profile.certs,
+              certs: profile.certs.map((c) => c.name), // role matching needs the names, not status
               roles: profile.roles.map((r) => ({ title: r.title, company: r.company })),
             }) +
             '</candidate>\n' +

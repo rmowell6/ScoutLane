@@ -357,7 +357,22 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
                 </span>
               </li>
             )}
+            {!guardrails.certStatus.skipped && (
+              <li>
+                <span className={`badge ${guardrails.certStatus.ok ? 'is-pass' : 'is-warn'}`}>
+                  <StatusIcon status={guardrails.certStatus.ok ? 'is-pass' : 'is-warn'} /> Cert currency
+                </span>
+              </li>
+            )}
           </ul>
+          {guardrails.certStatus.suspicious.length > 0 && (
+            <p className="callout">
+              <b>Check cert currency:</b> the source resume looks to list{' '}
+              {guardrails.certStatus.suspicious.join(', ')} as previously held, but{' '}
+              {guardrails.certStatus.suspicious.length === 1 ? 'it was' : 'they were'} placed under
+              Active. Review before sending.
+            </p>
+          )}
           {documents ? (
             <>
               <p className="muted" style={{ margin: '0 0 8px', fontSize: '12.5px' }}>

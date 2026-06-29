@@ -4,8 +4,6 @@
 // Interim simplifications (documented so they're not mistaken for final):
 //  - Skills render as a single "Technical Skills" category. The locked template front-loads
 //    *categorized* skills; categorization needs a richer structureResume output (follow-up).
-//  - All certs render under "Active"; the Active/Previously-Held split needs cert status on
-//    the Profile (follow-up).
 //  - "Earlier Experience" is empty; the recent/earlier split needs role recency metadata.
 //  - Role context lines are omitted (the schema has no per-role context yet).
 // Everything rendered still traces to real Profile facts — the guardrail runs independently.
@@ -43,7 +41,16 @@ export function toResumeContent(
       bullets: r.bullets,
     })),
     earlier: [],
-    certs: { active: profile.certs.map((name) => ({ name })), previouslyHeld: [] },
+    // Split by currency: anything not explicitly previously-held renders as Active (status absent
+    // == active). This is what keeps a lapsed cert out of the Active section.
+    certs: {
+      active: profile.certs
+        .filter((c) => c.status !== 'previously_held')
+        .map((c) => ({ name: c.name, note: c.note })),
+      previouslyHeld: profile.certs
+        .filter((c) => c.status === 'previously_held')
+        .map((c) => ({ name: c.name, note: c.note })),
+    },
     education: profile.education.map((e) => ({
       school: e.school,
       detail: [e.degree, e.field, e.year].filter(Boolean).join(', '),

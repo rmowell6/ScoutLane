@@ -11,7 +11,7 @@ const profile: Profile = {
   roles: [
     { company: 'Northwind Health', title: 'Cloud Engineer', startDate: '2024', endDate: null, bullets: ['Ran Azure under HIPAA'] },
   ],
-  certs: ['VCP-DCV'],
+  certs: [{ name: 'VCP-DCV' }],
   education: [{ school: 'Riverside Community College', degree: 'AAS', field: 'Network Engineering', year: '2015' }],
 }
 
@@ -33,6 +33,23 @@ describe('toResumeContent', () => {
     expect(rc.experience[0]?.dates).toBe('2024 – Present')
     expect(rc.certs.active[0]?.name).toBe('VCP-DCV')
     expect(rc.education[0]?.detail).toContain('Network Engineering')
+  })
+
+  test('splits certs into Active vs Previously Held by status (carrying notes)', () => {
+    const rc = toResumeContent(
+      {
+        ...profile,
+        certs: [
+          { name: 'VCP-DCV', status: 'active' },
+          { name: 'AWS SA Associate', status: 'previously_held', note: '(held 5 years)' },
+          { name: 'CCNA' }, // status absent == active
+        ],
+      },
+      tailored,
+      jobReqs,
+    )
+    expect(rc.certs.active.map((c) => c.name)).toEqual(['VCP-DCV', 'CCNA'])
+    expect(rc.certs.previouslyHeld).toEqual([{ name: 'AWS SA Associate', note: '(held 5 years)' }])
   })
 
   test('falls back to profile skills/summary and empty contact when tailored/contact are missing', () => {

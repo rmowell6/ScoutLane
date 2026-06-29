@@ -76,6 +76,21 @@ export async function saveProfile(
 }
 
 /**
+ * Back-compat: profiles saved before certs carried status stored them as a bare string[]. Coerce
+ * each legacy string cert to { name } (status absent == active) so the current ProfileSchema parses
+ * them. New profiles already store the object shape and pass through untouched.
+ */
+function coerceLegacyCerts(structured: unknown): unknown {
+  if (structured == null || typeof structured !== 'object') return structured
+  const obj = structured as { certs?: unknown }
+  if (!Array.isArray(obj.certs)) return structured
+  return {
+    ...obj,
+    certs: obj.certs.map((c) => (typeof c === 'string' ? { name: c } : c)),
+  }
+}
+
+/**
  * Load a stored profile (+ preferences) by id. Returns null when no row matches. Both stored
  * JSON blobs are re-validated with their schema — never trust persisted shape blindly.
  *
@@ -93,7 +108,7 @@ export async function getStoredProfile(id: string): Promise<StoredProfile | null
     if (error) throw error
     if (!data) return null
 
-    const parsed = ProfileSchema.safeParse(data.structured)
+    const parsed = ProfileSchema.safeParse(coerceLegacyCerts(data.structured))
     if (!parsed.success) throw new ProfileStoreError('validate', parsed.error)
 
     let preferences: CandidatePreferences | null = null

@@ -7,7 +7,7 @@ function profile(over: Partial<Profile> = {}): Profile {
   return {
     name: 'Jordan Rivera',
     skills: ['azure', 'terraform'],
-    certs: ['az-104'],
+    certs: [{ name: 'az-104' }],
     roles: [
       {
         title: 'Cloud Engineer',

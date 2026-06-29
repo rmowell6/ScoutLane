@@ -29,6 +29,18 @@ export const ContactSchema = z.object({
 })
 export type Contact = z.infer<typeof ContactSchema>
 
+// A certification + whether it is current. The resume's "Previously Held / expired / lapsed"
+// grouping MUST survive structuring so the document renders Active vs Previously-Held faithfully —
+// listing a lapsed cert as current is a real misrepresentation. `status` is optional: absent ==
+// active (and legacy profiles that stored a bare string are coerced to { name } at the store
+// boundary). `note` carries a currency annotation like "(held 5 years)".
+export const CertSchema = z.object({
+  name: z.string(),
+  status: z.enum(['active', 'previously_held']).optional(),
+  note: z.string().optional(),
+})
+export type Cert = z.infer<typeof CertSchema>
+
 export const ProfileSchema = z.object({
   name: z.string(),
   // Optional: not every pasted resume includes full contact info; the doc builder falls back.
@@ -36,7 +48,7 @@ export const ProfileSchema = z.object({
   summary: z.string(),
   skills: z.array(z.string()),
   roles: z.array(RoleSchema),
-  certs: z.array(z.string()),
+  certs: z.array(CertSchema),
   education: z.array(EducationSchema),
 })
 export type Profile = z.infer<typeof ProfileSchema>

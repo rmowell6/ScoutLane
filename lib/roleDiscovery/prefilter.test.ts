@@ -6,7 +6,7 @@ const PROFILE: Profile = {
   name: 'Jordan',
   summary: 'Cloud engineer',
   skills: ['Azure', 'VMware', 'Incident Response', 'PowerShell'],
-  certs: ['VCP-DCV'],
+  certs: [{ name: 'VCP-DCV' }],
   roles: [{ company: 'Acme', title: 'Cloud Engineer', startDate: '2022', endDate: null, bullets: [] }],
   education: [],
 }

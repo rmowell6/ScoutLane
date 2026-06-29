@@ -4,6 +4,7 @@ import {
   checkAtsSafe,
   checkBannedTerms,
   checkBulletsGrounded,
+  checkCertStatus,
   checkNoFabrication,
   checkStyle,
   indexFacts,
@@ -24,7 +25,7 @@ function makeProfile(overrides: Partial<Profile> = {}): Profile {
         bullets: ['Migrated 40 VMs to Azure', 'Cut backup costs 30%'],
       },
     ],
-    certs: ['Azure Administrator Associate'],
+    certs: [{ name: 'Azure Administrator Associate' }],
     education: [{ school: 'Cambridge', degree: 'BSc', field: 'Mathematics', year: '2018' }],
     ...overrides,
   }
@@ -273,5 +274,63 @@ describe('runGuardrails', () => {
     const report = runGuardrails(tailored, makeProfile())
     expect(report.ok).toBe(false)
     expect(report.noFabrication.ok).toBe(false)
+  })
+
+  test('cert-status is a NON-blocking flag — a suspicious cert does not fail the report', () => {
+    // Inputs kept clean for every OTHER check so only certStatus trips, proving it doesn't block.
+    const profile = makeProfile({
+      summary: 'Cloud engineer.',
+      skills: ['Azure'],
+      roles: [{ company: 'Acme', title: 'Cloud Engineer', startDate: '2022', endDate: null, bullets: ['Ran Azure infrastructure'] }],
+      certs: [{ name: 'AWS Solutions Architect', status: 'active' }],
+    })
+    const tailored = makeTailored({ summary: 'Cloud engineer.', skills: ['Azure'], claims: [], coverLetter: 'I bring Azure experience.' })
+    const source = 'Cloud engineer. Ran Azure infrastructure. CERTIFICATIONS PREVIOUSLY HELD AWS Solutions Architect.'
+    const report = runGuardrails(tailored, profile, { sourceResumeText: source })
+    expect(report.certStatus.ok).toBe(false)
+    expect(report.certStatus.suspicious).toContain('AWS Solutions Architect')
+    expect(report.ok).toBe(true) // flag only — packet still ships
+  })
+})
+
+describe('checkCertStatus', () => {
+  const profile = (certs: Profile['certs']) => makeProfile({ certs })
+
+  test('flags an active cert that the source lists under a Previously-Held heading', () => {
+    const source = 'Active\n- VCP-DCV\nPREVIOUSLY HELD\n- AWS Solutions Architect Associate\n- CCNA (held 5 years)'
+    const r = checkCertStatus(
+      profile([
+        { name: 'VCP-DCV', status: 'active' },
+        { name: 'AWS Solutions Architect Associate', status: 'active' },
+        { name: 'CCNA', status: 'active' },
+      ]),
+      source,
+    )
+    expect(r.suspicious).toEqual(
+      expect.arrayContaining(['AWS Solutions Architect Associate', 'CCNA']),
+    )
+    expect(r.suspicious).not.toContain('VCP-DCV')
+  })
+
+  test('flags an inline "(expired)" cue even without a heading', () => {
+    const r = checkCertStatus(profile([{ name: 'CISSP', status: 'active' }]), 'Certifications: CISSP (expired 2023)')
+    expect(r.suspicious).toContain('CISSP')
+  })
+
+  test('does not flag a cert already classified previously_held (rendered correctly)', () => {
+    const source = 'PREVIOUSLY HELD\n- AWS Solutions Architect Associate'
+    const r = checkCertStatus(profile([{ name: 'AWS Solutions Architect Associate', status: 'previously_held' }]), source)
+    expect(r.ok).toBe(true)
+    expect(r.suspicious).toHaveLength(0)
+  })
+
+  test('clean active certs are not flagged', () => {
+    const r = checkCertStatus(profile([{ name: 'VCP-DCV', status: 'active' }]), 'Certifications (Active):\n- VCP-DCV')
+    expect(r.ok).toBe(true)
+  })
+
+  test('skips (degrades open) when no source resume is available', () => {
+    const r = checkCertStatus(profile([{ name: 'VCP-DCV', status: 'active' }]), undefined)
+    expect(r).toEqual({ ok: true, skipped: true, suspicious: [] })
   })
 })
