@@ -59,6 +59,20 @@ describe('checkNoFabrication', () => {
     expect(result.unverifiable).toHaveLength(1)
   })
 
+  test('grounds a skill that differs only in dash style (en-dash profile vs hyphen tailored)', () => {
+    // The resume (from a .docx) holds an en-dash; the tailor drops it per the no-em-dash rule. The
+    // skill is genuinely listed, so it must NOT read as fabricated.
+    const profile = makeProfile({ skills: ['Windows Server 2012–2022', 'Azure'] })
+    const tailored = makeTailored({ skills: ['Windows Server 2012-2022'], claims: [] })
+    expect(checkNoFabrication(tailored, profile).ungroundedSkills).toHaveLength(0)
+  })
+
+  test('still rejects a skill whose words are genuinely absent (dash-folding is not a loophole)', () => {
+    const profile = makeProfile({ skills: ['Azure', 'VMware'] })
+    const tailored = makeTailored({ skills: ['Windows Server 2012-2022'], claims: [] })
+    expect(checkNoFabrication(tailored, profile).ungroundedSkills).toContain('Windows Server 2012-2022')
+  })
+
   test('rejects a claim that references a non-existent factId', () => {
     const tailored = makeTailored({ claims: [{ text: 'Led a team of 10', factId: 'role:9:bullet:9' }] })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(false)
