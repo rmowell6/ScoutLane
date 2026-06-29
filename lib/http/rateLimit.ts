@@ -6,9 +6,10 @@
 //
 // IMPLEMENTATION NOTE: the authoritative counter is a SHARED Postgres counter (migration 0011) via
 // the atomic `rate_limit_hit` RPC, so one budget is enforced across all serverless instances. The
-// module-scope LRU below remains as a fallback ONLY: it's used when the Supabase secrets are absent
-// (CI unit tests) or if the shared query errors (fail-open on the shared layer — a counter hiccup must
-// not 500 real users; the Anthropic org spend cap is the non-bypassable backstop).
+// module-scope LRU below remains as a fallback: it's used when the Supabase secrets are absent (CI
+// unit tests) or if the shared query errors — in which case we fall back to the per-instance LRU
+// (NOT fail-open), so a counter hiccup degrades to local enforcement rather than removing the cap.
+// The Anthropic org spend cap is the non-bypassable backstop.
 import { LRUCache } from 'lru-cache'
 import { NextResponse } from 'next/server'
 import { serverSupabase } from '@/lib/supabaseServer'
@@ -109,9 +110,30 @@ async function checkRateLimitShared(
     if (!row) throw new Error('rate_limit_hit returned no row')
     return row.allowed ? { ok: true } : { ok: false, retryAfter: row.retry_after }
   } catch (err) {
-    console.warn('[ratelimit] shared store failed, allowing (fail-open)', err)
-    return { ok: true }
+    // P2/B1-4: on a shared-store error, fall back to the local per-instance LRU instead of allowing
+    // unconditionally. Previously this returned {ok:true} — a single RPC hiccup removed the per-IP cap
+    // on the paid /api/packet route entirely. The LRU still bounds per-instance abuse and degrades
+    // gracefully (it just isn't cross-instance during the outage); the spend cap remains the backstop.
+    console.warn('[ratelimit] shared store failed, falling back to local LRU', err)
+    return checkRateLimit(request, route, limit, windowMs)
   }
+}
+
+/**
+ * Best-effort purge of long-dead rate-limit rows (P2/R-7). The window is 60s, so rows older than the
+ * retention are inert — this just bounds table growth. Called from the daily cron; no-op when the
+ * shared store isn't configured. Throws on a DB error so the cron can record it (it's wrapped in the
+ * housekeeping allSettled, so it never fails the run).
+ */
+export async function purgeExpiredRateLimits(retentionMs = 24 * 60 * 60_000): Promise<number> {
+  if (!isSharedStoreConfigured()) return 0
+  const cutoff = new Date(Date.now() - retentionMs).toISOString()
+  const { error, count } = await serverSupabase()
+    .from('rate_limit_counters')
+    .delete({ count: 'exact' })
+    .lt('window_start', cutoff)
+  if (error) throw error
+  return count ?? 0
 }
 
 /**

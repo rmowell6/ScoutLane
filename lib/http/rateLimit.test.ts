@@ -1,5 +1,12 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { checkRateLimit, clientIp, rateLimit } from './rateLimit'
+
+// Shared-store client mocked to THROW, so the shared path errors and must fall back to the local LRU.
+vi.mock('@/lib/supabaseServer', () => ({
+  serverSupabase: () => {
+    throw new Error('shared store down')
+  },
+}))
 
 // Each test uses a UNIQUE ip so the module-scope bucket can't bleed between tests.
 function req(ip: string, route = 'http://x/api/test'): Request {
@@ -45,6 +52,25 @@ describe('checkRateLimit', () => {
     const ip = '10.4.0.1'
     expect(checkRateLimit(req(ip), 'unit-d', 1, 0).ok).toBe(true)
     expect(checkRateLimit(req(ip), 'unit-d', 1, 0).ok).toBe(true)
+  })
+})
+
+describe('rateLimit shared-store error → local LRU fallback (B1-4: not fail-open)', () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://x.supabase.co'
+    process.env.SUPABASE_SECRET_KEY = 'sb_secret_x'
+  })
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    delete process.env.SUPABASE_SECRET_KEY
+  })
+
+  test('a thrown shared-store RPC still enforces the per-instance budget (does not allow-all)', async () => {
+    const ip = '10.9.0.1' // unique bucket; packet budget = 5/min
+    for (let i = 0; i < 5; i++) expect(await rateLimit(req(ip), 'packet')).toBeNull()
+    const blocked = await rateLimit(req(ip), 'packet')
+    expect(blocked).not.toBeNull() // LRU fallback caught the 6th — NOT fail-open
+    expect(blocked?.status).toBe(429)
   })
 })
 
