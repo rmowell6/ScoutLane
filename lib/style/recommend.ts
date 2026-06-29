@@ -280,11 +280,19 @@ export function recommend(input: RecommendInput): RecommendResult {
   fontRanking.sort((a, b) => b.score - a.score || a.font.order - b.font.order);
 
   // 5. Best picks
-  // noUncheckedIndexedAccess: index [0] on RankedTheme[] / RankedFont[] returns T|undefined.
-  // The arrays are always length 10 (one entry per theme/font in the JSON) so this is
-  // unreachable, but the guard satisfies the compiler and catches corruption early.
-  const bestThemeEntry = themeRanking[0];
-  const bestFontEntry = fontRanking[0];
+  // When there is no usable signal (unknown domain, no seniority, no roleType), skip the
+  // scoring winner and return the master default directly. This prevents formality-neutral
+  // themes (charcoal_amber, forest_stone) from beating navy_copper on tie-scores.
+  // Full rankings are kept as-is so the UI can still display them.
+  const noSignal = industry === 'default' && !seniority && !roleType;
+
+  // noUncheckedIndexedAccess: .find() + [0] both return T|undefined — guard required.
+  const bestThemeEntry = noSignal
+    ? (themeRanking.find((t) => t.theme.id === MASTER_THEME) ?? themeRanking[0])
+    : themeRanking[0];
+  const bestFontEntry = noSignal
+    ? (fontRanking.find((f) => f.font.id === MASTER_FONT) ?? fontRanking[0])
+    : fontRanking[0];
   if (!bestThemeEntry || !bestFontEntry) {
     throw new Error('Style data is empty — themes.json or fonts.json may be corrupted');
   }

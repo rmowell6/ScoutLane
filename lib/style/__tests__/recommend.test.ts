@@ -132,7 +132,7 @@ describe('recommend() — canonical profile pins', () => {
       seniority: 'senior',
       roleType: 'devops',
     });
-    expect(['ink_teal', 'graphite_electric', 'tahoma_tahoma']).not.toContain(r.recommended.theme); // NOT a business theme
+    expect(['navy_copper', 'oxford_burgundy', 'midnight_gold']).not.toContain(r.recommended.theme); // NOT a conservative/business theme
     expect(['ink_teal', 'graphite_electric']).toContain(r.recommended.theme);
   });
 
@@ -160,7 +160,7 @@ describe('recommend() — canonical profile pins', () => {
       seniority: 'mid',
       roleType: 'engineer',
     });
-    expect(['graphite_electric', 'ink_teal', 'calibri_calibri']).not.toContain(r.recommended.theme);
+    expect(['navy_copper', 'oxford_burgundy', 'midnight_gold']).not.toContain(r.recommended.theme); // NOT a conservative/business theme
     expect(['graphite_electric', 'ink_teal']).toContain(r.recommended.theme);
   });
 
