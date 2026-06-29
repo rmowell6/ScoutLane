@@ -9,6 +9,7 @@ import { getJobJd, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
+import { requireUser } from '@/lib/auth'
 
 // Bound request size before any work: a resume is a few KB of text; these ceilings fail a
 // pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
@@ -45,6 +46,10 @@ export async function POST(request: Request) {
     // before any work (the Anthropic spend cap is the absolute backstop — see DEPLOY.md).
     const limited = rateLimit(request, 'packet')
     if (limited) return limited
+
+    // Gated route: a signed-in user is required (access is invite-only).
+    const user = await requireUser()
+    if (user instanceof NextResponse) return user
 
     const json = await request.json().catch(() => null)
     const parsed = Body.safeParse(json)

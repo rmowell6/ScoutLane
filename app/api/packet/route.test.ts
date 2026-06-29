@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
 
+// The route is auth-gated; mock requireUser to a signed-in user so these tests exercise the
+// validation / doc-gen paths (auth behavior is covered separately in lib/auth.test.ts).
+vi.mock('@/lib/auth', () => ({ requireUser: vi.fn(async () => ({ id: 'u1', email: 'a@b.co' })) }))
+
 // Mock buildPacket so we can drive the document-generation failure path without an LLM/network.
 // PacketError is kept REAL (spread from the original) so the route's `instanceof` check matches.
 const { buildPacketMock } = vi.hoisted(() => ({ buildPacketMock: vi.fn() }))

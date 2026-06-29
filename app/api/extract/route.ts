@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server'
 import { ExtractError, MAX_RESUME_BYTES, extractResumeText } from '@/lib/services/extractResumeText'
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
+import { requireUser } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -15,6 +16,9 @@ export async function POST(request: Request) {
     // Throttle uploads per-IP (no LLM here, but bound parse/CPU floods).
     const limited = rateLimit(request, 'extract')
     if (limited) return limited
+
+    const user = await requireUser()
+    if (user instanceof NextResponse) return user
 
     let form: FormData
     try {
