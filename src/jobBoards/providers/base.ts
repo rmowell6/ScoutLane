@@ -27,7 +27,10 @@ export async function fetchJSON<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
+    // redirect:'error' — fail on a 3xx rather than follow it: an open redirect on a board host could
+    // otherwise bounce this server-side fetch at an internal/metadata address (SSRF). Caller options
+    // win if they ever need to override. Documented ATS JSON endpoints don't legitimately redirect.
+    const res = await fetch(url, { redirect: 'error', ...options, signal: controller.signal });
     if (!res.ok) {
       throw new Error(`HTTP ${res.status} ${res.statusText} — ${url}`);
     }

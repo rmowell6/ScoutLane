@@ -25,6 +25,7 @@ const DEFAULT_LIMITS: Record<string, number> = {
   discover: 10, // 1 structuring + 1 re-rank
   profile: 10, // 1 structuring call (POST) / a stored-profile read (GET)
   extract: 20, // no LLM, but still bound upload floods
+  jobs: 30, // no LLM — a DB-backed list read; loosest, but still bound enumeration
 }
 
 export interface RateLimitResult {

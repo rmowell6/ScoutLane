@@ -3,6 +3,7 @@ import { Document, Packer, Paragraph, TextRun } from 'docx'
 import {
   ExtractError,
   MAX_RESUME_BYTES,
+  MAX_RESUME_CHARS,
   detectKind,
   extractResumeText,
 } from './extractResumeText'
@@ -103,5 +104,41 @@ describe('extractResumeText', () => {
     const e = new ExtractError('parse-pdf', new Error('boom'))
     expect(e.step).toBe('parse-pdf')
     expect(e.message).toContain('parse-pdf')
+  })
+
+  test('rejects a file whose content does not match the claimed kind (B1-6 magic bytes)', async () => {
+    // Plain text bytes claiming to be a PDF: no %PDF signature → rejected before the parser runs.
+    await expect(
+      extractResumeText({ filename: 'fake.pdf', mimeType: 'application/pdf', bytes: bytesOf('not a real pdf') }),
+    ).rejects.toMatchObject({ name: 'ExtractError', step: 'verify-magic' })
+  })
+
+  test('rejects a non-zip claiming to be .docx (B1-6 magic bytes)', async () => {
+    await expect(
+      extractResumeText({
+        filename: 'fake.docx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        bytes: bytesOf('PKnope not really a zip'),
+      }),
+    ).rejects.toMatchObject({ name: 'ExtractError', step: 'verify-magic' })
+  })
+
+  test('txt has no signature, so any decodable bytes are accepted', async () => {
+    const result = await extractResumeText({
+      filename: 'r.txt',
+      mimeType: 'text/plain',
+      bytes: bytesOf('plain resume text'),
+    })
+    expect(result.kind).toBe('txt')
+  })
+
+  test('caps extracted text at MAX_RESUME_CHARS (B1-5 decompression-bomb bound)', async () => {
+    const huge = 'a '.repeat(MAX_RESUME_CHARS) // ~2× the cap once expanded
+    const result = await extractResumeText({
+      filename: 'big.txt',
+      mimeType: 'text/plain',
+      bytes: bytesOf(huge),
+    })
+    expect(result.text.length).toBeLessThanOrEqual(MAX_RESUME_CHARS)
   })
 })

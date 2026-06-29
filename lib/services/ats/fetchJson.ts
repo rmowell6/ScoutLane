@@ -12,6 +12,10 @@ export async function fetchJson(url: string, timeoutMs = 10_000, maxBytes = MAX_
   try {
     const res = await fetch(url, {
       signal: controller.signal,
+      // Fail on a redirect rather than following it: the URL is provider config, but an open redirect
+      // on a board host could otherwise bounce this server-side fetch at an internal/metadata address
+      // (SSRF). We only call documented ATS JSON endpoints, which don't legitimately 3xx.
+      redirect: 'error',
       // A descriptive UA is good practice for public APIs (some reject the default fetch agent).
       headers: { accept: 'application/json', 'user-agent': 'ScoutLane/1.0 (+job-pool ingest)' },
     })
