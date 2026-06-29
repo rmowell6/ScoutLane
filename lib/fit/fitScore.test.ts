@@ -55,6 +55,18 @@ describe('scoreComp boundaries', () => {
   it('well below 0.7x gives 45', () => {
     expect(scoreComp(119000, 170000).score).toBe(45)
   })
+  it('a zero/negative target is neutral, not Infinity-bucketed', () => {
+    // target 0 → ratio Infinity → would otherwise score 100 with a "ratio Infinity" note.
+    expect(scoreComp(150000, 0).score).toBe(65)
+    expect(scoreComp(150000, -1).score).toBe(65)
+  })
+  it('a non-finite input is neutral, never NaN', () => {
+    expect(scoreComp(150000, Number.NaN).score).toBe(65)
+    expect(scoreComp(Number.POSITIVE_INFINITY, 170000).score).toBe(65)
+  })
+  it('a non-positive posted comp is neutral (no divide-by-tiny blow-up)', () => {
+    expect(scoreComp(0, 170000).score).toBe(65)
+  })
 })
 
 describe('coverage (skills/certs)', () => {

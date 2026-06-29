@@ -8,7 +8,7 @@
 // Supabase's NATIVE captcha (the Turnstile SECRET lives in the Supabase dashboard, not in this app),
 // so the only client-side config is the public site key. If the site key is unset (local dev),
 // captcha is skipped.
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useSyncExternalStore } from 'react'
 import Script from 'next/script'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
@@ -43,13 +43,23 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default function SignInPage() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
-  // Surface a callback error passed back as ?error= via a lazy initializer (client-only read; avoids
-  // a useSearchParams Suspense boundary and a setState-in-effect). null on the server.
-  const [error, setError] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null
-    const code = new URLSearchParams(window.location.search).get('error')
-    return code ? (ERROR_MESSAGES[code] ?? 'Sign-in failed. Please try again.') : null
-  })
+  // Surface a callback error passed back as ?error=. Read it via useSyncExternalStore so the value
+  // is null on the SERVER snapshot and on the client's first (hydration) render — eliminating the
+  // hydration mismatch a window.location read in a lazy useState initializer would cause when
+  // ?error= is present. The URL doesn't change while mounted, so the subscribe is a no-op.
+  const urlError = useSyncExternalStore(
+    () => () => {},
+    () => {
+      const code = new URLSearchParams(window.location.search).get('error')
+      return code ? (ERROR_MESSAGES[code] ?? 'Sign-in failed. Please try again.') : null
+    },
+    () => null,
+  )
+  // `override` lets the action handlers set/clear their own message on top of the URL-derived one
+  // (undefined = no override → show the URL error). Keeps the setError(...) call sites unchanged.
+  const [override, setOverride] = useState<string | null | undefined>(undefined)
+  const error = override !== undefined ? override : urlError
+  const setError = (msg: string | null) => setOverride(msg)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const turnstileEl = useRef<HTMLDivElement>(null)
   const widgetId = useRef<string | undefined>(undefined)
