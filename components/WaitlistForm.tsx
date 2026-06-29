@@ -85,33 +85,38 @@ export default function WaitlistForm() {
   )
 }
 
+// Light/forest-green styling to match the "Signal" landing (warm-white surface, green CTA).
 const styles: Record<string, React.CSSProperties> = {
-  form: { display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: 480, margin: '0 auto', textAlign: 'left' },
+  form: { display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: 460, margin: '0 auto', textAlign: 'left' },
   row: { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' },
   input: {
     flex: '1 1 220px',
-    padding: '0.7rem 0.8rem',
+    padding: '12px 16px',
     borderRadius: 8,
-    border: '1px solid #d2d7de',
-    fontSize: '0.95rem',
+    border: '1.5px solid #E1DAD1',
+    background: '#FFFFFF',
+    color: '#111827',
+    fontSize: '14px',
   },
   noteInput: {
-    padding: '0.6rem 0.8rem',
+    padding: '11px 16px',
     borderRadius: 8,
-    border: '1px solid #e3e7ec',
-    fontSize: '0.85rem',
-    color: '#1a1a1a',
+    border: '1.5px solid #E1DAD1',
+    background: '#FFFFFF',
+    color: '#111827',
+    fontSize: '13px',
   },
   button: {
     flex: '0 0 auto',
-    padding: '0.7rem 1.3rem',
+    padding: '12px 20px',
     borderRadius: 8,
     border: 'none',
-    background: '#1f3a5f',
-    color: '#fff',
-    fontWeight: 600,
+    background: '#065F46',
+    color: '#FFFFFF',
+    fontWeight: 700,
+    fontSize: '14px',
     cursor: 'pointer',
   },
-  success: { background: '#E8F3EC', color: '#1B5E36', padding: '0.8rem 1rem', borderRadius: 8, fontSize: '0.95rem', textAlign: 'center' },
-  error: { color: '#A1232B', fontSize: '0.85rem', margin: 0 },
+  success: { background: '#ECFDF5', color: '#065F46', border: '1px solid #6EE7B7', padding: '0.85rem 1rem', borderRadius: 8, fontSize: '0.95rem', textAlign: 'center' },
+  error: { color: '#991B1B', fontSize: '0.85rem', margin: 0 },
 }
