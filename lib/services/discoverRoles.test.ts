@@ -16,12 +16,13 @@ vi.mock('./jobStore', () => ({
 
 vi.mock('@/lib/anthropic', () => ({
   MODELS: { screen: 'claude-haiku-4-5' },
+  readParsed: (message: { parsed_output: unknown }) => message.parsed_output,
   anthropic: {
     messages: {
       parse: vi.fn(async (args: { messages: Array<{ content: string }> }) => {
         state.parseCalls++
         state.lastContent = args.messages[0]?.content ?? ''
-        return { parsed_output: state.parsed }
+        return { parsed_output: state.parsed, stop_reason: 'end_turn' }
       }),
     },
   },
