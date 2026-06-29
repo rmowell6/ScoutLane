@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const profile = await structureResume(parsed.data.resumeText)
-    const { id } = await saveProfile(profile, parsed.data.resumeText, parsed.data.preferences)
+    const { id } = await saveProfile(profile, parsed.data.resumeText, parsed.data.preferences, user.id)
     return NextResponse.json({ profileId: id, profile, preferences: parsed.data.preferences ?? null }, { status: 201 })
   } catch (err) {
     return mapError(err, 'create profile')
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid or missing id' }, { status: 400 })
     }
 
-    const stored = await getStoredProfile(id)
+    const stored = await getStoredProfile(id, user.id)
     if (!stored) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     return NextResponse.json(
       { profileId: id, profile: stored.profile, preferences: stored.preferences },
