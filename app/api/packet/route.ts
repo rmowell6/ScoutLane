@@ -11,6 +11,7 @@ import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
 import { requireUser } from '@/lib/auth'
 import { isTransientAnthropicError } from '@/lib/anthropic'
+import { describeGuardrailFailure } from '@/lib/guardrailMessages'
 
 // Bound request size before any work: a resume is a few KB of text; these ceilings fail a
 // pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
@@ -108,45 +109,27 @@ export async function POST(request: Request) {
       style: parsed.data.style ? { ...parsed.data.style, source: 'user' } : undefined,
     })
 
-    // Never ship a failed guardrail silently — surface it for regeneration / human review.
-    // A 422 here is NOT request validation (that's 400 above); it means the generated packet
-    // failed a guardrail. Spell out exactly which check tripped and why, so it's debuggable.
+    // Never ship a failed guardrail silently — surface it for regeneration / human review. A 422
+    // here is NOT request validation (that's 400 above); it means the generated packet failed a
+    // guardrail. We return PLAIN-LANGUAGE reasons (why it failed + how to fix) for the user, plus the
+    // raw guardrails object for debugging. The precise technical detail is logged server-side.
     if (!packet.guardrails.ok) {
-      const g = packet.guardrails
-      const reasons: string[] = []
-      if (!g.noFabrication.ok) {
-        if (g.noFabrication.unverifiable.length > 0) {
-          reasons.push(
-            `no-fabrication: ${g.noFabrication.unverifiable.length} claim(s) do not trace to a profile fact: ` +
-              g.noFabrication.unverifiable.map((c) => `"${c.text}"`).join('; '),
-          )
-        }
-        if (g.noFabrication.ungroundedSkills.length > 0) {
-          reasons.push(
-            `no-fabrication: ${g.noFabrication.ungroundedSkills.length} tailored skill(s) not in the profile: ` +
-              g.noFabrication.ungroundedSkills.map((s) => `"${s}"`).join(', '),
-          )
-        }
-        if (g.noFabrication.ungroundedMetrics.length > 0) {
-          reasons.push(
-            `no-fabrication: ${g.noFabrication.ungroundedMetrics.length} quantified claim(s) in the summary/cover letter not grounded in the profile: ` +
-              g.noFabrication.ungroundedMetrics.map((m) => `"${m}"`).join(', '),
-          )
-        }
-      }
-      if (!g.bulletsGrounded.ok) {
-        reasons.push(
-          `no-fabrication (experience): ${g.bulletsGrounded.ungroundedMetrics.length} quantified claim(s) in the resume bullets/summary not grounded in the SOURCE resume: ` +
-            g.bulletsGrounded.ungroundedMetrics.map((m) => `"${m}"`).join(', '),
-        )
-      }
-      if (!g.bannedTerms.ok) reasons.push(`banned-terms: ${g.bannedTerms.violations.join(', ')}`)
-      if (!g.style.ok) reasons.push(`style: ${g.style.violations.join('; ')}`)
-      if (g.ats && !g.ats.ok) reasons.push(`ats: ${g.ats.problems.join('; ')}`)
-
-      console.error('[packet] guardrail blocked:', reasons.join(' | '))
+      const friendly = describeGuardrailFailure(packet.guardrails)
+      console.error(
+        '[packet] guardrail blocked:',
+        JSON.stringify({
+          noFabrication: packet.guardrails.noFabrication.ok,
+          ungroundedSkills: packet.guardrails.noFabrication.ungroundedSkills,
+          unverifiable: packet.guardrails.noFabrication.unverifiable.map((c) => c.text),
+          ungroundedMetrics: packet.guardrails.noFabrication.ungroundedMetrics,
+          bulletsGrounded: packet.guardrails.bulletsGrounded.ungroundedMetrics,
+          bannedTerms: packet.guardrails.bannedTerms.violations,
+          style: packet.guardrails.style.violations,
+          ats: packet.guardrails.ats?.problems ?? null,
+        }),
+      )
       return NextResponse.json(
-        { error: 'Guardrail check failed', reasons, guardrails: g },
+        { error: friendly.title, reasons: friendly.reasons, guardrails: packet.guardrails },
         { status: 422 },
       )
     }

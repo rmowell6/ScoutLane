@@ -13,8 +13,17 @@ export interface FactIndex {
   texts: string[]
 }
 
+// Fold whitespace AND every hyphen/dash variant to a single space, so grounding is insensitive to
+// punctuation reformatting. Example: a resume skill "Windows Server 2012–2022" (en dash, as parsed
+// from a .docx) and the tailor's "Windows Server 2012-2022" (the model drops the dash per the
+// no-em-dash house rule) must still match — otherwise a real, listed skill reads as fabricated and
+// the packet is wrongly blocked. This only equates separators; it can never let an actual
+// fabrication pass (all the words must still be present).
 function normalize(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, ' ').trim()
+  return s
+    .toLowerCase()
+    .replace(/[\s‐-―−-]+/g, ' ') // whitespace + hyphen/dash variants (‐‑‒–—―, minus, ASCII -)
+    .trim()
 }
 
 /** Build a stable, addressable index of every source fact in the profile. */
