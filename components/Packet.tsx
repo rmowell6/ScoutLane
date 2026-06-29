@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
-import { packetSkinVars, styleNames } from '@/lib/style/skin'
+import { styleNames } from '@/lib/style/skin'
 import { track, EVENTS } from '@/lib/analytics'
 
 /** Allow CSS custom properties (e.g. --value) in inline styles. */
@@ -163,9 +163,9 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   const roleTitle = jobReqs.title ?? 'Target role'
   const heading = jobReqs.company ? `${jobReqs.company} — ${roleTitle}` : roleTitle
 
-  // Re-skin the preview to the style the documents were built with, so the on-screen packet matches
-  // the .docx. Status colors stay fixed (handled in packet.css); only brand/accent/wash/font shift.
-  const skin = packetSkinVars(style.theme, style.font) as CSSProperties
+  // The on-screen packet uses a FIXED forest-green skin (app/packet.css) so the app matches the
+  // marketing site. The downloaded .docx keep their own document theme — styleLabel still names that
+  // palette so the "Style:" line stays truthful about the files the user gets.
   const styleLabel = styleNames(style.theme, style.font)
 
   const pills = [
@@ -199,7 +199,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   return (
     // A <section>, not a nested <main>: the page already owns the single main landmark, and the
     // packet's top heading is an <h2> under the page <h1>. Labelled by that heading.
-    <section className="packet" style={skin} aria-labelledby="pk-title">
+    <section className="packet" aria-labelledby="pk-title">
       <header className="topbar">
         <p className="kicker">ScoutLane · Application Packet</p>
         <h2 id="pk-title" tabIndex={-1} ref={headingRef}>
