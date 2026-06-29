@@ -20,6 +20,13 @@ export async function proxy(request: NextRequest) {
   return refreshSession(request, response, url, key)
 }
 
+// Paths reachable WITHOUT a session. Everything else is gated (fully-gated access). API routes are
+// excluded from the redirect gate on purpose: they self-authorize (requireUser → 401 JSON, or
+// authorizeCron → bearer secret) so machine callers get a status code, not an HTML login redirect.
+function isPublicPath(pathname: string): boolean {
+  return pathname === '/sign-in' || pathname.startsWith('/auth/') || pathname.startsWith('/api/')
+}
+
 async function refreshSession(
   request: NextRequest,
   initialResponse: NextResponse,
@@ -44,7 +51,19 @@ async function refreshSession(
   })
 
   // Verifies the JWT locally and refreshes the session cookie.
-  await supabase.auth.getClaims()
+  const { data } = await supabase.auth.getClaims()
+  const isAuthed = Boolean(data?.claims?.sub)
+
+  // Gate page navigations: an unauthenticated request to a protected page is redirected to sign-in
+  // (with ?redirect so we can return them after login). API routes self-authorize, so skip them.
+  const { pathname } = request.nextUrl
+  if (!isAuthed && !isPublicPath(pathname)) {
+    const signIn = request.nextUrl.clone()
+    signIn.pathname = '/sign-in'
+    signIn.search = ''
+    signIn.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(signIn)
+  }
 
   return response
 }

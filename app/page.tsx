@@ -336,6 +336,23 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <header className={styles.header}>
+          {/* Sign-out posts to the route handler (POST avoids prefetch/CSRF logout). */}
+          <form method="post" action="/auth/sign-out" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              type="submit"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#5B6470',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: 0,
+              }}
+            >
+              Sign out
+            </button>
+          </form>
           <h1 className={styles.title}>ScoutLane</h1>
           <p className={styles.tagline}>
             Paste a resume and a job description. Get a fit assessment plus a tailored,

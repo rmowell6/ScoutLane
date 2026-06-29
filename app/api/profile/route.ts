@@ -14,6 +14,7 @@ import {
 import { CandidatePreferencesSchema } from '@/lib/schemas'
 import { serverErrorBody } from '@/lib/http/errors'
 import { rateLimit } from '@/lib/http/rateLimit'
+import { requireUser } from '@/lib/auth'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
   try {
     const limited = rateLimit(request, 'profile')
     if (limited) return limited
+
+    const user = await requireUser()
+    if (user instanceof NextResponse) return user
 
     if (!isProfileStoreConfigured()) return notConfigured()
 
@@ -64,6 +68,9 @@ export async function GET(request: Request) {
     // holds the UUID can rehydrate the profile), so rate-limiting blunts brute-force enumeration.
     const limited = rateLimit(request, 'profile')
     if (limited) return limited
+
+    const user = await requireUser()
+    if (user instanceof NextResponse) return user
 
     if (!isProfileStoreConfigured()) return notConfigured()
 
