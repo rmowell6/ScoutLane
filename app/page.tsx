@@ -1,6 +1,6 @@
-// Marketing landing — "The Signal" (M4 redesign, Cowork-approved mockup C-v2). Public front door;
+// Marketing landing: "The Signal" (M4 redesign, Cowork-approved mockup C-v2). Public front door;
 // the gated packet app lives at /app. Server component (no client JS) except the waitlist form.
-// Theme is self-contained in page.module.css (owns its background → never inherits OS light/dark).
+// Copy follows the house style guardrail (lib/guardrails.ts checkStyle): no em dashes, no double spaces.
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Inter } from 'next/font/google'
@@ -10,11 +10,11 @@ import styles from './page.module.css'
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'ScoutLane — The only resume tool that can’t make things up',
+  title: 'ScoutLane: the resume tool that can’t make things up',
   description:
-    'Paste a job, provide your real history, and ScoutLane builds a complete application packet — a fit score, a tailored ATS-safe resume, and a cover letter — that maps honestly to what’s actually there. No fabrication, no scraping, no auto-applying.',
+    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, and a cover letter) that maps honestly to what’s actually there. No fabrication, no scraping, no auto-applying.',
   openGraph: {
-    title: 'ScoutLane — The only resume tool that can’t make things up',
+    title: 'ScoutLane: the resume tool that can’t make things up',
     description:
       'A fit assessment plus a tailored, ATS-safe resume and cover letter, built only from your real history.',
     type: 'website',
@@ -40,18 +40,18 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO — Before → After */}
+      {/* HERO: Before / After */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <div className={styles.heroHead}>
             <div className={styles.eyebrowGreen}>No fabrication. Enforced in code.</div>
             <h1 className={styles.headline}>
-              The only resume tool<br />that can’t make things up.
+              The resume tool<br />that can’t make things up.
             </h1>
             <p className={styles.heroHeadP}>
-              Paste a job. Provide your real history. ScoutLane builds a complete application packet
-              that maps honestly to what’s actually there — no invented bullets, no stuffed keywords,
-              no spray-and-pray.
+              Paste a job. Add your real history. ScoutLane returns a complete application packet that
+              maps honestly to what’s actually there. No invented bullets, no stuffed keywords, no
+              spray-and-pray.
             </p>
             <div className={styles.ctaRow}>
               <a href="#waitlist" className={styles.btnPrimary}>Request access →</a>
@@ -63,7 +63,7 @@ export default function LandingPage() {
             {/* BEFORE */}
             <div className={styles.cardBefore}>
               <div className={styles.cardHeadBad}>✗ &nbsp;The old way</div>
-              <div className={styles.jobLine}>Software Engineer Application — Acme Inc</div>
+              <div className={styles.jobLine}>Software Engineer application · Acme Inc</div>
               <div className={styles.beforeBullets}>
                 <div className={styles.beforeBullet}>Experienced engineer with strong technical skills</div>
                 <div className={styles.beforeBullet}>Built various web applications and APIs using modern technologies</div>
@@ -71,12 +71,12 @@ export default function LandingPage() {
                 <div className={styles.beforeBullet}>Passionate about scalable, maintainable code</div>
               </div>
               <div className={styles.badFlags}>
-                <div className={styles.badFlag}><span className={styles.fx}>✗</span>Fit confidence: unknown — no scoring</div>
-                <div className={styles.badFlag}><span className={styles.fx}>✗</span>Vague bullets — not matched to role requirements</div>
-                <div className={styles.badFlag}><span className={styles.fx}>✗</span>Keywords may or may not match what ATS expects</div>
+                <div className={styles.badFlag}><span className={styles.fx}>✗</span>No fit score, so confidence is a guess</div>
+                <div className={styles.badFlag}><span className={styles.fx}>✗</span>Vague bullets, not matched to the role</div>
+                <div className={styles.badFlag}><span className={styles.fx}>✗</span>Keywords may or may not match what the ATS expects</div>
                 <div className={styles.badFlag}><span className={styles.fx}>✗</span>“Passionate about” language no recruiter believes</div>
               </div>
-              <div className={styles.cardFoot}>Generic, untailored · Could be sent to any role at any company</div>
+              <div className={styles.cardFoot}>Generic and untailored · Could be sent to any role at any company</div>
             </div>
 
             {/* ARROW */}
@@ -95,20 +95,20 @@ export default function LandingPage() {
               <div className={styles.afterBullets}>
                 <div className={styles.afterBullet}>
                   <span className={styles.abk}>✓</span>
-                  <div>Reduced API p95 latency 40% by migrating to async message queue — <span className={styles.why}>meets JD: “high-throughput, low-latency systems”</span></div>
+                  <div>Cut API p95 latency 40% by migrating to an async message queue. <span className={styles.why}>Meets JD: “high-throughput, low-latency systems”</span></div>
                 </div>
                 <div className={styles.afterBullet}>
                   <span className={styles.abk}>✓</span>
-                  <div>Led 3-engineer team through auth migration, 2 weeks ahead of schedule — <span className={styles.why}>meets JD: “cross-functional collaboration”</span></div>
+                  <div>Led a 3-engineer auth migration, delivered 2 weeks ahead of schedule. <span className={styles.why}>Meets JD: “cross-functional collaboration”</span></div>
                 </div>
                 <div className={styles.afterBullet}>
                   <span className={styles.abk}>✓</span>
-                  <div>Maintained 99.97% uptime across 4 service deployments in FY24 — <span className={styles.why}>meets JD: “production reliability ownership”</span></div>
+                  <div>Held 99.97% uptime across 4 service deployments in FY24. <span className={styles.why}>Meets JD: “production reliability ownership”</span></div>
                 </div>
               </div>
               <div className={styles.goodFlags}>
                 <div className={styles.goodFlag}><span className={styles.gx}>✓</span>ATS scan: 0 flags · 0 invisible text · 0 stuffing</div>
-                <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Cover letter addresses Acme’s Series B stage + engineering mandate</div>
+                <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Cover letter speaks to Acme’s Series B stage and engineering mandate</div>
                 <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Every bullet traceable to your provided history</div>
               </div>
               <div className={styles.afterNote}>
@@ -125,8 +125,8 @@ export default function LandingPage() {
         <div className={styles.previewInner}>
           <div className={styles.previewHead}>
             <div className={styles.eyebrow}>The actual output</div>
-            <h2 className={styles.h2}>Here’s what you’re<br />looking at when it’s done.</h2>
-            <p>A real assessment of one candidate against one specific role. Scored across multiple dimensions. Every claim verified against their provided history — and the gaps shown too.</p>
+            <h2 className={styles.h2}>Here’s what you get<br />when it’s done.</h2>
+            <p>One candidate, one specific role, scored across eight dimensions. Every claim is checked against the history they provided, and the gaps are shown too.</p>
           </div>
 
           <div className={styles.appFrame}>
@@ -148,7 +148,7 @@ export default function LandingPage() {
                     <text x="60" y="70" textAnchor="middle" fontFamily="Inter,system-ui,sans-serif" fontSize="11" fill="#4B5563">/100</text>
                   </svg>
                   <div className={styles.ringVerdict}>Strong match</div>
-                  <div className={styles.ringSub}>Weighted 86.8 base<br />+ adjustment +2.2</div>
+                  <div className={styles.ringSub}>Weighted 86.8 base<br />+ adjustment 2.2</div>
                 </div>
 
                 <div className={styles.dimsCol}>
@@ -176,17 +176,17 @@ export default function LandingPage() {
               <div className={styles.wwRow}>
                 <div className={`${styles.wwCol} ${styles.wwWhy}`}>
                   <div className={styles.wwColHead}>✓ Why you fit</div>
-                  <div className={styles.wwItem}><span className={styles.wwItemIco}>·</span><span>Deep async systems background — <em>matches: “reliable low-latency infrastructure”</em></span></div>
-                  <div className={styles.wwItem}><span className={styles.wwItemIco}>·</span><span>Led 3-engineer sub-team through production migration — <em>matches: “engineering ownership, cross-functional”</em></span></div>
+                  <div className={styles.wwItem}><span className={styles.wwItemIco}>·</span><span>Deep async systems background. <em>Matches: “reliable low-latency infrastructure”</em></span></div>
+                  <div className={styles.wwItem}><span className={styles.wwItemIco}>·</span><span>Led a 3-engineer sub-team through a production migration. <em>Matches: “engineering ownership, cross-functional”</em></span></div>
                 </div>
                 <div className={`${styles.wwCol} ${styles.wwWarn}`}>
                   <div className={styles.wwColHead}>⚠ Watch-outs</div>
-                  <div className={`${styles.wwItem} ${styles.wText}`}><span className={styles.wwItemIco}>·</span><span>No fintech or healthcare domain experience cited in your provided history — flagged in your packet</span></div>
+                  <div className={`${styles.wwItem} ${styles.wText}`}><span className={styles.wwItemIco}>·</span><span>No fintech or healthcare domain experience in your provided history. Flagged in your packet, not hidden.</span></div>
                 </div>
               </div>
 
               <div className={styles.honestBox}>
-                <strong>The honest part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed — zero invented bullets, zero inferred credentials, zero keyword stuffing. The domain gap above is real, and it’s in your packet too.
+                <strong>The honest part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed: zero invented bullets, zero inferred credentials, zero keyword stuffing. The domain gap above is real, and it’s in your packet too.
               </div>
             </div>
           </div>
@@ -211,15 +211,15 @@ export default function LandingPage() {
           <div className={styles.getHead}>
             <div className={styles.eyebrow}>The packet</div>
             <h2 className={styles.h2}>Three deliverables.<br />One honest source.</h2>
-            <p>Not a resume rewriter. Not a cover letter spinner. A complete application packet — where every piece connects back to what you actually gave us.</p>
+            <p>Not a resume rewriter. Not a cover-letter spinner. A complete application packet, where every piece connects back to what you actually gave us.</p>
           </div>
 
           <div className={styles.getCards}>
-            {/* Card 1 — Fit Report */}
+            {/* Card 1: Fit Report */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Fit Report</div>
               <h3 className={styles.getCardTitle}>Your real match, scored.</h3>
-              <p className={styles.getCardP}>Eight dimensions. One verdict. Every requirement flagged as met, partial, or missing — so you apply with confidence or skip with clarity.</p>
+              <p className={styles.getCardP}>Eight dimensions, one verdict. Every requirement is flagged met, partial, or missing, so you apply with confidence or skip with clarity.</p>
               <div className={styles.miniRingArea}>
                 <svg width="60" height="60" viewBox="0 0 60 60" aria-label="Fit score 89">
                   <circle cx="30" cy="30" r="23" stroke="#E5E7EB" strokeWidth="5" fill="none" />
@@ -244,26 +244,26 @@ export default function LandingPage() {
               <div className={styles.getCardFoot}>8 dimensions scored · Weighted total · Gaps shown, not hidden</div>
             </div>
 
-            {/* Card 2 — Tailored Resume */}
+            {/* Card 2: Tailored Resume */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Tailored Resume</div>
               <h3 className={styles.getCardTitle}>Your history, exactly where it counts.</h3>
-              <p className={styles.getCardP}>Bullets rewritten to map to the specific role’s language and requirements — every edit traceable to something you told us.</p>
+              <p className={styles.getCardP}>Bullets rewritten to match the role’s language and requirements, with every edit traceable to something you told us.</p>
               <div className={styles.miniBullets}>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Reduced p95 latency 40% via async queue migration<span className={styles.mw}>meets JD: “high-throughput, low-latency systems”</span></div></div>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Led auth migration for 3-person team, 2 wks ahead of schedule<span className={styles.mw}>meets JD: “cross-functional collaboration”</span></div></div>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Maintained 99.97% uptime across 4 deployments in FY24<span className={styles.mw}>meets JD: “production reliability ownership”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Cut p95 latency 40% via an async queue migration<span className={styles.mw}>meets JD: “high-throughput, low-latency systems”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Led auth migration for a 3-person team, 2 weeks early<span className={styles.mw}>meets JD: “cross-functional collaboration”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Held 99.97% uptime across 4 deployments in FY24<span className={styles.mw}>meets JD: “production reliability ownership”</span></div></div>
               </div>
               <div className={styles.getCardFoot}>4 bullets adjusted · 0 invented · Every source citable in an interview</div>
             </div>
 
-            {/* Card 3 — Cover Letter */}
+            {/* Card 3: Cover Letter */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Cover Letter</div>
-              <h3 className={styles.getCardTitle}>One letter. One role. Actually relevant.</h3>
-              <p className={styles.getCardP}>Company-stage-aware, role-specific, written from your real talking points — not a generic opener that could go anywhere.</p>
+              <h3 className={styles.getCardTitle}>One letter, one role, actually relevant.</h3>
+              <p className={styles.getCardP}>Stage-aware and role-specific, written from your real talking points instead of a generic opener that could go anywhere.</p>
               <div className={styles.clPreview}>
-                “Novalus’s focus on rebuilding core infrastructure at Series B is exactly the kind of high-ownership environment where I’ve delivered most — most recently reducing p95 API latency 40% through a migration I scoped and led end-to-end…”
+                “Novalus’s focus on rebuilding core infrastructure at Series B is exactly the high-ownership environment where I’ve delivered most. Most recently, I cut p95 API latency 40% through a migration I scoped and led end to end…”
               </div>
               <div className={styles.clChips}>
                 {['311 words', 'ATS-clean', 'Stage-aware', 'No “passionate about”'].map((c) => (
@@ -284,9 +284,9 @@ export default function LandingPage() {
           <p className={styles.sectP}>No scraping. No third-party lookups. No inventing anything. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
           <div className={styles.stepsV}>
             {[
-              ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane extracts what the role actually requires — not just surface keywords, but real seniority signals, stack expectations, and team context the job description reveals between the lines.'],
-              ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide — zero scraping, zero enrichment from external sources, nothing you didn’t give it yourself.'],
-              ['3', 'Download your application packet', 'A fit score with the specific requirements you meet and don’t, a role-tailored resume with traceable sources, and a cover letter that references the actual role. Every piece of output can be traced back to something you told us — and nothing else.'],
+              ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role actually requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
+              ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero scraping, zero enrichment from outside sources, nothing you didn’t give it yourself.'],
+              ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with traceable sources, and a cover letter written for the actual role. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
               <div className={styles.stepv} key={n}>
                 <div className={styles.stepvN}>{n}</div>
@@ -323,7 +323,7 @@ export default function LandingPage() {
               {[
                 'Build your packet only from the history you provide',
                 'Show exactly which requirements you meet and which you don’t',
-                'Produce clean ATS formatting — no tricks, no hacks',
+                'Produce clean ATS formatting, with no tricks and no hacks',
                 'Give you one deliberate application, not a blast of generic ones',
                 'Make every output traceable back to your provided source material',
               ].map((t) => (
