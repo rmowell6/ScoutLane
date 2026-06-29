@@ -4,7 +4,7 @@
 //
 // Untrusted JD snippets are passed as labeled data, never as instructions (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS } from '@/lib/anthropic'
+import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
 import { listJobsForMatch } from './jobStore'
 import { candidateTerms, prefilter } from '@/lib/roleDiscovery/prefilter'
 import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
@@ -28,6 +28,10 @@ export interface DiscoverOptions {
 // crowded out by the newest postings; only `shortlist` candidates go to the (paid) re-rank.
 // minLexScore is the relevance floor — drop roles that share only one incidental keyword.
 const DEFAULTS = { poolLimit: 1000, shortlist: 30, topN: 10, minLexScore: 2 } as const
+
+// Output budget for the re-rank. Must cover one {id, score, reason} per shortlisted role with
+// headroom — sized for the 30-role shortlist (see the call site). Raise if `shortlist` grows.
+const RERANK_MAX_TOKENS = 4000
 
 const RERANK_INSTRUCTIONS = [
   'You match a candidate to job postings by SIMILARITY OF WORK, not by job-title wording.',
@@ -115,7 +119,11 @@ export async function discoverRoles(
   const ranked = await runStep('rerank', async () => {
     const message = await anthropic.messages.parse({
       model: MODELS.screen,
-      max_tokens: 1200,
+      // The model echoes one { id (a 36-char UUID), score, reason } per shortlisted role. At the
+      // default shortlist of 30 that JSON is ~1.8–2.1k tokens, so the old 1200 cap TRUNCATED the
+      // output (parsed_output null) and the whole call threw an opaque 500. Budget for the full
+      // shortlist with headroom; readParsed below turns any genuine overflow into a clear error.
+      max_tokens: RERANK_MAX_TOKENS,
       system: [{ type: 'text', text: RERANK_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
       output_config: { format: zodOutputFormat(RoleRankSchema) },
       messages: [
@@ -149,9 +157,7 @@ export async function discoverRoles(
         },
       ],
     })
-    const out = message.parsed_output
-    if (!out) throw new Error('discoverRoles: no structured output returned')
-    return out
+    return readParsed(message, 'rerank', RERANK_MAX_TOKENS)
   })
 
   return assembleDiscoveries(ranked, candidates, topN)
