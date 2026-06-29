@@ -33,6 +33,9 @@ export interface PacketInput {
   preferences?: CandidatePreferences
   /** Style override (theme + font). Absent → master default (navy_copper / cambria_calibri). */
   style?: StyleRecord
+  /** Pooled-job id (pooled-job path). Lets the style recommender cache its classification on the
+   *  job row, so a repeat packet against the same posting skips the classification LLM call. */
+  jobId?: string
   /** Sensitive terms that may appear only if present in the profile (e.g. ['Kubernetes']). */
   bannedTerms?: string[]
   /** Date string for the cover letter; defaults to today (injectable for tests). */
@@ -184,7 +187,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
     runStep('extractFitInput', () => extractFitInput(profile, jobReqs, input.preferences)),
     runStep('tailorResume', () => tailorResume(profile, jobReqs)),
     needRecommend
-      ? runStep('recommendStyle', () => recommendStyle(profile, jobReqs))
+      ? runStep('recommendStyle', () => recommendStyle(profile, jobReqs, input.jobId))
       : Promise.resolve(null),
   ])
   const fit = assessFit(fitInput)

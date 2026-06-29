@@ -260,3 +260,27 @@ export async function getJobJd(id: string): Promise<{ id: string; title: string;
     }
   })
 }
+
+// ── Style-signal cache (jobs.style_signals) ──────────────────────────────────────────────────────
+// A pooled job's domain/seniority/role-type classification is a pure function of its static JD, so
+// it's classified once (by recommendStyle) and cached on the row. This is the container-friendly,
+// DB-backed cache: every instance shares it, and a repeat packet against the same job skips the LLM
+// call entirely. The shape is validated by the caller (recommendStyle) — stored as opaque jsonb here.
+
+/** Read a job's cached style classification, or null if absent. */
+export async function getJobStyleSignals(id: string): Promise<Record<string, unknown> | null> {
+  return runStep('styleSignals:get', async () => {
+    const { data, error } = await db().from(TABLE).select('style_signals').eq('id', id).maybeSingle()
+    if (error) throw error
+    const sig = data?.style_signals
+    return sig != null && typeof sig === 'object' ? (sig as Record<string, unknown>) : null
+  })
+}
+
+/** Persist a job's style classification for reuse (best-effort cache write). */
+export async function saveJobStyleSignals(id: string, signals: Record<string, unknown>): Promise<void> {
+  return runStep('styleSignals:save', async () => {
+    const { error } = await db().from(TABLE).update({ style_signals: signals }).eq('id', id)
+    if (error) throw error
+  })
+}
