@@ -27,9 +27,11 @@
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
+/* Reset link underline only — do NOT set `color: inherit` here: as `.page a` it outspecifies the
+   single-class button rules (.btnPrimary/.navCta), which forced their white text to inherit the dark
+   page color (the unreadable dark-on-green buttons). Each link sets its own color via its class. */
 .page :global(a) {
   text-decoration: none;
-  color: inherit;
 }
 
 /* ─── NAV ───────────────────────────────────────────── */
@@ -68,6 +70,20 @@
 }
 .navLinks a:hover {
   color: var(--text);
+}
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.navSignin {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  transition: opacity 0.15s;
+}
+.navSignin:hover {
+  opacity: 0.7;
 }
 .navCta {
   font-size: 13px;
