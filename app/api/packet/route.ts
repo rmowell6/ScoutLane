@@ -107,6 +107,8 @@ export async function POST(request: Request) {
       bannedTerms: parsed.data.bannedTerms,
       // An explicit pick is a user override (source 'user'); absent → the pipeline recommends one.
       style: parsed.data.style ? { ...parsed.data.style, source: 'user' } : undefined,
+      // Pooled-job path: pass the id so the style classification can be cached on the job row.
+      jobId: parsed.data.jobId,
     })
 
     // Never ship a failed guardrail silently — surface it for regeneration / human review. A 422
