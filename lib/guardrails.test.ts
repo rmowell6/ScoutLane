@@ -73,6 +73,35 @@ describe('checkNoFabrication', () => {
     expect(checkNoFabrication(tailored, profile).ungroundedSkills).toContain('Windows Server 2012-2022')
   })
 
+  test('a valid factId no longer launders fabricated claim text (B1-1: text must restate the cited fact)', () => {
+    const profile = makeProfile({ skills: ['Azure'] }) // skill:0 = "Azure"
+    const tailored = makeTailored({
+      skills: [],
+      claims: [{ text: 'Held a Top Secret clearance and led a team of 50', factId: 'skill:0' }],
+    })
+    const r = checkNoFabrication(tailored, profile)
+    expect(r.ok).toBe(false)
+    expect(r.unverifiable).toHaveLength(1)
+  })
+
+  test('a claim that faithfully restates its cited fact still passes', () => {
+    const profile = makeProfile() // cert:0 = "Azure Administrator Associate"
+    const tailored = makeTailored({ skills: [], claims: [{ text: 'Azure Administrator Associate', factId: 'cert:0' }] })
+    expect(checkNoFabrication(tailored, profile).ok).toBe(true)
+  })
+
+  test('grounds skills whose edge chars are non-word — C++, C#, .NET, Node.js (C-1)', () => {
+    const profile = makeProfile({ skills: ['C++', 'C#', '.NET', 'Node.js'] })
+    const tailored = makeTailored({ skills: ['C++', 'C#', '.NET', 'Node.js'], claims: [] })
+    expect(checkNoFabrication(tailored, profile).ungroundedSkills).toHaveLength(0)
+  })
+
+  test('still flags a symbol skill genuinely absent from the profile (C-1 not a loophole)', () => {
+    const profile = makeProfile({ skills: ['Azure'] })
+    const tailored = makeTailored({ skills: ['C++'], claims: [] })
+    expect(checkNoFabrication(tailored, profile).ungroundedSkills).toContain('C++')
+  })
+
   test('rejects a claim that references a non-existent factId', () => {
     const tailored = makeTailored({ claims: [{ text: 'Led a team of 10', factId: 'role:9:bullet:9' }] })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(false)

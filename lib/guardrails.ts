@@ -46,23 +46,31 @@ export function indexFacts(profile: Profile): FactIndex {
   return { byId, texts }
 }
 
-/** A claim is traceable iff it cites a real factId, or is a faithful restatement of one fact. */
+/** Near-equality: equal, or the shorter covers >= 70% of the longer as a substring — NOT a one-
+ *  directional stripped fragment (which can misrepresent, e.g. dropping a leading "Failed to") nor a
+ *  long fabrication that merely embeds a short source phrase. Both must be meaningfully long. */
+function isFaithfulRestatement(t: string, fact: string): boolean {
+  if (fact === t) return true
+  const [short, long] = t.length <= fact.length ? [t, fact] : [fact, t]
+  return long.includes(short) && short.length / long.length >= 0.7
+}
+
+/**
+ * A claim is traceable iff its TEXT faithfully restates the fact it cites — citing a valid factId is
+ * NOT sufficient on its own. The earlier `factId exists -> true` shortcut let an injected instruction
+ * launder a fabricated sentence behind any real id (the resume/JD are untrusted, prompt-injection
+ * surface). Now the text is diffed against the specific cited fact; with no/invalid id we fall back
+ * to faithful restatement of ANY single fact (the model left it null or mis-cited but didn't invent).
+ */
 export function traceable(claim: Claim, index: FactIndex): boolean {
-  // Primary: the claim cites a real fact id.
-  if (claim.factId !== null && index.byId.has(claim.factId)) return true
-  // Fallback: the claim is a FAITHFUL restatement of a single fact (model left factId null or
-  // cited it wrong but did NOT fabricate). Require near-equality, not a one-directional
-  // substring: a stripped fragment of a long fact (which can misrepresent it — e.g. dropping a
-  // leading "Failed to") must not pass, and neither may a long fabricated sentence that merely
-  // embeds a short source phrase. The claim and a fact must overlap as near-equals (the shorter
-  // covers >= 70% of the longer), and be of meaningful length.
   const t = normalize(claim.text)
+  // Cited path: the text must faithfully restate the CITED fact specifically.
+  if (claim.factId !== null && index.byId.has(claim.factId)) {
+    return isFaithfulRestatement(t, normalize(index.byId.get(claim.factId) as string))
+  }
+  // Fallback (no/invalid id): faithful restatement of any one fact; guard tiny fragments.
   if (t.length < 12) return false
-  return index.texts.some((fact) => {
-    if (fact === t) return true
-    const [short, long] = t.length <= fact.length ? [t, fact] : [fact, t]
-    return long.includes(short) && short.length / long.length >= 0.7
-  })
+  return index.texts.some((fact) => isFaithfulRestatement(t, fact))
 }
 
 // ---- individual checks -----------------------------------------------------------
@@ -84,21 +92,26 @@ export interface NoFabricationResult {
 // numbers bound to a metric context and require each to appear in the profile facts. Bare numbers
 // and 4-digit years are deliberately NOT gated (too ambiguous — e.g. a computed "10 years").
 
+// Digit runs are bounded (`{0,24}` not `*`): a real metric never has 25+ digit/comma chars, and the
+// unbounded `[\d,]*` + optional groups backtrack catastrophically on a long numeric paste — measured
+// ~tens of seconds of event-loop block on a 100k-char digit string. The bound makes matching linear
+// without dropping any legitimate quantity (ReDoS hardening).
 const METRIC_RE = new RegExp(
   [
-    String.raw`\d[\d,]*(?:\.\d+)?\s*%`, // 40%, 1,200%
-    String.raw`\d[\d,]*(?:\.\d+)?\s*percent\b`, // 40 percent
-    String.raw`\$\s?\d[\d,]*(?:\.\d+)?(?:\s*(?:k|m|b|million|billion|thousand))?`, // $2M, $500,000
-    String.raw`team\s+of\s+\d[\d,]*`, // team of 12
+    String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*%`, // 40%, 1,200%
+    String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*percent\b`, // 40 percent
+    String.raw`\$\s?\d[\d,]{0,24}(?:\.\d{0,12})?(?:\s*(?:k|m|b|million|billion|thousand))?`, // $2M, $500,000
+    String.raw`team\s+of\s+\d[\d,]{0,24}`, // team of 12
     // a count bound to a candidate-scope unit (years intentionally excluded)
-    String.raw`\d[\d,]*(?:\.\d+)?\+?\s*(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b`,
+    String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\+?\s*(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b`,
   ].join('|'),
   'gi',
 )
 
-/** Pull comma-stripped numeric tokens out of a string (e.g. "$500,000" -> ["500000"]). */
+/** Pull comma-stripped numeric tokens out of a string (e.g. "$500,000" -> ["500000"]). Digit run
+ *  bounded ({0,24}) for the same ReDoS reason as METRIC_RE. */
 function numbersIn(s: string): string[] {
-  return (s.match(/\d[\d,]*(?:\.\d+)?/g) ?? []).map((n) => n.replace(/,/g, ''))
+  return (s.match(/\d[\d,]{0,24}(?:\.\d{0,12})?/g) ?? []).map((n) => n.replace(/,/g, ''))
 }
 
 /** Metric phrases in the prose whose number appears nowhere in the profile facts. */
@@ -151,7 +164,11 @@ export function mentions(haystack: string, term: string): boolean {
   if (!t) return false
   if (/\s/.test(t)) return haystack.includes(t)
   const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return new RegExp(`\\b${escaped}\\b`).test(haystack)
+  // Token boundary that tolerates the TERM's own non-word edge chars (C++, C#, F#, .NET, Node.js):
+  // match unless flanked by a WORD char (which would make it part of a larger identifier, e.g. "java"
+  // inside "javascript"). `\b` fails when an edge char is non-word (+/#/.), which false-blocked real,
+  // listed skills. Negative word-char lookarounds keep the whole-token intent without that bug.
+  return new RegExp(`(?<!\\w)${escaped}(?!\\w)`).test(haystack)
 }
 
 export interface BannedTermsResult {
