@@ -26,6 +26,51 @@ This is an execution runbook, not a pitch. It assumes you'll build it yourself w
 
 ---
 
+## 1.5 Build status — as-built (2026-06-29)
+
+> **New here?** Read §1 for intent, then this section for where the code actually is. Everything below it (§2–§13) is the **original** POC plan, kept for design rationale — where it diverges from the shipped code, *this* section is authoritative. Verified syntax/architecture detail lives in `docs/ScoutLane_Engineering_Plan.md`; the latest deep review + cloud target-state in `docs/reviews/`.
+
+**TL;DR.** The hero pipeline (M0–M3) is built, security-hardened, and tested; auth landed early; M4 (landing / waitlist / analytics) is implemented and in review. Remaining: M4 merge + config, M5 (real users), and the ECS migration track.
+
+### Milestones
+| # | Milestone | Status |
+|---|-----------|--------|
+| **M0** | Skeleton + deploy | ✅ Done — live on Vercel + Supabase; `/api/health` readiness probe |
+| **M1** | Packet endpoint (the hero) | ✅ Done & extended — `/api/packet` → fit assessment + tailored `.docx` resume & cover letter + guardrails; plus a style/theming engine |
+| **M2** | Profile intake + persistence | ✅ Done — `/api/profile` (structure once, reuse) + `/api/extract` (PDF/DOCX/TXT upload → text) |
+| **M3** | ATS job pool | ✅ Done & extended — Greenhouse/Lever/Ashby + more boards, `/api/jobs` picker, daily cron ingest, `/api/discover` role ranking |
+| **M4** | Landing + waitlist + analytics | 🟡 Implemented, **in review** (PRs #60 landing/routing, #61 waitlist, #62 PostHog); pending merge + config (domain, `NEXT_PUBLIC_POSTHOG_KEY`, migration 0013) |
+| **M5** | Real users | ⬜ Pending — needs M4 live; the three §1 thresholds are now instrumented (M4-C events) |
+| *(gate)* | Auth + Stripe | 🔵 **Auth shipped early** (invite allowlist + owner-scoped profiles); Stripe still deferred per plan |
+
+### API surface — actual vs §5
+**Built:** `POST /api/packet` (hero — accepts pasted resume/JD **or** `profileId`/`jobId`), `POST /api/profile`, `POST /api/extract` (upload→text), `GET /api/jobs` (pool list, auth-gated + rate-limited), `POST /api/discover` (the plan's later `/api/rank`), `GET /api/health`, `POST /api/jobs/ingest` + `POST /api/jobs/ingest-all` (Vercel Cron, bearer-authed), `POST /api/waitlist` (M4-B), and auth routes `/auth/callback` + `/auth/sign-out`.
+
+**Diverged from the plan:**
+- **No standalone `POST /api/job`** — JD parsing is folded into `/api/packet` (paste a JD or pick a pooled job by id).
+- **No `GET /api/docs/:id` stream** — the `.docx` come back from `/api/packet` as Supabase Storage **signed URLs**, with a base64 inline fallback when Storage isn't configured.
+- **`GET /api/cron/ingest`** is realized as **`POST /api/jobs/ingest-all`** on a daily Vercel Cron.
+
+### Data model — actual
+Migrations `supabase/migrations/0001–0013`: `profiles`, `jobs`, **`generations` (⚠️ scaffolded but NOT yet written — generated packets are currently ephemeral; persisting them is a MIG/observability prerequisite)**, `ingest_run_markers`, `allowlist` (invite gate, 0008), `rate_limit_counters` (shared limiter, 0011), `waitlist` (M4-B, 0013). **RLS is enabled on every table.**
+
+### Repo structure — actual vs §9
+- **Marketing landing** at `app/page.tsx`; **product UI** at `app/app/page.tsx` (auth-gated). [M4-A]
+- Middleware is **`proxy.ts`** (the Next 16 name), not `middleware.ts`.
+- **Business logic lives in `lib/services/*`** (the plan put it loose in `lib/`): `buildPacket`, `structureResume`, `parseJob`, `extractFitInput`, `tailorResume`, `discoverRoles`, `recommendStyle`, `profileStore`, `jobStore`, `waitlistStore`, `extractResumeText`, plus `lib/services/ats/*` (ingest providers) and the vendored `src/jobBoards/*`.
+- Supporting libs: `lib/anthropic.ts` (SDK client + `readParsed`), `lib/guardrails.ts`, `lib/fit/*` (deterministic scoring), `lib/docgen/*` (resume/coverLetter), `lib/http/*` (rateLimit/errors), `lib/analytics.ts` (M4-C), `lib/auth.ts`, `lib/supabase*`, `lib/style/*`.
+- Components: `components/{Packet,WaitlistForm,PacketFeedback}.tsx`. Env/ops in `docs/DEPLOY.md` + `docs/AUTH_SETUP.md`.
+
+### Built beyond the original plan
+Authentication (invite allowlist + owner-scoped profiles, Phases A/B), a document **style/theming engine**, per-IP **rate limiting** backed by a shared Postgres counter, an exhaustive **architecture & security review** plus an **ECS Fargate target-state** design (both in `docs/reviews/`), and many more ATS/job-board providers than the planned "handful."
+
+### What remains
+- **M4 go-live:** merge #60→#61→#62, apply migrations `0012`–`0013`, set the PostHog key, register the domain, wire SES email auth (see the AWS bootstrap steps in the engagement notes).
+- **M5:** invite 10–20 users and measure the three §1 thresholds (now captured by the M4-C events: `signed_in`/`packet_generated`/`packet_opened`, `packet_rated`, `would_pay`).
+- **P5 (cost/perf)** and **MIG (ECS Fargate)** — tracked in `docs/reviews/2026-06-29-architecture-review.md` and `…-ecs-fargate-target-state.md`.
+
+---
+
 ## 2. Recommended stack and why it minimizes rework
 
 | Layer | Choice | Why it survives the jump from POC to product |
@@ -203,6 +248,8 @@ scoutlane/
 | **M4** | Landing + waitlist + analytics | A shareable URL, signups captured, basic event tracking for the Phase-0 metrics. |
 | **M5** | Real users | 10–20 people run packets; measure the three thresholds in §1. |
 | *(gate)* | Auth + Stripe | Only after M5 shows signal. |
+
+> _This is the **original** milestone plan. For current completion status see **§1.5 Build status — as-built**: M0–M3 are done, auth shipped early, M4 is in review._
 
 ---
 
