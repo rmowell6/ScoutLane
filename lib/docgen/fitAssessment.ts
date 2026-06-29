@@ -1,7 +1,13 @@
 // ATS-safe Fit Assessment builder — the third packet document, rendered from the deterministic
 // engine's FitResult (8 weighted dimensions + base/bonus/penalties + band). Same locked design
-// tokens as resume.ts (dark text on light; copper accent; single column, no tables/images, real
-// selectable text). Runs only under runtime='nodejs' (Packer.toBuffer needs Node Buffer).
+// recipes as resume.ts (dark text on light; single column, no tables/images, real selectable text).
+// Runs only under runtime='nodejs' (Packer.toBuffer needs Node Buffer).
+//
+// COLOR is themed; TYPOGRAPHY is not (the assessment is a decision aid, not an employer-facing doc,
+// so fonts stay fixed — no FontPair param). Tokens: NAVY→theme.primary, WASH→theme.wash,
+// SLATE→theme.slate, INK→fixed '1A1A1A'. The copper accent uses the COLLISION-GUARDED accent
+// (`accent.color` from resolveAssessmentAccent) so the brand accent can never read as a status
+// color — never theme.accent directly.
 import {
   AlignmentType,
   BorderStyle,
@@ -13,14 +19,11 @@ import {
   TabStopType,
   TextRun,
 } from 'docx'
+import type { Theme, AssessmentAccentResult } from '@/lib/style/types'
 
+// Fonts are intentionally NOT themed for the assessment (see header note).
 const SERIF = 'Cambria'
 const SANS = 'Calibri'
-const NAVY = '16335B'
-const COPPER = 'B0682C'
-const INK = '1A1A1A'
-const SLATE = '55606E'
-const WASH = 'EAEEF4'
 
 export interface FitDimensionLine {
   label: string
@@ -43,56 +46,66 @@ export interface FitAssessmentContent {
   hardGaps: string[]
 }
 
-const headLine = (children: TextRun[], opts: { before?: number; after?: number; line?: number } = {}) =>
-  new Paragraph({
-    shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
-    spacing: { before: opts.before ?? 0, after: opts.after ?? 0, line: opts.line ?? 240 },
-    alignment: AlignmentType.CENTER,
-    children,
-  })
+export async function buildFitAssessmentDocx(
+  content: FitAssessmentContent,
+  theme: Theme,
+  accent: AssessmentAccentResult,
+): Promise<Buffer> {
+  const NAVY = theme.primary
+  const ACCENT = accent.color // collision-guarded brand accent (never a status color)
+  const INK = '1A1A1A'
+  const SLATE = theme.slate
+  const WASH = theme.wash
 
-const sectionHeader = (text: string) =>
-  new Paragraph({
-    spacing: { before: 240, after: 100 },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 16, color: NAVY, space: 6 } },
-    children: [
-      new TextRun({ text: '■  ', font: SANS, size: 22, color: COPPER }),
-      new TextRun({ text: text.toUpperCase(), font: SERIF, bold: true, size: 26, color: NAVY, characterSpacing: 44 }),
-    ],
-  })
+  const headLine = (children: TextRun[], opts: { before?: number; after?: number; line?: number } = {}) =>
+    new Paragraph({
+      shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
+      spacing: { before: opts.before ?? 0, after: opts.after ?? 0, line: opts.line ?? 240 },
+      alignment: AlignmentType.CENTER,
+      children,
+    })
 
-const dimensionLine = (d: FitDimensionLine) =>
-  new Paragraph({
-    spacing: { before: 70, after: 60, line: 268 },
-    tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
-    children: [
-      new TextRun({ text: d.label, font: SANS, bold: true, size: 21, color: NAVY }),
-      new TextRun({ text: `  (weight ${Math.round(d.weight * 100)}%)`, font: SANS, size: 18, color: SLATE }),
-      new TextRun({ text: `\t${d.score} / 100`, font: SANS, bold: true, size: 21, color: COPPER }),
-      // `break: 1` inserts a real <w:br/>; a literal '\n' inside a TextRun does NOT wrap in Word.
-      ...(d.note ? [new TextRun({ text: d.note, break: 1, font: SANS, size: 20, color: SLATE })] : []),
-    ],
-  })
+  const sectionHeader = (text: string) =>
+    new Paragraph({
+      spacing: { before: 240, after: 100 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 16, color: NAVY, space: 6 } },
+      children: [
+        new TextRun({ text: '■  ', font: SANS, size: 22, color: ACCENT }),
+        new TextRun({ text: text.toUpperCase(), font: SERIF, bold: true, size: 26, color: NAVY, characterSpacing: 44 }),
+      ],
+    })
 
-const gapItem = (text: string) =>
-  new Paragraph({
-    numbering: { reference: 'fb', level: 0 },
-    spacing: { before: 16, after: 16, line: 264 },
-    children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
-  })
+  const dimensionLine = (d: FitDimensionLine) =>
+    new Paragraph({
+      spacing: { before: 70, after: 60, line: 268 },
+      tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
+      children: [
+        new TextRun({ text: d.label, font: SANS, bold: true, size: 21, color: NAVY }),
+        new TextRun({ text: `  (weight ${Math.round(d.weight * 100)}%)`, font: SANS, size: 18, color: SLATE }),
+        new TextRun({ text: `\t${d.score} / 100`, font: SANS, bold: true, size: 21, color: ACCENT }),
+        // `break: 1` inserts a real <w:br/>; a literal '\n' inside a TextRun does NOT wrap in Word.
+        ...(d.note ? [new TextRun({ text: d.note, break: 1, font: SANS, size: 20, color: SLATE })] : []),
+      ],
+    })
 
-export async function buildFitAssessmentDocx(content: FitAssessmentContent): Promise<Buffer> {
+  const gapItem = (text: string) =>
+    new Paragraph({
+      numbering: { reference: 'fb', level: 0 },
+      spacing: { before: 16, after: 16, line: 264 },
+      children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
+    })
+
   const subtitle = [content.roleTitle, content.company].filter(Boolean).join('  ·  ')
   const mathLine = `Weighted base ${content.base}, cross-lane bonus +${content.bonus}, penalties −${content.penaltyTotal}.`
 
   const children: Paragraph[] = [
     new Paragraph({
       spacing: { before: 0, after: 0, line: 40 },
-      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: COPPER, space: 0 } },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: ACCENT, space: 0 } },
       children: [new TextRun({ text: '', font: SANS, size: 2 })],
     }),
     headLine([new TextRun({ text: content.candidateName.toUpperCase(), font: SERIF, bold: true, size: 46, color: NAVY, characterSpacing: 70 })], { before: 60, line: 480 }),
-    headLine([new TextRun({ text: 'FIT ASSESSMENT', font: SANS, bold: true, size: 22, color: COPPER, characterSpacing: 66 })], { before: 20, line: 250 }),
+    headLine([new TextRun({ text: 'FIT ASSESSMENT', font: SANS, bold: true, size: 22, color: ACCENT, characterSpacing: 66 })], { before: 20, line: 250 }),
     ...(subtitle
       ? [headLine([new TextRun({ text: subtitle, font: SANS, size: 20, color: SLATE, characterSpacing: 16 })], { before: 12, line: 235 })]
       : []),
@@ -108,7 +121,7 @@ export async function buildFitAssessmentDocx(content: FitAssessmentContent): Pro
       spacing: { before: 80, after: 40 },
       children: [
         new TextRun({ text: `${content.overall} / 100`, font: SERIF, bold: true, size: 40, color: NAVY }),
-        new TextRun({ text: `    ${content.band}`, font: SANS, bold: true, size: 24, color: COPPER }),
+        new TextRun({ text: `    ${content.band}`, font: SANS, bold: true, size: 24, color: ACCENT }),
       ],
     }),
     new Paragraph({
@@ -154,7 +167,7 @@ export async function buildFitAssessmentDocx(content: FitAssessmentContent): Pro
               format: LevelFormat.BULLET,
               text: '▪',
               alignment: AlignmentType.LEFT,
-              style: { paragraph: { indent: { left: 350, hanging: 196 } }, run: { color: COPPER } },
+              style: { paragraph: { indent: { left: 350, hanging: 196 } }, run: { color: ACCENT } },
             },
           ],
         },

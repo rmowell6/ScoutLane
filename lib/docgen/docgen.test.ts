@@ -2,6 +2,15 @@ import { describe, expect, test } from 'vitest'
 import { buildResumeDocx, type ResumeContent } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx, type CoverLetterContent } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx, type FitAssessmentContent } from '@/lib/docgen/fitAssessment'
+import themes from '@/lib/style/themes.json'
+import fonts from '@/lib/style/fonts.json'
+import { resolveAssessmentAccent } from '@/lib/style/assessmentAccent'
+import type { Theme, FontPair } from '@/lib/style/types'
+
+// Master skin for the builder tests (the builders are theme/font-parameterized).
+const theme = (themes.themes as Theme[]).find((t) => t.master)!
+const font = (fonts.pairs as FontPair[]).find((f) => f.master)!
+const accent = resolveAssessmentAccent(theme)
 
 const sampleResume: ResumeContent = {
   name: 'Jordan Rivera',
@@ -52,12 +61,12 @@ function isDocxBuffer(buf: Buffer): boolean {
 
 describe('docgen', () => {
   test('buildResumeDocx produces a non-trivial .docx buffer', async () => {
-    const buf = await buildResumeDocx(sampleResume)
+    const buf = await buildResumeDocx(sampleResume, theme, font)
     expect(isDocxBuffer(buf)).toBe(true)
   })
 
   test('buildCoverLetterDocx produces a non-trivial .docx buffer', async () => {
-    const buf = await buildCoverLetterDocx(sampleCover)
+    const buf = await buildCoverLetterDocx(sampleCover, theme, font)
     expect(isDocxBuffer(buf)).toBe(true)
   })
 
@@ -78,7 +87,7 @@ describe('docgen', () => {
       ],
       hardGaps: ['people management'],
     }
-    const buf = await buildFitAssessmentDocx(content)
+    const buf = await buildFitAssessmentDocx(content, theme, accent)
     expect(isDocxBuffer(buf)).toBe(true)
   })
 
@@ -95,7 +104,7 @@ describe('docgen', () => {
       penaltyTotal: 0,
       dimensions: [],
       hardGaps: [],
-    })
+    }, theme, accent)
     expect(isDocxBuffer(buf)).toBe(true)
   })
 })

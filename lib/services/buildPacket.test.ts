@@ -42,7 +42,9 @@ vi.mock('@/lib/guardrails', () => ({
     ats: null,
   }),
 }))
-vi.mock('@/lib/docgen/resume', () => ({ buildResumeDocx: async () => Buffer.from('r') }))
+// Captured so we can assert the resolved Theme/FontPair get threaded to the builders.
+const buildResumeDocx = vi.hoisted(() => vi.fn(async (..._args: unknown[]) => Buffer.from('r')))
+vi.mock('@/lib/docgen/resume', () => ({ buildResumeDocx }))
 vi.mock('@/lib/docgen/coverLetter', () => ({ buildCoverLetterDocx: async () => Buffer.from('c') }))
 vi.mock('@/lib/docgen/fitAssessment', () => ({ buildFitAssessmentDocx: async () => Buffer.from('f') }))
 vi.mock('@/lib/docgen/mapProfile', () => ({
@@ -92,5 +94,41 @@ describe('buildPacket profile vs resumeText', () => {
   test('rejects when neither profile nor resumeText is provided', async () => {
     await expect(buildPacket({ jdText: 'JD' })).rejects.toBeInstanceOf(PacketError)
     expect(structureResume).not.toHaveBeenCalled()
+  })
+})
+
+describe('buildPacket style threading', () => {
+  // The resolved Theme/FontPair are args 2 and 3 of buildResumeDocx(content, theme, font).
+  function styleOf(call: unknown[] | undefined): { theme: string; font: string } {
+    const theme = call?.[1] as { id: string } | undefined
+    const font = call?.[2] as { id: string } | undefined
+    return { theme: theme?.id ?? '', font: font?.id ?? '' }
+  }
+
+  beforeEach(() => buildResumeDocx.mockClear())
+
+  test('absent style → master skin (navy_copper / cambria_calibri)', async () => {
+    await buildPacket({ profile: PROFILE, jdText: 'JD', date: 'x' })
+    expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'navy_copper', font: 'cambria_calibri' })
+  })
+
+  test('explicit style is resolved from ids and threaded to the builders', async () => {
+    await buildPacket({
+      profile: PROFILE,
+      jdText: 'JD',
+      date: 'x',
+      style: { theme: 'ink_teal', font: 'tahoma_tahoma', source: 'user' },
+    })
+    expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'ink_teal', font: 'tahoma_tahoma' })
+  })
+
+  test('unknown style ids fall back to the master skin (never crash)', async () => {
+    await buildPacket({
+      profile: PROFILE,
+      jdText: 'JD',
+      date: 'x',
+      style: { theme: 'does_not_exist', font: 'does_not_exist', source: 'user' },
+    })
+    expect(styleOf(buildResumeDocx.mock.calls[0])).toEqual({ theme: 'navy_copper', font: 'cambria_calibri' })
   })
 })

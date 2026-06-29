@@ -1,7 +1,12 @@
 // Cover-letter builder — faithful port of the cover-letter generator (the master generator).
-// Shares the LOCKED resume design tokens so the resume and cover letter look cohesive.
+// Shares the LOCKED resume design tokens so the resume and cover letter look cohesive, now
+// parameterized by a Theme + FontPair (same axes as the resume) so a packet is visually uniform.
 // Single-column, ATS-safe, dark text on light. assertNoEmDash throws so an em dash can never
 // ship (the SPEC style rule, enforced in code). Runs only under runtime='nodejs'.
+//
+// Color tokens: NAVY→primary, INK→fixed '1A1A1A', SLATE→slate, WASH→wash. The copper accent splits
+// by use: GRAPHICS (rules, • separators) use theme.accent; accent-colored TEXT (the tagline) uses
+// theme.accentText (≥ 4.5:1 on white). Fonts: SERIF→font.head, SANS→font.body.
 import {
   AlignmentType,
   BorderStyle,
@@ -12,14 +17,7 @@ import {
   TextRun,
   type IParagraphOptions,
 } from 'docx'
-
-const SERIF = 'Cambria'
-const SANS = 'Calibri'
-const NAVY = '16335B'
-const COPPER = 'B0682C'
-const INK = '1A1A1A'
-const SLATE = '55606E'
-const WASH = 'EAEEF4'
+import type { Theme, FontPair } from '@/lib/style/types'
 
 export interface CoverLetterCandidate {
   name: string
@@ -40,44 +38,71 @@ export interface CoverLetterContent {
   signature: string
 }
 
-const head = (children: TextRun[], o: { before?: number; after?: number; line?: number; border?: IParagraphOptions['border'] } = {}) =>
-  new Paragraph({
-    shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
-    spacing: { before: o.before ?? 0, after: o.after ?? 0, line: o.line ?? 240 },
-    alignment: AlignmentType.CENTER,
-    border: o.border,
-    children,
-  })
+/** Standing rule: no em dashes in any prose — throw so it can never ship (SPEC). */
+function assertNoEmDash(content: CoverLetterContent): void {
+  const fields = [content.recipient, content.reLine, content.salutation, content.closing, ...content.paragraphs]
+  const offender = fields.find((t) => typeof t === 'string' && t.includes('—'))
+  if (offender) {
+    throw new Error('Em dash found in cover-letter prose (violates the SPEC). Offending text: ' + offender)
+  }
+}
 
-const body = (text: string, o: { before?: number; after?: number } = {}) =>
-  new Paragraph({
-    spacing: { before: o.before ?? 0, after: o.after ?? 160, line: 288 },
-    children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
-  })
+export async function buildCoverLetterDocx(
+  content: CoverLetterContent,
+  theme: Theme,
+  font: FontPair,
+): Promise<Buffer> {
+  assertNoEmDash(content)
 
-const meta = (text: string) =>
-  new Paragraph({
-    spacing: { before: 0, after: 40, line: 264 },
-    children: [new TextRun({ text, font: SANS, size: 21, color: SLATE })],
-  })
+  const SERIF = font.head
+  const SANS = font.body
+  const NAVY = theme.primary
+  const ACCENT = theme.accent // GRAPHIC accent: rules, • separators
+  const ACCENT_TEXT = theme.accentText // accent-colored TEXT: the tagline
+  const INK = '1A1A1A'
+  const SLATE = theme.slate
+  const WASH = theme.wash
 
-function buildHeader(c: CoverLetterCandidate): Paragraph[] {
-  return [
+  const head = (
+    children: TextRun[],
+    o: { before?: number; after?: number; line?: number; border?: IParagraphOptions['border'] } = {},
+  ) =>
+    new Paragraph({
+      shading: { type: ShadingType.CLEAR, color: 'auto', fill: WASH },
+      spacing: { before: o.before ?? 0, after: o.after ?? 0, line: o.line ?? 240 },
+      alignment: AlignmentType.CENTER,
+      border: o.border,
+      children,
+    })
+
+  const body = (text: string, o: { before?: number; after?: number } = {}) =>
+    new Paragraph({
+      spacing: { before: o.before ?? 0, after: o.after ?? 160, line: 288 },
+      children: [new TextRun({ text, font: SANS, size: 21, color: INK })],
+    })
+
+  const meta = (text: string) =>
+    new Paragraph({
+      spacing: { before: 0, after: 40, line: 264 },
+      children: [new TextRun({ text, font: SANS, size: 21, color: SLATE })],
+    })
+
+  const buildHeader = (c: CoverLetterCandidate): Paragraph[] => [
     new Paragraph({
       spacing: { before: 0, after: 0, line: 40 },
-      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: COPPER, space: 0 } },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: ACCENT, space: 0 } },
       children: [new TextRun({ text: '', font: SANS, size: 2 })],
     }),
     head([new TextRun({ text: '', font: SANS, size: 10 })], { line: 130 }),
     // Uppercased here so mixed-case input renders like the locked design (resume matches).
     head([new TextRun({ text: c.name.toUpperCase(), font: SERIF, bold: true, size: 46, color: NAVY, characterSpacing: 80 })], { line: 480 }),
-    head([new TextRun({ text: c.tagline.toUpperCase(), font: SANS, bold: true, size: 20, color: COPPER, characterSpacing: 42 })], { before: 24, line: 230 }),
+    head([new TextRun({ text: c.tagline.toUpperCase(), font: SANS, bold: true, size: 20, color: ACCENT_TEXT, characterSpacing: 42 })], { before: 24, line: 230 }),
     head(
       [
         new TextRun({ text: c.location, font: SANS, size: 18, color: INK }),
-        new TextRun({ text: '       •       ', font: SANS, size: 18, color: COPPER }),
+        new TextRun({ text: '       •       ', font: SANS, size: 18, color: ACCENT }),
         new TextRun({ text: c.phone, font: SANS, size: 18, color: INK }),
-        new TextRun({ text: '       •       ', font: SANS, size: 18, color: COPPER }),
+        new TextRun({ text: '       •       ', font: SANS, size: 18, color: ACCENT }),
         new TextRun({ text: c.email, font: SANS, size: 18, color: INK }),
       ],
       { before: 70, line: 240 },
@@ -88,19 +113,7 @@ function buildHeader(c: CoverLetterCandidate): Paragraph[] {
       border: { bottom: { style: BorderStyle.SINGLE, size: 26, color: NAVY, space: 0 } },
     }),
   ]
-}
 
-/** Standing rule: no em dashes in any prose — throw so it can never ship (SPEC). */
-function assertNoEmDash(content: CoverLetterContent): void {
-  const fields = [content.recipient, content.reLine, content.salutation, content.closing, ...content.paragraphs]
-  const offender = fields.find((t) => typeof t === 'string' && t.includes('—'))
-  if (offender) {
-    throw new Error('Em dash found in cover-letter prose (violates the SPEC). Offending text: ' + offender)
-  }
-}
-
-export async function buildCoverLetterDocx(content: CoverLetterContent): Promise<Buffer> {
-  assertNoEmDash(content)
   const lastIdx = content.paragraphs.length - 1
 
   const doc = new Document({
