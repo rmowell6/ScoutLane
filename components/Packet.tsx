@@ -329,7 +329,10 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             </div>
           )}
 
-          <p className="fit-trust">For your eyes only. This read is never sent to employers.</p>
+          <p className="fit-trust">
+            This fit assessment is just for you, to help you decide whether to apply. It is never sent to
+            the employer, only your tailored resume and cover letter are.
+          </p>
         </section>
 
         {coverage.length > 0 && (
