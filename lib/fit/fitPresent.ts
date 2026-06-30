@@ -134,6 +134,25 @@ export function splitDimensions(fit: FitResult): SplitDimensions {
   return { strengths, stretches, notAssessed }
 }
 
+// Dimensions a candidate can actually "lead with" in an application — their own strengths. The other
+// three (employerPreference, compAlignment, locationLogistics) describe the job/logistics and can score
+// 100 (a direct employer, pay meeting target, remote-US) yet are NOT something a candidate leads with,
+// so picking them as "your sharpest differentiator" is nonsense. Restrict the lead pick to these.
+const LEADABLE_KEYS = new Set([
+  'roleTypeMatch',
+  'skillsCoverage',
+  'seniorityMatch',
+  'verticalFit',
+  'certRequirementFit',
+])
+
+/** The strongest assessed dimension a candidate can genuinely lead with, or undefined if none. */
+export function leadDimension(fit: FitResult): FitDimension | undefined {
+  return fit.dimensions
+    .filter((d) => !isUnassessed(d) && LEADABLE_KEYS.has(d.key))
+    .sort((a, b) => b.score - a.score)[0]
+}
+
 /** Plain-language "what's holding this back": the penalties that actually applied, else the weakest
  *  assessed dimension. Empty string when there is nothing material to flag. */
 export function holdingBackLine(fit: FitResult): string {
