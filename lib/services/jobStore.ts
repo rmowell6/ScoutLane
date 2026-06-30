@@ -6,7 +6,7 @@ import * as z from 'zod'
 import { serverSupabase } from '@/lib/supabaseServer'
 import type { IngestedJob } from '@/lib/services/ats/types'
 import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
-import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
+import { isUsRole } from '@/lib/roleDiscovery/usLocation'
 
 const TABLE = 'jobs'
 
@@ -116,7 +116,7 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
   // every ingest path passes through (the unified cron AND the ATS-only route), so non-US roles
   // never enter the pool for any consumer. Bias toward keeping (isUsLocation): Remote / unknown /
   // unrecognized locations stay; only a clearly-non-US place with no US signal is dropped.
-  const usJobs = jobs.filter((j) => isUsLocation(j.location))
+  const usJobs = jobs.filter((j) => isUsRole({ location: j.location, company: j.company, title: j.title }))
   if (usJobs.length === 0) return 0
   return runStep('upsert', async () => {
     const rows = usJobs.map((j) => toRow(j, now))
@@ -214,7 +214,7 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
       const parsed = JobListRowSchema.safeParse(r)
       if (!parsed.success) continue
       const job = toStoredJob(parsed.data)
-      if (usOnly && !isUsLocation(job.location)) continue
+      if (usOnly && !isUsRole({ location: job.location, company: job.company, title: job.title })) continue
       out.push(job)
       if (out.length >= limit) break
     }

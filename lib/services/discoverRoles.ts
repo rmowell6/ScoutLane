@@ -7,7 +7,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
 import { listJobsForMatch } from './jobStore'
 import { candidateTerms, prefilter } from '@/lib/roleDiscovery/prefilter'
-import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
+import { isUsRole } from '@/lib/roleDiscovery/usLocation'
 import { RoleRankSchema, assembleDiscoveries, type DiscoveredRole } from '@/lib/roleDiscovery/rerank'
 import type { CandidatePreferences, Profile } from '@/lib/schemas'
 
@@ -110,7 +110,7 @@ export async function discoverRoles(
   const pool = await runStep('listForMatch', () => listJobsForMatch(poolLimit))
   // Stage 1 (deterministic, no model call): default to US-located roles, then lexically pre-filter
   // the whole pool down to the most relevant shortlist.
-  const scoped = usOnly ? pool.filter((j) => isUsLocation(j.location)) : pool
+  const scoped = usOnly ? pool.filter((j) => isUsRole({ location: j.location, company: j.company, title: j.title })) : pool
   const terms = candidateTerms(profile, preferences)
   const candidates = prefilter(scoped, terms, shortlist, minLexScore)
   if (candidates.length === 0) return []
