@@ -37,6 +37,7 @@ function makeTailored(overrides: Partial<TailoredContent> = {}): TailoredContent
     skills: ['Azure', 'VMware'],
     claims: [{ text: 'Migrated 40 VMs to Azure', factId: 'role:0:bullet:0' }],
     coverLetter: 'I would be glad to bring my Azure experience to your team.',
+    outreach: { linkedin: 'I bring Azure experience and would value connecting.', email: 'Hello, I bring Azure experience to your team. Best, Jordan' },
     ...overrides,
   }
 }
@@ -180,6 +181,15 @@ describe('checkNoFabrication', () => {
     const tailored = makeTailored({ summary: 'Over 10 years across 2 roles delivering Azure work.' })
     expect(checkNoFabrication(tailored, makeProfile()).ungroundedMetrics).toEqual([])
   })
+
+  test('flags an invented metric in the outreach email body', () => {
+    const tailored = makeTailored({
+      outreach: { linkedin: 'Azure engineer keen to connect.', email: 'Hello, I saved $5M last year. Best, Jordan' },
+    })
+    const result = checkNoFabrication(tailored, makeProfile())
+    expect(result.ok).toBe(false)
+    expect(result.ungroundedMetrics.join(' ')).toMatch(/\$5M/i)
+  })
 })
 
 describe('checkBulletsGrounded (ai-26 — ground shipped bullets against the source resume)', () => {
@@ -317,6 +327,15 @@ describe('runGuardrails', () => {
     const report = runGuardrails(tailored, makeProfile())
     expect(report.ok).toBe(false)
     expect(report.noFabrication.ok).toBe(false)
+  })
+
+  test('an em dash in an outreach message trips the style check', () => {
+    const tailored = makeTailored({
+      outreach: { linkedin: 'Azure engineer — keen to connect.', email: 'Hello, glad to connect. Best, Jordan' },
+    })
+    const report = runGuardrails(tailored, makeProfile())
+    expect(report.style.ok).toBe(false)
+    expect(report.ok).toBe(false)
   })
 
   test('cert-status is a NON-blocking flag — a suspicious cert does not fail the report', () => {

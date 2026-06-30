@@ -20,6 +20,7 @@ const tailored: TailoredContent = {
   skills: ['Azure', 'VMware', 'Security'],
   claims: [],
   coverLetter: 'Para one.\n\nPara two about Azure.',
+  outreach: { linkedin: 'Hi, I bring Azure depth and would value connecting.', email: 'Hello, I admire your team and bring Azure experience. Best, Jordan' },
 }
 
 const jobReqs: JobReqs = { title: 'Senior Cloud Engineer', company: 'Acme', mustHave: [], niceToHave: [] }
