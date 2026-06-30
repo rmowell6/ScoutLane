@@ -7,7 +7,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
-import { isUnassessed, bandLabel, PENALTY_LABELS } from '@/lib/fit/fitPresent'
+import {
+  isUnassessed,
+  bandLabel,
+  bandSummary,
+  humanizeNote,
+  splitDimensions,
+  holdingBackLine,
+} from '@/lib/fit/fitPresent'
 import { styleNames } from '@/lib/style/skin'
 import { track, EVENTS } from '@/lib/analytics'
 
@@ -24,19 +31,6 @@ function meterStatus(score: number): Status {
 
 function humanize(s: string): string {
   return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-function bandSummary(band: string): string {
-  switch (band) {
-    case 'Best fit':
-      return 'A bullseye match — apply with a tailored packet.'
-    case 'Strong fit':
-      return 'A strong match with honest stretches — worth applying.'
-    case 'Stretch':
-      return 'A stretch — apply only if you can close the flagged gaps.'
-    default:
-      return 'A reach for now — weigh against roles that match more of your background.'
-  }
 }
 
 function StatusIcon({ status }: { status: Status }) {
@@ -80,7 +74,7 @@ function Meter({ d }: { d: FitDimension }) {
           </span>
         </div>
         <p className="meter__note muted" id={noteId}>
-          {d.note}
+          {humanizeNote(d)}
         </p>
       </div>
     )
@@ -108,8 +102,26 @@ function Meter({ d }: { d: FitDimension }) {
         <div className="meter__fill" style={{ '--value': d.score } as VarStyle} />
       </div>
       <p className="meter__note" id={noteId}>
-        {d.note}
+        {humanizeNote(d)}
       </p>
+    </div>
+  )
+}
+
+/** A titled group of meters (Your strengths / Worth shoring up / Not assessed). Renders nothing when
+ *  empty unless an `emptyHint` is given. */
+function MeterGroup({ title, dims, emptyHint }: { title: string; dims: FitDimension[]; emptyHint?: string }) {
+  if (dims.length === 0 && !emptyHint) return null
+  return (
+    <div className="meter-group">
+      <p className="meter-group__title">{title}</p>
+      {dims.length > 0 ? (
+        dims.map((d) => <Meter key={d.key} d={d} />)
+      ) : (
+        <p className="muted" style={{ fontSize: '12px', margin: 0 }}>
+          {emptyHint}
+        </p>
+      )}
     </div>
   )
 }
@@ -215,22 +227,12 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
     `${humanize(fitInput.employerType)} employer`,
   ].filter((p): p is string => Boolean(p))
 
-  // Why / watch derived from the deterministic dimensions (highest = strengths, lowest = risks).
-  // Exclude not-assessed dimensions: a neutral placeholder is neither a real strength nor a real gap.
-  const sorted = [...fit.dimensions].sort((a, b) => b.score - a.score)
-  const assessed = sorted.filter((d) => !isUnassessed(d))
-  const strengths = assessed.filter((d) => d.score >= 75).slice(0, 3)
-  const risks = assessed.filter((d) => d.score < 60).reverse().slice(0, 3)
-
-  // Plain-language "what's holding this back": name the penalties that actually applied, else the
-  // weakest assessed dimension. Replaces the engineer-facing "base / bonus / penalties" arithmetic.
-  const appliedPenalties = Object.entries(fit.penalties).filter(([, v]) => v > 0)
-  const weakest = assessed.length ? assessed[assessed.length - 1] : undefined
-  const holdingBack = appliedPenalties.length
-    ? `What's holding this back: ${appliedPenalties.map(([k]) => PENALTY_LABELS[k] ?? k).join(', ')}.`
-    : weakest && weakest.score < 65
-      ? `Biggest gap: ${weakest.label} (${weakest.score}/100).`
-      : ''
+  // Group the deterministic dimensions for a strengths-first read, and derive the one-line "what's
+  // holding this back". All shared with the generated document via lib/fit/fitPresent.
+  const { strengths, stretches, notAssessed } = splitDimensions(fit)
+  const holdingBack = holdingBackLine(fit)
+  // Strongest assessed dimension, for the "lead with" next-step tip.
+  const bestAssessed = fit.dimensions.filter((d) => !isUnassessed(d)).sort((a, b) => b.score - a.score)[0]
 
   // Keyword/ATS coverage from the extracted skill signals.
   const held = new Set(fitInput.candidateSkills.map((s) => s.toLowerCase().trim()))
@@ -278,12 +280,9 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
               ))}
             </ul>
           )}
-          <p className="muted" style={{ margin: '.2em 0' }}>
-            Deterministic fit assessment (rubric {fit.version}).
-          </p>
         </section>
 
-        <section className="card" aria-labelledby="pk-fit">
+        <section className="card fit-card" aria-labelledby="pk-fit">
           <h3 id="pk-fit">Fit assessment</h3>
           <div className="gauge-row">
             <div
@@ -301,59 +300,31 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
                 <span className="gauge__den">/ 100</span>
               </span>
             </div>
-            <div>
-              <p style={{ fontSize: '13px', margin: 0 }}>
+            <div className="fit-headline">
+              <p className="fit-band">
                 <strong>{bandLabel(fit.band)}.</strong> {bandSummary(fit.band)}
               </p>
-              {holdingBack && (
-                <p className="muted" style={{ fontSize: '12px', margin: '.35em 0 0' }}>
-                  {holdingBack}
-                </p>
-              )}
+              {holdingBack && <p className="fit-holdback">{holdingBack}</p>}
             </div>
           </div>
-          {fit.dimensions.map((d) => (
-            <Meter key={d.key} d={d} />
-          ))}
-        </section>
 
-        {(strengths.length > 0 || risks.length > 0) && (
-          <div className="grid-2">
-            <section className="card" aria-labelledby="pk-why">
-              <h3 id="pk-why">Why you fit</h3>
-              {strengths.length > 0 ? (
-                <ul className="tight">
-                  {strengths.map((d) => (
-                    <li key={d.key}>
-                      <strong>{d.label}.</strong> {d.note}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="muted">No standout strengths surfaced for this role.</p>
-              )}
-            </section>
-            <section className="card" aria-labelledby="pk-watch">
-              <h3 id="pk-watch">Watch-outs</h3>
-              {risks.length > 0 || fit.hardGaps.length > 0 ? (
-                <ul className="tight">
-                  {risks.map((d) => (
-                    <li key={d.key}>
-                      <strong>{d.label}.</strong> {d.note}
-                    </li>
-                  ))}
-                  {fit.hardGaps.map((g) => (
-                    <li key={`gap-${g}`}>
-                      <strong>Hard gap:</strong> {g}.
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="muted">No material gaps flagged.</p>
-              )}
-            </section>
-          </div>
-        )}
+          <MeterGroup title="Your strengths" dims={strengths} emptyHint="No standout strengths for this role yet." />
+          <MeterGroup title="Worth shoring up" dims={stretches} />
+          <MeterGroup title="Not assessed" dims={notAssessed} />
+
+          {fit.hardGaps.length > 0 && (
+            <div className="fit-gaps" role="note">
+              <p className="fit-gaps__title">Gaps to address before applying</p>
+              <ul className="tight">
+                {fit.hardGaps.map((g) => (
+                  <li key={`gap-${g}`}>{g}.</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <p className="fit-trust">For your eyes only. This read is never sent to employers.</p>
+        </section>
 
         {coverage.length > 0 && (
           <section className="card" aria-labelledby="pk-kw">
@@ -503,9 +474,9 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
               )}
             </li>
             <li>
-              {assessed[0] ? (
+              {bestAssessed ? (
                 <>
-                  Lead with your strongest area, {assessed[0].label} ({assessed[0].score}/100): it&apos;s your
+                  Lead with your strongest area, {bestAssessed.label} ({bestAssessed.score}/100): it&apos;s your
                   sharpest differentiator.
                 </>
               ) : (

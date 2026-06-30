@@ -8,10 +8,18 @@
 //  - Role context lines are omitted (the schema has no per-role context yet).
 // Everything rendered still traces to real Profile facts — the guardrail runs independently.
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
-import type { FitResult } from '@/lib/fit/fitScore'
+import type { FitDimension, FitResult } from '@/lib/fit/fitScore'
+import {
+  bandLabel,
+  bandSummary,
+  holdingBackLine,
+  humanizeNote,
+  isUnassessed,
+  splitDimensions,
+} from '@/lib/fit/fitPresent'
 import type { ResumeContent } from '@/lib/docgen/resume'
 import type { CoverLetterContent } from '@/lib/docgen/coverLetter'
-import type { FitAssessmentContent } from '@/lib/docgen/fitAssessment'
+import type { FitAssessmentContent, FitDimGroup } from '@/lib/docgen/fitAssessment'
 
 const FALLBACK_CONTACT = { location: '', phone: '', email: '' }
 
@@ -65,17 +73,28 @@ export function toFitAssessmentContent(
   jobReqs: JobReqs,
   date: string,
 ): FitAssessmentContent {
+  const { strengths, stretches, notAssessed } = splitDimensions(fit)
+  const toLine = (d: FitDimension, group: FitDimGroup) => ({
+    label: d.label,
+    scoreText: isUnassessed(d) ? 'Not assessed' : `${d.score} / 100`,
+    note: humanizeNote(d),
+    group,
+  })
   return {
     candidateName: profile.name,
     roleTitle: jobReqs.title ?? 'Target role',
     company: jobReqs.company ?? '',
     date,
     overall: fit.overall,
-    band: fit.band,
-    base: fit.base,
-    bonus: fit.bonus,
-    penaltyTotal: fit.penaltyTotal,
-    dimensions: fit.dimensions.map((d) => ({ label: d.label, score: d.score, weight: d.weight, note: d.note })),
+    bandLabel: bandLabel(fit.band),
+    bandSummary: bandSummary(fit.band),
+    holdingBack: holdingBackLine(fit),
+    // Strengths first, then stretches, then not-assessed — same grouping as the on-screen card.
+    dimensions: [
+      ...strengths.map((d) => toLine(d, 'strength')),
+      ...stretches.map((d) => toLine(d, 'stretch')),
+      ...notAssessed.map((d) => toLine(d, 'unassessed')),
+    ],
     hardGaps: fit.hardGaps,
   }
 }
