@@ -116,10 +116,15 @@ export type Claim = z.infer<typeof ClaimSchema>
 
 // Hiring-manager outreach: two short messages the candidate can send directly. Same
 // no-fabrication rule as the cover letter — both are checked against profile facts by the
-// guardrail. linkedin is capped at 300 chars (a LinkedIn connection note's hard limit).
+// guardrail.
+// IMPORTANT: these maxes are GENEROUS sanity bounds, not the real limits. `messages.parse` validates
+// the model's output against this schema and THROWS if it overflows, which would fail the whole packet
+// when the model writes a LinkedIn note a few chars over 300 (LLMs can't count characters exactly).
+// The precise 300-char LinkedIn limit is enforced in code AFTER parsing (clampChars in tailorResume),
+// so the schema only needs to reject pathological output, not police exact length.
 export const OutreachSchema = z.object({
-  linkedin: z.string().max(300).describe('LinkedIn connection request, <= 300 characters, punchy'),
-  email: z.string().max(2000).describe('Short hiring-manager outreach email body, 150-200 words'),
+  linkedin: z.string().max(1000).describe('LinkedIn connection request, aim for <= 300 characters, punchy'),
+  email: z.string().max(4000).describe('Short hiring-manager outreach email body, 150-200 words'),
 })
 export type Outreach = z.infer<typeof OutreachSchema>
 
