@@ -468,7 +468,16 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
                 'Apply through the validated posting, not an aggregator, so you land in their ATS directly.'
               )}
             </li>
-            <li>Lead with your strongest dimension above — it&apos;s your sharpest differentiator.</li>
+            <li>
+              {sorted[0] ? (
+                <>
+                  Lead with your strongest area, {sorted[0].label} ({sorted[0].score}/100): it&apos;s your
+                  sharpest differentiator.
+                </>
+              ) : (
+                <>Lead with your strongest dimension above: it&apos;s your sharpest differentiator.</>
+              )}
+            </li>
           </ol>
         </section>
       </div>
