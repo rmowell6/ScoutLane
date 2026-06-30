@@ -4,7 +4,7 @@
 // deterministic FitResult + tailored content — no scoring logic here. Semantics per the spec:
 // one <h1>, sections labelled by their <h2>, role="meter" for the gauge and sub-score bars (never
 // progressbar), status conveyed by text + icon (never color alone), WCAG 2.2 AA tokens.
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
 import {
@@ -136,6 +136,61 @@ function CoverageBadge({ status }: { status: Status }) {
   )
 }
 
+/** Keyword/ATS coverage table for one tier of skills (required vs preferred). */
+function CoverageCard({
+  id,
+  title,
+  skillHeader,
+  rows,
+  intro,
+  footer,
+}: {
+  id: string
+  title: string
+  skillHeader: string
+  rows: { skill: string; status: Status }[]
+  intro?: string
+  footer?: ReactNode
+}) {
+  return (
+    <section className="card" aria-labelledby={id}>
+      <h3 id={id}>{title}</h3>
+      {intro && (
+        <p className="muted" style={{ margin: '0 0 10px', fontSize: '12.5px' }}>
+          {intro}
+        </p>
+      )}
+      <table className="data-table" aria-labelledby={id}>
+        <thead>
+          <tr>
+            <th scope="col">{skillHeader}</th>
+            <th scope="col">Your coverage</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(({ skill, status }) => (
+            <tr key={skill}>
+              <th scope="row">{skill}</th>
+              <td className="muted">
+                {status === 'is-pass'
+                  ? 'In your background'
+                  : status === 'is-warn'
+                    ? 'Partial / cert-backed'
+                    : 'Not present'}
+              </td>
+              <td>
+                <CoverageBadge status={status} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {footer}
+    </section>
+  )
+}
+
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
 function downloadDoc(doc: DocumentRef) {
@@ -239,11 +294,16 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   // Keyword/ATS coverage from the extracted skill signals.
   const held = new Set(fitInput.candidateSkills.map((s) => s.toLowerCase().trim()))
   const adj = new Set((fitInput.adjacentSkills ?? []).map((s) => s.toLowerCase().trim()))
-  const coverage = fitInput.mustHaveSkills.map((skill) => {
-    const k = skill.toLowerCase().trim()
-    const status: Status = held.has(k) ? 'is-pass' : adj.has(k) ? 'is-warn' : 'is-fail'
-    return { skill, status }
-  })
+  const coverageOf = (skills: string[]) =>
+    skills.map((skill) => {
+      const k = skill.toLowerCase().trim()
+      const status: Status = held.has(k) ? 'is-pass' : adj.has(k) ? 'is-warn' : 'is-fail'
+      return { skill, status }
+    })
+  // Required must-haves drive the fit score; preferred (nice-to-have) keywords are shown separately
+  // and explicitly DON'T affect the score, so a candidate isn't penalized for missing a bonus skill.
+  const coverage = coverageOf(fitInput.mustHaveSkills)
+  const preferredCoverage = coverageOf(fitInput.preferredSkills ?? [])
   // The next steps below derive from the fit data, so the list varies per packet: the top hard gap and
   // the first must-have the candidate doesn't clearly have are both actionable, role-specific advice.
   const topGap = fit.hardGaps[0]
@@ -336,40 +396,29 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
         </section>
 
         {coverage.length > 0 && (
-          <section className="card" aria-labelledby="pk-kw">
-            <h3 id="pk-kw">Keyword &amp; ATS coverage</h3>
-            <table className="data-table" aria-labelledby="pk-kw">
-              <thead>
-                <tr>
-                  <th scope="col">Required skill</th>
-                  <th scope="col">Your coverage</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {coverage.map(({ skill, status }) => (
-                  <tr key={skill}>
-                    <th scope="row">{skill}</th>
-                    <td className="muted">
-                      {status === 'is-pass'
-                        ? 'In your background'
-                        : status === 'is-warn'
-                          ? 'Partial / cert-backed'
-                          : 'Not present'}
-                    </td>
-                    <td>
-                      <CoverageBadge status={status} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="callout">
-              <b>The honest part:</b> tailoring only resurfaces facts genuinely in your history — the
-              no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
-              Nothing here is invented.
-            </p>
-          </section>
+          <CoverageCard
+            id="pk-kw"
+            title="Keyword & ATS coverage"
+            skillHeader="Required skill"
+            rows={coverage}
+            footer={
+              <p className="callout">
+                <b>The honest part:</b> tailoring only resurfaces facts genuinely in your history, the
+                no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
+                Nothing here is invented.
+              </p>
+            }
+          />
+        )}
+
+        {preferredCoverage.length > 0 && (
+          <CoverageCard
+            id="pk-kw-pref"
+            title="Preferred keywords (nice-to-have)"
+            skillHeader="Preferred skill"
+            rows={preferredCoverage}
+            intro="These are the role's preferred, bonus skills. They help with ATS keyword matching, but they do NOT affect your fit score, so a gap here is not a strike against you."
+          />
         )}
 
         <section className="card" aria-labelledby="pk-docs">

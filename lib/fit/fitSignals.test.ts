@@ -6,6 +6,7 @@ import type { JobReqs } from '@/lib/schemas'
 const SIGNALS: FitSignals = {
   roleTypeMatch: 'best',
   mustHaveSkills: ['azure'],
+  preferredSkills: ['terraform'],
   candidateSkills: ['azure'],
   adjacentSkills: [],
   seniorityMatch: 'exact',
@@ -28,6 +29,8 @@ describe('assembleFitInput', () => {
     const input = assembleFitInput(SIGNALS, { targetCompTopUsd: 170000, targetLanes: [], workModes: [], employmentTypes: [], noGoLocations: [] }, JOB)
     expect(input.targetCompTopUsd).toBe(170000)
     expect(input.title).toBe('Cloud Engineer')
+    // Preferred skills flow through for the ATS coverage display (not used by the scorer).
+    expect(input.preferredSkills).toEqual(['terraform'])
     expect(input.lanesSurfaced).toBe(1)
   })
 

@@ -36,6 +36,9 @@ export interface FitInput {
   title?: string
   roleTypeMatch: RoleTypeMatch
   mustHaveSkills: string[]
+  /** JD preferred / nice-to-have skills (canonical tokens). Display-only for ATS keyword coverage;
+   *  NOT used by assessFit, so the score stays a function of the must-haves. */
+  preferredSkills?: string[]
   candidateSkills: string[]
   adjacentSkills?: string[]
   seniorityMatch: SeniorityMatch

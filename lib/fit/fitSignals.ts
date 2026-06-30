@@ -12,6 +12,9 @@ import type { FitInput } from '@/lib/fit/fitScore'
 export const FitSignalsSchema = z.object({
   roleTypeMatch: z.enum(['best', 'solid', 'stretch', 'off']),
   mustHaveSkills: z.array(z.string()),
+  // The JD's PREFERRED / nice-to-have skills as canonical tokens. Display-only (ATS keyword coverage);
+  // they do NOT feed the deterministic score, which stays on must-haves.
+  preferredSkills: z.array(z.string()),
   candidateSkills: z.array(z.string()),
   adjacentSkills: z.array(z.string()),
   seniorityMatch: z.enum(['exact', 'adjacent', 'step_up', 'mismatch']),
@@ -54,6 +57,7 @@ export function assembleFitInput(
     title: jobReqs.title,
     roleTypeMatch: signals.roleTypeMatch,
     mustHaveSkills: signals.mustHaveSkills,
+    preferredSkills: signals.preferredSkills,
     candidateSkills: signals.candidateSkills,
     adjacentSkills: signals.adjacentSkills,
     seniorityMatch: signals.seniorityMatch,
