@@ -126,14 +126,20 @@ describe('toFitAssessmentContent', () => {
     ],
   }
 
-  test('maps the FitResult onto the doc content (band, math, dimensions, hard gaps)', () => {
+  test('maps the FitResult onto humanized, grouped doc content (band label, summary, dimensions)', () => {
     const fa = toFitAssessmentContent(profile, fit, jobReqs, 'June 27, 2026')
     expect(fa.candidateName).toBe('Jordan Rivera')
     expect(fa.roleTitle).toBe('Senior Cloud Engineer')
     expect(fa.overall).toBe(82)
-    expect(fa.band).toBe('Strong fit')
-    expect(fa.base).toBe(81.7)
-    expect(fa.dimensions[0]).toMatchObject({ label: 'Role-type match', score: 80, weight: 0.2 })
+    expect(fa.bandLabel).toBe('Strong fit')
+    expect(fa.bandSummary).toMatch(/strong match/i)
+    // Engine note humanized; score rendered as text; grouped as a strength (80 >= 75).
+    expect(fa.dimensions[0]).toMatchObject({
+      label: 'Role-type match',
+      scoreText: '80 / 100',
+      note: 'Your title lines up closely with this role.',
+      group: 'strength',
+    })
     expect(fa.hardGaps).toEqual(['people management'])
   })
 })

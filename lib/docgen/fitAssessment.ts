@@ -25,11 +25,16 @@ import type { Theme, AssessmentAccentResult } from '@/lib/style/types'
 const SERIF = 'Cambria'
 const SANS = 'Calibri'
 
+export type FitDimGroup = 'strength' | 'stretch' | 'unassessed'
+
 export interface FitDimensionLine {
   label: string
-  score: number
-  weight: number
+  /** "85 / 100" for an assessed dimension, "Not assessed" for a neutral placeholder. */
+  scoreText: string
+  /** Humanized, candidate-facing note (no raw engine strings). */
   note: string
+  /** Which group this dimension belongs to, for strengths-first sub-headers. */
+  group: FitDimGroup
 }
 
 export interface FitAssessmentContent {
@@ -38,12 +43,21 @@ export interface FitAssessmentContent {
   company: string
   date: string
   overall: number
-  band: string
-  base: number
-  bonus: number
-  penaltyTotal: number
+  /** Candidate-facing band label (e.g. "Long shot", not the internal "Lead"). */
+  bandLabel: string
+  /** Warm one-line read on the band. */
+  bandSummary: string
+  /** Plain-language "what's holding this back" (may be empty). */
+  holdingBack: string
+  /** Dimensions already humanized + ordered strengths -> stretches -> not assessed. */
   dimensions: FitDimensionLine[]
   hardGaps: string[]
+}
+
+const GROUP_TITLES: Record<FitDimGroup, string> = {
+  strength: 'Your strengths',
+  stretch: 'Worth shoring up',
+  unassessed: 'Not assessed',
 }
 
 export async function buildFitAssessmentDocx(
@@ -75,18 +89,38 @@ export async function buildFitAssessmentDocx(
       ],
     })
 
+  // Strengths-first sub-header within "Assessment by dimension".
+  const groupHeader = (group: FitDimGroup) =>
+    new Paragraph({
+      spacing: { before: 150, after: 20 },
+      children: [
+        new TextRun({ text: GROUP_TITLES[group].toUpperCase(), font: SANS, bold: true, size: 18, color: ACCENT, characterSpacing: 30 }),
+      ],
+    })
+
   const dimensionLine = (d: FitDimensionLine) =>
     new Paragraph({
       spacing: { before: 70, after: 60, line: 268 },
       tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
       children: [
         new TextRun({ text: d.label, font: SANS, bold: true, size: 21, color: NAVY }),
-        new TextRun({ text: `  (weight ${Math.round(d.weight * 100)}%)`, font: SANS, size: 18, color: SLATE }),
-        new TextRun({ text: `\t${d.score} / 100`, font: SANS, bold: true, size: 21, color: ACCENT }),
+        // Assessed scores use the brand accent; "Not assessed" is muted so it never reads as a verdict.
+        new TextRun({ text: `\t${d.scoreText}`, font: SANS, bold: d.group !== 'unassessed', size: 21, color: d.group === 'unassessed' ? SLATE : ACCENT }),
         // `break: 1` inserts a real <w:br/>; a literal '\n' inside a TextRun does NOT wrap in Word.
         ...(d.note ? [new TextRun({ text: d.note, break: 1, font: SANS, size: 20, color: SLATE })] : []),
       ],
     })
+
+  // Render dimensions in their pre-ordered groups, emitting a sub-header when the group changes.
+  const dimensionParagraphs: Paragraph[] = []
+  let lastGroup: FitDimGroup | null = null
+  for (const d of content.dimensions) {
+    if (d.group !== lastGroup) {
+      dimensionParagraphs.push(groupHeader(d.group))
+      lastGroup = d.group
+    }
+    dimensionParagraphs.push(dimensionLine(d))
+  }
 
   const gapItem = (text: string) =>
     new Paragraph({
@@ -96,7 +130,6 @@ export async function buildFitAssessmentDocx(
     })
 
   const subtitle = [content.roleTitle, content.company].filter(Boolean).join('  ·  ')
-  const mathLine = `Weighted base ${content.base}, cross-lane bonus +${content.bonus}, penalties −${content.penaltyTotal}.`
 
   const children: Paragraph[] = [
     new Paragraph({
@@ -118,19 +151,27 @@ export async function buildFitAssessmentDocx(
 
     sectionHeader('Overall'),
     new Paragraph({
-      spacing: { before: 80, after: 40 },
+      spacing: { before: 80, after: 30 },
       children: [
         new TextRun({ text: `${content.overall} / 100`, font: SERIF, bold: true, size: 40, color: NAVY }),
-        new TextRun({ text: `    ${content.band}`, font: SANS, bold: true, size: 24, color: ACCENT }),
+        new TextRun({ text: `    ${content.bandLabel}`, font: SANS, bold: true, size: 24, color: ACCENT }),
       ],
     }),
     new Paragraph({
-      spacing: { before: 10, after: 50, line: 276 },
-      children: [new TextRun({ text: mathLine, font: SANS, size: 19, color: SLATE })],
+      spacing: { before: 6, after: content.holdingBack ? 16 : 50, line: 276 },
+      children: [new TextRun({ text: content.bandSummary, font: SANS, size: 21, color: INK })],
     }),
+    ...(content.holdingBack
+      ? [
+          new Paragraph({
+            spacing: { before: 0, after: 50, line: 276 },
+            children: [new TextRun({ text: content.holdingBack, font: SANS, italics: true, size: 19, color: SLATE })],
+          }),
+        ]
+      : []),
 
     sectionHeader('Assessment by dimension'),
-    ...content.dimensions.map(dimensionLine),
+    ...dimensionParagraphs,
   ]
 
   if (content.hardGaps.length > 0) {
@@ -143,7 +184,7 @@ export async function buildFitAssessmentDocx(
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: 'Deterministic assessment (rubric 1.0.0) from your structured history and stated preferences. A decision aid for you — it is not submitted to the employer.',
+          text: 'Built from your structured history and stated preferences. This is a private decision aid for you, never shared with the employer.',
           font: SANS,
           italics: true,
           size: 18,

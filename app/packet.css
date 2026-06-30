@@ -528,3 +528,77 @@
     print-color-adjust: exact;
   }
 }
+
+/* ---- fit assessment polish (shared voice with the generated document) ---- */
+.packet .fit-card .gauge {
+  width: 96px;
+  height: 96px;
+}
+.packet .fit-card .gauge__inner {
+  width: 72px;
+  height: 72px;
+}
+.packet .fit-card .gauge__num {
+  font-size: 26px;
+}
+.packet .fit-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.packet .fit-band {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+.packet .fit-band strong {
+  color: var(--color-brand);
+}
+.packet .fit-holdback {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+.packet .meter-group {
+  margin-top: 16px;
+}
+.packet .meter-group__title {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-brand);
+}
+/* "Not assessed" rows: clearly neutral, never read as a pass/fail verdict. */
+.packet .meter.is-muted .meter__label,
+.packet .meter.is-muted .meter__val {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.packet .meter.is-muted .meter__val {
+  font-size: 12px;
+}
+/* Hard-gaps callout: a calm, branded note, not an alarm. */
+.packet .fit-gaps {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--color-warn-bg);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-warn);
+  border-radius: 8px;
+}
+.packet .fit-gaps__title {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-warn);
+}
+.packet .fit-trust {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
