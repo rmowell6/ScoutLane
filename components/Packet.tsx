@@ -14,6 +14,7 @@ import {
   humanizeNote,
   splitDimensions,
   holdingBackLine,
+  leadDimension,
 } from '@/lib/fit/fitPresent'
 import { styleNames } from '@/lib/style/skin'
 import { track, EVENTS } from '@/lib/analytics'
@@ -231,8 +232,9 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   // holding this back". All shared with the generated document via lib/fit/fitPresent.
   const { strengths, stretches, notAssessed } = splitDimensions(fit)
   const holdingBack = holdingBackLine(fit)
-  // Strongest assessed dimension, for the "lead with" next-step tip.
-  const bestAssessed = fit.dimensions.filter((d) => !isUnassessed(d)).sort((a, b) => b.score - a.score)[0]
+  // Strongest dimension the candidate can actually LEAD WITH (excludes employer/comp/location, which
+  // aren't candidate strengths even at 100/100). Drives the dynamic "lead with" next step.
+  const leadDim = leadDimension(fit)
 
   // Keyword/ATS coverage from the extracted skill signals.
   const held = new Set(fitInput.candidateSkills.map((s) => s.toLowerCase().trim()))
@@ -242,6 +244,10 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
     const status: Status = held.has(k) ? 'is-pass' : adj.has(k) ? 'is-warn' : 'is-fail'
     return { skill, status }
   })
+  // The next steps below derive from the fit data, so the list varies per packet: the top hard gap and
+  // the first must-have the candidate doesn't clearly have are both actionable, role-specific advice.
+  const topGap = fit.hardGaps[0]
+  const missingSkill = coverage.find((c) => c.status === 'is-fail')?.skill
 
   // Move focus to the packet heading once it renders, so keyboard/screen-reader users land on the
   // result instead of staying on the submit button above. tabIndex=-1 makes the heading focusable
@@ -473,16 +479,24 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
                 'Apply through the validated posting, not an aggregator, so you land in their ATS directly.'
               )}
             </li>
-            <li>
-              {bestAssessed ? (
-                <>
-                  Lead with your strongest area, {bestAssessed.label} ({bestAssessed.score}/100): it&apos;s your
-                  sharpest differentiator.
-                </>
-              ) : (
-                <>Lead with your strongest dimension above: it&apos;s your sharpest differentiator.</>
-              )}
-            </li>
+            {leadDim && (
+              <li>
+                Lead with your strongest area, {leadDim.label} ({leadDim.score}/100), in your outreach and
+                cover letter: it&apos;s your sharpest differentiator for this role.
+              </li>
+            )}
+            {topGap && (
+              <li>
+                Get ahead of the gap: be ready to speak to {topGap}, naming a transferable experience
+                rather than skipping over it.
+              </li>
+            )}
+            {missingSkill && (
+              <li>
+                The posting asks for {missingSkill}, which isn&apos;t clear in your background. Lead with
+                adjacent experience instead of claiming it.
+              </li>
+            )}
           </ol>
         </section>
       </div>

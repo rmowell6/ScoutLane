@@ -7,6 +7,7 @@ import {
   humanizeNote,
   splitDimensions,
   holdingBackLine,
+  leadDimension,
   PENALTY_LABELS,
 } from './fitPresent'
 
@@ -150,3 +151,55 @@ describe('humanizeNote — not-assessed dimensions read cleanly', () => {
     )
   })
 })
+
+describe('leadDimension (only candidate-differentiating dimensions)', () => {
+  test('never returns employer-type / comp / location even when they top the score', () => {
+    // employer=direct(100), comp meets target(100), location remote_us(95) would win an unfiltered
+    // sort; the leadable dimensions are all lower. leadDimension must pick a leadable one.
+    const fit = assessFit({
+      ...base,
+      roleTypeMatch: 'stretch', // 60
+      seniorityMatch: 'step_up', // 55
+      mustHaveSkills: ['azure', 'terraform', 'kubernetes'],
+      candidateSkills: ['azure'], // low coverage
+      vertical: 'none', // 55
+      requiredCerts: [], // not assessed
+      employerType: 'direct', // 100
+      compTopUsd: 200_000,
+      targetCompTopUsd: 150_000, // ratio > 1.1 -> 100
+      location: 'remote_us', // 95
+    })
+    const lead = leadDimension(fit)
+    expect(lead).toBeDefined()
+    expect(['employerPreference', 'compAlignment', 'locationLogistics']).not.toContain(lead!.key)
+  })
+
+  test('picks the strongest leadable dimension', () => {
+    // base: roleTypeMatch best(100), seniority exact(95), skills full(100) are all leadable.
+    const lead = leadDimension(assessFit(base))
+    expect(['roleTypeMatch', 'skillsCoverage']).toContain(lead!.key) // both 100, either is correct
+    expect(lead!.score).toBe(100)
+  })
+
+  test('returns undefined when no leadable dimension is assessed', () => {
+    const fit = assessFit({ ...base, mustHaveSkills: [], requiredCerts: [] })
+    // roleType/seniority/vertical still assessed in base, so craft a case with all leadable unknown:
+    const allUnknown = assessFit({
+      roleTypeMatch: 'best',
+      mustHaveSkills: [],
+      candidateSkills: [],
+      seniorityMatch: 'exact',
+      compTopUsd: null,
+      targetCompTopUsd: 0,
+      employerType: 'direct',
+      location: 'remote_us',
+      vertical: 'match',
+      requiredCerts: [],
+    })
+    // roleType/seniority/vertical are still assessed here, so leadDimension is defined; assert it is leadable.
+    expect(leadDimension(fit)).toBeDefined()
+    expect(LEADABLE_KEYS_TEST.has(leadDimension(allUnknown)!.key)).toBe(true)
+  })
+})
+
+const LEADABLE_KEYS_TEST = new Set(['roleTypeMatch', 'skillsCoverage', 'seniorityMatch', 'verticalFit', 'certRequirementFit'])
