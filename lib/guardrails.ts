@@ -104,21 +104,38 @@ function negationKey(tokens: Set<string>): string {
  *      parenthetical — which the substring rule wrongly rejected. */
 function isFaithfulRestatement(t: string, fact: string): boolean {
   if (fact === t) return true
-  const [short, long] = t.length <= fact.length ? [t, fact] : [fact, t]
-  if (long.includes(short) && short.length / long.length >= 0.7) return true
 
-  const claimSet = new Set(wordTokens(t))
+  const claimTokens = wordTokens(t)
+  const claimSet = new Set(claimTokens)
   const factSet = new Set(wordTokens(fact))
   if (factSet.size === 0) return false
-  // Anti-fabrication: every substantive (non-glue) claim token must come from the fact.
+
+  // "Substantial" = a real assertion, not a cherry-picked sliver. EITHER it restates most of the
+  // fact's tokens, OR it carries enough of its own content words to stand on its own. The second
+  // branch is the fix: a faithful PARTIAL restatement of a LONG fact (e.g. a 20+ word prefix of the
+  // summary) covers well under 70% of that long fact, yet is obviously not a misleading fragment. The
+  // old "covers >= 70% of the fact" rule wrongly blocked exactly that, and the summary is the longest
+  // fact, so it was the most affected.
+  const claimContentCount = claimTokens.filter((w) => !GLUE_WORDS.has(w)).length
+  let covered = 0
+  for (const w of factSet) if (claimSet.has(w)) covered++
+  const substantial = covered / factSet.size >= 0.7 || claimContentCount >= 6
+
+  // Route 1 — verbatim substring of the fact (claim ⊆ fact): every word is present, in order, so it
+  // cannot fabricate. Accept when substantial AND it doesn't drop a polarity word the rest of the fact
+  // carried (e.g. a leading "Failed to"). If the claim is LONGER than the fact, fall through so the
+  // token route below checks the ADDED words for fabrication.
+  if (t.length <= fact.length && fact.includes(t)) {
+    if (substantial && negationKey(claimSet) === negationKey(factSet)) return true
+  }
+
+  // Route 2 — token faithfulness for light rephrasings (em dash -> comma/"including", dropped
+  // parenthetical). Anti-fabrication: every substantive (non-glue) claim token must come from the
+  // fact. Then it must be substantial, and carry the same negation polarity (no silent meaning flip).
   for (const w of claimSet) {
     if (!factSet.has(w) && !GLUE_WORDS.has(w)) return false
   }
-  // Not a fragment: the claim must cover most of the fact's tokens.
-  let covered = 0
-  for (const w of factSet) if (claimSet.has(w)) covered++
-  if (covered / factSet.size < 0.7) return false
-  // No meaning flip: same negation words on both sides.
+  if (!substantial) return false
   return negationKey(claimSet) === negationKey(factSet)
 }
 
