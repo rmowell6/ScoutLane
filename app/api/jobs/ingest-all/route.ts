@@ -66,7 +66,10 @@ async function ingestBoards(now: string) {
       // mapper expects, so it emitted url-less jobs. Re-enable once the mapping matches a real
       // browse-feed payload (paste a sample and I'll fix the field mapping).
       himalayas: { enabled: false },
-      arbeitnow: { enabled: true },
+      // Arbeitnow OFF: it is a German/EU job board, and ScoutLane is US-market only — keeping it on
+      // just fetches EU roles we then discard at the US ingest filter. Re-enable if/when we expand
+      // beyond the US.
+      arbeitnow: { enabled: false },
       remotive: { enabled: true },
       remoteok: { enabled: true },
       ...(process.env.JSEARCH_RAPIDAPI_KEY
