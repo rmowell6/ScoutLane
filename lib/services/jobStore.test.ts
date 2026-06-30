@@ -163,6 +163,21 @@ describe('upsertJobs', () => {
     expect(state.calls).toHaveLength(0)
   })
 
+  test('drops clearly-non-US jobs before writing (US-market only)', async () => {
+    state.result = { data: null, error: null, count: 1 }
+    const munich: IngestedJob = { ...JOB, externalId: 'de-1', location: 'Munich, Germany' }
+    await upsertJobs([JOB, munich], '2026-06-27T00:00:00Z')
+    const rows = findCall('upsert')?.[1] as Array<Record<string, unknown>>
+    expect(rows).toHaveLength(1) // only the US/Remote job is written
+    expect(rows[0]?.external_id).toBe('gh-1')
+  })
+
+  test('writes nothing (no DB call) when every job is clearly non-US', async () => {
+    const n = await upsertJobs([{ ...JOB, location: 'Berlin, Germany' }], '2026-06-27T00:00:00Z')
+    expect(n).toBe(0)
+    expect(findCall('upsert')).toBeUndefined()
+  })
+
   test('upserts mapped rows on (source, external_id) and returns the count', async () => {
     state.result = { data: null, error: null, count: 1 }
     const n = await upsertJobs([JOB], '2026-06-27T00:00:00Z')

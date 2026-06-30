@@ -112,8 +112,14 @@ function toRow(j: IngestedJob, now: string) {
 /** Upsert ingested jobs idempotently on (source, external_id). Returns the count written. */
 export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<number> {
   if (jobs.length === 0) return 0
+  // US-market only: never STORE a clearly-non-US posting. This is the defense-in-depth chokepoint
+  // every ingest path passes through (the unified cron AND the ATS-only route), so non-US roles
+  // never enter the pool for any consumer. Bias toward keeping (isUsLocation): Remote / unknown /
+  // unrecognized locations stay; only a clearly-non-US place with no US signal is dropped.
+  const usJobs = jobs.filter((j) => isUsLocation(j.location))
+  if (usJobs.length === 0) return 0
   return runStep('upsert', async () => {
-    const rows = jobs.map((j) => toRow(j, now))
+    const rows = usJobs.map((j) => toRow(j, now))
     const { error, count } = await db()
       .from(TABLE)
       .upsert(rows, { onConflict: 'source,external_id', count: 'exact' })
