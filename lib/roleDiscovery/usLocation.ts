@@ -50,10 +50,52 @@ const NON_US_RE = new RegExp(
   'i',
 )
 
+// Native-language country/region names + the long tail of EU towns the metro list misses. Cheap to
+// extend; only consulted when there's no US signal.
+// (WPAFB / Greene County are US — deliberately NOT listed — so a Wright-Patterson AFB posting stays.)
+const NON_US_EXTRA = new RegExp(
+  '\\b(' +
+    'españa|espana|deutschland|osterreich|österreich|belgie|belgië|brasil|schweiz|suisse|polska|' +
+    'italia|nederland|' +
+    'asturias|principado|catalonia|cataluña|bavaria|bayern|gij[oó]n|heinsberg|aachen|pirmasens' +
+    ')\\b',
+  'i',
+)
+
+// Mojibake signature: UTF-8 bytes mis-decoded as Latin-1 leave tell-tale bigrams (Ã³ = ó, Ã±/Â± = ñ,
+// etc.). A real US location is plain ASCII ("Austin, TX", "Remote"), so garbled high-bit pairs in a
+// location almost always mean a foreign, accented place. Treat that as a non-US signal — it both
+// drops the posting AND stops the garbled text from ever showing. (Also the proper place to notice
+// the upstream encoding bug; a full re-decode fix in the provider fetch is a separate follow-up.)
+const MOJIBAKE_RE = /[\u00c2\u00c3\u00e3][\u0080-\u00bf]|\ufffd/
+
+// High-precision non-US ROLE markers that live in the company or title, not the location: European
+// legal company forms and the German/Austrian gender tag "(m/w/d)" and its variants. Each is a near
+// certain non-US signal; deliberately conservative (no bare "AG"/"SA"/"AB" — too many US false hits).
+const NON_US_ROLE_MARKER_RE =
+  /\bgmbh\b|\bgesmbh\b|\bmbh\b|\bs\.l\.|\bs\.r\.l\.|\bs\.p\.a\.|\bb\.v\.\b|\bs[àa]rl\b|\bsp\.?\s?z\s?o\.?o\b|\([mwfdx]\/[mwfdx](\/[mwfdx])?\)/i
+
 /** True if a posting's free-text location is plausibly US-based (or unknown). */
 export function isUsLocation(location: string | null | undefined): boolean {
   if (!location || !location.trim()) return true // unknown -> eligible
   if (US_HINT_RE.test(location)) return true // explicit US signal wins
-  if (NON_US_RE.test(location)) return false // names a clearly non-US place, no US signal
+  if (MOJIBAKE_RE.test(location)) return false // garbled accented place -> non-US
+  if (NON_US_RE.test(location) || NON_US_EXTRA.test(location)) return false // clearly non-US, no US signal
   return true // "Remote", unrecognized city, etc. -> keep (bias toward inclusion)
+}
+
+/**
+ * True if a posting is plausibly a US role, judged from location PLUS company/title. Catches non-US
+ * postings the location alone misses: a European legal form ("... GmbH") or a "(m/w/d)" gender tag
+ * is a near-certain non-US signal even when the location is a small town or garbled. Use this at
+ * ingest and in the picker; bias toward keeping (Remote/unknown stay) is preserved via isUsLocation.
+ */
+export function isUsRole(fields: {
+  location?: string | null
+  company?: string | null
+  title?: string | null
+}): boolean {
+  const marker = `${fields.company ?? ''} ${fields.title ?? ''}`
+  if (NON_US_ROLE_MARKER_RE.test(marker)) return false
+  return isUsLocation(fields.location)
 }

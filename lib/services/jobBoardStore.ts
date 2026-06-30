@@ -6,6 +6,7 @@
 import { type SupabaseClient } from '@supabase/supabase-js'
 import { serverSupabase } from '@/lib/supabaseServer'
 import { JobStoreError } from './jobStore'
+import { isUsRole } from '@/lib/roleDiscovery/usLocation'
 import type { Job } from '@/src/jobBoards/types'
 
 const TABLE = 'jobs'
@@ -83,7 +84,11 @@ export function isStorableJob(job: Job): boolean {
 
 /** Upsert job-board jobs idempotently on (source, external_id). Returns the count written. */
 export async function upsertJobBoardJobs(jobs: Job[], now: string): Promise<number> {
-  const valid = jobs.filter(isStorableJob)
+  // US-market only: the aggregator boards hire globally (Arbeitnow is German), so drop clearly-non-US
+  // postings before they enter the pool. isUsRole reads location + company + title, so it also catches
+  // EU roles a small-town location misses (a "GmbH" company, a "(m/w/d)" title) and garbled/mojibake
+  // foreign locations. This is the ingest chokepoint the ATS-only jobStore.upsertJobs already has.
+  const valid = jobs.filter((j) => isStorableJob(j) && isUsRole({ location: j.location, company: j.company, title: j.title }))
   if (valid.length === 0) return 0
   const start = Date.now()
   try {
