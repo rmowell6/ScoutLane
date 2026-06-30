@@ -35,12 +35,14 @@ export function isTransientAnthropicError(err: unknown): boolean {
 }
 
 // Model constants per docs/ScoutLane_Engineering_Plan.md §4.5.
-// Haiku screens/scores cheaply; Sonnet tailors; Opus is available for harder reasoning.
+// Haiku screens cheaply; Sonnet 5 scores + tailors. Sonnet 5 lists at the same sticker price as 4.6
+// but follows instructions more reliably, which matters most for the no-fabrication-sensitive tailor
+// step. (Opus is intentionally NOT wired in: nothing here needs Opus-tier reasoning and it costs ~67%
+// more per token; the old unused `reason: claude-opus-4-8` key was removed.)
 export const MODELS = {
   screen: 'claude-haiku-4-5',
-  score: 'claude-sonnet-4-6',
-  tailor: 'claude-sonnet-4-6',
-  reason: 'claude-opus-4-8',
+  score: 'claude-sonnet-5',
+  tailor: 'claude-sonnet-5',
 } as const
 
 export type ModelKey = keyof typeof MODELS
@@ -48,17 +50,30 @@ export type ModelKey = keyof typeof MODELS
 /**
  * Read the validated structured output from an `anthropic.messages.parse(...)` result, turning the
  * two silent failure modes into clear, debuggable errors:
+ *  - `stop_reason === 'refusal'`: a streaming safety classifier declined the request. This is a
+ *    successful HTTP 200 (NOT an APIError), so it would otherwise fall through to the generic
+ *    "no structured output" path and read like a bug. It is a policy decision, not a glitch, and is
+ *    NON-RETRYABLE — identical input refuses again — so it must be a distinct error that
+ *    `isTransientAnthropicError` never classifies as transient (it isn't an APIError, so it won't).
+ *    Sonnet 5 is the first Sonnet-tier model with real-time safeguards, making this reachable here.
  *  - `stop_reason === 'max_tokens'`: the model ran out of output budget mid-JSON, so `parsed_output`
  *    is partial/invalid. This must surface as an explicit truncation error (raise max_tokens), NOT
  *    an opaque "no structured output" — the two need different fixes.
  *  - `parsed_output` null for any other reason: the model returned nothing parseable.
- * Centralized here so every model call site handles truncation consistently.
+ * Centralized here so every model call site handles these consistently. The refusal and truncation
+ * checks come BEFORE the null check so they win even when a partial `parsed_output` is present.
  */
 export function readParsed<T>(
   message: { stop_reason: string | null; parsed_output: T | null },
   label: string,
   maxTokens: number,
 ): T {
+  if (message.stop_reason === 'refusal') {
+    throw new Error(
+      `${label}: the model declined this request (stop_reason=refusal) — a content-policy refusal, ` +
+        `not a transient error. Retrying the same input will not help.`,
+    )
+  }
   if (message.stop_reason === 'max_tokens') {
     throw new Error(
       `${label}: response hit the ${maxTokens}-token output cap and was truncated (partial JSON). Increase max_tokens.`,
@@ -68,4 +83,22 @@ export function readParsed<T>(
     throw new Error(`${label}: no structured output returned`)
   }
   return message.parsed_output
+}
+
+/**
+ * Log per-call OUTPUT token spend, including the thinking tokens that Sonnet 5 bills as output
+ * (adaptive thinking is on by default, so this is the direct production view into that new spend).
+ * Call right after `messages.parse(...)` and BEFORE `readParsed`, so usage is logged even when the
+ * call truncates or is refused. Best-effort and total-safe: missing usage fields log as 0.
+ */
+export function logModelUsage(
+  label: string,
+  message: {
+    usage?: { output_tokens?: number; output_tokens_details?: { thinking_tokens?: number } | null } | null
+  },
+): void {
+  const usage = message.usage
+  const output = usage?.output_tokens ?? 0
+  const thinking = usage?.output_tokens_details?.thinking_tokens ?? 0
+  console.log(`[anthropic] usage ${label}: output=${output} thinking=${thinking}`)
 }

@@ -5,7 +5,7 @@
 // The LLM only classifies/extracts — it never produces a score. Untrusted resume/JD text is
 // isolated as labeled data, never placed in the system prompt (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
+import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
 import { FitSignalsSchema, assembleFitInput } from '@/lib/fit/fitSignals'
 import { groundCandidateSignals } from '@/lib/fit/groundSignals'
 import type { FitInput } from '@/lib/fit/fitScore'
@@ -54,7 +54,10 @@ export async function extractFitInput(
     model: MODELS.score,
     max_tokens: MAX_TOKENS,
     system: [{ type: 'text', text: EXTRACT_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
-    output_config: { format: zodOutputFormat(FitSignalsSchema) },
+    // Bounded classification/extraction against a fixed schema (seniority match, skill-token overlap,
+    // employer type) is Sonnet 5's documented `low` effort use case — simple classification where
+    // marginal quality gains don't justify the extra thinking latency/spend.
+    output_config: { format: zodOutputFormat(FitSignalsSchema), effort: 'low' },
     messages: [
       {
         role: 'user',
@@ -73,6 +76,7 @@ export async function extractFitInput(
     ],
   })
 
+  logModelUsage('extractFitInput', message)
   const signals = readParsed(message, 'extractFitInput', MAX_TOKENS)
 
   // Drop any candidate-side skill/cert the extractor asserted that the profile facts don't support,

@@ -41,7 +41,7 @@ The documentation review changed five things. None breaks the architecture; all 
 | Hosting | Vercel | Fluid Compute default-on | 300s default / 800s Pro function duration |
 | DB / Auth / Storage | Supabase | `@supabase/ssr` + `@supabase/supabase-js` | `getAll`/`setAll` cookies; `getClaims()` in middleware |
 | LLM | `@anthropic-ai/sdk` | **0.104.x** | Structured Outputs GA; prompt caching GA |
-| Models | Claude | `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-8` | Haiku for screening/scoring; Sonnet for tailoring |
+| Models | Claude | `claude-haiku-4-5`, `claude-sonnet-5` | Haiku for screening; Sonnet 5 for scoring + tailoring |
 | Doc generation | `docx` | **9.6.x** | pure JS; `Packer.toBuffer` → Node `Buffer`; **pin `runtime='nodejs'`** |
 | Validation | `zod` | **4.x** | `safeParse` at boundaries; requires TS ≥ 5.5 + `strict` |
 | Unit tests | Vitest | **4.x** | needs Vite ≥ 6, Node ≥ 20 |
@@ -235,8 +235,8 @@ import Anthropic from '@anthropic-ai/sdk'
 export const anthropic = new Anthropic()   // reads ANTHROPIC_API_KEY
 export const MODELS = {
   screen: 'claude-haiku-4-5',
-  score:  'claude-sonnet-4-6',
-  tailor: 'claude-sonnet-4-6',
+  score:  'claude-sonnet-5',
+  tailor: 'claude-sonnet-5',
 } as const
 ```
 
