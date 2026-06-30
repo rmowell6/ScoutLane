@@ -12,8 +12,10 @@ import type { FitInput } from '@/lib/fit/fitScore'
 import type { CandidatePreferences, JobReqs, Profile } from '@/lib/schemas'
 
 // Lots of short skill/cert tokens plus the categoricals; 1500 risked truncation on skill-dense
-// resumes. 3000 gives headroom; readParsed turns a real overflow into an explicit truncation error.
-const MAX_TOKENS = 3000
+// resumes. Under Sonnet 5 the same output tokenizes ~30% larger and low-effort thinking also draws
+// from this budget, so 3000 left too little margin; 6000 keeps comfortable headroom (cost is billed
+// by actual tokens). readParsed turns a real overflow into an explicit truncation error.
+const MAX_TOKENS = 6000
 
 const EXTRACT_INSTRUCTIONS = [
   'You extract structured hiring-fit SIGNALS from a candidate profile and a job description.',
