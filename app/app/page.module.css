@@ -529,6 +529,20 @@
   gap: 5px;
 }
 
+/* Theme preview cards span the full preferences grid, below the font select. */
+.styleCardsField {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.styleCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
 .prefLabel {
   font-size: 12px;
   color: var(--muted);

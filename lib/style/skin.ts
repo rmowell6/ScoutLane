@@ -41,6 +41,65 @@ export function styleNames(themeId: string, fontId: string): { theme: string; fo
   }
 }
 
+// Linux/web metric-twins for the live preview ONLY — never used in the .docx (see fonts.json note).
+// They let a visitor without the MS fonts installed still see a faithful approximation in-browser.
+const PREVIEW_TWIN: Record<string, string> = {
+  Cambria: 'Caladea',
+  Calibri: 'Carlito',
+  Georgia: 'Gelasio',
+  'Times New Roman': 'Tinos',
+  Garamond: 'EB Garamond',
+}
+const SERIF_FONTS = new Set([
+  'Cambria',
+  'Georgia',
+  'Garamond',
+  'Constantia',
+  'Times New Roman',
+  'Book Antiqua',
+  'Palatino Linotype',
+])
+
+/** Build a CSS font-family stack: the real MS font first, then a web twin, then a generic family. */
+function fontStack(name: string): string {
+  const parts = [`"${name}"`]
+  const twin = PREVIEW_TWIN[name]
+  if (twin) parts.push(`"${twin}"`)
+  parts.push(SERIF_FONTS.has(name) ? 'serif' : 'sans-serif')
+  return parts.join(', ')
+}
+
+export interface StylePreview {
+  primary: string
+  accent: string
+  accentText: string
+  slate: string
+  wash: string
+  headFont: string
+  bodyFont: string
+}
+
+/**
+ * The full palette + heading/body font stacks for a style id pair, for the mini resume preview
+ * cards. Unknown ids fall back to the master skin (never throws). Decoupled from packetSkinVars:
+ * the preview needs the whole palette (primary/accent/accentText/slate/wash), not just the four
+ * CSS vars the on-screen packet overrides.
+ */
+export function previewStyle(themeId: string, fontId: string): StylePreview {
+  const t = themeById.get(themeId) ?? MASTER_THEME
+  const f = fontById.get(fontId) ?? MASTER_FONT
+  const hex = (c: string) => `#${c}`
+  return {
+    primary: hex(t?.primary ?? '16335B'),
+    accent: hex(t?.accent ?? 'B0682C'),
+    accentText: hex(t?.accentText ?? 'AB652B'),
+    slate: hex(t?.slate ?? '55606E'),
+    wash: hex(t?.wash ?? 'EAEEF4'),
+    headFont: fontStack(f?.head ?? 'Cambria'),
+    bodyFont: fontStack(f?.body ?? 'Calibri'),
+  }
+}
+
 /**
  * CSS custom properties that re-skin the .packet preview. Unknown ids fall back to the master skin
  * (never throws). Returned as a plain string map; spread into a React `style` prop.
