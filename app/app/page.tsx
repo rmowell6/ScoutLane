@@ -4,14 +4,14 @@
 // Paste a resume + a JD, POST to /api/packet, then render the fit assessment, the
 // guardrail verdict, and download buttons for the two tailored .docx files.
 // This is a thin client: all generation and the no-fabrication guardrail live server-side.
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Packet } from '@/lib/services/buildPacket'
 import PacketView from '@/components/Packet'
 import PacketFeedback from '@/components/PacketFeedback'
 import { track, EVENTS } from '@/lib/analytics'
 import { Inter } from 'next/font/google'
 import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
-import StylePreviewCard from '@/components/StylePreviewCard'
+import StylePreviewCard, { RecommendedCard } from '@/components/StylePreviewCard'
 import styles from './page.module.css'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
@@ -119,6 +119,36 @@ export default function Home() {
   const [styleMode, setStyleMode] = useState<'recommended' | 'custom'>('recommended')
   const [themeId, setThemeId] = useState('navy_copper')
   const [fontId, setFontId] = useState('cambria_calibri')
+
+  // The style picker is a single-select radiogroup: card 0 is "Recommended" (auto-match), cards
+  // 1..N are the themes. We track an ordered key list so arrow keys can roam the grid (the proper
+  // a11y pattern for radios) with roving tabindex + focus management.
+  const REC_KEY = '__recommended__'
+  const styleKeys = [REC_KEY, ...THEME_OPTIONS.map((t) => t.id)]
+  const styleCardRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const selectedStyleIndex = styleMode === 'recommended' ? 0 : Math.max(0, styleKeys.indexOf(themeId))
+
+  const selectStyleKey = (key: string) => {
+    if (key === REC_KEY) setStyleMode('recommended')
+    else {
+      setStyleMode('custom')
+      setThemeId(key)
+    }
+  }
+
+  const onStyleGridKeyDown = (e: React.KeyboardEvent) => {
+    const last = styleKeys.length - 1
+    let next = selectedStyleIndex
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = selectedStyleIndex === last ? 0 : selectedStyleIndex + 1
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = selectedStyleIndex === 0 ? last : selectedStyleIndex - 1
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = last
+    else return
+    e.preventDefault()
+    const key = styleKeys[next]
+    if (key) selectStyleKey(key)
+    styleCardRefs.current[next]?.focus()
+  }
 
   // Load/search the job pool while in "pick" mode. Debounced; runs on entering pick mode and on
   // each query change. setState lands inside the async callback (not the effect body), so it
@@ -676,52 +706,50 @@ export default function Home() {
             <summary className={styles.prefsSummary}>
               Style <span className={styles.prefsHint}>— theme &amp; font for your documents (optional)</span>
             </summary>
-            <div className={styles.prefsGrid}>
-              <label className={styles.prefField}>
-                <span className={styles.prefLabel}>How to choose</span>
-                <select
-                  className={styles.prefInput}
-                  value={styleMode}
-                  onChange={(e) => setStyleMode(e.target.value === 'custom' ? 'custom' : 'recommended')}
-                >
-                  <option value="recommended">Recommended for this role</option>
-                  <option value="custom">Choose my own</option>
-                </select>
-              </label>
+            <div className={styles.styleCardsField}>
+              <span className={styles.prefLabel}>
+                Pick a look, or let ScoutLane match one to the role. Tap a preview to choose.
+              </span>
+              <div
+                role="radiogroup"
+                aria-label="Document style"
+                className={styles.styleCardGrid}
+                onKeyDown={onStyleGridKeyDown}
+              >
+                <RecommendedCard
+                  ref={(el) => {
+                    styleCardRefs.current[0] = el
+                  }}
+                  checked={styleMode === 'recommended'}
+                  tabIndex={selectedStyleIndex === 0 ? 0 : -1}
+                  onSelect={selectStyleKey}
+                />
+                {THEME_OPTIONS.map((t, i) => (
+                  <StylePreviewCard
+                    key={t.id}
+                    ref={(el) => {
+                      styleCardRefs.current[i + 1] = el
+                    }}
+                    value={t.id}
+                    fontId={fontId}
+                    themeName={t.name}
+                    checked={styleMode === 'custom' && themeId === t.id}
+                    tabIndex={selectedStyleIndex === i + 1 ? 0 : -1}
+                    onSelect={selectStyleKey}
+                  />
+                ))}
+              </div>
               {styleMode === 'custom' && (
-                <>
-                  <label className={styles.prefField}>
-                    <span className={styles.prefLabel}>Font pairing</span>
-                    <select
-                      className={styles.prefInput}
-                      value={fontId}
-                      onChange={(e) => setFontId(e.target.value)}
-                    >
-                      {FONT_OPTIONS.map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className={styles.styleCardsField}>
-                    <span className={styles.prefLabel}>
-                      Theme — tap a preview to see your resume in that look
-                    </span>
-                    <div className={styles.styleCardGrid}>
-                      {THEME_OPTIONS.map((t) => (
-                        <StylePreviewCard
-                          key={t.id}
-                          themeId={t.id}
-                          fontId={fontId}
-                          themeName={t.name}
-                          selected={themeId === t.id}
-                          onSelect={setThemeId}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </>
+                <label className={styles.prefField} style={{ maxWidth: 280, marginTop: 4 }}>
+                  <span className={styles.prefLabel}>Font pairing</span>
+                  <select className={styles.prefInput} value={fontId} onChange={(e) => setFontId(e.target.value)}>
+                    {FONT_OPTIONS.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
             </div>
           </details>
