@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
+import { isUnassessed, bandLabel, PENALTY_LABELS } from '@/lib/fit/fitPresent'
 import { styleNames } from '@/lib/style/skin'
 import { track, EVENTS } from '@/lib/analytics'
 
@@ -66,10 +67,27 @@ function statusLabel(status: Status): string {
 
 function Meter({ d }: { d: FitDimension }) {
   const status = meterStatus(d.score)
+  const noteId = `meter-note-${d.key}`
+  // No real data to score this dimension: show "Not assessed" rather than a placeholder bar that
+  // reads as a measured verdict. No role="meter" here — there is no meaningful value to announce.
+  if (isUnassessed(d)) {
+    return (
+      <div className="meter is-muted">
+        <div className="meter__top">
+          <span className="meter__label">{d.label}</span>
+          <span className="meter__val muted" aria-hidden="true">
+            Not assessed
+          </span>
+        </div>
+        <p className="meter__note muted" id={noteId}>
+          {d.note}
+        </p>
+      </div>
+    )
+  }
   // The role="meter" sits on the bar itself, not the wrapper: a meter is a leaf role, so prose
   // placed inside it (the note) isn't reliably exposed. Keep the note a sibling and wire it in via
   // aria-describedby so screen readers announce "<label>: N of 100" plus the explanation.
-  const noteId = `meter-note-${d.key}`
   return (
     <div className={`meter ${status}`}>
       <div className="meter__top">
@@ -198,9 +216,21 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   ].filter((p): p is string => Boolean(p))
 
   // Why / watch derived from the deterministic dimensions (highest = strengths, lowest = risks).
+  // Exclude not-assessed dimensions: a neutral placeholder is neither a real strength nor a real gap.
   const sorted = [...fit.dimensions].sort((a, b) => b.score - a.score)
-  const strengths = sorted.filter((d) => d.score >= 75).slice(0, 3)
-  const risks = sorted.filter((d) => d.score < 60).reverse().slice(0, 3)
+  const assessed = sorted.filter((d) => !isUnassessed(d))
+  const strengths = assessed.filter((d) => d.score >= 75).slice(0, 3)
+  const risks = assessed.filter((d) => d.score < 60).reverse().slice(0, 3)
+
+  // Plain-language "what's holding this back": name the penalties that actually applied, else the
+  // weakest assessed dimension. Replaces the engineer-facing "base / bonus / penalties" arithmetic.
+  const appliedPenalties = Object.entries(fit.penalties).filter(([, v]) => v > 0)
+  const weakest = assessed.length ? assessed[assessed.length - 1] : undefined
+  const holdingBack = appliedPenalties.length
+    ? `What's holding this back: ${appliedPenalties.map(([k]) => PENALTY_LABELS[k] ?? k).join(', ')}.`
+    : weakest && weakest.score < 65
+      ? `Biggest gap: ${weakest.label} (${weakest.score}/100).`
+      : ''
 
   // Keyword/ATS coverage from the extracted skill signals.
   const held = new Set(fitInput.candidateSkills.map((s) => s.toLowerCase().trim()))
@@ -263,7 +293,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
               aria-valuenow={fit.overall}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuetext={`${fit.band}, ${fit.overall} out of 100`}
+              aria-valuetext={`${bandLabel(fit.band)}, ${fit.overall} out of 100`}
               aria-label="Overall fit score"
             >
               <span className="gauge__inner" aria-hidden="true">
@@ -271,12 +301,16 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
                 <span className="gauge__den">/ 100</span>
               </span>
             </div>
-            <p style={{ fontSize: '13px', margin: 0 }}>
-              <strong>{fit.band}.</strong> {bandSummary(fit.band)}{' '}
-              <span className="muted">
-                Weighted base {fit.base}, bonus +{fit.bonus}, penalties −{fit.penaltyTotal}.
-              </span>
-            </p>
+            <div>
+              <p style={{ fontSize: '13px', margin: 0 }}>
+                <strong>{bandLabel(fit.band)}.</strong> {bandSummary(fit.band)}
+              </p>
+              {holdingBack && (
+                <p className="muted" style={{ fontSize: '12px', margin: '.35em 0 0' }}>
+                  {holdingBack}
+                </p>
+              )}
+            </div>
           </div>
           {fit.dimensions.map((d) => (
             <Meter key={d.key} d={d} />
@@ -469,9 +503,9 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
               )}
             </li>
             <li>
-              {sorted[0] ? (
+              {assessed[0] ? (
                 <>
-                  Lead with your strongest area, {sorted[0].label} ({sorted[0].score}/100): it&apos;s your
+                  Lead with your strongest area, {assessed[0].label} ({assessed[0].score}/100): it&apos;s your
                   sharpest differentiator.
                 </>
               ) : (
