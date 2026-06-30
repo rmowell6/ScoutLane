@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '
 export const metadata: Metadata = {
   title: 'ScoutLane: the resume tool that can’t make things up',
   description:
-    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, and a cover letter) that maps honestly to what’s actually there. No fabrication, no scraping, no auto-applying.',
+    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, and a cover letter) that maps honestly to what’s actually there. No fabrication, no invented credentials, no auto-applying.',
   openGraph: {
     title: 'ScoutLane: the resume tool that can’t make things up',
     description:
@@ -281,11 +281,11 @@ export default function LandingPage() {
         <div className={styles.sectionInner}>
           <div className={styles.eyebrow}>Process</div>
           <h2 className={styles.h2}>Three inputs.<br />One honest packet.</h2>
-          <p className={styles.sectP}>No scraping. No third-party lookups. No inventing anything. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
+          <p className={styles.sectP}>No inventing. No enriching your profile from outside sources. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
           <div className={styles.stepsV}>
             {[
               ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role actually requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
-              ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero scraping, zero enrichment from outside sources, nothing you didn’t give it yourself.'],
+              ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
               ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with traceable sources, and a cover letter written for the actual role. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
               <div className={styles.stepv} key={n}>
