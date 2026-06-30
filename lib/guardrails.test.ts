@@ -286,6 +286,73 @@ describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)'
   })
 })
 
+// Regression: a faithful PARTIAL restatement of a LONG fact (the summary is the longest) covers well
+// under 70% of that fact, which the old "covers >= 70% of the fact" rule wrongly rejected — so a
+// near-verbatim summary claim blocked the whole packet. A substantial partial restatement must pass;
+// a tiny sliver and a fabrication must still be rejected.
+describe('checkNoFabrication — partial restatement of a long fact (summary)', () => {
+  const longSummary =
+    'Cloud and infrastructure engineer with over a decade running Microsoft Azure and hybrid on-prem ' +
+    'environments in regulated industries, most recently federal healthcare under HIPAA, NIST 800-53, ' +
+    'and FedRAMP. Hands-on across Azure networking and identity, security monitoring, VMware, and the ' +
+    'backup and recovery posture underneath it all.'
+  const longProfile = makeProfile({ summary: longSummary, skills: [] })
+
+  test('accepts a verbatim prefix of the long summary cited against "summary"', () => {
+    const tailored = makeTailored({
+      summary: 'Cloud engineer.',
+      skills: [],
+      claims: [
+        {
+          text:
+            'Cloud and infrastructure engineer with over a decade running Microsoft Azure and hybrid ' +
+            'on-prem environments in regulated industries, most recently federal healthcare under HIPAA, ' +
+            'NIST 800-53, and FedRAMP.',
+          factId: 'summary',
+        },
+      ],
+    })
+    expect(checkNoFabrication(tailored, longProfile).ok).toBe(true)
+  })
+
+  test('accepts a substantial partial restatement that lightly rephrases the long summary', () => {
+    const tailored = makeTailored({
+      summary: 'Cloud engineer.',
+      skills: [],
+      claims: [
+        {
+          text: 'Cloud and infrastructure engineer running Microsoft Azure and hybrid on-prem environments in regulated industries',
+          factId: 'summary',
+        },
+      ],
+    })
+    expect(checkNoFabrication(tailored, longProfile).ok).toBe(true)
+  })
+
+  test('still rejects a tiny sliver of the long summary (anti-fragment floor holds)', () => {
+    const tailored = makeTailored({
+      summary: 'Cloud engineer.',
+      skills: [],
+      claims: [{ text: 'Cloud and infrastructure engineer', factId: 'summary' }],
+    })
+    expect(checkNoFabrication(tailored, longProfile).ok).toBe(false)
+  })
+
+  test('still rejects a fabrication that adds a substantive word to the summary restatement', () => {
+    const tailored = makeTailored({
+      summary: 'Cloud engineer.',
+      skills: [],
+      claims: [
+        {
+          text: 'Cloud and infrastructure engineer running Microsoft Azure and Kubernetes across regulated industries',
+          factId: 'summary',
+        },
+      ],
+    })
+    expect(checkNoFabrication(tailored, longProfile).ok).toBe(false)
+  })
+})
+
 describe('checkBulletsGrounded (ai-26 — ground shipped bullets against the source resume)', () => {
   const SOURCE = [
     'Platform Engineer at Analytical Engines.',

@@ -132,14 +132,22 @@ function clampChars(s: string, max: number): string {
   return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()
 }
 
+/** Replace em dashes with a comma, per the no-em-dash house style. Sonnet 5 emits em dashes despite
+ *  the prompt; without this a single stray "—" trips the style guardrail and blocks the whole packet.
+ *  Belt-and-suspenders to the prompt instruction. Only spaces/tabs around the dash are consumed (never
+ *  a newline), and the fabrication guardrail folds dashes anyway, so fact tracing is unaffected. */
+export function deEmDash(s: string): string {
+  return s.replace(/[ \t]*—[ \t]*/g, ', ')
+}
+
 /** Collapse all runs of whitespace to a single space; trim. For single-line content. */
-function tidyLine(s: string): string {
-  return s.replace(/\s+/g, ' ').trim()
+export function tidyLine(s: string): string {
+  return deEmDash(s).replace(/\s+/g, ' ').trim()
 }
 
 /** Collapse repeated spaces and trim each line, but preserve blank-line paragraph breaks. */
-function tidyParagraphs(s: string): string {
-  return s
+export function tidyParagraphs(s: string): string {
+  return deEmDash(s)
     .replace(/[ \t]+/g, ' ')
     .replace(/ *\n */g, '\n')
     .replace(/\n{3,}/g, '\n\n')
