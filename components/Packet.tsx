@@ -158,8 +158,31 @@ function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
   )
 }
 
+// Copy-to-clipboard control for an outreach variant. Mirrors DocButton's transient "done" feedback.
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [done, setDone] = useState(false)
+  return (
+    <button
+      type="button"
+      className="copy-btn"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text)
+          setDone(true)
+          setTimeout(() => setDone(false), 2500)
+        } catch {
+          // Clipboard can be blocked (permissions / insecure context); fail quietly — the text is
+          // still visible on screen for manual selection.
+        }
+      }}
+    >
+      {done ? 'Copied ✓' : `Copy ${label}`}
+    </button>
+  )
+}
+
 export default function PacketView({ packet, sourceUrl }: { packet: Packet; sourceUrl?: string | null }) {
-  const { fit, fitInput, jobReqs, guardrails, documents, style, styleWhy } = packet
+  const { fit, fitInput, jobReqs, guardrails, documents, style, styleWhy, tailored } = packet
   const roleTitle = jobReqs.title ?? 'Target role'
   const heading = jobReqs.company ? `${jobReqs.company} — ${roleTitle}` : roleTitle
 
@@ -398,6 +421,35 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             <p className="muted">A guardrail blocked this packet, so no documents were generated.</p>
           )}
         </section>
+
+        {documents && tailored.outreach && (
+          <details className="card">
+            <summary>
+              <h3 style={{ display: 'inline' }}>Reach the hiring manager</h3>
+            </summary>
+            <p className="muted" style={{ margin: '6px 0 4px', fontSize: '12.5px' }}>
+              Two ready-to-send openers, built from the same facts as your packet. Personalize before
+              sending.
+            </p>
+            <div className="outreach-item">
+              <div className="outreach-head">
+                <span className="outreach-label">
+                  LinkedIn connection note{' '}
+                  <span className="outreach-count">{tailored.outreach.linkedin.length}/300</span>
+                </span>
+                <CopyButton text={tailored.outreach.linkedin} label="note" />
+              </div>
+              <p className="outreach-text">{tailored.outreach.linkedin}</p>
+            </div>
+            <div className="outreach-item">
+              <div className="outreach-head">
+                <span className="outreach-label">Outreach email</span>
+                <CopyButton text={tailored.outreach.email} label="email" />
+              </div>
+              <p className="outreach-text">{tailored.outreach.email}</p>
+            </div>
+          </details>
+        )}
 
         <section className="card" aria-labelledby="pk-next">
           <h3 id="pk-next">Next steps</h3>

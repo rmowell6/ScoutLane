@@ -114,10 +114,20 @@ export const ClaimSchema = z.object({
 })
 export type Claim = z.infer<typeof ClaimSchema>
 
+// Hiring-manager outreach: two short messages the candidate can send directly. Same
+// no-fabrication rule as the cover letter — both are checked against profile facts by the
+// guardrail. linkedin is capped at 300 chars (a LinkedIn connection note's hard limit).
+export const OutreachSchema = z.object({
+  linkedin: z.string().max(300).describe('LinkedIn connection request, <= 300 characters, punchy'),
+  email: z.string().max(2000).describe('Short hiring-manager outreach email body, 150-200 words'),
+})
+export type Outreach = z.infer<typeof OutreachSchema>
+
 export const TailoredContentSchema = z.object({
   summary: z.string(),
   skills: z.array(z.string()),
   claims: z.array(ClaimSchema),
   coverLetter: z.string(),
+  outreach: OutreachSchema,
 })
 export type TailoredContent = z.infer<typeof TailoredContentSchema>

@@ -139,7 +139,8 @@ export function checkNoFabrication(
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
   const profileText = index.texts.join(' \n ')
   const ungroundedSkills = tailored.skills.filter((s) => !mentions(profileText, s))
-  const prose = `${tailored.summary}\n${tailored.coverLetter}`
+  // The outreach messages are fact-grounded prose too, so hold them to the same no-invented-metric bar.
+  const prose = `${tailored.summary}\n${tailored.coverLetter}\n${tailored.outreach.linkedin}\n${tailored.outreach.email}`
   const ungroundedMetrics = ungroundedMetricsIn(prose, profileText)
   return {
     ok: unverifiable.length === 0 && ungroundedSkills.length === 0 && ungroundedMetrics.length === 0,
@@ -187,7 +188,14 @@ export function checkBannedTerms(
 ): BannedTermsResult {
   const profileText = indexFacts(profile).texts.join(' \n ')
   const tailoredText = normalize(
-    [tailored.summary, tailored.coverLetter, ...tailored.skills, ...tailored.claims.map((c) => c.text)].join(' '),
+    [
+      tailored.summary,
+      tailored.coverLetter,
+      tailored.outreach.linkedin,
+      tailored.outreach.email,
+      ...tailored.skills,
+      ...tailored.claims.map((c) => c.text),
+    ].join(' '),
   )
   const violations = bannedTerms.filter(
     (term) => mentions(tailoredText, term) && !mentions(profileText, term),
@@ -376,7 +384,13 @@ export function runGuardrails(
 ): GuardrailReport {
   const noFabrication = checkNoFabrication(tailored, profile)
   const bannedTerms = checkBannedTerms(tailored, profile, options.bannedTerms ?? [])
-  const styleText = [tailored.summary, tailored.coverLetter, ...tailored.claims.map((c) => c.text)].join('\n')
+  const styleText = [
+    tailored.summary,
+    tailored.coverLetter,
+    tailored.outreach.linkedin,
+    tailored.outreach.email,
+    ...tailored.claims.map((c) => c.text),
+  ].join('\n')
   const style = checkStyle(styleText, options.style)
   const ats = options.atsDoc ? checkAtsSafe(options.atsDoc) : null
   const bulletsGrounded = checkBulletsGrounded(profile, options.sourceResumeText)

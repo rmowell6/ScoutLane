@@ -17,6 +17,7 @@ const tailoredWith = (summary: string): TailoredContent => ({
   skills: [],
   claims: [],
   coverLetter: '',
+  outreach: { linkedin: '', email: '' },
 })
 
 describe('reference profile standing rules (enforced in code)', () => {

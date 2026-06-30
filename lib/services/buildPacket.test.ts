@@ -31,7 +31,7 @@ vi.mock('./extractFitInput', () => ({
   })),
 }))
 vi.mock('./tailorResume', () => ({
-  tailorResume: vi.fn(async () => ({ summary: 's', skills: [], claims: [], coverLetter: 'c' })),
+  tailorResume: vi.fn(async () => ({ summary: 's', skills: [], claims: [], coverLetter: 'c', outreach: { linkedin: 'hi', email: 'hello' } })),
 }))
 // Style recommendation is mocked: buildPacket calls it only when the caller didn't pick a style.
 const recommendStyle = vi.hoisted(() =>
