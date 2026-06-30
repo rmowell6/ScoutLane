@@ -11,6 +11,7 @@ import PacketFeedback from '@/components/PacketFeedback'
 import { track, EVENTS } from '@/lib/analytics'
 import { Inter } from 'next/font/google'
 import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
+import StylePreviewCard from '@/components/StylePreviewCard'
 import styles from './page.module.css'
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
@@ -690,20 +691,6 @@ export default function Home() {
               {styleMode === 'custom' && (
                 <>
                   <label className={styles.prefField}>
-                    <span className={styles.prefLabel}>Theme (color)</span>
-                    <select
-                      className={styles.prefInput}
-                      value={themeId}
-                      onChange={(e) => setThemeId(e.target.value)}
-                    >
-                      {THEME_OPTIONS.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className={styles.prefField}>
                     <span className={styles.prefLabel}>Font pairing</span>
                     <select
                       className={styles.prefInput}
@@ -717,6 +704,23 @@ export default function Home() {
                       ))}
                     </select>
                   </label>
+                  <div className={styles.styleCardsField}>
+                    <span className={styles.prefLabel}>
+                      Theme — tap a preview to see your resume in that look
+                    </span>
+                    <div className={styles.styleCardGrid}>
+                      {THEME_OPTIONS.map((t) => (
+                        <StylePreviewCard
+                          key={t.id}
+                          themeId={t.id}
+                          fontId={fontId}
+                          themeName={t.name}
+                          selected={themeId === t.id}
+                          onSelect={setThemeId}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </>
               )}
             </div>
