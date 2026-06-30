@@ -46,17 +46,36 @@ export function indexFacts(profile: Profile): FactIndex {
   return { byId, texts }
 }
 
-// Function words the tailor may insert/drop when it rephrases a fact (notably when it strips an em
-// dash and needs a connector: "services — VMs" -> "services including VMs"). They assert no fact, so
-// the claim adding one is not fabrication. Used to let faithful rephrasings through.
-const CONNECTOR_WORDS = new Set([
-  'including', 'include', 'includes', 'and', 'or', 'with', 'the', 'a', 'an', 'of', 'for', 'to', 'in',
-  'on', 'at', 'by', 'as', 'that', 'which', 'via', 'plus', 'such',
+// "Glue" words the tailor may insert or drop when it rephrases a fact — articles, prepositions,
+// conjunctions, light auxiliaries, and the list-introducing verbs/gerunds a model reaches for when
+// it strips an em dash ("services — VMs" -> "services including/covering/spanning VMs"). Crucially
+// this set contains ONLY generic function words, NEVER a domain term — so allowing the claim to add
+// one can never launder a fabrication (an invented skill/metric/credential is never on this list).
+// The check therefore fails CLOSED: an unknown connector over-blocks (a safe annoyance), it never
+// under-blocks. Widen this list freely; do not add content words.
+const GLUE_WORDS = new Set([
+  // articles / determiners
+  'a', 'an', 'the', 'this', 'that', 'these', 'those', 'such', 'its', 'their', 'it',
+  // conjunctions
+  'and', 'or', 'nor', 'but', 'as', 'than', 'while', 'whereas', 'namely',
+  // prepositions
+  'of', 'for', 'to', 'in', 'on', 'at', 'by', 'with', 'via', 'per', 'from', 'into', 'onto', 'upon',
+  'over', 'under', 'across', 'through', 'within', 'between', 'among', 'around', 'about', 'during',
+  'regarding', 'concerning', 'plus', 'also', 'where', 'when',
+  // list-introducing verbs / gerunds (replace an em dash before an enumeration)
+  'including', 'include', 'includes', 'included', 'covering', 'covers', 'covered', 'spanning',
+  'spans', 'comprising', 'comprised', 'comprises', 'consisting', 'consists', 'encompassing',
+  'encompasses', 'involving', 'involves', 'featuring', 'features', 'containing', 'contains',
+  // light auxiliaries / copulas
+  'is', 'are', 'was', 'were', 'be', 'been', 'being', 'which', 'who', 'whom', 'whose',
 ])
 // Polarity words whose presence flips meaning. The claim must carry the SAME set as the fact, so a
-// rephrasing can never silently drop a "not"/"failed" (the misrepresentation the substring rule guarded).
+// rephrasing can never silently drop a "not"/"failed" (the misrepresentation the substring rule
+// guarded). Contraction stems are included since punctuation is stripped before matching.
 const NEGATION_WORDS = new Set([
-  'no', 'not', 'never', 'without', 'none', 'cannot', 'cant', 'fail', 'failed', 'fails', 'unable', 'nor',
+  'no', 'not', 'never', 'without', 'none', 'cannot', 'cant', 'fail', 'failed', 'fails', 'unable',
+  'nor', 'dont', 'didnt', 'doesnt', 'wont', 'isnt', 'arent', 'wasnt', 'werent', 'hasnt', 'havent',
+  'couldnt', 'wouldnt', 'shouldnt',
 ])
 
 /** All lowercased alphanumeric word tokens (drops punctuation only), via the shared dash/space
@@ -78,7 +97,7 @@ function negationKey(tokens: Set<string>): string {
  *  can misrepresent, e.g. dropping a leading "Failed to") nor a fabrication that embeds a short real
  *  phrase. Two routes:
  *   1. Substring: the shorter covers >= 70% of the longer (fast path for verbatim-ish text).
- *   2. Token faithfulness: the claim introduces NO new substantive word (only connector words may be
+ *   2. Token faithfulness: the claim introduces NO new substantive word (only glue words may be
  *      added — anti-fabrication), covers >= 70% of the fact's tokens (not a tiny fragment), and
  *      carries the same negation polarity (no silent meaning flip). This tolerates the rephrasings
  *      our own tailor makes — swapping an em dash for "including"/a comma, dropping a "(a, b, c)"
@@ -91,9 +110,9 @@ function isFaithfulRestatement(t: string, fact: string): boolean {
   const claimSet = new Set(wordTokens(t))
   const factSet = new Set(wordTokens(fact))
   if (factSet.size === 0) return false
-  // Anti-fabrication: every substantive (non-connector) claim token must come from the fact.
+  // Anti-fabrication: every substantive (non-glue) claim token must come from the fact.
   for (const w of claimSet) {
-    if (!factSet.has(w) && !CONNECTOR_WORDS.has(w)) return false
+    if (!factSet.has(w) && !GLUE_WORDS.has(w)) return false
   }
   // Not a fragment: the claim must cover most of the fact's tokens.
   let covered = 0

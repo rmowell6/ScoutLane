@@ -227,6 +227,34 @@ describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)'
     expect(checkNoFabrication(tailored, dashProfile).ok).toBe(true)
   })
 
+  test.each(['including', 'covering', 'spanning', 'comprising', 'encompassing'])(
+    'accepts an em-dash list-gloss connector: "%s"',
+    (connector) => {
+      const compProfile = makeProfile({
+        skills: [],
+        roles: [
+          {
+            company: 'Conflux',
+            title: 'Cloud Engineer',
+            startDate: '2022',
+            endDate: null,
+            bullets: ['Supported compliance initiatives including HiTrust audits — documentation, evidence collection, and control validation'],
+          },
+        ],
+      })
+      const tailored = makeTailored({
+        ...base,
+        claims: [
+          {
+            text: `Supported compliance initiatives including HiTrust audits ${connector} documentation, evidence collection, and control validation`,
+            factId: 'role:0:bullet:0',
+          },
+        ],
+      })
+      expect(checkNoFabrication(tailored, compProfile).ok).toBe(true)
+    },
+  )
+
   test('accepts a bullet that drops an internal parenthetical', () => {
     const tailored = makeTailored({
       ...base,
