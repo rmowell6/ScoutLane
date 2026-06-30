@@ -50,14 +50,26 @@ const NON_US_RE = new RegExp(
   'i',
 )
 
-// Native-language country/region names + the long tail of EU towns the metro list misses. Cheap to
-// extend; only consulted when there's no US signal.
+// Native-language country/region names, Canadian provinces, + the long tail of non-US towns the
+// metro list misses. Cheap to extend; only consulted when there's no US signal.
 // (WPAFB / Greene County are US — deliberately NOT listed — so a Wright-Patterson AFB posting stays.)
 const NON_US_EXTRA = new RegExp(
   '\\b(' +
+    // native-language country / region names
     'españa|espana|deutschland|osterreich|österreich|belgie|belgië|brasil|schweiz|suisse|polska|' +
     'italia|nederland|' +
-    'asturias|principado|catalonia|cataluña|bavaria|bayern|gij[oó]n|heinsberg|aachen|pirmasens' +
+    // Canadian provinces + territories. A posting that names only the province ("British Columbia,")
+    // slips past the country list, so enumerate the closed set. "ontario" also names a small CA town,
+    // accepted as a non-US signal since the product is US-work-auth only.
+    'british columbia|ontario|alberta|manitoba|saskatchewan|quebec|québec|nova scotia|new brunswick|' +
+    'newfoundland|labrador|prince edward island|northwest territories|nunavut|yukon|' +
+    // EU/UK towns the metro list misses. Limited to places whose only US namesakes are tiny (e.g.
+    // Hamburg, NY) — an accepted cost for a US-only product; collision-heavy names are left out.
+    'asturias|principado|catalonia|cataluña|bavaria|bayern|gij[oó]n|heinsberg|aachen|pirmasens|' +
+    'hamburg|cologne|köln|koln|stuttgart|düsseldorf|dusseldorf|dortmund|essen|bremen|hannover|' +
+    'nuremberg|nürnberg|nurnberg|leipzig|dresden|bonn|mannheim|karlsruhe|wiesbaden|' +
+    'rotterdam|the hague|antwerp|gothenburg|lyon|marseille|bordeaux|lille|nantes|' +
+    'cork|galway|edinburgh|glasgow|cardiff|belfast' +
     ')\\b',
   'i',
 )
@@ -67,7 +79,9 @@ const NON_US_EXTRA = new RegExp(
 // location almost always mean a foreign, accented place. Treat that as a non-US signal — it both
 // drops the posting AND stops the garbled text from ever showing. (Also the proper place to notice
 // the upstream encoding bug; a full re-decode fix in the provider fetch is a separate follow-up.)
-const MOJIBAKE_RE = /[\u00c2\u00c3\u00e3][\u0080-\u00bf]|\ufffd/
+// The lead-byte class spans 0xC2-0xEF (not just the Latin 0xC2/0xC3) so non-Latin scripts also match:
+// Arabic "\u062f\u0628\u064a" mis-decodes to "\u00d8\u00af\u00d8\u00a8\u00d9\u0160" (lead byte 0xD8), which the old narrow class let through.
+const MOJIBAKE_RE = /[\u00c2-\u00ef][\u0080-\u00bf]|\ufffd/
 
 // High-precision non-US ROLE markers that live in the company or title, not the location: European
 // legal company forms and the German/Austrian gender tag "(m/w/d)" and its variants. Each is a near
