@@ -46,13 +46,61 @@ export function indexFacts(profile: Profile): FactIndex {
   return { byId, texts }
 }
 
-/** Near-equality: equal, or the shorter covers >= 70% of the longer as a substring — NOT a one-
- *  directional stripped fragment (which can misrepresent, e.g. dropping a leading "Failed to") nor a
- *  long fabrication that merely embeds a short source phrase. Both must be meaningfully long. */
+// Function words the tailor may insert/drop when it rephrases a fact (notably when it strips an em
+// dash and needs a connector: "services — VMs" -> "services including VMs"). They assert no fact, so
+// the claim adding one is not fabrication. Used to let faithful rephrasings through.
+const CONNECTOR_WORDS = new Set([
+  'including', 'include', 'includes', 'and', 'or', 'with', 'the', 'a', 'an', 'of', 'for', 'to', 'in',
+  'on', 'at', 'by', 'as', 'that', 'which', 'via', 'plus', 'such',
+])
+// Polarity words whose presence flips meaning. The claim must carry the SAME set as the fact, so a
+// rephrasing can never silently drop a "not"/"failed" (the misrepresentation the substring rule guarded).
+const NEGATION_WORDS = new Set([
+  'no', 'not', 'never', 'without', 'none', 'cannot', 'cant', 'fail', 'failed', 'fails', 'unable', 'nor',
+])
+
+/** All lowercased alphanumeric word tokens (drops punctuation only), via the shared dash/space
+ *  normalize. Unlike contentTokens() this keeps short words ("no", "vms") — they matter for negation
+ *  polarity and for catching added substantive tokens. */
+function wordTokens(s: string): string[] {
+  return normalize(s)
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+}
+
+/** Negation/polarity tokens present in a token set, as a stable key for equality. */
+function negationKey(tokens: Set<string>): string {
+  return [...tokens].filter((w) => NEGATION_WORDS.has(w)).sort().join(',')
+}
+
+/** Near-equality: a faithful restatement of `fact`, NOT a one-directional stripped fragment (which
+ *  can misrepresent, e.g. dropping a leading "Failed to") nor a fabrication that embeds a short real
+ *  phrase. Two routes:
+ *   1. Substring: the shorter covers >= 70% of the longer (fast path for verbatim-ish text).
+ *   2. Token faithfulness: the claim introduces NO new substantive word (only connector words may be
+ *      added — anti-fabrication), covers >= 70% of the fact's tokens (not a tiny fragment), and
+ *      carries the same negation polarity (no silent meaning flip). This tolerates the rephrasings
+ *      our own tailor makes — swapping an em dash for "including"/a comma, dropping a "(a, b, c)"
+ *      parenthetical — which the substring rule wrongly rejected. */
 function isFaithfulRestatement(t: string, fact: string): boolean {
   if (fact === t) return true
   const [short, long] = t.length <= fact.length ? [t, fact] : [fact, t]
-  return long.includes(short) && short.length / long.length >= 0.7
+  if (long.includes(short) && short.length / long.length >= 0.7) return true
+
+  const claimSet = new Set(wordTokens(t))
+  const factSet = new Set(wordTokens(fact))
+  if (factSet.size === 0) return false
+  // Anti-fabrication: every substantive (non-connector) claim token must come from the fact.
+  for (const w of claimSet) {
+    if (!factSet.has(w) && !CONNECTOR_WORDS.has(w)) return false
+  }
+  // Not a fragment: the claim must cover most of the fact's tokens.
+  let covered = 0
+  for (const w of factSet) if (claimSet.has(w)) covered++
+  if (covered / factSet.size < 0.7) return false
+  // No meaning flip: same negation words on both sides.
+  return negationKey(claimSet) === negationKey(factSet)
 }
 
 /**

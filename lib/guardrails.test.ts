@@ -192,6 +192,72 @@ describe('checkNoFabrication', () => {
   })
 })
 
+// Regression: the substring matcher false-positive-blocked faithful bullets when the tailor strips
+// an em dash and rephrases (swaps "—" for "including"/a comma, drops a "(a, b, c)" parenthetical).
+// These ARE in the resume, so they must trace; fabrications and meaning-flips must still be rejected.
+describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)', () => {
+  const dashProfile = makeProfile({
+    skills: [],
+    roles: [
+      {
+        company: 'Signature',
+        title: 'Cloud Engineer',
+        startDate: '2024',
+        endDate: null,
+        bullets: [
+          'Administer Microsoft Azure infrastructure and services — virtual machines, storage, and identity — aligned with HIPAA and NIST',
+          'Led a zero-downtime migration to blade chassis architecture (compute, storage, network) with no business impact',
+          'Did not complete the planned datacenter migration',
+        ],
+      },
+    ],
+  })
+  const base = { summary: 'Cloud engineer.', skills: [] as string[] }
+
+  test('accepts a bullet that swaps an em dash for "including"/a comma', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [
+        {
+          text: 'Administer Microsoft Azure infrastructure and services including virtual machines, storage, and identity, aligned with HIPAA and NIST',
+          factId: 'role:0:bullet:0',
+        },
+      ],
+    })
+    expect(checkNoFabrication(tailored, dashProfile).ok).toBe(true)
+  })
+
+  test('accepts a bullet that drops an internal parenthetical', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [
+        { text: 'Led a zero-downtime migration to blade chassis architecture with no business impact', factId: 'role:0:bullet:1' },
+      ],
+    })
+    expect(checkNoFabrication(tailored, dashProfile).ok).toBe(true)
+  })
+
+  test('still rejects a fabrication that adds a substantive word behind a connector', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [
+        { text: 'Administer Microsoft Azure infrastructure and services including Kubernetes orchestration', factId: 'role:0:bullet:0' },
+      ],
+    })
+    const r = checkNoFabrication(tailored, dashProfile)
+    expect(r.ok).toBe(false)
+    expect(r.unverifiable).toHaveLength(1)
+  })
+
+  test('still rejects a meaning flip that drops a negation ("did not" -> "did")', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Completed the planned datacenter migration', factId: 'role:0:bullet:2' }],
+    })
+    expect(checkNoFabrication(tailored, dashProfile).ok).toBe(false)
+  })
+})
+
 describe('checkBulletsGrounded (ai-26 — ground shipped bullets against the source resume)', () => {
   const SOURCE = [
     'Platform Engineer at Analytical Engines.',
