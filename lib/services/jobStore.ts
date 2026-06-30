@@ -6,6 +6,7 @@ import * as z from 'zod'
 import { serverSupabase } from '@/lib/supabaseServer'
 import type { IngestedJob } from '@/lib/services/ats/types'
 import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
+import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
 
 const TABLE = 'jobs'
 
@@ -169,11 +170,17 @@ export interface ListJobsOptions {
   /** Case-insensitive search over title + company. */
   q?: string
   limit?: number
+  /**
+   * Drop clearly-non-US postings (the product assumes US work authorization). Default true, matching
+   * discoverRoles — the seed boards hire globally (e.g. Arbeitnow is German), so without this the
+   * picker surfaces EU roles at the top by recency. Set false to include international postings.
+   */
+  usOnly?: boolean
 }
 
 /** List the pool for the picker, newest first. Optional case-insensitive title/company search. */
 export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob[]> {
-  const { q, limit = 50 } = options
+  const { q, limit = 50, usOnly = true } = options
   return runStep('list', async () => {
     let query = db()
       .from(TABLE)
@@ -190,13 +197,20 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
       query = query.or(`title.ilike.%${safe}%,company.ilike.%${safe}%`)
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false }).limit(limit)
+    // Location is free text, so the US filter runs in app code (not SQL). Over-fetch when filtering
+    // so a pool top-heavy with non-US rows still yields up to `limit` US postings.
+    const fetchLimit = usOnly ? Math.min(limit * 4, 400) : limit
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(fetchLimit)
     if (error) throw error
     // Validate each row; skip (don't throw on) a malformed one so one bad row can't brick the picker.
     const out: StoredJob[] = []
     for (const r of data ?? []) {
       const parsed = JobListRowSchema.safeParse(r)
-      if (parsed.success) out.push(toStoredJob(parsed.data))
+      if (!parsed.success) continue
+      const job = toStoredJob(parsed.data)
+      if (usOnly && !isUsLocation(job.location)) continue
+      out.push(job)
+      if (out.length >= limit) break
     }
     return out
   })

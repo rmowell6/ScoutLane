@@ -92,6 +92,31 @@ describe('listJobs', () => {
     expect(findCall('or')).toBeUndefined() // no search term -> no filter
   })
 
+  test('drops clearly-non-US postings by default (US work-auth assumption)', async () => {
+    state.result = {
+      data: [
+        { id: 'us1', source: 'lever', title: 'SRE', company: 'Acme', location: 'Austin, TX', url: 'u' },
+        { id: 'de1', source: 'arbeitnow', title: 'Eng (m/w/d)', company: 'Cyrus', location: 'Munich', url: 'u' },
+        { id: 'rem', source: 'remotive', title: 'Dev', company: 'Beta', location: 'Remote', url: 'u' },
+      ],
+      error: null,
+      count: null,
+    }
+    const jobs = await listJobs()
+    // Munich (clearly non-US) dropped; Austin (US) and Remote/unknown (bias toward keeping) survive.
+    expect(jobs.map((j) => j.id)).toEqual(['us1', 'rem'])
+  })
+
+  test('usOnly:false keeps international postings', async () => {
+    state.result = {
+      data: [{ id: 'de1', source: 'arbeitnow', title: 'Eng', company: 'Cyrus', location: 'Munich', url: 'u' }],
+      error: null,
+      count: null,
+    }
+    const jobs = await listJobs({ usOnly: false })
+    expect(jobs.map((j) => j.id)).toEqual(['de1'])
+  })
+
   test('applies an escaped title/company search when q is given', async () => {
     state.result = { data: [], error: null, count: null }
     await listJobs({ q: 'senior, eng (c++)' })
