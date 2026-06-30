@@ -1,47 +1,109 @@
 'use client'
 
-// A scaled-down, STATIC mini render of what a resume looks like in a given style (theme + font),
-// shown as a selectable card in the style picker. The point is to let people compare header
-// treatment, color, and font BEFORE generating — cutting regenerate-to-retry cycles (and AI cost).
-//
-// Not interactive and not the real document: it reuses the same design tokens (previewStyle pulls
-// from themes.json/fonts.json) so it stays faithful to the .docx the builders produce, but it is a
-// lightweight typographic mock, not a rendered .docx.
+// Selectable cards for the style picker. Two kinds share one card shell and the same radio
+// semantics (the picker is a single-select radiogroup):
+//   - StylePreviewCard: a scaled-down, STATIC mini render of a résumé in a given theme + font, so
+//     people can compare header treatment, color, and font BEFORE generating — cutting
+//     regenerate-to-retry cycles (and AI cost). Reuses the design tokens (previewStyle pulls from
+//     themes.json/fonts.json), so it stays faithful to the .docx the builders produce.
+//   - RecommendedCard: the "let ScoutLane match a theme to this role" option. It has no preview on
+//     purpose — the recommendation is chosen by the model from the role at generation time, so there
+//     is nothing truthful to render here yet; showing a fake résumé would mislead.
+import { forwardRef } from 'react'
 import { previewStyle } from '@/lib/style/skin'
 
-export default function StylePreviewCard({
-  themeId,
-  fontId,
-  themeName,
-  selected,
-  onSelect,
-}: {
-  themeId: string
+const APP_ACCENT = '#065F46' // forest-green "Signal" accent (matches app/app/page.module.css --accent)
+const APP_WASH = '#ECFDF5'
+
+// Shared card chrome. `accent` drives the selected border + focus ring so a theme card highlights in
+// its own brand color and the recommended card in the app green.
+function shellStyle(checked: boolean, accent: string): React.CSSProperties {
+  return {
+    display: 'block',
+    width: '100%',
+    textAlign: 'left',
+    padding: 6,
+    borderRadius: 10,
+    border: `2px solid ${checked ? accent : 'var(--border)'}`,
+    background: 'var(--card)',
+    cursor: 'pointer',
+    boxShadow: checked ? `0 0 0 3px ${APP_WASH}` : 'none',
+    transition: 'border-color 0.12s, box-shadow 0.12s',
+  }
+}
+
+interface CommonProps {
+  value: string
+  checked: boolean
+  tabIndex: number
+  onSelect: (value: string) => void
+}
+
+export const RecommendedCard = forwardRef<HTMLButtonElement, Omit<CommonProps, 'value'>>(
+  function RecommendedCard({ checked, tabIndex, onSelect }, ref) {
+    return (
+      <button
+        ref={ref}
+        type="button"
+        role="radio"
+        aria-checked={checked}
+        tabIndex={tabIndex}
+        aria-label="Recommended for this role — ScoutLane picks the best theme automatically"
+        onClick={() => onSelect('__recommended__')}
+        style={shellStyle(checked, APP_ACCENT)}
+      >
+        <div
+          aria-hidden
+          style={{
+            height: 132,
+            borderRadius: 4,
+            border: `1px dashed ${checked ? APP_ACCENT : '#cbd5d0'}`,
+            background: APP_WASH,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '10px 12px',
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 22, lineHeight: 1 }}>✨</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: APP_ACCENT }}>Recommended</span>
+          <span style={{ fontSize: 10.5, color: '#4B5563', lineHeight: 1.35 }}>
+            ScoutLane matches a professional theme to this role when you generate.
+          </span>
+        </div>
+        <div style={{ marginTop: 6, fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? APP_ACCENT : 'var(--text)' }}>
+          {checked ? '✓ ' : ''}
+          For this role (auto)
+        </div>
+      </button>
+    )
+  },
+)
+
+interface StylePreviewCardProps extends CommonProps {
   fontId: string
   themeName: string
-  selected: boolean
-  onSelect: (themeId: string) => void
-}) {
-  const s = previewStyle(themeId, fontId)
+}
+
+const StylePreviewCard = forwardRef<HTMLButtonElement, StylePreviewCardProps>(function StylePreviewCard(
+  { value, fontId, themeName, checked, tabIndex, onSelect },
+  ref,
+) {
+  const s = previewStyle(value, fontId)
 
   return (
     <button
+      ref={ref}
       type="button"
-      aria-pressed={selected}
+      role="radio"
+      aria-checked={checked}
+      tabIndex={tabIndex}
       aria-label={`Use the ${themeName} style`}
-      onClick={() => onSelect(themeId)}
-      style={{
-        display: 'block',
-        width: '100%',
-        textAlign: 'left',
-        padding: 6,
-        borderRadius: 10,
-        border: `2px solid ${selected ? s.primary : 'var(--border)'}`,
-        background: 'var(--card)',
-        cursor: 'pointer',
-        boxShadow: selected ? `0 0 0 3px ${s.wash}` : 'none',
-        transition: 'border-color 0.12s, box-shadow 0.12s',
-      }}
+      onClick={() => onSelect(value)}
+      style={shellStyle(checked, s.primary)}
     >
       {/* The mini "paper" — fixed aspect, white, with a faint page border. */}
       <div
@@ -79,13 +141,15 @@ export default function StylePreviewCard({
         </div>
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 12, fontWeight: selected ? 700 : 500, color: selected ? s.primary : 'var(--text)' }}>
-        {selected ? '✓ ' : ''}
+      <div style={{ marginTop: 6, fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? s.primary : 'var(--text)' }}>
+        {checked ? '✓ ' : ''}
         {themeName}
       </div>
     </button>
   )
-}
+})
+
+export default StylePreviewCard
 
 type S = ReturnType<typeof previewStyle>
 
