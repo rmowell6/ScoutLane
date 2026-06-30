@@ -33,6 +33,31 @@ Add them for **Production** (and Preview if you want PR previews to be fully fun
 
 Never prefix a secret with `NEXT_PUBLIC_` — only `NEXT_PUBLIC_*` values are shipped to the browser.
 
+### Waitlist signup email notification (OPTIONAL — AWS SES)
+
+Landing-page waitlist signups are always captured in the `waitlist` table. To also get **emailed**
+when someone joins, wire AWS SES. When these are unset the notifier is a no-op — signups are still
+recorded, only the email is skipped — so this can be added at any time without touching the form.
+
+| Variable | Scope | Notes |
+|---|---|---|
+| `AWS_REGION` | server only | e.g. `us-east-1` (the region your SES identity lives in) |
+| `AWS_ACCESS_KEY_ID` | **server only** | IAM user with a `ses:SendEmail` policy |
+| `AWS_SECRET_ACCESS_KEY` | **server only** | matching secret; never expose |
+| `WAITLIST_NOTIFY_FROM` | server only | a **verified** SES sender, e.g. `notify@scoutlane.app` |
+| `WAITLIST_NOTIFY_TO` | server only | the admin inbox to notify on each signup |
+
+**One-time AWS setup:**
+1. **SES → Verify a sender.** Verify the domain `scoutlane.app` (add the DKIM CNAMEs SES gives you to
+   Route 53) so you can send from `notify@scoutlane.app`, or just verify a single email address.
+2. **Sandbox:** a new SES account can only send to **verified** recipients, so also verify
+   `WAITLIST_NOTIFY_TO`. That is all that is needed to notify yourself — no production-access request.
+   (Request production access later only if you want to email arbitrary users, e.g. M5 invites.)
+3. **IAM:** create a user with an inline policy allowing `ses:SendEmail` (and `ses:SendRawEmail`),
+   generate an access key, and set the four `AWS_*` / `WAITLIST_NOTIFY_*` vars above in Vercel.
+
+The send runs via Next's `after()` (after the response), so it never slows or fails a signup.
+
 ### Job-board providers (all OPTIONAL — `/api/jobs/ingest-all`)
 
 The unified ingest cron pulls ATS boards plus a job-board aggregator. Four aggregator sources are

@@ -2,9 +2,10 @@
 // visitors (no requireUser), so it's rate-limited and deliberately NON-ENUMERATING: it returns the
 // same generic success whether the email is new, already waiting, or already invited, so the
 // endpoint can't be used to probe who's on the list. Thin handler: validate → service → map.
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import * as z from 'zod'
 import { addToWaitlist, isWaitlistConfigured, WaitlistStoreError } from '@/lib/services/waitlistStore'
+import { notifyWaitlistSignup } from '@/lib/services/notifyWaitlist'
 import { rateLimit } from '@/lib/http/rateLimit'
 import { serverErrorBody } from '@/lib/http/errors'
 
@@ -41,6 +42,12 @@ export async function POST(request: Request) {
     }
 
     await addToWaitlist({ email: parsed.data.email, note: parsed.data.note, source: 'landing' })
+
+    // Notify the admin AFTER the response is sent: after() guarantees the work runs on Vercel
+    // (unlike a bare fire-and-forget, which can be frozen) while keeping the signup fast.
+    // notifyWaitlistSignup never throws and no-ops when SES is unconfigured, so this can't affect the
+    // 200 we return — a notification failure must never fail the visitor's signup.
+    after(() => notifyWaitlistSignup({ email: parsed.data.email, note: parsed.data.note, source: 'landing' }))
 
     // Same response for new vs. already-present — no enumeration.
     return NextResponse.json({ ok: true }, { status: 200 })
