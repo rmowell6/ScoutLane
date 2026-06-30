@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.106.0",
+    "@aws-sdk/client-sesv2": "^3.1076.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "apify-client": "^2.23.4",

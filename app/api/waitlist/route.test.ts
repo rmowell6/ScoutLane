@@ -6,6 +6,17 @@ const state = vi.hoisted(() => ({
   throwOnInsert: false,
 }))
 
+// Run after() callbacks synchronously in tests (no Next request scope here) so we can assert the
+// notification side-effect fired, while keeping NextResponse et al. real.
+vi.mock('next/server', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next/server')>()
+  return { ...actual, after: (fn: () => unknown) => fn() }
+})
+
+vi.mock('@/lib/services/notifyWaitlist', () => ({
+  notifyWaitlistSignup: vi.fn(async () => true),
+}))
+
 vi.mock('@/lib/services/waitlistStore', () => ({
   isWaitlistConfigured: () => state.configured,
   WaitlistStoreError: class extends Error {
@@ -24,6 +35,9 @@ vi.mock('@/lib/services/waitlistStore', () => ({
 
 // No Supabase env in unit tests → rateLimit uses the in-memory LRU fallback (per-instance limiter).
 import { POST } from './route'
+import { notifyWaitlistSignup } from '@/lib/services/notifyWaitlist'
+
+const notifyMock = vi.mocked(notifyWaitlistSignup)
 
 function req(body: unknown, ip = '10.9.0.1'): Request {
   return new Request('http://x/api/waitlist', {
@@ -49,10 +63,26 @@ describe('POST /api/waitlist', () => {
     expect(state.inserts[0]?.source).toBe('landing')
   })
 
+  test('notifies the admin after a successful signup', async () => {
+    await POST(req({ email: 'New@Example.com', note: 'hi' }, '10.9.1.2'))
+    expect(notifyMock).toHaveBeenCalledTimes(1)
+    expect(notifyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'New@Example.com', note: 'hi', source: 'landing' }),
+    )
+  })
+
   test('rejects a malformed email with 400', async () => {
     const res = await POST(req({ email: 'not-an-email' }, '10.9.2.1'))
     expect(res.status).toBe(400)
     expect(state.inserts).toHaveLength(0)
+    expect(notifyMock).not.toHaveBeenCalled()
+  })
+
+  test('does not notify when the store insert fails (500)', async () => {
+    state.throwOnInsert = true
+    const res = await POST(req({ email: 'a@b.com' }, '10.9.6.1'))
+    expect(res.status).toBe(500)
+    expect(notifyMock).not.toHaveBeenCalled()
   })
 
   test('is non-enumerating: a duplicate signup returns the same generic 200', async () => {
