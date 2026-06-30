@@ -22,4 +22,17 @@ describe('readParsed', () => {
     const msg = { stop_reason: 'end_turn', parsed_output: null }
     expect(() => readParsed(msg, 'svc', 2000)).toThrow(/no structured output/i)
   })
+
+  test('throws a distinct, non-transient REFUSAL error when a safety classifier declines', () => {
+    const msg = { stop_reason: 'refusal', parsed_output: null }
+    expect(() => readParsed(msg, 'tailorResume', 4000)).toThrow(/refusal/i)
+    // It must read as a policy decision, not a truncation or a generic null-output bug.
+    expect(() => readParsed(msg, 'tailorResume', 4000)).not.toThrow(/no structured output/i)
+    expect(() => readParsed(msg, 'tailorResume', 4000)).not.toThrow(/truncated/i)
+  })
+
+  test('prefers the refusal error even if some partial output is present', () => {
+    const msg = { stop_reason: 'refusal', parsed_output: { partial: true } }
+    expect(() => readParsed(msg, 'svc', 1500)).toThrow(/refusal/i)
+  })
 })

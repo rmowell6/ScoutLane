@@ -3,7 +3,7 @@
 // We hand the model the SAME indexed facts the guardrail uses, so generation and verification
 // share one source of truth (Engineering Plan §5/§6).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
+import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
 import { indexFacts } from '@/lib/guardrails'
 import { TailoredContentSchema, type JobReqs, type Profile, type TailoredContent } from '@/lib/schemas'
 
@@ -65,7 +65,12 @@ export async function tailorResume(profile: Profile, jobReqs: JobReqs): Promise<
     model: MODELS.tailor,
     max_tokens: MAX_TOKENS,
     system: [{ type: 'text', text: TAILOR_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
-    output_config: { format: zodOutputFormat(TailoredContentSchema) },
+    // `medium`, NOT `low`: this single call writes the resume summary/skills/claims, the cover letter,
+    // AND the hiring-manager outreach together — open-ended generation, not lookup. `low` risks the
+    // documented under-thinking failure mode on non-trivial generation, and tailoring fidelity is the
+    // product's differentiator (the no-fabrication guardrail leans on faithful wording). Documented-
+    // safe default pending a real low-vs-medium eval once guardrail pass-rate telemetry exists.
+    output_config: { format: zodOutputFormat(TailoredContentSchema), effort: 'medium' },
     messages: [
       {
         role: 'user',
@@ -87,6 +92,7 @@ export async function tailorResume(profile: Profile, jobReqs: JobReqs): Promise<
     ],
   })
 
+  logModelUsage('tailorResume', message)
   const tailored = readParsed(message, 'tailorResume', MAX_TOKENS)
 
   // Tidy model formatting artifacts so the shipped docs are clean and the style guardrail

@@ -6,8 +6,8 @@ import { MODELS, isTransientAnthropicError } from '@/lib/anthropic'
 describe('anthropic model constants', () => {
   it('exposes the screen, score, and tailor models', () => {
     expect(MODELS.screen).toBe('claude-haiku-4-5')
-    expect(MODELS.score).toBe('claude-sonnet-4-6')
-    expect(MODELS.tailor).toBe('claude-sonnet-4-6')
+    expect(MODELS.score).toBe('claude-sonnet-5')
+    expect(MODELS.tailor).toBe('claude-sonnet-5')
   })
 })
 

@@ -16,7 +16,7 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 ## Stack (pinned; verified June 2026)
 - Next.js **16.2** (App Router, TypeScript) on Vercel · Node **24**
 - Supabase via `@supabase/ssr` (+ `@supabase/supabase-js`)
-- `@anthropic-ai/sdk` — Claude `claude-haiku-4-5` (screen), `claude-sonnet-4-6` (score + tailor)
+- `@anthropic-ai/sdk` — Claude `claude-haiku-4-5` (screen), `claude-sonnet-5` (score + tailor)
 - `docx` v9 · `zod` v4 · Vitest v4 · Playwright
 
 ## Commands
