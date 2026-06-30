@@ -6,6 +6,7 @@ import * as z from 'zod'
 import { serverSupabase } from '@/lib/supabaseServer'
 import type { IngestedJob } from '@/lib/services/ats/types'
 import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
+import { isUsLocation } from '@/lib/roleDiscovery/usLocation'
 
 const TABLE = 'jobs'
 
@@ -111,8 +112,14 @@ function toRow(j: IngestedJob, now: string) {
 /** Upsert ingested jobs idempotently on (source, external_id). Returns the count written. */
 export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<number> {
   if (jobs.length === 0) return 0
+  // US-market only: never STORE a clearly-non-US posting. This is the defense-in-depth chokepoint
+  // every ingest path passes through (the unified cron AND the ATS-only route), so non-US roles
+  // never enter the pool for any consumer. Bias toward keeping (isUsLocation): Remote / unknown /
+  // unrecognized locations stay; only a clearly-non-US place with no US signal is dropped.
+  const usJobs = jobs.filter((j) => isUsLocation(j.location))
+  if (usJobs.length === 0) return 0
   return runStep('upsert', async () => {
-    const rows = jobs.map((j) => toRow(j, now))
+    const rows = usJobs.map((j) => toRow(j, now))
     const { error, count } = await db()
       .from(TABLE)
       .upsert(rows, { onConflict: 'source,external_id', count: 'exact' })
@@ -169,11 +176,17 @@ export interface ListJobsOptions {
   /** Case-insensitive search over title + company. */
   q?: string
   limit?: number
+  /**
+   * Drop clearly-non-US postings (the product assumes US work authorization). Default true, matching
+   * discoverRoles — the seed boards hire globally (e.g. Arbeitnow is German), so without this the
+   * picker surfaces EU roles at the top by recency. Set false to include international postings.
+   */
+  usOnly?: boolean
 }
 
 /** List the pool for the picker, newest first. Optional case-insensitive title/company search. */
 export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob[]> {
-  const { q, limit = 50 } = options
+  const { q, limit = 50, usOnly = true } = options
   return runStep('list', async () => {
     let query = db()
       .from(TABLE)
@@ -190,13 +203,20 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
       query = query.or(`title.ilike.%${safe}%,company.ilike.%${safe}%`)
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false }).limit(limit)
+    // Location is free text, so the US filter runs in app code (not SQL). Over-fetch when filtering
+    // so a pool top-heavy with non-US rows still yields up to `limit` US postings.
+    const fetchLimit = usOnly ? Math.min(limit * 4, 400) : limit
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(fetchLimit)
     if (error) throw error
     // Validate each row; skip (don't throw on) a malformed one so one bad row can't brick the picker.
     const out: StoredJob[] = []
     for (const r of data ?? []) {
       const parsed = JobListRowSchema.safeParse(r)
-      if (parsed.success) out.push(toStoredJob(parsed.data))
+      if (!parsed.success) continue
+      const job = toStoredJob(parsed.data)
+      if (usOnly && !isUsLocation(job.location)) continue
+      out.push(job)
+      if (out.length >= limit) break
     }
     return out
   })
