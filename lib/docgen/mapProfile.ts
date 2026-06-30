@@ -8,13 +8,14 @@
 //  - Role context lines are omitted (the schema has no per-role context yet).
 // Everything rendered still traces to real Profile facts — the guardrail runs independently.
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
-import type { FitDimension, FitResult } from '@/lib/fit/fitScore'
+import type { FitDimension, FitInput, FitResult } from '@/lib/fit/fitScore'
 import {
   bandLabel,
   bandSummary,
   holdingBackLine,
   humanizeNote,
   isUnassessed,
+  skillCoverage,
   splitDimensions,
 } from '@/lib/fit/fitPresent'
 import type { ResumeContent } from '@/lib/docgen/resume'
@@ -70,6 +71,7 @@ export function toResumeContent(
 export function toFitAssessmentContent(
   profile: Profile,
   fit: FitResult,
+  fitInput: FitInput,
   jobReqs: JobReqs,
   date: string,
 ): FitAssessmentContent {
@@ -96,6 +98,11 @@ export function toFitAssessmentContent(
       ...notAssessed.map((d) => toLine(d, 'unassessed')),
     ],
     hardGaps: fit.hardGaps,
+    preferredSkills: skillCoverage(
+      fitInput.preferredSkills ?? [],
+      fitInput.candidateSkills,
+      fitInput.adjacentSkills,
+    ),
   }
 }
 

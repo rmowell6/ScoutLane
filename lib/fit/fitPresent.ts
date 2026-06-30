@@ -146,6 +146,24 @@ const LEADABLE_KEYS = new Set([
   'certRequirementFit',
 ])
 
+export type SkillCoverageStatus = 'match' | 'partial' | 'gap'
+
+/** Per-skill ATS coverage: a JD skill is a `match` if the candidate holds it, `partial` if only
+ *  adjacent / cert-backed, else a `gap`. Shared so the on-screen table and the document agree. */
+export function skillCoverage(
+  skills: string[],
+  candidateSkills: string[],
+  adjacentSkills: string[] = [],
+): { skill: string; status: SkillCoverageStatus }[] {
+  const held = new Set(candidateSkills.map((s) => s.toLowerCase().trim()))
+  const adj = new Set(adjacentSkills.map((s) => s.toLowerCase().trim()))
+  return skills.map((skill) => {
+    const k = skill.toLowerCase().trim()
+    const status: SkillCoverageStatus = held.has(k) ? 'match' : adj.has(k) ? 'partial' : 'gap'
+    return { skill, status }
+  })
+}
+
 /** The strongest assessed dimension a candidate can genuinely lead with, or undefined if none. */
 export function leadDimension(fit: FitResult): FitDimension | undefined {
   return fit.dimensions
