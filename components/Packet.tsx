@@ -439,7 +439,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
 
         </div>
 
-        {/* Aside column: the act-on-it cards (documents, outreach, next steps). */}
+        {/* Aside column: Documents & checks. Outreach and Next steps moved to full-width bands below. */}
         <div className="packet__col packet__col--aside">
         <section className="card" aria-labelledby="pk-docs">
           <h3 id="pk-docs">Documents &amp; checks</h3>
@@ -505,36 +505,77 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           )}
         </section>
 
+        </div>
+
+        {/* Keyword & ATS coverage spans the FULL width below the two columns: the required and
+            preferred tables need more room than the half-width left column, so placing them here
+            lets the two-up grid sit side by side again instead of stacking. */}
+        {(coverage.length > 0 || preferredCoverage.length > 0) && (
+          <div className="grid-2 packet__wide">
+            {coverage.length > 0 && (
+              <CoverageCard
+                id="pk-kw"
+                title="Keyword & ATS coverage"
+                skillHeader="Required skill"
+                rows={coverage}
+                footer={
+                  <p className="callout">
+                    <b>The unfiltered part:</b> tailoring only resurfaces facts genuinely in your history, the
+                    no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
+                    Nothing here is invented.
+                  </p>
+                }
+              />
+            )}
+
+            {preferredCoverage.length > 0 && (
+              <CoverageCard
+                id="pk-kw-pref"
+                title="Preferred keywords (nice-to-have)"
+                skillHeader="Preferred skill"
+                rows={preferredCoverage}
+                intro="These are the role's preferred, bonus skills. They help with ATS keyword matching, but they do NOT affect your fit score, so a gap here is not a strike against you."
+              />
+            )}
+          </div>
+        )}
+
+        {/* Reach the hiring manager: promoted from a collapsed aside toggle to a full-width, always
+            visible deliverable, matching the marketing page's "fourth deliverable" framing. */}
         {documents && tailored.outreach && (
-          <details className="card">
-            <summary>
-              <h3 style={{ display: 'inline' }}>Reach the hiring manager</h3>
-            </summary>
-            <p className="muted" style={{ margin: '6px 0 4px', fontSize: '12.5px' }}>
+          <section className="card packet__wide" aria-labelledby="pk-outreach">
+            <h3 id="pk-outreach">
+              Reach the hiring manager <span className="pill">2 ready-to-send openers</span>
+            </h3>
+            <p className="muted" style={{ margin: '0 0 12px', fontSize: '12.5px' }}>
               Two ready-to-send openers, built from the same facts as your packet. Personalize before
               sending.
             </p>
-            <div className="outreach-item">
-              <div className="outreach-head">
-                <span className="outreach-label">
-                  LinkedIn connection note{' '}
-                  <span className="outreach-count">{tailored.outreach.linkedin.length}/300</span>
-                </span>
-                <CopyButton text={tailored.outreach.linkedin} label="note" />
+            <div className="grid-2">
+              <div className="outreach-item">
+                <div className="outreach-head">
+                  <span className="outreach-label">
+                    LinkedIn connection note{' '}
+                    <span className="outreach-count">{tailored.outreach.linkedin.length}/300</span>
+                  </span>
+                  <CopyButton text={tailored.outreach.linkedin} label="note" />
+                </div>
+                <p className="outreach-text">{tailored.outreach.linkedin}</p>
               </div>
-              <p className="outreach-text">{tailored.outreach.linkedin}</p>
-            </div>
-            <div className="outreach-item">
-              <div className="outreach-head">
-                <span className="outreach-label">Outreach email</span>
-                <CopyButton text={tailored.outreach.email} label="email" />
+              <div className="outreach-item">
+                <div className="outreach-head">
+                  <span className="outreach-label">Outreach email</span>
+                  <CopyButton text={tailored.outreach.email} label="email" />
+                </div>
+                <p className="outreach-text">{tailored.outreach.email}</p>
               </div>
-              <p className="outreach-text">{tailored.outreach.email}</p>
             </div>
-          </details>
+          </section>
         )}
 
-        <section className="card" aria-labelledby="pk-next">
+        {/* Next steps: the LAST content, so both gap-referencing bullets (topGap, missingSkill) sit
+            below the Keyword & ATS coverage table they point at. Content/logic unchanged from before. */}
+        <section className="card packet__wide" aria-labelledby="pk-next">
           <h3 id="pk-next">Next steps</h3>
           <ol className="steps">
             <li>Skim the tailored resume and cover letter for anything you&apos;d phrase differently.</li>
@@ -571,40 +612,6 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             )}
           </ol>
         </section>
-        </div>
-
-        {/* Keyword & ATS coverage spans the FULL width below the two columns: the required and
-            preferred tables need more room than the half-width left column, so placing them here
-            lets the two-up grid sit side by side again instead of stacking. */}
-        {(coverage.length > 0 || preferredCoverage.length > 0) && (
-          <div className="grid-2 packet__wide">
-            {coverage.length > 0 && (
-              <CoverageCard
-                id="pk-kw"
-                title="Keyword & ATS coverage"
-                skillHeader="Required skill"
-                rows={coverage}
-                footer={
-                  <p className="callout">
-                    <b>The honest part:</b> tailoring only resurfaces facts genuinely in your history, the
-                    no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
-                    Nothing here is invented.
-                  </p>
-                }
-              />
-            )}
-
-            {preferredCoverage.length > 0 && (
-              <CoverageCard
-                id="pk-kw-pref"
-                title="Preferred keywords (nice-to-have)"
-                skillHeader="Preferred skill"
-                rows={preferredCoverage}
-                intro="These are the role's preferred, bonus skills. They help with ATS keyword matching, but they do NOT affect your fit score, so a gap here is not a strike against you."
-              />
-            )}
-          </div>
-        )}
       </div>
 
       <footer>

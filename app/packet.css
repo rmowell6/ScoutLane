@@ -59,10 +59,10 @@
 }
 
 /* ---- results dashboard layout ----
-   The packet results are a dashboard, so on a wide screen use two columns instead of one narrow
-   stacked column: the fit ANALYSIS (role, gauge + dimensions, keyword coverage) on the left, the
-   ACT-ON-IT cards (documents, outreach, next steps) on the right. Collapses to a single column on
-   tablet/mobile, where the columns simply stack in source order. */
+   The packet results are a dashboard, so on a wide screen the top row is two columns: the fit
+   ANALYSIS (role, gauge + dimensions) on the left, the Documents & checks card on the right. Below
+   that row, full-width bands (keyword coverage, hiring-manager outreach, next steps) span both
+   columns. Collapses to a single column on tablet/mobile, where everything stacks in source order. */
 .packet .packet__body {
   display: grid;
   grid-template-columns: 1fr;
@@ -84,6 +84,11 @@
    half-width left column gives, so they live here and their two-up grid sits side by side again. */
 .packet .packet__wide {
   grid-column: 1 / -1;
+}
+/* A full-width band that is itself a card lets the grid `gap` own its spacing, so drop the card's
+   own bottom margin (mirrors the rule for cards inside a column). */
+.packet .packet__wide.card {
+  margin-bottom: 0;
 }
 @media (min-width: 1024px) {
   .packet .packet__body {
