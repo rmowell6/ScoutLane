@@ -1,6 +1,6 @@
 // Shared server-side Supabase client (cloud-11). The store modules each built a NEW client on every
 // call via createClient(); on a warm serverless instance that's wasteful. Construct once and reuse,
-// rebuilding only if the env (url/key) actually changes — so a test that swaps env still gets a
+// rebuilding only if the env (url/key) actually changes, so a test that swaps env still gets a
 // fresh client, while production (stable env) reuses one.
 //
 // Uses the SECRET key (server-only; bypasses RLS). Callers wrap the thrown "not configured" error in

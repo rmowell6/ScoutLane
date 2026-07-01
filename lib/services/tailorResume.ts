@@ -7,7 +7,7 @@ import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
 import { indexFacts } from '@/lib/guardrails'
 import { TailoredContentSchema, type JobReqs, type Profile, type TailoredContent } from '@/lib/schemas'
 
-// PLACEHOLDER — replace with the tailoring approach (voice, ordering, emphasis rules).
+// PLACEHOLDER, replace with the tailoring approach (voice, ordering, emphasis rules).
 const TAILOR_INSTRUCTIONS = [
   'Tailor a resume summary, reordered skills, achievement claims, and a cover letter for the',
   'target job, drawing STRICTLY from the provided facts. Do not introduce any skill, metric,',
@@ -66,7 +66,7 @@ const TAILOR_INSTRUCTIONS = [
 // (adaptive thinking stays near-zero for this schema-constrained call at any effort), so 12000 is far
 // more than needed and protects an unusually long resume; cost is billed by ACTUAL tokens, so the
 // generous cap is free unless used. (Note: the production "Failed step: tailorResume" outage was NOT
-// truncation as first assumed — it was the outreach.linkedin schema cap rejecting a slightly-too-long
+// truncation as first assumed, it was the outreach.linkedin schema cap rejecting a slightly-too-long
 // note in messages.parse; that is fixed in lib/schemas.ts. readParsed still flags any genuine overflow.)
 const MAX_TOKENS = 12000
 
@@ -141,7 +141,7 @@ function clampChars(s: string, max: number): string {
 }
 
 /** Replace em dashes with a comma, per the no-em-dash house style. Sonnet 5 emits em dashes despite
- *  the prompt; without this a single stray "—" trips the style guardrail and blocks the whole packet.
+ *  the prompt; without this a single stray ", " trips the style guardrail and blocks the whole packet.
  *  Belt-and-suspenders to the prompt instruction. Only spaces/tabs around the dash are consumed (never
  *  a newline), and the fabrication guardrail folds dashes anyway, so fact tracing is unaffected. */
 export function deEmDash(s: string): string {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { deEmDash, tidyLine, tidyParagraphs } from './tailorResume'
 
-// Regression: Sonnet 5 emits em dashes despite the prompt, and a single stray "—" in any shipped
+// Regression: Sonnet 5 emits em dashes despite the prompt, and a single stray ", " in any shipped
 // field trips checkStyle and blocks the whole packet. The tidy step now strips them deterministically.
 describe('em-dash sanitization (deEmDash + tidy)', () => {
   test('replaces a spaced em dash with a comma', () => {

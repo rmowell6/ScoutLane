@@ -25,7 +25,7 @@ export interface PacketInput {
   jdText: string
   /** Raw resume text to structure on the fly (stateless path). */
   resumeText?: string
-  /** A pre-structured profile (reuse path) — when set, structureResume is skipped. */
+  /** A pre-structured profile (reuse path), when set, structureResume is skipped. */
   profile?: Profile
   /** Original resume text for the reuse path (the stateless path uses resumeText). Grounds the
    *  shipped bullets/summary against the source in the no-fabrication guardrail (ai-26). */
@@ -45,11 +45,11 @@ export interface PacketInput {
 
 export interface DocumentRef {
   filename: string
-  /** MIME type of this file — the browser uses it when reconstructing an inline (base64) download. */
+  /** MIME type of this file, the browser uses it when reconstructing an inline (base64) download. */
   mime: string
   /** Present when stored in Supabase Storage. */
   signedUrl?: string
-  /** Present when Storage is unconfigured/unavailable — the file inline, base64-encoded. */
+  /** Present when Storage is unconfigured/unavailable, the file inline, base64-encoded. */
   base64?: string
 }
 
@@ -71,11 +71,11 @@ export interface Packet {
   fitInput: FitInput
   tailored: TailoredContent
   guardrails: GuardrailReport
-  /** Generated docs — null when a guardrail blocked the packet (nothing ships). */
+  /** Generated docs, null when a guardrail blocked the packet (nothing ships). */
   documents: PacketDocuments | null
   /** The style actually applied to the documents (user override, recommendation, or master). */
   style: StyleRecord
-  /** Why the style was chosen — present for a recommendation; absent for an explicit user pick. */
+  /** Why the style was chosen, present for a recommendation; absent for an explicit user pick. */
   styleWhy?: string
 }
 
@@ -177,7 +177,7 @@ async function generateDocuments(
       const byKey = Object.fromEntries(uploaded) as Record<(typeof specs)[number]['key'], DocFormats>
       return { storage: 'supabase', ...byKey }
     } catch (err) {
-      // Bucket missing or transient error — fall back to inline so the packet still ships.
+      // Bucket missing or transient error, fall back to inline so the packet still ships.
       console.error('[packet] storage upload failed, returning docs inline', err)
     }
   }
@@ -224,7 +224,7 @@ async function runStep<T>(step: string, fn: () => Promise<T>): Promise<T> {
 
 /**
  * Run the hero pipeline end to end. `guardrails.ok` is the ship/block signal: a failed
- * no-fabrication check must NOT ship — documents stay null and the route returns it for
+ * no-fabrication check must NOT ship, documents stay null and the route returns it for
  * regeneration or human review (Engineering Plan §6). Each step is tagged so a failure
  * surfaces which stage broke (PacketError.step).
  */
@@ -287,5 +287,5 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   return { profile, jobReqs, fit, fitInput, tailored, guardrails, documents, style, styleWhy }
 }
 
-/** The master skin — navy_copper / cambria_calibri. Absent style → identical output to pre-feature. */
+/** The master skin, navy_copper / cambria_calibri. Absent style → identical output to pre-feature. */
 const MASTER_STYLE: StyleRecord = { theme: 'navy_copper', font: 'cambria_calibri', source: 'default' }

@@ -1,4 +1,4 @@
-// Job-board persistence — writes normalized job-board `Job`s into the same `jobs` table as the
+// Job-board persistence, writes normalized job-board `Job`s into the same `jobs` table as the
 // ATS ingest, using the same hardened, lazy/degradable Supabase pattern as jobStore.ts (which is
 // left untouched per the integration handoff). The ATS module owns `IngestedJob`; the job-board
 // module has its own `Job` shape, so this is the bridge: map `Job` -> the shared row shape and
@@ -41,7 +41,7 @@ export interface JobBoardRow {
 /**
  * Map a normalized job-board `Job` to a `jobs` row. `Job.id` is "<source>:<externalId>", but the
  * external id can itself contain ':' (URLs, composite ids), so take everything AFTER the first
- * colon rather than a naive split — and fall back to the whole id if there's no colon.
+ * colon rather than a naive split, and fall back to the whole id if there's no colon.
  */
 export function toJobBoardRow(job: Job, now: string): JobBoardRow {
   const sep = job.id.indexOf(':')
@@ -62,7 +62,7 @@ export function toJobBoardRow(job: Job, now: string): JobBoardRow {
 /**
  * De-dupe rows by (source, external_id). A single Postgres upsert cannot touch the same conflict
  * target twice in one statement ("ON CONFLICT DO UPDATE command cannot affect row a second time"),
- * and the aggregator can surface the same posting from two passes — so collapse before writing.
+ * and the aggregator can surface the same posting from two passes, so collapse before writing.
  */
 export function dedupeRows(rows: JobBoardRow[]): JobBoardRow[] {
   const byKey = new Map<string, JobBoardRow>()
@@ -74,7 +74,7 @@ export function dedupeRows(rows: JobBoardRow[]): JobBoardRow[] {
  * CONTRACT GUARD (vendored shape drift). The vendored module's `Job` shape is mapped to a row above;
  * this is the single chokepoint that protects the pool when a provider's payload drifts from what its
  * mapper expects (as the Himalayas browse feed once did, emitting url-less jobs). A job is storable
- * only if it has the fields the pool/discovery actually need — url, title, source. Anything else is
+ * only if it has the fields the pool/discovery actually need, url, title, source. Anything else is
  * dropped here instead of polluting the pool. If a new provider is added or a feed changes shape,
  * this is the invariant to keep green.
  */

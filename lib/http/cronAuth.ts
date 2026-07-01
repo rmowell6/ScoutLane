@@ -1,5 +1,5 @@
 // Shared cron-endpoint auth, matching app/api/jobs/ingest/route.ts (which keeps its own inline
-// copy — left untouched per the integration handoff). Require `Authorization: Bearer <CRON_SECRET>`,
+// copy, left untouched per the integration handoff). Require `Authorization: Bearer <CRON_SECRET>`,
 // compared in CONSTANT TIME. Fail CLOSED in production: if no secret is configured, the endpoint is
 // unavailable rather than wide open (these routes write to the DB and call external APIs). Outside
 // prod (local/preview) it stays open when no secret is set, for convenience.

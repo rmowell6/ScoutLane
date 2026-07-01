@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Adzuna Provider
+// ScoutLane, Adzuna Provider
 // Docs: https://developer.adzuna.com/
-// Auth: free API key — register at https://developer.adzuna.com/signup
+// Auth: free API key, register at https://developer.adzuna.com/signup
 // Coverage: US + 12 other countries, 20M+ jobs
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ function mapJob(raw: AdzunaJob, source: string): Job {
         }
       : undefined;
 
-  // Guard nested objects — a row missing company/location/category must not throw (mapEach would
+  // Guard nested objects, a row missing company/location/category must not throw (mapEach would
   // skip it, but optional-chaining keeps the common partial row usable).
   const locationName = raw.location?.display_name ?? '';
   const title = raw.title ?? '';

@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Remotive Provider
+// ScoutLane, Remotive Provider
 // Docs: https://remotive.com/remote-jobs/api
-// Auth: None — fully public
+// Auth: None, fully public
 // Rate limit: max ~4 requests/day recommended (2/min hard limit)
 // Coverage: Remote tech roles globally, ~2,000 active listings
 // ─────────────────────────────────────────────────────────────────────────────

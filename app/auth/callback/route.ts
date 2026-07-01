@@ -1,7 +1,7 @@
-// GET /auth/callback — the OAuth / magic-link return target. Supabase redirects here with a PKCE
+// GET /auth/callback, the OAuth / magic-link return target. Supabase redirects here with a PKCE
 // `code` (Google sign-in and the email magic link both use the code flow); we exchange it for a
 // session cookie, then redirect into the app. On any error we send the user back to /sign-in with a
-// safe message rather than leaking provider error detail. Thin by design — no business logic.
+// safe message rather than leaking provider error detail. Thin by design, no business logic.
 import { NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
@@ -15,7 +15,7 @@ const POST_LOGIN_HOME = '/app'
  * `startsWith('/')` check is bypassable: `/\evil.com` and `/%2F%2Fevil.com` both pass it yet the
  * browser (or a downstream `new URL`) can treat them as protocol-relative and navigate off-site.
  * Instead resolve `next` against our own origin and accept it ONLY if the resolved origin still
- * matches — then hand back just the path+query+hash so the caller can't be tricked into an absolute
+ * matches, then hand back just the path+query+hash so the caller can't be tricked into an absolute
  * URL. Anything cross-origin, malformed, or absolute collapses to the app home.
  */
 export function safeNext(next: string | null, origin: string): string {

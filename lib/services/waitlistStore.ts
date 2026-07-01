@@ -1,4 +1,4 @@
-// Waitlist persistence (M4). Server-only — uses the Supabase SECRET key (bypasses RLS), like
+// Waitlist persistence (M4). Server-only, uses the Supabase SECRET key (bypasses RLS), like
 // profileStore/jobStore. Lazy + degradable so importing never throws without env (keeps CI unit
 // tests + builds green when secrets are absent). The public landing's access-request form is the
 // only writer, via the rate-limited /api/waitlist handler.
@@ -53,7 +53,7 @@ export interface WaitlistEntry {
 /**
  * Add an email to the waitlist, idempotently. The email is normalized to lowercase so the
  * case-insensitive unique index treats `A@x.com` and `a@x.com` as one request; a repeat signup is a
- * silent no-op (no error, no duplicate) — the handler returns the same generic success either way,
+ * silent no-op (no error, no duplicate), the handler returns the same generic success either way,
  * so the endpoint never reveals whether an address was already on the list (no enumeration).
  */
 export async function addToWaitlist(entry: WaitlistEntry): Promise<void> {
@@ -63,7 +63,7 @@ export async function addToWaitlist(entry: WaitlistEntry): Promise<void> {
       source: entry.source ?? null,
       note: entry.note ?? null,
     }
-    // ignoreDuplicates: a conflict on the lower(email) index is expected and harmless — treat the
+    // ignoreDuplicates: a conflict on the lower(email) index is expected and harmless, treat the
     // existing row as success rather than surfacing a 409.
     const { error } = await db().from(TABLE).upsert(row, { onConflict: 'email', ignoreDuplicates: true })
     if (error) throw error

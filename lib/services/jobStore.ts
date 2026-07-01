@@ -1,4 +1,4 @@
-// Job pool persistence (M3). Server-only — uses the Supabase SECRET key (bypasses RLS), like
+// Job pool persistence (M3). Server-only, uses the Supabase SECRET key (bypasses RLS), like
 // profileStore. Lazy + degradable so importing never throws without env. Ingestion upserts on
 // (source, external_id) so re-running is idempotent (migration 0002).
 import { type SupabaseClient } from '@supabase/supabase-js'
@@ -16,7 +16,7 @@ const MAX_Q_LEN = 100
 
 // Jobs come from external ATS feeds and are stored as-is, so a row read back is untrusted input.
 // Re-validate the shape (and bound the JD body) at the read boundary before it flows into the
-// packet pipeline — never assume the DB still holds what ingestion put there.
+// packet pipeline, never assume the DB still holds what ingestion put there.
 const JD_MAX_LEN = 60_000
 // Truncate (don't reject) an oversized stored JD on read: capping with .max() would THROW, which
 // would brick an otherwise-valid job whose description was written before the write-side cap existed
@@ -101,7 +101,7 @@ function toRow(j: IngestedJob, now: string) {
     company: j.company,
     location: j.location,
     url: j.url,
-    // Bound on write like jobBoardStore does — an oversized ATS description must not produce a row
+    // Bound on write like jobBoardStore does, an oversized ATS description must not produce a row
     // that the read-side cap would otherwise have to reject.
     jd_raw: (j.jdText ?? '').slice(0, JD_MAX_LEN),
     status: 'live',
@@ -129,7 +129,7 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
 }
 
 /**
- * Soft-expire stale postings — REVERSIBLY — but ONLY for sources confirmed live this run. A row is
+ * Soft-expire stale postings, REVERSIBLY, but ONLY for sources confirmed live this run. A row is
  * flipped 'live' -> 'expired' iff (a) its `source` is in `sources` (a source ScoutLane actually
  * re-observed successfully this run), (b) it is still 'live', and (c) its `validated_at` predates
  * `cutoffIso`. Because every successful upsert re-stamps `validated_at = now` AND `status = 'live'`,
@@ -157,7 +157,7 @@ export async function expireStaleJobs(sources: string[], cutoffIso: string): Pro
  * Physically reclaim rows that have been soft-expired and NOT re-seen since the (longer) `cutoffIso`.
  * Safe to run unconditionally and across all sources: a posting that reappeared was already flipped
  * back to 'live' by its upsert, so only genuinely-gone postings remain 'expired' past the window.
- * This is the second, well-separated stage — a wrongly-expired row has the full reclaim window to
+ * This is the second, well-separated stage, a wrongly-expired row has the full reclaim window to
  * come back before any irreversible delete. Returns the number of rows deleted.
  */
 export async function reclaimExpiredJobs(cutoffIso: string): Promise<number> {
@@ -178,7 +178,7 @@ export interface ListJobsOptions {
   limit?: number
   /**
    * Drop clearly-non-US postings (the product assumes US work authorization). Default true, matching
-   * discoverRoles — the seed boards hire globally (e.g. Arbeitnow is German), so without this the
+   * discoverRoles, the seed boards hire globally (e.g. Arbeitnow is German), so without this the
    * picker surfaces EU roles at the top by recency. Set false to include international postings.
    */
   usOnly?: boolean
@@ -224,7 +224,7 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
 
 /**
  * Fetch the live pool for role discovery: light metadata plus a truncated JD snippet (enough to
- * carry each posting's skill vocabulary for the lexical pre-filter) — newest first. The snippet is
+ * carry each posting's skill vocabulary for the lexical pre-filter), newest first. The snippet is
  * capped server-side so a huge JD can't bloat the candidate set.
  */
 export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise<MatchableJob[]> {
@@ -250,7 +250,7 @@ export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise
 
 /**
  * Pool freshness for the readiness check (/health): how many live jobs, and when the pool was last
- * refreshed (max validated_at). A stale/empty pool means the ingest cron has silently stopped — this
+ * refreshed (max validated_at). A stale/empty pool means the ingest cron has silently stopped, this
  * makes that observable from outside. Best-effort: the caller treats a throw as "stats unavailable".
  */
 export async function getPoolStats(): Promise<{ live: number; lastIngestAt: string | null }> {
@@ -300,7 +300,7 @@ export async function getJobJd(id: string): Promise<{ id: string; title: string;
 // A pooled job's domain/seniority/role-type classification is a pure function of its static JD, so
 // it's classified once (by recommendStyle) and cached on the row. This is the container-friendly,
 // DB-backed cache: every instance shares it, and a repeat packet against the same job skips the LLM
-// call entirely. The shape is validated by the caller (recommendStyle) — stored as opaque jsonb here.
+// call entirely. The shape is validated by the caller (recommendStyle), stored as opaque jsonb here.
 
 /** Read a job's cached style classification, or null if absent. */
 export async function getJobStyleSignals(id: string): Promise<Record<string, unknown> | null> {

@@ -23,7 +23,7 @@ export const MAX_RESUME_CHARS = 200_000
 /**
  * First-bytes signatures we verify before dispatching a parser, so a file can't lie about its type
  * (e.g. a PDF renamed `.docx`, or an executable renamed `.pdf`) to reach a parser it shouldn't.
- * TXT has no signature — anything decodes as text — so it's intentionally absent and skipped.
+ * TXT has no signature, anything decodes as text, so it's intentionally absent and skipped.
  */
 const MAGIC: Partial<Record<ResumeFileKind, readonly number[][]>> = {
   pdf: [[0x25, 0x50, 0x44, 0x46]], // "%PDF"
@@ -33,7 +33,7 @@ const MAGIC: Partial<Record<ResumeFileKind, readonly number[][]>> = {
 /** Whether `bytes` begins with one of the expected magic-byte signatures for `kind` (txt: always true). */
 function hasMagic(kind: ResumeFileKind, bytes: Uint8Array): boolean {
   const sigs = MAGIC[kind]
-  if (!sigs) return true // txt — no signature to check
+  if (!sigs) return true // txt, no signature to check
   return sigs.some((sig) => sig.every((byte, i) => bytes[i] === byte))
 }
 
@@ -64,7 +64,7 @@ const BY_MIME: Record<string, ResumeFileKind> = {
 /**
  * Decide how to parse a file. Prefer the filename extension (reliable), fall back to the
  * declared MIME type. Returns null for anything we don't support (caller maps to a 400).
- * Legacy .doc (binary Word) is intentionally unsupported — it needs a different parser.
+ * Legacy .doc (binary Word) is intentionally unsupported, it needs a different parser.
  */
 export function detectKind(filename: string, mimeType: string): ResumeFileKind | null {
   const ext = filename.split('.').pop()?.toLowerCase() ?? ''

@@ -1,6 +1,6 @@
 'use client'
 
-// Per-packet feedback (M4-C) — captures two of the three Phase-0 thresholds directly in-product:
+// Per-packet feedback (M4-C), captures two of the three Phase-0 thresholds directly in-product:
 //   • "Would you actually send this?"  → packet_rated  (the ~50% quality bar)
 //   • "Would you pay for ScoutLane?"   → would_pay      (the ~30% willingness-to-pay bar)
 // The pay question is revealed only after the quality answer, so we never ask for money before the

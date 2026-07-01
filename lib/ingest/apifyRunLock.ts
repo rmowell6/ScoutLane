@@ -1,6 +1,6 @@
-// Per-day idempotency claim for the METERED Apify leg (Engineering Plan §4.1 — locking policy out of
+// Per-day idempotency claim for the METERED Apify leg (Engineering Plan §4.1, locking policy out of
 // the route, like apifySchedule.ts). Vercel cron is best-effort and may double-fire, and a near-120s
-// timeout can re-enter the handler — so without a guard the $0.99/run-flat Wellfound actor could be
+// timeout can re-enter the handler, so without a guard the $0.99/run-flat Wellfound actor could be
 // charged twice on an Apify day, overrunning the $5 credit (which has < $1 headroom at 3 runs/mo).
 //
 // DB-row upsert on (source, external_id) dedups rows WRITTEN, never runs CHARGED, so it cannot
@@ -8,7 +8,7 @@
 // work (the UTC day), claimed BEFORE the actor fires. We use INSERT ... ON CONFLICT DO NOTHING via
 // supabase-js upsert(ignoreDuplicates) + .select(): exactly one caller per day gets a row back.
 //
-// NOTE: a session-level pg_advisory_lock would be WRONG here — supabase-js runs over the
+// NOTE: a session-level pg_advisory_lock would be WRONG here, supabase-js runs over the
 // transaction-mode pooler, where the lock evaporates between statements. A durable marker row also
 // survives across separate invocations within the day (a lock only covers concurrent overlap).
 import { type SupabaseClient } from '@supabase/supabase-js'
@@ -30,7 +30,7 @@ export function apifyRunKey(nowIso: string): string {
  * a duplicate cron fire or post-timeout re-entry gets false and must not run the metered actors.
  *
  * Fails CLOSED (returns false) on any error: skipping a metered run costs $0, but an erroneous extra
- * run costs real money — so when in doubt, don't spend.
+ * run costs real money, so when in doubt, don't spend.
  */
 export async function claimApifyRun(nowIso: string): Promise<boolean> {
   const runKey = apifyRunKey(nowIso)

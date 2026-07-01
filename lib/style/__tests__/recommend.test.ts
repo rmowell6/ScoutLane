@@ -1,10 +1,10 @@
 /**
- * Recommender unit tests — lib/style/__tests__/recommend.test.ts
+ * Recommender unit tests, lib/style/__tests__/recommend.test.ts
  *
  * Pins canonical profile picks BEFORE any weight tuning so regressions are
  * caught immediately. Per the spec: "Lock these before any weight tuning."
  *
- * Run with: vitest (or jest — both syntaxes are compatible here)
+ * Run with: vitest (or jest, both syntaxes are compatible here)
  */
 
 import { describe, it, expect } from 'vitest';
@@ -97,7 +97,7 @@ describe('recommend() — return shape', () => {
 //
 // These are the expected picks for canonical role profiles. They pin the
 // recommender's current behavior. If you change weights or scoring, these
-// tests will break — that is intentional. Update only after confirming the
+// tests will break, that is intentional. Update only after confirming the
 // new output is better for real users.
 
 describe('recommend() — canonical profile pins', () => {
@@ -189,7 +189,7 @@ describe('recommend() — canonical profile pins', () => {
       seniority: 'mid',
       roleType: 'engineer',
     });
-    // tahoma_tahoma is known to over-score — this test intentionally captures current behavior
+    // tahoma_tahoma is known to over-score, this test intentionally captures current behavior
     // before tuning (per spec: "add unit tests pinning canonical picks BEFORE tuning")
     expect(['calibri_calibri', 'tahoma_tahoma']).toContain(r.recommended.font);
   });

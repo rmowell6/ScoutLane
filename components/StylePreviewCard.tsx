@@ -3,11 +3,11 @@
 // Selectable cards for the style picker. Two kinds share one card shell and the same radio
 // semantics (the picker is a single-select radiogroup):
 //   - StylePreviewCard: a scaled-down, STATIC mini render of a résumé in a given theme + font, so
-//     people can compare header treatment, color, and font BEFORE generating — cutting
+//     people can compare header treatment, color, and font BEFORE generating, cutting
 //     regenerate-to-retry cycles (and AI cost). Reuses the design tokens (previewStyle pulls from
 //     themes.json/fonts.json), so it stays faithful to the .docx the builders produce.
 //   - RecommendedCard: the "let ScoutLane match a theme to this role" option. It has no preview on
-//     purpose — the recommendation is chosen by the model from the role at generation time, so there
+//     purpose, the recommendation is chosen by the model from the role at generation time, so there
 //     is nothing truthful to render here yet; showing a fake résumé would mislead.
 import { forwardRef } from 'react'
 import { previewStyle } from '@/lib/style/skin'
@@ -105,7 +105,7 @@ const StylePreviewCard = forwardRef<HTMLButtonElement, StylePreviewCardProps>(fu
       onClick={() => onSelect(value)}
       style={shellStyle(checked, s.primary)}
     >
-      {/* The mini "paper" — fixed aspect, white, with a faint page border. */}
+      {/* The mini "paper", fixed aspect, white, with a faint page border. */}
       <div
         aria-hidden
         style={{
@@ -154,7 +154,7 @@ export default StylePreviewCard
 type S = ReturnType<typeof previewStyle>
 
 // A section header: label in the theme's primary + heading font, underlined with an accent rule and
-// a small accent marker — the same header treatment the .docx resume builder applies.
+// a small accent marker, the same header treatment the .docx resume builder applies.
 function Section({ children, accent, primary, headFont }: { children: string; accent: string; primary: string; headFont: string }) {
   return (
     <div

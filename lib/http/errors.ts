@@ -1,5 +1,5 @@
 // Shared HTTP error shaping. The product invariant is that a failure surfaces a SAFE step
-// identifier (so the failing stage is debuggable) — but the raw error message can carry internal
+// identifier (so the failing stage is debuggable), but the raw error message can carry internal
 // detail (DB hostnames, upstream URLs, stack-adjacent text). In production we withhold the raw
 // message and return a generic one; in dev/preview we keep it for debugging. The step name is a
 // fixed, safe enum from our own code (e.g. 'structureResume', 'upsert'), so it's always included.

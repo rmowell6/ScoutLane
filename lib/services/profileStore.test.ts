@@ -16,7 +16,7 @@ vi.mock('@supabase/supabase-js', () => ({
         state.lastInsert = row
         return { select: () => ({ single: async () => state.insertResult }) }
       },
-      // getStoredProfile now chains .eq('id').eq('user_id').maybeSingle() — chainable + records the
+      // getStoredProfile now chains .eq('id').eq('user_id').maybeSingle(), chainable + records the
       // filters so a test can assert the owner scoping.
       select: () => {
         const chain = {

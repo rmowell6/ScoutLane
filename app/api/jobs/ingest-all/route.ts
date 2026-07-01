@@ -1,4 +1,4 @@
-// POST /api/jobs/ingest-all — the UNIFIED cron ingest. Refreshes the whole `jobs` pool in one
+// POST /api/jobs/ingest-all, the UNIFIED cron ingest. Refreshes the whole `jobs` pool in one
 // run: the ATS boards (Greenhouse/Lever/Ashby) AND the job-board aggregator (Himalayas, Arbeitnow,
 // Remotive, RemoteOK + keyed: JSearch, Adzuna, USAJobs, Apify). A single daily Vercel cron points
 // here (vercel.json). The existing /api/jobs/ingest stays for manual ATS-only runs.
@@ -26,14 +26,14 @@ export const maxDuration = 120 // matches the existing ingest routes (proven to 
 // expired (reversibly hidden). Wide enough to survive a transient provider outage (a job blips out
 // for a day or two and comes back) without hiding still-live jobs. Expired rows are physically
 // reclaimed only after the much longer RECLAIM window, so a wrongly-expired posting has a long grace
-// period to reappear first. Generated packet files are abandoned far sooner — their signed download
-// URLs expire in an hour — so they sweep on a 1-day window.
+// period to reappear first. Generated packet files are abandoned far sooner, their signed download
+// URLs expire in an hour, so they sweep on a 1-day window.
 const JOB_RETENTION_MS = 14 * 24 * 60 * 60 * 1000
 const JOB_RECLAIM_MS = 30 * 24 * 60 * 60 * 1000
 const DOC_RETENTION_MS = 24 * 60 * 60 * 1000
 
 // Broad IT sweep. No `query` (each provider falls back to its IT-category default, maximising
-// breadth) and `remote` is intentionally NOT forced — the app serves onsite/hybrid candidates too,
+// breadth) and `remote` is intentionally NOT forced, the app serves onsite/hybrid candidates too,
 // so we want US onsite roles from the keyed providers, not just the remote-only free boards.
 const SEARCH = { country: 'us', page: 1, pageSize: 100 } as const
 
@@ -58,7 +58,7 @@ async function ingestAts(now: string) {
 async function ingestBoards(now: string) {
   // Free providers default on; keyed providers light up only when their env vars are set.
   // timeoutMs (per provider) is raised above the 15s default so the Apify scrapers (Dice/Wellfound)
-  // have time to finish — the fast providers still resolve immediately, so this only affects slow ones.
+  // have time to finish, the fast providers still resolve immediately, so this only affects slow ones.
   const aggregator = new JobAggregator({
     timeoutMs: 60_000,
     providers: {
@@ -66,7 +66,7 @@ async function ingestBoards(now: string) {
       // mapper expects, so it emitted url-less jobs. Re-enable once the mapping matches a real
       // browse-feed payload (paste a sample and I'll fix the field mapping).
       himalayas: { enabled: false },
-      // Arbeitnow OFF: it is a German/EU job board, and ScoutLane is US-market only — keeping it on
+      // Arbeitnow OFF: it is a German/EU job board, and ScoutLane is US-market only, keeping it on
       // just fetches EU roles we then discard at the US ingest filter. Re-enable if/when we expand
       // beyond the US.
       arbeitnow: { enabled: false },
@@ -89,14 +89,14 @@ async function ingestBoards(now: string) {
     },
   })
 
-  // Apify (Dice + Wellfound) is METERED against a $5/month free credit — Wellfound is $0.99/run flat
-  // and Dice ~$0.004/result — so unlike the free boards above it CANNOT run every day (30 daily runs
+  // Apify (Dice + Wellfound) is METERED against a $5/month free credit, Wellfound is $0.99/run flat
+  // and Dice ~$0.004/result, so unlike the free boards above it CANNOT run every day (30 daily runs
   // would cost ~$30 and blow the credit). It instead runs only on the fixed days-of-month in
   // apifyDays() (default 1/11/21 → exactly 3 runs ≈ $4.17, comfortably under $5 with headroom, and
   // those three days exist in every month so the count never surprises). Master switch stays
   // APIFY_INGEST=on; cadence is tunable via APIFY_INGEST_DAYS without a code change.
   // claimApifyRun is the LAST, atomic condition (short-circuited so it only runs on an enabled Apify
-  // day) — it claims a per-UTC-day marker so a cron double-fire or post-timeout re-entry can't bill
+  // day), it claims a per-UTC-day marker so a cron double-fire or post-timeout re-entry can't bill
   // the metered actors twice. It fails closed (no claim -> no spend). The free boards above are
   // unmetered and run every invocation regardless.
   const apifyToken = process.env.APIFY_API_TOKEN
@@ -125,7 +125,7 @@ async function ingestBoards(now: string) {
 }
 
 // Vercel Cron invokes the configured path with an HTTP GET (and auto-attaches
-// `Authorization: Bearer $CRON_SECRET`), so the scheduled refresh MUST be reachable via GET — a
+// `Authorization: Bearer $CRON_SECRET`), so the scheduled refresh MUST be reachable via GET, a
 // POST-only handler returns 405 before any code runs and the cron silently never ingests. We export
 // both: GET for the scheduler, POST for manual/curl runs. authorizeCron reads the header either way.
 async function handleIngestAll(request: Request) {
@@ -167,10 +167,10 @@ async function handleIngestAll(request: Request) {
 
     // Housekeeping runs AFTER both legs upsert and is isolated (a cleanup failure must not fail the
     // ingest the cron exists to do). NOTE (cloud-8): the legs run in parallel but housekeeping runs
-    // after them serially, so on a slow day it can be cut off by the 120s budget — accepted, because
+    // after them serially, so on a slow day it can be cut off by the 120s budget, accepted, because
     // expire/reclaim/sweep are all idempotent and simply run on the next daily invocation.
     // Retention is gated on CONFIRMED re-observation: only sources
-    // that actually succeeded this run are eligible to soft-expire their stale rows — a failed
+    // that actually succeeded this run are eligible to soft-expire their stale rows, a failed
     // provider/leg is excluded, so its still-live postings can never be aged out by a run that never
     // saw it. Expire is reversible (the next successful upsert un-expires); physical reclaim of
     // long-expired rows is a separate, much-later stage.
@@ -233,7 +233,7 @@ function errMsg(reason: unknown): string {
 
 // A failed leg's raw reason can carry internal detail (a JobStoreError wraps DB messages). This
 // route is CRON_SECRET-gated, but redact in production anyway (defense-in-depth, consistent with
-// serverErrorBody) — the full error is always logged server-side. Per-source provider statuses
+// serverErrorBody), the full error is always logged server-side. Per-source provider statuses
 // inside ats/boards are upstream-origin and bounded, so they're left as-is for the cron report.
 const isProd = process.env.NODE_ENV === 'production'
 function legError(reason: unknown): string {

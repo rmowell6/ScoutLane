@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — JSearch Provider (via RapidAPI)
+// ScoutLane, JSearch Provider (via RapidAPI)
 // Docs: https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch
-// Auth: RapidAPI key — register at https://rapidapi.com
+// Auth: RapidAPI key, register at https://rapidapi.com
 // Coverage: Real-time aggregation of Indeed, LinkedIn, Glassdoor, ZipRecruiter,
 //           and 500+ other sources. Best for broad US market coverage.
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Base provider helpers
+// ScoutLane, Base provider helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Job, JobType, Salary } from '../types';
@@ -27,17 +27,17 @@ export async function fetchJSON<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    // redirect:'error' — fail on a 3xx rather than follow it: an open redirect on a board host could
+    // redirect:'error', fail on a 3xx rather than follow it: an open redirect on a board host could
     // otherwise bounce this server-side fetch at an internal/metadata address (SSRF). Caller options
     // win if they ever need to override. Documented ATS JSON endpoints don't legitimately redirect.
     const res = await fetch(url, { redirect: 'error', ...options, signal: controller.signal });
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ${res.statusText} — ${url}`);
+      throw new Error(`HTTP ${res.status} ${res.statusText}: ${url}`);
     }
     // Reject early on an advertised oversize body; then enforce as we read in case the header lies.
     const declared = Number(res.headers?.get?.('content-length'));
     if (Number.isFinite(declared) && declared > maxBytes) {
-      throw new Error(`response too large (${declared} bytes > ${maxBytes}) — ${url}`);
+      throw new Error(`response too large (${declared} bytes > ${maxBytes}): ${url}`);
     }
     return (await readCapped(res, maxBytes, url)) as T;
   } finally {
@@ -52,7 +52,7 @@ async function readCapped(res: Response, maxBytes: number, url: string): Promise
   if (!body || typeof body.getReader !== 'function') {
     if (typeof res.text === 'function') {
       const text = await res.text();
-      if (text.length > maxBytes) throw new Error(`response too large (>${maxBytes} bytes) — ${url}`);
+      if (text.length > maxBytes) throw new Error(`response too large (>${maxBytes} bytes): ${url}`);
       return JSON.parse(text);
     }
     return res.json();
@@ -67,7 +67,7 @@ async function readCapped(res: Response, maxBytes: number, url: string): Promise
     total += value.byteLength;
     if (total > maxBytes) {
       await reader.cancel();
-      throw new Error(`response too large (>${maxBytes} bytes) — ${url}`);
+      throw new Error(`response too large (>${maxBytes} bytes): ${url}`);
     }
     out += decoder.decode(value, { stream: true });
   }

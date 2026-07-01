@@ -1,5 +1,5 @@
-/* App (input form) — "Signal" reskin (WI2): warm off-white + forest green, Inter. Visual surface
-   only — every selector + layout property is preserved from the dark original; only colors,
+/* App (input form), "Signal" reskin (WI2): warm off-white + forest green, Inter. Visual surface
+   only, every selector + layout property is preserved from the dark original; only colors,
    backgrounds, borders, shadows, and the page font changed. Palette matches the marketing landing. */
 
 .page {
@@ -21,7 +21,7 @@
   padding: 0 0 64px;
 }
 
-/* Sticky brand nav — matches the marketing nav (warm-white blur, Scout in forest green). */
+/* Sticky brand nav, matches the marketing nav (warm-white blur, Scout in forest green). */
 .nav {
   position: sticky;
   top: 0;

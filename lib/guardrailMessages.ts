@@ -1,5 +1,5 @@
 // Human-facing copy for a blocked packet. The guardrail report is precise but developer-speak
-// ("no-fabrication: 1 tailored skill(s) not in the profile") — this turns each failed check into a
+// ("no-fabrication: 1 tailored skill(s) not in the profile"), this turns each failed check into a
 // plain-language explanation of WHY the packet was held and HOW to fix it, so a non-technical user
 // isn't left confused or frustrated. The raw GuardrailReport still ships alongside for debugging.
 import type { GuardrailReport } from '@/lib/guardrails'

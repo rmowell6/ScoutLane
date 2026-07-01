@@ -1,6 +1,6 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Apify Provider (Dice + Wellfound)
+// ScoutLane, Apify Provider (Dice + Wellfound)
 //
 // Uses the official Apify JavaScript client, which handles smart polling,
 // exponential back-off, and automatic dataset retrieval.
@@ -11,14 +11,14 @@
 //
 // Free tier: $5/month platform credit (no credit card required).
 //            At ~$0.20/CU and ~0.1 CU/typical run that's ≈50 runs/month free.
-//            Pay-per-result actors cost extra — see Pricing tab of each actor.
+//            Pay-per-result actors cost extra, see Pricing tab of each actor.
 //
 // Default actors used (configurable):
 //   Dice    → worldunboxer/dice-jobs-scraper
-//             (4.4★, 2,274 users, ~$0.004/result — lowest cost rated actor)
+//             (4.4★, 2,274 users, ~$0.004/result, lowest cost rated actor)
 //             Ref: https://apify.com/worldunboxer/dice-jobs-scraper
 //   Wellfound → memo23/wellfound-jobs-scraper
-//             ($0.99 flat per run, not pay-per-result — best value for free tier)
+//             ($0.99 flat per run, not pay-per-result, best value for free tier)
 //             Ref: https://apify.com/memo23/wellfound-jobs-scraper
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export interface ApifyProviderConfig extends ProviderConfig {
-  /** Apify API token — https://console.apify.com/settings/integrations */
+  /** Apify API token, https://console.apify.com/settings/integrations */
   apiToken: string;
   /**
    * Dice.com actor ID on Apify Store.

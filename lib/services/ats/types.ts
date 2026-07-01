@@ -23,7 +23,7 @@ export interface AtsSource {
   company: string
 }
 
-/** Outcome of fetching one source — always returned, never thrown, so one bad board can't
+/** Outcome of fetching one source, always returned, never thrown, so one bad board can't
  *  abort the whole ingest. The orchestrator rolls these up into a report. */
 export interface SourceResult {
   source: AtsSource

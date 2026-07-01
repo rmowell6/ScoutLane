@@ -26,7 +26,7 @@ function storageClient() {
 
 /**
  * Upload a generated document buffer and return a time-limited signed URL.
- * @param format 'docx' or 'pdf' — sets the object's content type and storage extension
+ * @param format 'docx' or 'pdf', sets the object's content type and storage extension
  * @param prefix a folder/name prefix, e.g. 'resumes' or 'cover-letters'
  * @param id a unique id (caller supplies; crypto.randomUUID() upstream)
  * @param downloadName the filename the browser should save as (its extension must match `format`)
@@ -67,7 +67,7 @@ const LIST_PAGE_SIZE = 100
 // doesn't exceed the limit.
 const REMOVE_CHUNK = 1000
 
-/** A Storage object as returned by list() — enough of the shape to decide expiry. */
+/** A Storage object as returned by list(), enough of the shape to decide expiry. */
 export interface StorageEntry {
   name: string
   created_at?: string | null
@@ -90,7 +90,7 @@ export function expiredEntryNames(entries: StorageEntry[], cutoffMs: number): st
 
 /**
  * Delete generated packet files older than `olderThanMs` from the documents bucket. Packets are
- * one-shot downloads — their signed URLs expire in an hour — so anything past a day is abandoned and
+ * one-shot downloads, their signed URLs expire in an hour, so anything past a day is abandoned and
  * only consuming storage. Idempotent and best-effort: a sweep that finds nothing deletes nothing.
  * Returns the number of files removed. Caller decides the schedule (wired into the daily cron).
  *
@@ -104,7 +104,7 @@ export async function cleanupOldDocs(olderThanMs = 24 * 60 * 60 * 1000): Promise
   let removed = 0
 
   for (const prefix of PACKET_PREFIXES) {
-    // Phase 1 — collect all expired paths (no deletes, so offset paging stays stable).
+    // Phase 1, collect all expired paths (no deletes, so offset paging stays stable).
     const paths: string[] = []
     for (let offset = 0; ; offset += LIST_PAGE_SIZE) {
       const { data, error } = await supabase.storage
@@ -117,7 +117,7 @@ export async function cleanupOldDocs(olderThanMs = 24 * 60 * 60 * 1000): Promise
       if (page.length < LIST_PAGE_SIZE) break
     }
 
-    // Phase 2 — delete the collected paths in bounded chunks.
+    // Phase 2, delete the collected paths in bounded chunks.
     for (let i = 0; i < paths.length; i += REMOVE_CHUNK) {
       const chunk = paths.slice(i, i + REMOVE_CHUNK)
       const { error: rmError } = await supabase.storage.from(BUCKET).remove(chunk)

@@ -2,7 +2,7 @@
 // into the engine's FitInput. This is the FUZZY half of fit; the deterministic engine
 // (lib/fit/fitScore.ts) does the exact, reproducible math on the result.
 //
-// The LLM only classifies/extracts — it never produces a score. Untrusted resume/JD text is
+// The LLM only classifies/extracts, it never produces a score. Untrusted resume/JD text is
 // isolated as labeled data, never placed in the system prompt (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
@@ -61,7 +61,7 @@ export async function extractFitInput(
     max_tokens: MAX_TOKENS,
     system: [{ type: 'text', text: EXTRACT_INSTRUCTIONS, cache_control: { type: 'ephemeral' } }],
     // Bounded classification/extraction against a fixed schema (seniority match, skill-token overlap,
-    // employer type) is Sonnet 5's documented `low` effort use case — simple classification where
+    // employer type) is Sonnet 5's documented `low` effort use case, simple classification where
     // marginal quality gains don't justify the extra thinking latency/spend.
     output_config: { format: zodOutputFormat(FitSignalsSchema), effort: 'low' },
     messages: [
@@ -89,7 +89,7 @@ export async function extractFitInput(
   // so a hallucinated token can't inflate coverage and the fit score (the JD-side lists are kept).
   const { signals: grounded, dropped } = groundCandidateSignals(signals, profile)
   if (dropped.length > 0) {
-    // Count only — the dropped tokens are candidate skills/certs lifted from the resume (user PII).
+    // Count only, the dropped tokens are candidate skills/certs lifted from the resume (user PII).
     console.warn(`[fit] dropped ${dropped.length} ungrounded candidate token(s)`)
   }
   return assembleFitInput(grounded, preferences, jobReqs)

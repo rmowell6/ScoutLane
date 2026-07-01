@@ -1,7 +1,7 @@
 // Server-side, request-scoped Supabase client (cookie-based session via @supabase/ssr). This is the
 // ANON/PUBLISHABLE-key client that reads the signed-in user's session from cookies and RESPECTS RLS
-// — distinct from lib/supabaseServer.ts, which uses the SECRET key and bypasses RLS for admin/storage
-// work. Use this one for "who is the caller" (lib/auth.ts). cookies() is async in Next 16 — await it.
+//, distinct from lib/supabaseServer.ts, which uses the SECRET key and bypasses RLS for admin/storage
+// work. Use this one for "who is the caller" (lib/auth.ts). cookies() is async in Next 16, await it.
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 

@@ -3,12 +3,12 @@
 // Why a second renderer: the DOCX builders (resume.ts / coverLetter.ts / fitAssessment.ts) are the
 // editable deliverable, but not everyone has Word, so we also ship a PDF for viewing/printing/attaching.
 // These builders take the SAME content models the DOCX builders consume (ResumeContent,
-// CoverLetterContent, FitAssessmentContent) so the two formats never drift in CONTENT — only in
+// CoverLetterContent, FitAssessmentContent) so the two formats never drift in CONTENT, only in
 // rendering engine. @react-pdf/renderer is pure JS (no headless Chrome / LibreOffice binary), so it
 // runs on the Node serverless runtime the /api/packet route already uses (runtime='nodejs').
 //
 // Fidelity note: color is themed (same tokens as the DOCX), but TYPOGRAPHY maps to the PDF standard-14
-// fonts — SERIF→Times, SANS→Helvetica. That keeps the PDF ATS-safe (standard fonts, single column,
+// fonts, SERIF→Times, SANS→Helvetica. That keeps the PDF ATS-safe (standard fonts, single column,
 // real selectable text, no images/tables) and avoids bundling font binaries. The themed Microsoft
 // fonts remain in the DOCX, which is the format meant for editing.
 import {
@@ -24,7 +24,7 @@ import type { ResumeContent } from '@/lib/docgen/resume'
 import type { CoverLetterContent } from '@/lib/docgen/coverLetter'
 import type { FitAssessmentContent, FitDimGroup } from '@/lib/docgen/fitAssessment'
 
-// Standard-14 PDF fonts — no registration, no binaries, ATS-safe.
+// Standard-14 PDF fonts, no registration, no binaries, ATS-safe.
 const SERIF_BOLD = 'Times-Bold'
 const SANS = 'Helvetica'
 const SANS_BOLD = 'Helvetica-Bold'
@@ -158,7 +158,7 @@ const rs = StyleSheet.create({
 
 function ResumeDoc({ content, t }: { content: ResumeContent; t: Tokens }) {
   return (
-    <Document title={`${content.name} — ${content.tagline} Resume`} author={content.name}>
+    <Document title={`${content.name} · ${content.tagline} Resume`} author={content.name}>
       <Page size="LETTER" style={base.page}>
         <HeaderBlock
           t={t}
@@ -340,7 +340,7 @@ const fa = StyleSheet.create({
 function FitAssessmentDoc({ content, t }: { content: FitAssessmentContent; t: Tokens }) {
   const subtitle = [content.roleTitle, content.company].filter(Boolean).join('  ·  ')
   return (
-    <Document title={`${content.candidateName} — Fit Assessment`} author={content.candidateName}>
+    <Document title={`${content.candidateName} · Fit Assessment`} author={content.candidateName}>
       <Page size="LETTER" style={base.page}>
         <HeaderBlock t={t} name={content.candidateName} tagline="Fit Assessment" subtitle={subtitle || undefined} nameSize={23} />
         <Text style={{ fontSize: 9.5, textAlign: 'center', marginTop: 5, color: INK }}>{content.date}</Text>

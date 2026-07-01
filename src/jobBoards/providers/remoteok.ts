@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — RemoteOK Provider
+// ScoutLane, RemoteOK Provider
 // Docs: https://remoteok.com/api (unofficial but stable public JSON endpoint)
-// Auth: None — public JSON feed
+// Auth: None, public JSON feed
 // Rate limit: Reasonable use; CORS enabled
 // ToS note: Must link back to RemoteOK job URL with no redirects
 // Coverage: Remote tech roles globally, salary data, skill tags

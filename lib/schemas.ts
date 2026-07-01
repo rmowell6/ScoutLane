@@ -30,7 +30,7 @@ export const ContactSchema = z.object({
 export type Contact = z.infer<typeof ContactSchema>
 
 // A certification + whether it is current. The resume's "Previously Held / expired / lapsed"
-// grouping MUST survive structuring so the document renders Active vs Previously-Held faithfully —
+// grouping MUST survive structuring so the document renders Active vs Previously-Held faithfully, 
 // listing a lapsed cert as current is a real misrepresentation. `status` is optional: absent ==
 // active (and legacy profiles that stored a bare string are coerced to { name } at the store
 // boundary). `note` carries a currency annotation like "(held 5 years)".
@@ -93,7 +93,7 @@ export type EmployerTypePref = z.infer<typeof EmployerTypePrefSchema>
 export const CandidatePreferencesSchema = z.object({
   /** Candidate's target top-of-band comp (USD). null/absent -> comp dimension stays neutral. */
   targetCompTopUsd: z.number().positive().nullable().optional(),
-  /** Target roles/lanes, e.g. ['Cloud Engineer', 'VMware Engineer'] — sets role-type fit. */
+  /** Target roles/lanes, e.g. ['Cloud Engineer', 'VMware Engineer'], sets role-type fit. */
   targetLanes: z.array(z.string()).default([]),
   /** Work modes the candidate is open to (multi-select). */
   workModes: z.array(WorkModeSchema).default([]),
@@ -115,7 +115,7 @@ export const ClaimSchema = z.object({
 export type Claim = z.infer<typeof ClaimSchema>
 
 // Hiring-manager outreach: two short messages the candidate can send directly. Same
-// no-fabrication rule as the cover letter — both are checked against profile facts by the
+// no-fabrication rule as the cover letter, both are checked against profile facts by the
 // guardrail.
 // IMPORTANT: these maxes are GENEROUS sanity bounds, not the real limits. `messages.parse` validates
 // the model's output against this schema and THROWS if it overflows, which would fail the whole packet

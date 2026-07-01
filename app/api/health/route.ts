@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // Readiness, not just liveness: report pool freshness so a silently-stopped ingest cron is
-// observable from outside (a monitor can alert on stale `lastIngestAt` or live=0). Best-effort — a
+// observable from outside (a monitor can alert on stale `lastIngestAt` or live=0). Best-effort, a
 // stats failure must never make /health itself fail.
 export async function GET() {
   let pool: { live: number; lastIngestAt: string | null } | null = null

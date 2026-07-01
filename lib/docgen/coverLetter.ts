@@ -1,4 +1,4 @@
-// Cover-letter builder — faithful port of the cover-letter generator (the master generator).
+// Cover-letter builder, faithful port of the cover-letter generator (the master generator).
 // Shares the LOCKED resume design tokens so the resume and cover letter look cohesive, now
 // parameterized by a Theme + FontPair (same axes as the resume) so a packet is visually uniform.
 // Single-column, ATS-safe, dark text on light. assertNoEmDash throws so an em dash can never
@@ -38,7 +38,7 @@ export interface CoverLetterContent {
   signature: string
 }
 
-/** Standing rule: no em dashes in any prose — throw so it can never ship (SPEC). */
+/** Standing rule: no em dashes in any prose, throw so it can never ship (SPEC). */
 function assertNoEmDash(content: CoverLetterContent): void {
   const fields = [content.recipient, content.reLine, content.salutation, content.closing, ...content.paragraphs]
   const offender = fields.find((t) => typeof t === 'string' && t.includes('—'))

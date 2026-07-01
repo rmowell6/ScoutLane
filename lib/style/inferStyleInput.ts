@@ -34,7 +34,7 @@ const ROLE_TYPES: readonly RoleType[] = [
   'general',
 ]
 
-/** Loose shape a classifier (or any caller) can hand us — fields optional/nullable/free-text. */
+/** Loose shape a classifier (or any caller) can hand us, fields optional/nullable/free-text. */
 export interface StyleClassification {
   domain?: string | null
   seniority?: string | null

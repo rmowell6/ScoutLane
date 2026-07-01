@@ -1,4 +1,4 @@
-// MANUAL, OPT-IN eval — it hits the LIVE Anthropic API, so it is SKIPPED unless RUN_TAILOR_EVAL=1
+// MANUAL, OPT-IN eval, it hits the LIVE Anthropic API, so it is SKIPPED unless RUN_TAILOR_EVAL=1
 // and a real ANTHROPIC_API_KEY is present. It never runs in CI (the guard keeps the normal `vitest
 // run` from touching the network). It generates the SAME packet at `low` vs `medium` tailor effort
 // through the real tailorResume() path and prints both, so we can judge faithfulness, framing, tone,

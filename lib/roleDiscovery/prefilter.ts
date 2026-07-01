@@ -1,8 +1,8 @@
-// Role discovery — stage 1 of 2: the deterministic LEXICAL pre-filter (Approach A).
+// Role discovery, stage 1 of 2: the deterministic LEXICAL pre-filter (Approach A).
 //
 // Goal: cheaply narrow the live pool to a high-recall candidate set BEFORE the (paid) Claude
 // re-rank. Titles vary across companies for the same work ("Cloud Engineer" vs "Platform" vs
-// "Infrastructure Engineer"), so we don't match on titles alone — we match the candidate's real
+// "Infrastructure Engineer"), so we don't match on titles alone, we match the candidate's real
 // skill/role vocabulary against each posting's title AND a JD snippet. That surfaces title-variant
 // roles whose *content* overlaps the candidate's experience, which Claude then ranks for true fit.
 //
@@ -28,7 +28,7 @@ export interface ScoredJob extends MatchableJob {
   hits: string[]
 }
 
-// Words too common to carry signal — kept tiny on purpose (the term set is already domain-specific).
+// Words too common to carry signal, kept tiny on purpose (the term set is already domain-specific).
 const STOP = new Set([
   'and', 'the', 'for', 'with', 'our', 'you', 'your', 'are', 'has', 'have', 'will', 'this', 'that',
   'from', 'into', 'across', 'using', 'use', 'work', 'team', 'teams', 'role', 'roles', 'job', 'years',
@@ -92,7 +92,7 @@ function escapeRe(s: string): string {
 }
 
 /**
- * Score every posting and return the top K, highest first. `minScore` is the relevance floor — a
+ * Score every posting and return the top K, highest first. `minScore` is the relevance floor, a
  * posting must clear it to qualify (default 1 = any overlap; a higher floor trims long-tail roles
  * that share only one incidental keyword). Ties break by input order (recency-stable).
  */

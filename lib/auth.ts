@@ -1,5 +1,5 @@
 // Auth boundary helpers (Engineering Plan §4.3). "Who is the caller" is derived from the verified
-// JWT claims via getClaims() — NEVER getSession()/getUser(), which trust unverified cookie data on
+// JWT claims via getClaims(), NEVER getSession()/getUser(), which trust unverified cookie data on
 // the server. Route handlers call requireUser() and return its NextResponse as-is when the caller is
 // unauthenticated (same ergonomics as rateLimit()): `const user = await requireUser(); if (user
 // instanceof NextResponse) return user`.
@@ -21,7 +21,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
   try {
     supabase = await createSupabaseServerClient()
   } catch {
-    // Auth env not wired — fail closed (no implicit access).
+    // Auth env not wired, fail closed (no implicit access).
     return null
   }
   const { data, error } = await supabase.auth.getClaims()

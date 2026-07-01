@@ -2,7 +2,7 @@
 // hallucinated candidate token the resume doesn't support would inflate skill/cert COVERAGE and so
 // the deterministic fit score. After extraction we drop any CANDIDATE-side token that doesn't appear
 // anywhere in the profile facts. JD-side lists (mustHaveSkills / requiredCerts / hardGaps) describe
-// the job, not the candidate, so they are NOT filtered — they must stay intact for coverage to mean
+// the job, not the candidate, so they are NOT filtered, they must stay intact for coverage to mean
 // anything.
 import { indexFacts, mentions } from '@/lib/guardrails'
 import type { FitSignals } from '@/lib/fit/fitSignals'

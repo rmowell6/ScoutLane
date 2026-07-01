@@ -1,13 +1,13 @@
-// ATS-safe Fit Assessment builder — the third packet document, rendered from the deterministic
+// ATS-safe Fit Assessment builder, the third packet document, rendered from the deterministic
 // engine's FitResult (8 weighted dimensions + base/bonus/penalties + band). Same locked design
 // recipes as resume.ts (dark text on light; single column, no tables/images, real selectable text).
 // Runs only under runtime='nodejs' (Packer.toBuffer needs Node Buffer).
 //
 // COLOR is themed; TYPOGRAPHY is not (the assessment is a decision aid, not an employer-facing doc,
-// so fonts stay fixed — no FontPair param). Tokens: NAVY→theme.primary, WASH→theme.wash,
+// so fonts stay fixed, no FontPair param). Tokens: NAVY→theme.primary, WASH→theme.wash,
 // SLATE→theme.slate, INK→fixed '1A1A1A'. The copper accent uses the COLLISION-GUARDED accent
 // (`accent.color` from resolveAssessmentAccent) so the brand accent can never read as a status
-// color — never theme.accent directly.
+// color, never theme.accent directly.
 import {
   AlignmentType,
   BorderStyle,
@@ -238,7 +238,7 @@ export async function buildFitAssessmentDocx(
 
   const doc = new Document({
     creator: content.candidateName,
-    title: `${content.candidateName} — Fit Assessment`,
+    title: `${content.candidateName} · Fit Assessment`,
     styles: { default: { document: { run: { font: SANS, size: 21, color: INK } } } },
     numbering: {
       config: [

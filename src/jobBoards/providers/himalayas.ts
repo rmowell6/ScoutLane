@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Himalayas Provider
+// ScoutLane, Himalayas Provider
 // Docs: https://himalayas.app/api
-// Auth: None — fully public
+// Auth: None, fully public
 // Coverage: Remote tech/IT roles globally
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -108,7 +108,7 @@ export class HimalayasProvider implements JobBoardProvider {
       const data = await fetchJSON<HimalayasResponse>(url, {}, this.config.timeoutMs);
       return {
         jobs: mapEach(data.jobs, (j) => mapJob(j, this.name)),
-        // The browse feed returns jobs without a `meta` block — fall back to the count we got.
+        // The browse feed returns jobs without a `meta` block, fall back to the count we got.
         total: data.meta?.total ?? (data.jobs ?? []).length,
         page,
         pageSize,

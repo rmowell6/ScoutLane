@@ -1,5 +1,5 @@
 // Live-job validation: confirm a user-supplied job URL is reachable and not expired
-// (Engineering Plan §5 step 2). This only checks liveness of a URL the user provided —
+// (Engineering Plan §5 step 2). This only checks liveness of a URL the user provided, 
 // it does NOT scrape gated sites or log into accounts (product invariant).
 //
 // The fetch implementation is injectable so the status logic is unit-testable without network.
