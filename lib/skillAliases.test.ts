@@ -20,7 +20,16 @@ describe('canonicalize', () => {
 
   test('is purely additive: an unknown term returns its normalized self unchanged', () => {
     expect(canonicalize('Some Bespoke Tool')).toBe('some bespoke tool')
-    expect(canonicalize('vsphere/esxi')).toBe('vsphere/esxi')
+    expect(canonicalize('Docker Swarm')).toBe('docker swarm')
+  })
+
+  test('unifies VMware vSphere / ESXi spellings (a JD "VMware ESXi" matches a "vSphere / ESXi" resume)', () => {
+    expect(canonicalize('VMware ESXi')).toBe(canonicalize('vSphere / ESXi'))
+    expect(canonicalize('ESXi')).toBe(canonicalize('vSphere'))
+    expect(canonicalize('VMware vSphere/ESXi')).toBe(canonicalize('vmware esxi'))
+    // Deliberately left ambiguous: generic "virtualization" and bare "VMware" are NOT merged in.
+    expect(canonicalize('virtualization')).not.toBe(canonicalize('VMware ESXi'))
+    expect(canonicalize('VMware')).not.toBe(canonicalize('VMware ESXi'))
   })
 })
 

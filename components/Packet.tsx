@@ -17,6 +17,7 @@ import {
   leadDimension,
 } from '@/lib/fit/fitPresent'
 import { styleNames } from '@/lib/style/skin'
+import { canonicalize } from '@/lib/skillAliases'
 import { describeGuardrailFailure } from '@/lib/guardrailMessages'
 import { track, EVENTS } from '@/lib/analytics'
 
@@ -307,12 +308,15 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
   // aren't candidate strengths even at 100/100). Drives the dynamic "lead with" next step.
   const leadDim = leadDimension(fit)
 
-  // Keyword/ATS coverage from the extracted skill signals.
-  const held = new Set(fitInput.candidateSkills.map((s) => s.toLowerCase().trim()))
-  const adj = new Set((fitInput.adjacentSkills ?? []).map((s) => s.toLowerCase().trim()))
+  // Keyword/ATS coverage from the extracted skill signals. Match through canonicalize() so this table
+  // agrees with lib/fit/fitScore.coverage() (which the score already uses): curated synonyms like
+  // "VMware ESXi" vs "vSphere / ESXi" count as held, not a false gap. Plain normalize for anything not
+  // in the curated table, so behavior is unchanged for unrelated skills.
+  const held = new Set(fitInput.candidateSkills.map((s) => canonicalize(s)))
+  const adj = new Set((fitInput.adjacentSkills ?? []).map((s) => canonicalize(s)))
   const coverageOf = (skills: string[]) =>
     skills.map((skill) => {
-      const k = skill.toLowerCase().trim()
+      const k = canonicalize(skill)
       const status: Status = held.has(k) ? 'is-pass' : adj.has(k) ? 'is-warn' : 'is-fail'
       return { skill, status }
     })
