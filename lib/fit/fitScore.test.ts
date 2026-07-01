@@ -151,3 +151,47 @@ describe('penalties and band', () => {
     expect(r.overall).toBe(assessFit(base).overall - 10)
   })
 })
+
+describe('engagement + work-authorization penalties (rubric 1.1.0)', () => {
+  const base: FitInput = {
+    roleTypeMatch: 'best',
+    mustHaveSkills: ['aws'],
+    candidateSkills: ['aws'],
+    seniorityMatch: 'exact',
+    compTopUsd: 180000,
+    targetCompTopUsd: 170000,
+    employerType: 'direct',
+    location: 'remote_us',
+    vertical: 'match',
+  }
+
+  it('applies workAuthMismatch (25) ONLY when the candidate needs sponsorship AND the JD offers none', () => {
+    expect(assessFit({ ...base, needsSponsorship: true, sponsorshipAvailable: 'no' }).penalties.workAuthMismatch).toBe(25)
+    // Either side unspecified/absent -> no penalty (never inferred from missing data).
+    expect(assessFit({ ...base, needsSponsorship: true, sponsorshipAvailable: 'unspecified' }).penalties.workAuthMismatch).toBe(0)
+    expect(assessFit({ ...base, sponsorshipAvailable: 'no' }).penalties.workAuthMismatch).toBe(0)
+    expect(assessFit(base).penalties.workAuthMismatch).toBe(0)
+  })
+
+  it('applies engagementMismatch (8) ONLY on a cross-family explicit mismatch (W2 vs independent)', () => {
+    expect(assessFit({ ...base, preferredEngagementType: 'w2_fte', engagementType: 'c2c' }).penalties.engagementMismatch).toBe(8)
+    // Same family (permanent vs contract within W2) is a preference, not a blocker -> no penalty.
+    expect(assessFit({ ...base, preferredEngagementType: 'w2_fte', engagementType: 'w2_contract' }).penalties.engagementMismatch).toBe(0)
+    // Unspecified on either side -> no penalty.
+    expect(assessFit({ ...base, preferredEngagementType: 'w2_fte', engagementType: 'unspecified' }).penalties.engagementMismatch).toBe(0)
+    expect(assessFit(base).penalties.engagementMismatch).toBe(0)
+  })
+
+  it('work-auth is the larger drop, and both are exact deductions off the clean score', () => {
+    const clean = assessFit(base).overall
+    const wa = assessFit({ ...base, needsSponsorship: true, sponsorshipAvailable: 'no' }).overall
+    const eng = assessFit({ ...base, preferredEngagementType: 'w2_fte', engagementType: 'c2c' }).overall
+    expect(clean - wa).toBe(25)
+    expect(clean - eng).toBe(8)
+    expect(wa).toBeLessThan(eng)
+  })
+
+  it('optional fields absent (profiles that predate this feature) score identically to no penalty', () => {
+    expect(assessFit(base).penaltyTotal).toBe(0)
+  })
+})

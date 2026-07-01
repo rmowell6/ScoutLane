@@ -90,6 +90,13 @@ export const EmployerTypePrefSchema = z.enum([
 ])
 export type EmployerTypePref = z.infer<typeof EmployerTypePrefSchema>
 
+// Engagement (tax/legal structure) the candidate prefers. DISTINCT from employmentTypes above (a
+// schedule axis: full-time/part-time/contract) and from employerType (who employs you). W2 = employee
+// on the hirer's payroll; c2c/1099 = independent (own corp / self-employed). A W2-only candidate at a
+// c2c-only shop is a hard structural mismatch. Optional on the candidate: absent = no preference.
+export const EngagementTypeSchema = z.enum(['w2_fte', 'w2_contract', 'c2c', 'c2c_1099'])
+export type EngagementType = z.infer<typeof EngagementTypeSchema>
+
 export const CandidatePreferencesSchema = z.object({
   /** Candidate's target top-of-band comp (USD). null/absent -> comp dimension stays neutral. */
   targetCompTopUsd: z.number().positive().nullable().optional(),
@@ -101,6 +108,11 @@ export const CandidatePreferencesSchema = z.object({
   employmentTypes: z.array(EmploymentTypeSchema).default([]),
   noGoLocations: z.array(z.string()).default([]),
   employerTypePreference: EmployerTypePrefSchema.optional(),
+  /** Preferred engagement (W2 vs corp-to-corp/1099). Optional, absent = no preference (no penalty). */
+  preferredEngagementType: EngagementTypeSchema.optional(),
+  /** True only if the candidate needs visa sponsorship. Sensitive + optional; asked so we can warn on
+   *  a JD that explicitly offers none. Absent/false = treated as not needing sponsorship (no penalty). */
+  needsSponsorship: z.boolean().optional(),
 })
 export type CandidatePreferences = z.infer<typeof CandidatePreferencesSchema>
 

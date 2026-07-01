@@ -9,16 +9,27 @@
 //
 // Do NOT edit constants/formulas casually: a change alters the contract. On a deliberate rubric
 // change, bump RUBRIC_VERSION and regenerate the golden file from the reference engine.
+//
+// Rubric 1.1.0 (deliberate change, not a port): adds two engagement/work-authorization PENALTIES
+// (workAuthMismatch, engagementMismatch). These are NEW capability, there is no fit_score.js value to
+// stay in parity with for them; the 1.0.0 scoring (the 8 weighted dimensions + existing penalties) is
+// unchanged and still byte-parity with the original engine. Their inputs are OPTIONAL with neutral
+// defaults, so any case lacking them scores identically to 1.0.0 (only `version` and the penalties
+// object shape change). Magnitudes + rationale live below and in docs/Fit_Assessment_SPEC.md.
 
 import { canonicalize } from '@/lib/skillAliases'
 
-export const RUBRIC_VERSION = '1.0.0'
+export const RUBRIC_VERSION = '1.1.0'
 
 export type RoleTypeMatch = 'best' | 'solid' | 'stretch' | 'off'
 export type SeniorityMatch = 'exact' | 'adjacent' | 'step_up' | 'mismatch'
 export type EmployerType = 'direct' | 'managed_services' | 'consulting' | 'vendor'
 export type LocationKind = 'remote_us' | 'local_metro' | 'hybrid_confirm' | 'onsite_elsewhere'
 export type Vertical = 'match' | 'adjacent' | 'none'
+// Engagement (tax/legal structure) and visa-sponsorship availability. 'unspecified' is the safe
+// default, a penalty NEVER fires from missing data, only from BOTH sides being explicit.
+export type EngagementType = 'w2_fte' | 'w2_contract' | 'c2c' | 'c2c_1099' | 'unspecified'
+export type SponsorshipAvailability = 'yes' | 'no' | 'unspecified'
 
 export interface LocationFlags {
   onCall?: boolean
@@ -56,6 +67,15 @@ export interface FitInput {
   hardGaps?: string[]
   flags?: FitFlags
   lanesSurfaced?: number
+  // ---- engagement / work-authorization (rubric 1.1.0; all optional, absent = unspecified) ----
+  /** JD-side engagement (tax/legal structure). */
+  engagementType?: EngagementType
+  /** JD-side visa sponsorship availability (only 'yes'/'no' when the JD is explicit). */
+  sponsorshipAvailable?: SponsorshipAvailability
+  /** Candidate-side preferred engagement (from preferences). */
+  preferredEngagementType?: EngagementType
+  /** Candidate-side: true only if the candidate needs visa sponsorship. */
+  needsSponsorship?: boolean
 }
 
 export interface FitDimension {
@@ -72,6 +92,10 @@ export interface FitPenalties {
   unconfirmedLive: number
   defenseAdjacent: number
   heavyTravelOrPresales: number
+  /** Candidate needs sponsorship AND the JD explicitly offers none (both explicit). Rubric 1.1.0. */
+  workAuthMismatch: number
+  /** Candidate and JD engagement structures are explicit and in different families. Rubric 1.1.0. */
+  engagementMismatch: number
 }
 
 export interface FitResult {
@@ -116,10 +140,30 @@ const EMPLOYER: Record<string, number> = { direct: 100, managed_services: 70, co
 const LOCATION: Record<string, number> = { remote_us: 95, local_metro: 90, hybrid_confirm: 70, onsite_elsewhere: 30 }
 const VERTICAL: Record<string, number> = { match: 90, adjacent: 70, none: 55 }
 
-const PENALTY = { hardGapEach: 5, hardGapCap: 10, expired: 15, unconfirmedLive: 6, defenseAdjacent: 10, heavyTravelOrPresales: 4 }
+// workAuthMismatch (25): the LARGEST single penalty because it is a legal ELIGIBILITY wall, not a
+// preference, the candidate literally cannot take the role. Set above expired (15), which is only a
+// data-freshness issue (re-verifiable). Deliberately NOT a hard 100 zero: the underlying fit is still
+// useful to show the candidate, and sponsorship policies occasionally flex, so we drop the score hard
+// (a base-90 role lands around Stretch/Lead) without pretending the person is a non-match.
+// engagementMismatch (8): a real friction (W2-only vs corp-to-corp) but MORE OFTEN NEGOTIABLE, often
+// brokered through an agency, so it is smaller than workAuthMismatch and than expired. Both fire ONLY
+// when BOTH sides are explicit; missing data ('unspecified') never penalizes. See Fit_Assessment_SPEC.
+const PENALTY = {
+  hardGapEach: 5, hardGapCap: 10, expired: 15, unconfirmedLive: 6, defenseAdjacent: 10,
+  heavyTravelOrPresales: 4, workAuthMismatch: 25, engagementMismatch: 8,
+}
 const LOC_DEDUCT = { onCall: 6, travelModerate: 3, travelHeavy: 8 }
 const CROSS_LANE_PER = 2
 const CROSS_LANE_CAP = 6
+
+// Two engagement FAMILIES: W2 (employee on payroll) vs independent (corp-to-corp / 1099). Only a
+// cross-family difference is a structural dealbreaker; finer distinctions (permanent vs contract
+// within W2) are preferences, not blockers, so they do NOT penalize. undefined/'unspecified' -> null.
+function engagementFamily(t: EngagementType | undefined): 'w2' | 'independent' | null {
+  if (t === 'w2_fte' || t === 'w2_contract') return 'w2'
+  if (t === 'c2c' || t === 'c2c_1099') return 'independent'
+  return null
+}
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n))
 const round1 = (n: number) => Math.round(n * 10) / 10
@@ -252,12 +296,22 @@ export function assessFit(input: FitInput): FitResult {
   // penalties
   const f = input.flags || {}
   const hardGapPenalty = Math.min((input.hardGaps || []).length * PENALTY.hardGapEach, PENALTY.hardGapCap)
+  // Engagement + work-auth (rubric 1.1.0): both fire ONLY when both sides are explicit, never inferred.
+  const workAuthMismatch =
+    input.needsSponsorship === true && input.sponsorshipAvailable === 'no' ? PENALTY.workAuthMismatch : 0
+  const candFamily = engagementFamily(input.preferredEngagementType)
+  const jdFamily = engagementFamily(input.engagementType)
+  const engagementMismatch =
+    candFamily !== null && jdFamily !== null && candFamily !== jdFamily ? PENALTY.engagementMismatch : 0
+
   const penalties: FitPenalties = {
     hardGaps: hardGapPenalty,
     expired: f.expired ? PENALTY.expired : 0,
     unconfirmedLive: f.unconfirmedLive ? PENALTY.unconfirmedLive : 0,
     defenseAdjacent: f.defenseAdjacent ? PENALTY.defenseAdjacent : 0,
     heavyTravelOrPresales: f.heavyTravelOrPresales ? PENALTY.heavyTravelOrPresales : 0,
+    workAuthMismatch,
+    engagementMismatch,
   }
   const penaltyTotal = Object.values(penalties).reduce((a, b) => a + b, 0)
 
