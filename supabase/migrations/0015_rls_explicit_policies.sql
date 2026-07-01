@@ -50,6 +50,11 @@ create policy "live jobs are public-read"
 
 -- generations: owner-only read/write (mirrors 0009). Defense-in-depth for when packet history is
 -- persisted; there is no client writer yet, but the policy must exist so the table isn't policy-less.
+-- Ensure the column the policy references EXISTS first: if 0009 was never applied to the deployed
+-- project (the same drift that left this table policy-less), generations.user_id is missing and the
+-- policy below would fail with "column user_id does not exist". This add is idempotent (mirrors 0009).
+alter table public.generations add column if not exists user_id uuid;
+
 drop policy if exists "own generations select" on public.generations;
 create policy "own generations select"
   on public.generations for select to authenticated
