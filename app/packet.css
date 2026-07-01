@@ -59,37 +59,26 @@
 }
 
 /* ---- results dashboard layout ----
-   The packet results are a dashboard, so on a wide screen use two columns instead of one narrow
-   stacked column: the fit ANALYSIS (role, gauge + dimensions, keyword coverage) on the left, the
-   ACT-ON-IT cards (documents, outreach, next steps) on the right. Collapses to a single column on
-   tablet/mobile, where the columns simply stack in source order. */
+   The packet reads top to bottom in one column: role, the fit ANALYSIS, the downloadable documents,
+   then the keyword tables, hiring-manager outreach, and next steps. Cards that pair naturally (the
+   required/preferred coverage tables, the two outreach openers) sit two-up on a wide screen via
+   `.grid-2` and stack on mobile. A single column keeps the flow balanced with no dead space next to
+   the tall fit card. */
 .packet .packet__body {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
   align-items: start;
 }
-.packet .packet__col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0; /* let children shrink instead of forcing overflow (tables, long tokens) */
-}
-/* Inside a column the flex `gap` owns vertical spacing, so drop the cards' own bottom margin. */
-.packet .packet__col > .card,
-.packet .packet__col > .grid-2 {
+/* The grid `gap` owns vertical spacing, so drop each stacked section's own bottom margin. */
+.packet .packet__body > .card,
+.packet .packet__body > .grid-2 {
   margin-bottom: 0;
 }
-/* A full-width band under the two columns. The ATS coverage tables need more room than the
-   half-width left column gives, so they live here and their two-up grid sits side by side again. */
+/* No-op in the single-column body (a section is full width already); kept so the class stays
+   meaningful on the coverage / outreach / next-steps sections. */
 .packet .packet__wide {
   grid-column: 1 / -1;
-}
-@media (min-width: 1024px) {
-  .packet .packet__body {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 16px;
-  }
 }
 .packet a {
   color: var(--color-link);
@@ -170,7 +159,14 @@
 .packet .grid-2 {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: 1fr; /* stack on narrow screens */
+}
+@media (min-width: 720px) {
+  /* Exactly two equal, full-width columns: fills the row instead of packing narrow items to the
+     left, and stretches paired cards (coverage tables, the two outreach openers) to equal height. */
+  .packet .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 .packet .muted {
   color: var(--color-text-muted);

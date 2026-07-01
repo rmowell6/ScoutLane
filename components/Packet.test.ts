@@ -113,3 +113,43 @@ describe('PacketView held-back indicator', () => {
     expect(html).toContain('We held this packet back to keep it accurate')
   })
 })
+
+describe('PacketView section order (outreach promoted, next steps last)', () => {
+  const packet: Packet = {
+    profile,
+    jobReqs,
+    fit,
+    fitInput,
+    tailored: cleanTailored,
+    guardrails: cleanGuardrails,
+    documents,
+    style,
+  }
+
+  test('outreach is an always-visible card (not a collapsed <details>) with its deliverable chip', () => {
+    const html = render(packet)
+    expect(html).not.toContain('<details') // no longer collapsed
+    expect(html).toContain('Reach the hiring manager')
+    expect(html).toContain('2 ready-to-send openers') // the chip that reads it as a deliverable
+  })
+
+  test('renders in order: Keyword coverage -> Reach the hiring manager -> Documents & checks -> Next steps -> footer', () => {
+    const html = render(packet)
+    const iCoverage = html.indexOf('Keyword')
+    const iOutreach = html.indexOf('Reach the hiring manager')
+    const iDocs = html.indexOf('Documents')
+    const iNext = html.indexOf('Next steps')
+    const iFooter = html.indexOf('<footer')
+    expect(iCoverage).toBeGreaterThan(-1)
+    expect(iCoverage).toBeLessThan(iOutreach) // outreach sits below the coverage table
+    expect(iOutreach).toBeLessThan(iDocs) // downloads sit below outreach
+    expect(iDocs).toBeLessThan(iNext) // downloads sit right above next steps, where the reader acts
+    expect(iNext).toBeLessThan(iFooter) // next steps is the last section before the footer
+  })
+
+  test('coverage callout uses the rotated "unfiltered" wording (voice guide)', () => {
+    const html = render(packet)
+    expect(html).toContain('The unfiltered part:')
+    expect(html).not.toContain('The honest part:')
+  })
+})
