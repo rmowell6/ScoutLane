@@ -52,7 +52,7 @@ This is an execution runbook, not a pitch. It assumes you'll build it yourself w
 - **`GET /api/cron/ingest`** is realized as **`POST /api/jobs/ingest-all`** on a daily Vercel Cron.
 
 ### Data model — actual
-Migrations `supabase/migrations/0001–0013`: `profiles`, `jobs`, **`generations` (⚠️ scaffolded but NOT yet written — generated packets are currently ephemeral; persisting them is a MIG/observability prerequisite)**, `ingest_run_markers`, `allowlist` (invite gate, 0008), `rate_limit_counters` (shared limiter, 0011), `waitlist` (M4-B, 0013). **RLS is enabled on every table.**
+Migrations `supabase/migrations/0001–0015`: `profiles`, `jobs`, **`generations` (now WRITTEN: `/api/packet` persists a row for each shipped packet via `lib/services/generationStore.ts`, best-effort and owner-scoped; blocked packets that fail a guardrail are not persisted)**, `ingest_run_markers`, `allowlist` (invite gate, 0008), `rate_limit_counters` (shared limiter, 0011), `waitlist` (M4-B, 0013). Migrations `0014`–`0015` hardened RLS/EXECUTE. **RLS is enabled on every table.**
 
 ### Repo structure — actual vs §9
 - **Marketing landing** at `app/page.tsx`; **product UI** at `app/app/page.tsx` (auth-gated). [M4-A]

@@ -4,6 +4,7 @@
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { buildPacket, PacketError } from '@/lib/services/buildPacket'
+import { saveGeneration } from '@/lib/services/generationStore'
 import { getStoredProfile, isProfileStoreConfigured, ProfileStoreError } from '@/lib/services/profileStore'
 import { getJobJd, isJobStoreConfigured, JobStoreError } from '@/lib/services/jobStore'
 import { CandidatePreferencesSchema, type CandidatePreferences, type Profile } from '@/lib/schemas'
@@ -154,6 +155,20 @@ export async function POST(request: Request) {
         { error: friendly.title, reasons: friendly.reasons, guardrails: packet.guardrails },
         { status: 422 },
       )
+    }
+
+    // Persist a record of the shipped packet (owner-scoped generations history). Best-effort and
+    // strictly non-blocking: the packet already succeeded, so a persistence failure must not turn a
+    // good response into an error. No-op when the store is unconfigured.
+    try {
+      await saveGeneration({
+        userId: user.id,
+        profileId: parsed.data.profileId ?? null,
+        jobId: parsed.data.jobId ?? null,
+        packet,
+      })
+    } catch (err) {
+      console.error('[packet] generation persistence failed (non-blocking)', err)
     }
 
     return NextResponse.json(packet, { status: 200 })
