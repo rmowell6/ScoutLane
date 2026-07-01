@@ -93,6 +93,23 @@ function negationKey(tokens: Set<string>): string {
   return [...tokens].filter((w) => NEGATION_WORDS.has(w)).sort().join(',')
 }
 
+/** True when a single fact carries any negation/polarity word: the fact asserts an absence, not a
+ *  capability. Whole-fact scope (not term-proximity) on purpose: it is the conservative, fail-CLOSED
+ *  reading. A mixed "no Java but expert Kubernetes" fact is treated as negated (a safe over-block); we
+ *  never let a fact the profile explicitly disclaims count as grounding. */
+function factIsNegated(fact: string): boolean {
+  return negationKey(new Set(wordTokens(fact))) !== ''
+}
+
+/** Grounded iff `term` appears in at least one NON-negated fact. Grounding against the flattened
+ *  profile text (the old approach) let a disclaimer ground the very skill it denies: "No hands-on
+ *  Kubernetes experience" wrongly grounded "Kubernetes". Checking fact-by-fact and skipping any negated
+ *  fact fixes that while keeping every real, positively-stated skill grounded. Fails CLOSED: when in
+ *  doubt a term reads as ungrounded (over-blocks), never as silently grounded. */
+function groundedInFacts(facts: string[], term: string): boolean {
+  return facts.some((fact) => !factIsNegated(fact) && mentions(fact, term))
+}
+
 /** Near-equality: a faithful restatement of `fact`, NOT a one-directional stripped fragment (which
  *  can misrepresent, e.g. dropping a leading "Failed to") nor a fabrication that embeds a short real
  *  phrase. Two routes:
@@ -226,7 +243,7 @@ export function checkNoFabrication(
   const index = indexFacts(profile)
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
   const profileText = index.texts.join(' \n ')
-  const ungroundedSkills = tailored.skills.filter((s) => !mentions(profileText, s))
+  const ungroundedSkills = tailored.skills.filter((s) => !groundedInFacts(index.texts, s))
   // The outreach messages are fact-grounded prose too, so hold them to the same no-invented-metric bar.
   const prose = `${tailored.summary}\n${tailored.coverLetter}\n${tailored.outreach.linkedin}\n${tailored.outreach.email}`
   const ungroundedMetrics = ungroundedMetricsIn(prose, profileText)
@@ -241,12 +258,13 @@ export function checkNoFabrication(
 /**
  * Match a term as a whole word (single token) or substring (multi-word).
  *
- * NOTE (ai-28): grounding checks below match a tailored skill/term against the WHOLE flattened
- * profile-fact text (skills + certs + role bullets + summary + education), not just the structured
- * skills/certs lists. This is deliberate: a skill evidenced only in an experience bullet ("led the
- * Azure migration") is genuinely present in the profile and must be allowed to ship — restricting
- * grounding to the skills list alone would block legitimate, fact-backed tailoring. The whole-word
- * match for single tokens keeps incidental substring hits (java vs javascript) from passing.
+ * NOTE (ai-28): grounding checks a tailored skill/term against EVERY fact (skills + certs + role
+ * bullets + summary + education) via groundedInFacts, not just the structured skills/certs lists.
+ * This is deliberate: a skill evidenced only in an experience bullet ("led the Azure migration") is
+ * genuinely present in the profile and must be allowed to ship; restricting grounding to the skills
+ * list alone would block legitimate, fact-backed tailoring. Grounding runs fact-by-fact (not against
+ * one flattened string) so groundedInFacts can skip NEGATED facts. The whole-word match for single
+ * tokens keeps incidental substring hits (java vs javascript) from passing.
  */
 export function mentions(haystack: string, term: string): boolean {
   const t = normalize(term)
@@ -274,7 +292,7 @@ export function checkBannedTerms(
   profile: Profile,
   bannedTerms: string[],
 ): BannedTermsResult {
-  const profileText = indexFacts(profile).texts.join(' \n ')
+  const facts = indexFacts(profile).texts
   const tailoredText = normalize(
     [
       tailored.summary,
@@ -285,8 +303,10 @@ export function checkBannedTerms(
       ...tailored.claims.map((c) => c.text),
     ].join(' '),
   )
+  // Ground against NON-negated facts only: a term the profile explicitly disclaims (e.g. "No
+  // Kubernetes experience") must not license shipping that term in the tailored output.
   const violations = bannedTerms.filter(
-    (term) => mentions(tailoredText, term) && !mentions(profileText, term),
+    (term) => mentions(tailoredText, term) && !groundedInFacts(facts, term),
   )
   return { ok: violations.length === 0, violations }
 }
