@@ -1,0 +1,64 @@
+# Scheduled O*NET alias-candidate sync. Detects a new O*NET database release, re-extracts the Software
+# Skills candidates with the existing scripts/skills toolchain, diffs against the manifest, and opens a
+# DRAFT pull request with the four artifacts for human review.
+#
+# It NEVER modifies lib/skillAliases.ts and NEVER auto-merges: merging approved candidates into the
+# alias table stays a separate, explicit human step (the Phase-3 merge #145 did), because that table
+# feeds the no-fabrication guardrail. There is intentionally no merge or enable-auto-merge step here.
+#
+# SETUP DEPENDENCY: a pull request opened with the default GITHUB_TOKEN does NOT trigger other
+# workflows, so CI (ci.yml) will not run on the bot PR automatically. To get CI on this PR, add a repo
+# secret ONET_SYNC_TOKEN (a fine-grained PAT with contents:write + pull-requests:write) and it will be
+# used below; without it the PR still opens via GITHUB_TOKEN, just without auto-run CI (a human can
+# re-run it). If a machine-readable version check via O*NET Web Services (services.onetcenter.org) is
+# preferred over scraping db_releases.html, that API requires registration/an API key, another setup
+# dependency to add before switching the detection source.
+name: O*NET alias sync
+
+on:
+  # Monthly: O*NET release timing is not fixed, so a cheap monthly check never misses a release for
+  # long. Runs on the 1st at 08:00 UTC. Also manually triggerable.
+  schedule:
+    - cron: '0 8 1 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      - name: Detect release and re-extract candidates
+        env:
+          # Write the PR body to a temp file OUTSIDE the repo so it is never committed.
+          PR_BODY_PATH: ${{ runner.temp }}/onet-sync-pr-body.md
+        run: npm run skills:sync-onet
+      - name: Open draft PR (only when the sync changed files)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.ONET_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          draft: true
+          base: main
+          branch: automated/onet-sync
+          delete-branch: true
+          commit-message: 'chore(skills): sync O*NET alias candidates to the latest release'
+          title: 'chore(skills): O*NET alias-candidate sync (review required)'
+          body-path: ${{ runner.temp }}/onet-sync-pr-body.md
+          labels: |
+            automated
+            skills
+            needs-human-review
+          # Only the sync artifacts are committed; the PR body lives in runner.temp and is not added.
+          add-paths: |
+            scripts/skills/data/onet-software-skills.csv
+            scripts/skills/data/onet-manifest.json
+            scripts/skills/onet-new-candidates-reviewed.json
+            scripts/skills/onet-stale-report.json
