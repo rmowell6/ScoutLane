@@ -1,6 +1,19 @@
-import { describe, expect, test } from 'vitest'
-import { toJobBoardRow, dedupeRows, isStorableJob, type JobBoardRow } from './jobBoardStore'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { toJobBoardRow, dedupeRows, isStorableJob, upsertJobBoardJobs, type JobBoardRow } from './jobBoardStore'
 import type { Job } from '@/src/jobBoards/types'
+
+// Records every .upsert() batch so the chunking tests can assert batch sizes without a live DB.
+const state = vi.hoisted(() => ({ upserts: [] as Array<{ rows: unknown[]; opts: unknown }> }))
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: () => ({
+    from: () => ({
+      upsert: (rows: unknown[], opts: unknown) => {
+        state.upserts.push({ rows, opts })
+        return Promise.resolve({ data: null, error: null, count: null })
+      },
+    }),
+  }),
+}))
 
 function job(overrides: Partial<Job> = {}): Job {
   return {
@@ -76,5 +89,33 @@ describe('dedupeRows', () => {
     const out = dedupeRows([a, b, c])
     expect(out).toHaveLength(2)
     expect(out.find((r) => r.source === 'jsearch' && r.external_id === '1')?.title).toBe('Second')
+  })
+})
+
+describe('upsertJobBoardJobs chunking', () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://x.supabase.co'
+    process.env.SUPABASE_SECRET_KEY = 'sb_secret'
+    state.upserts = []
+  })
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    delete process.env.SUPABASE_SECRET_KEY
+  })
+
+  test('a small set issues exactly one upsert (behavior unchanged at normal scale)', async () => {
+    await upsertJobBoardJobs([job(), job({ id: 'jsearch:2', url: 'https://x/jobs/2' })], NOW)
+    expect(state.upserts).toHaveLength(1)
+    expect(state.upserts[0]?.opts).toMatchObject({ onConflict: 'source,external_id' })
+  })
+
+  test('chunks a large set into 500-row upserts, writing every row (after dedupe)', async () => {
+    const many = Array.from({ length: 1200 }, (_, i) => job({ id: `jsearch:${i}`, url: `https://x/jobs/${i}` }))
+    const n = await upsertJobBoardJobs(many, NOW)
+    // 1200 unique rows / 500 -> 3 batches of 500, 500, 200.
+    expect(state.upserts.map((u) => u.rows.length)).toEqual([500, 500, 200])
+    const ids = state.upserts.flatMap((u) => (u.rows as Array<{ external_id: string }>).map((r) => r.external_id))
+    expect(new Set(ids).size).toBe(1200) // no row dropped or duplicated by chunking
+    expect(n).toBe(1200) // sum of per-batch counts
   })
 })

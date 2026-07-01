@@ -5,6 +5,7 @@
 // upsert idempotently on (source, external_id).
 import { type SupabaseClient } from '@supabase/supabase-js'
 import { serverSupabase } from '@/lib/supabaseServer'
+import { chunk } from '@/lib/concurrency'
 import { JobStoreError } from './jobStore'
 import { isUsRole } from '@/lib/roleDiscovery/usLocation'
 import type { Job } from '@/src/jobBoards/types'
@@ -13,6 +14,12 @@ const TABLE = 'jobs'
 // Bound the JD body we store, matching jobStore's read-side cap, so a giant scraped description
 // can't bloat a row.
 const JD_MAX_LEN = 60_000
+// Upsert in batches of this size (matches jobStore.UPSERT_CHUNK_SIZE): a conservative practical
+// ceiling with no hard Supabase-documented cap, so one giant statement can't hit a statement-size /
+// timeout edge and a large run makes partial progress instead of rolling back everything. Applied
+// AFTER dedupeRows, so the (source, external_id) uniqueness the single-statement upsert relied on
+// still holds within each batch.
+const UPSERT_CHUNK_SIZE = 500
 
 export function isJobBoardStoreConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
@@ -93,12 +100,19 @@ export async function upsertJobBoardJobs(jobs: Job[], now: string): Promise<numb
   const start = Date.now()
   try {
     const rows = dedupeRows(valid.map((j) => toJobBoardRow(j, now)))
-    const { error, count } = await db()
-      .from(TABLE)
-      .upsert(rows, { onConflict: 'source,external_id', count: 'exact' })
-    if (error) throw error
+    // Chunk so a large aggregation is several bounded statements (partial progress on failure) rather
+    // than one giant one. Sequential to avoid a burst of concurrent writes; sum the per-batch counts.
+    const client = db()
+    let written = 0
+    for (const batch of chunk(rows, UPSERT_CHUNK_SIZE)) {
+      const { error, count } = await client
+        .from(TABLE)
+        .upsert(batch, { onConflict: 'source,external_id', count: 'exact' })
+      if (error) throw error
+      written += count ?? batch.length
+    }
     console.log(`[boards] step ok: upsert (${Date.now() - start}ms, ${rows.length} rows)`)
-    return count ?? rows.length
+    return written
   } catch (err) {
     if (err instanceof JobStoreError) throw err
     console.error(`[boards] step failed: upsert (${Date.now() - start}ms)`, err)

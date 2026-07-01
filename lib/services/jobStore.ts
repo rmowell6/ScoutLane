@@ -4,11 +4,19 @@
 import { type SupabaseClient } from '@supabase/supabase-js'
 import * as z from 'zod'
 import { serverSupabase } from '@/lib/supabaseServer'
+import { chunk } from '@/lib/concurrency'
 import type { IngestedJob } from '@/lib/services/ats/types'
 import type { MatchableJob } from '@/lib/roleDiscovery/prefilter'
 import { isUsRole } from '@/lib/roleDiscovery/usLocation'
 
 const TABLE = 'jobs'
+
+// Upsert rows in batches of this size rather than one giant statement. Supabase/PostgREST document no
+// hard row cap, so this is a conservative practical ceiling: it keeps each statement well clear of
+// Postgres statement-size / parameter limits and any per-request timeout, and lets a large run make
+// PARTIAL progress (earlier batches commit) instead of one bad row rolling back thousands. At today's
+// dozens-to-low-hundreds scale a run is a single batch, so behavior is unchanged.
+const UPSERT_CHUNK_SIZE = 500
 
 // Search term is bounded before it reaches the .or() filter: a pathological multi-KB string
 // would build a huge ILIKE pattern for no benefit.
@@ -120,11 +128,18 @@ export async function upsertJobs(jobs: IngestedJob[], now: string): Promise<numb
   if (usJobs.length === 0) return 0
   return runStep('upsert', async () => {
     const rows = usJobs.map((j) => toRow(j, now))
-    const { error, count } = await db()
-      .from(TABLE)
-      .upsert(rows, { onConflict: 'source,external_id', count: 'exact' })
-    if (error) throw error
-    return count ?? rows.length
+    // Chunk so a large run is several bounded statements (partial progress on failure), not one giant
+    // one. Sequential to avoid a burst of concurrent writes; sum the per-batch counts.
+    const client = db()
+    let written = 0
+    for (const batch of chunk(rows, UPSERT_CHUNK_SIZE)) {
+      const { error, count } = await client
+        .from(TABLE)
+        .upsert(batch, { onConflict: 'source,external_id', count: 'exact' })
+      if (error) throw error
+      written += count ?? batch.length
+    }
+    return written
   })
 }
 
