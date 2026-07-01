@@ -37,6 +37,16 @@ export const FitSignalsSchema = z.object({
     defenseAdjacent: z.boolean(),
     heavyTravelOrPresales: z.boolean(),
   }),
+  // A short VERBATIM JD excerpt backing each synthesized categorical, used only for JD-side grounding
+  // (groundJobSignals), never fed to the scorer. Empty string when the JD offers no direct support.
+  // A missing or non-matching quote sets a non-blocking low-confidence flag; it never changes the score.
+  evidence: z.object({
+    roleTypeMatch: z.string(),
+    seniorityMatch: z.string(),
+    location: z.string(),
+    employerType: z.string(),
+    vertical: z.string(),
+  }),
 })
 export type FitSignals = z.infer<typeof FitSignalsSchema>
 

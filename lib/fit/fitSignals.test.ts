@@ -20,6 +20,7 @@ const SIGNALS: FitSignals = {
   adjacentCerts: [],
   hardGaps: [],
   flags: { expired: false, unconfirmedLive: false, defenseAdjacent: false, heavyTravelOrPresales: false },
+  evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '' },
 }
 
 const JOB: JobReqs = { title: 'Cloud Engineer', mustHave: [], niceToHave: [] }
