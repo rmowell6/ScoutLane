@@ -124,6 +124,17 @@ describe('checkNoFabrication', () => {
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
   })
 
+  test('accepts a claim that faithfully restates a real fact but cites the WRONG valid factId (mis-citation)', () => {
+    // Regression for the "couldn't be traced back to your resume" false block: the model copied a real
+    // bullet verbatim but attached a valid id for a DIFFERENT fact. The claim is truthful, so a
+    // bookkeeping mis-cite must not block it — the fallback re-checks the text against every real fact.
+    const tailored = makeTailored({
+      // text == role:0:bullet:0 ("Migrated 40 VMs to Azure"), but points at cert:0 instead.
+      claims: [{ text: 'Migrated 40 VMs to Azure', factId: 'cert:0' }],
+    })
+    expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
+  })
+
   test('rejects a stripped fragment of a longer fact (factId null) — no one-directional substring pass', () => {
     const profile = makeProfile({
       roles: [

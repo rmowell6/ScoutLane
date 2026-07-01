@@ -148,11 +148,15 @@ function isFaithfulRestatement(t: string, fact: string): boolean {
  */
 export function traceable(claim: Claim, index: FactIndex): boolean {
   const t = normalize(claim.text)
-  // Cited path: the text must faithfully restate the CITED fact specifically.
+  // Cited path: prefer the CITED fact. If the text faithfully restates it, accept.
   if (claim.factId !== null && index.byId.has(claim.factId)) {
-    return isFaithfulRestatement(t, normalize(index.byId.get(claim.factId) as string))
+    if (isFaithfulRestatement(t, normalize(index.byId.get(claim.factId) as string))) return true
+    // Fall through — do NOT block yet. The model routinely copies a real bullet verbatim but attaches
+    // the WRONG (still valid) factId; that mis-citation must not reject a claim that faithfully restates
+    // some OTHER real fact. Anti-fabrication is preserved because the fallback below still requires the
+    // text to faithfully restate a genuine profile fact — a fabrication restates none and stays blocked.
   }
-  // Fallback (no/invalid id): faithful restatement of any one fact; guard tiny fragments.
+  // Fallback (no/invalid/mis-cited id): faithful restatement of any one fact; guard tiny fragments.
   if (t.length < 12) return false
   return index.texts.some((fact) => isFaithfulRestatement(t, fact))
 }
