@@ -103,7 +103,7 @@
   padding: 56px 48px 52px;
 }
 .heroInner {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 .heroHead {
@@ -375,7 +375,7 @@
   padding: 56px 48px;
 }
 .previewInner {
-  max-width: 940px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 .previewHead {
@@ -584,7 +584,7 @@
   background: var(--bg);
 }
 .gsInner {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
   text-align: center;
 }
@@ -621,7 +621,7 @@
   padding: 56px 48px;
 }
 .getInner {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 .getHead {
@@ -801,7 +801,7 @@
   border-bottom: 1px solid var(--border);
 }
 .sectionInner {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
 }
 .stepsV {
@@ -861,7 +861,7 @@
   padding: 52px 48px;
 }
 .pledgeInner {
-  max-width: 880px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 .pledgeHead {
