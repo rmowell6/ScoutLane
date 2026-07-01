@@ -15,6 +15,39 @@ describe('golden parity (cross-implementation contract)', () => {
   }
 })
 
+describe('FitResult shape (independent of the golden fixtures)', () => {
+  // A reordering or dropped-dimension bug would otherwise only surface as a golden deep-equal
+  // mismatch; assert the structural contract directly so it is pinned on its own.
+  const input: FitInput = {
+    roleTypeMatch: 'solid',
+    mustHaveSkills: ['a', 'b'],
+    candidateSkills: ['a'],
+    seniorityMatch: 'adjacent',
+    compTopUsd: 150000,
+    targetCompTopUsd: 170000,
+    employerType: 'direct',
+    location: 'remote_us',
+    vertical: 'match',
+    hardGaps: ['clearance', 'relocation'],
+  }
+  it('emits all 8 dimensions in the fixed rubric order and echoes hardGaps back unmodified', () => {
+    const r = assessFit(input)
+    const keys = r.dimensions.map((d) => d.key)
+    expect(keys).toHaveLength(8)
+    expect(keys).toEqual([
+      'roleTypeMatch',
+      'skillsCoverage',
+      'seniorityMatch',
+      'compAlignment',
+      'employerPreference',
+      'locationLogistics',
+      'verticalFit',
+      'certRequirementFit',
+    ])
+    expect(r.hardGaps).toEqual(['clearance', 'relocation'])
+  })
+})
+
 describe('determinism', () => {
   it('same input yields identical output twice', () => {
     for (const c of cases) {
