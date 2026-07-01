@@ -8,6 +8,7 @@ import {
   splitDimensions,
   holdingBackLine,
   leadDimension,
+  skillCoverage,
   PENALTY_LABELS,
 } from './fitPresent'
 
@@ -199,6 +200,28 @@ describe('leadDimension (only candidate-differentiating dimensions)', () => {
     // roleType/seniority/vertical are still assessed here, so leadDimension is defined; assert it is leadable.
     expect(leadDimension(fit)).toBeDefined()
     expect(LEADABLE_KEYS_TEST.has(leadDimension(allUnknown)!.key)).toBe(true)
+  })
+})
+
+describe('skillCoverage (alias-aware, agrees with the fit score)', () => {
+  const statusOf = (rows: { skill: string; status: string }[], skill: string) =>
+    rows.find((r) => r.skill === skill)?.status
+
+  test('credits a curated alias in either direction (JD "Kubernetes" vs candidate "K8s")', () => {
+    expect(statusOf(skillCoverage(['Kubernetes'], ['K8s']), 'Kubernetes')).toBe('match')
+    // and the reverse spelling
+    expect(statusOf(skillCoverage(['K8s'], ['Kubernetes']), 'K8s')).toBe('match')
+  })
+
+  test('an alias pair supplied only in adjacentSkills reads as partial', () => {
+    const rows = skillCoverage(['Kubernetes'], ['azure'], ['K8s'])
+    expect(statusOf(rows, 'Kubernetes')).toBe('partial')
+  })
+
+  test('a term with no alias entry behaves exactly as before (exact match and genuine gap)', () => {
+    const rows = skillCoverage(['Azure', 'Splunk'], ['azure'], [])
+    expect(statusOf(rows, 'Azure')).toBe('match') // exact (case/whitespace) match, unchanged
+    expect(statusOf(rows, 'Splunk')).toBe('gap') // not held, not adjacent, no alias -> gap
   })
 })
 
