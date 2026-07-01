@@ -1117,6 +1117,114 @@
           }
         ]
       }
+    },
+    {
+      "name": "Imported-alias coverage (React/ReactJS, MSSQL/SQL Server, Kafka/Apache Kafka)",
+      "input": {
+        "roleId": "phase4-imported-alias-check",
+        "title": "Full Stack Engineer (imported-alias golden case)",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "reactjs",
+          "sql server",
+          "apache kafka"
+        ],
+        "candidateSkills": [
+          "react",
+          "mssql",
+          "kafka",
+          "scikit-learn"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "exact",
+        "compTopUsd": 180000,
+        "targetCompTopUsd": 170000,
+        "employerType": "direct",
+        "location": "remote_us",
+        "locationFlags": {},
+        "vertical": "match",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.1.0",
+        "overall": 96,
+        "band": "Best fit",
+        "base": 95.6,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 100,
+            "note": "3 of 3 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 92,
+            "note": "Posted top $180,000 vs target $170,000 (ratio 1.06)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 100,
+            "note": "Employer type: direct."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 95,
+            "note": "remote_us."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 90,
+            "note": "Vertical: match."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
     }
   ]
 }
