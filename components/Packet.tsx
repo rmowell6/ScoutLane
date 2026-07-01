@@ -223,9 +223,9 @@ function DownloadIcon() {
 }
 
 /**
- * One document, downloadable in each format: a primary PDF button (the format everyone can open)
- * plus a small DOCX chip for the editable Word file. The label names the document; the button/chip
- * name the format, so the two never blur together.
+ * One document, downloadable in each format as two equal buttons: PDF (opens anywhere) and DOCX
+ * (editable Word). The row is a grid — name, then the two buttons — so the buttons stay beside the
+ * name and line up in columns across the three documents.
  */
 function DocButton({ formats, label }: { formats: DocFormats; label: string }) {
   const [done, setDone] = useState<'pdf' | 'docx' | null>(null)
@@ -239,20 +239,14 @@ function DocButton({ formats, label }: { formats: DocFormats; label: string }) {
   return (
     <div className="doc-row">
       <span className="doc-name">{label}</span>
-      <div className="doc-actions">
-        <button type="button" className="download-btn" onClick={() => grab('pdf')}>
-          <DownloadIcon />
-          {done === 'pdf' ? 'Downloaded PDF ✓' : 'Download PDF'}
-        </button>
-        <button
-          type="button"
-          className="format-chip"
-          onClick={() => grab('docx')}
-          aria-label={`Download ${label} as an editable Word file`}
-        >
-          {done === 'docx' ? 'DOCX ✓' : 'DOCX'}
-        </button>
-      </div>
+      <button type="button" className="download-btn" onClick={() => grab('pdf')}>
+        <DownloadIcon />
+        {done === 'pdf' ? 'Saved ✓' : 'Download PDF'}
+      </button>
+      <button type="button" className="download-btn" onClick={() => grab('docx')}>
+        <DownloadIcon />
+        {done === 'docx' ? 'Saved ✓' : 'Download DOCX'}
+      </button>
     </div>
   )
 }
