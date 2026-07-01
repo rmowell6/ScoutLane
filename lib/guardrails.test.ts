@@ -203,6 +203,65 @@ describe('checkNoFabrication', () => {
   })
 })
 
+// Regression: grounding a skill against the WHOLE flattened profile text let a disclaimer ground the
+// very skill it denies. "No hands-on Kubernetes experience" wrongly grounded "Kubernetes". Grounding
+// now runs fact-by-fact and skips any negated fact, so an explicitly-disclaimed skill stays ungrounded
+// while a positively-stated one (skills list or a plain bullet) still grounds.
+describe('checkNoFabrication: negation-aware grounding', () => {
+  const negatedBullet = (bullet: string): Profile =>
+    makeProfile({
+      skills: ['Azure', 'VMware'],
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure', bullet],
+        },
+      ],
+    })
+
+  test('flags a skill whose only profile mention is inside a NEGATED fact', () => {
+    const profile = negatedBullet('No hands-on Kubernetes experience')
+    const result = checkNoFabrication(makeTailored({ skills: ['Kubernetes'], claims: [] }), profile)
+    expect(result.ungroundedSkills).toContain('Kubernetes')
+    expect(result.ok).toBe(false)
+  })
+
+  test('grounds the same skill when a NON-negated fact (skills list) also asserts it', () => {
+    const profile = makeProfile({
+      skills: ['Azure', 'VMware', 'Kubernetes'],
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure', 'No hands-on Kubernetes experience'],
+        },
+      ],
+    })
+    expect(checkNoFabrication(makeTailored({ skills: ['Kubernetes'], claims: [] }), profile).ungroundedSkills).toEqual([])
+  })
+
+  test('still grounds a positively-stated skill evidenced only in a plain bullet (Azure)', () => {
+    const profile = makeProfile({
+      skills: [],
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Led the Azure migration'],
+        },
+      ],
+    })
+    expect(checkNoFabrication(makeTailored({ skills: ['Azure'], claims: [] }), profile).ungroundedSkills).toEqual([])
+  })
+})
+
 // Regression: the substring matcher false-positive-blocked faithful bullets when the tailor strips
 // an em dash and rephrases (swaps "—" for "including"/a comma, drops a "(a, b, c)" parenthetical).
 // These ARE in the resume, so they must trace; fabrications and meaning-flips must still be rejected.
@@ -450,6 +509,26 @@ describe('checkBannedTerms', () => {
     const profile = makeProfile({ skills: ['Azure', 'VMware', 'Kubernetes'] })
     const tailored = makeTailored({ summary: 'Expert in Kubernetes and Azure.' })
     expect(checkBannedTerms(tailored, profile, ['Kubernetes']).ok).toBe(true)
+  })
+
+  test('flags a watched term whose only profile mention is inside a NEGATED fact', () => {
+    // "No production Kubernetes experience" must not license shipping "Kubernetes" in the output.
+    const profile = makeProfile({
+      skills: ['Azure', 'VMware'],
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure', 'No production Kubernetes experience'],
+        },
+      ],
+    })
+    const tailored = makeTailored({ summary: 'Expert in Kubernetes and Azure.' })
+    const result = checkBannedTerms(tailored, profile, ['Kubernetes'])
+    expect(result.ok).toBe(false)
+    expect(result.violations).toContain('Kubernetes')
   })
 })
 
