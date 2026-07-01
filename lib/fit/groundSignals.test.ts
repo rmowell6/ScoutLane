@@ -24,6 +24,7 @@ function signals(over: Partial<FitSignals> = {}): FitSignals {
   return {
     roleTypeMatch: 'solid',
     mustHaveSkills: ['azure', 'aws'],
+    preferredSkills: [],
     candidateSkills: ['azure'],
     adjacentSkills: [],
     seniorityMatch: 'exact',
