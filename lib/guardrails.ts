@@ -3,7 +3,7 @@
 // to a real profile fact, enforced in code, not by prompt wording. A failed check blocks or
 // flags, it never ships silently.
 import type { Profile, TailoredContent, Claim } from '@/lib/schemas'
-import { aliasForms } from '@/lib/skillAliases'
+import { aliasForms, canonicalize } from '@/lib/skillAliases'
 
 // ---- fact indexing ---------------------------------------------------------------
 
@@ -111,6 +111,36 @@ function factIsNegated(fact: string): boolean {
  *  negation because each alias form is still only tried against the NON-negated facts. */
 function groundedInFacts(facts: string[], term: string): boolean {
   return facts.some((fact) => !factIsNegated(fact) && mentionsAny(fact, term))
+}
+
+/** The distinct skill forms a tailored skill surfaces. A plain skill is one form. The alias-pairing
+ *  shape "JobForm (FactForm)" (e.g. "Kubernetes (K8s)") surfaces TWO forms, so both can be verified.
+ *  Only a single trailing parenthetical is treated this way; any other shape stays a single form. */
+export function surfacedForms(skill: string): string[] {
+  const m = skill.match(/^(.+?)\s*\(([^()]+)\)\s*$/)
+  return m ? [(m[1] ?? '').trim(), (m[2] ?? '').trim()].filter(Boolean) : [skill.trim()]
+}
+
+/**
+ * A tailored skill is grounded when it traces to a real profile fact. Two routes:
+ *   1. The skill AS SHIPPED (including any verbatim parenthetical) traces to a fact via the existing
+ *      alias-aware check. Unchanged for plain skills and for a parenthetical that is itself a fact
+ *      (e.g. a cert "Security+ (SY0-601)").
+ *   2. The alias-pairing shape "JobForm (FactForm)": both surfaced forms must be CURATED ALIASES of
+ *      each other (same canonical, so the parenthetical cannot smuggle in a different technology) AND
+ *      the shared skill must trace to a real fact. This lets a resume surface the JD's preferred
+ *      spelling for an external ATS ("Kubernetes (K8s)") when the fact only says "K8s", using the exact
+ *      same curated, shadow-mode-verified alias table already trusted for scoring and grounding.
+ * A surfaced form NOT backed by a verified alias of a real fact is still ungrounded ("Kubernetes
+ * (Docker)" is rejected: the two forms are different technologies, not curated aliases).
+ */
+function skillGrounded(facts: string[], skill: string): boolean {
+  if (groundedInFacts(facts, skill)) return true
+  const forms = surfacedForms(skill)
+  if (forms.length < 2) return false
+  const canon = canonicalize(forms[0] as string)
+  if (!forms.every((f) => canonicalize(f) === canon)) return false
+  return forms.some((f) => groundedInFacts(facts, f))
 }
 
 /** Near-equality: a faithful restatement of `fact`, NOT a one-directional stripped fragment (which
@@ -248,7 +278,7 @@ export function checkNoFabrication(
 ): NoFabricationResult {
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
   const profileText = index.texts.join(' \n ')
-  const ungroundedSkills = tailored.skills.filter((s) => !groundedInFacts(index.texts, s))
+  const ungroundedSkills = tailored.skills.filter((s) => !skillGrounded(index.texts, s))
   // The outreach messages are fact-grounded prose too, so hold them to the same no-invented-metric bar.
   const prose = `${tailored.summary}\n${tailored.coverLetter}\n${tailored.outreach.linkedin}\n${tailored.outreach.email}`
   const ungroundedMetrics = ungroundedMetricsIn(prose, profileText)

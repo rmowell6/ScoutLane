@@ -10,6 +10,7 @@ import {
   checkStyle,
   indexFacts,
   runGuardrails,
+  surfacedForms,
 } from '@/lib/guardrails'
 
 function makeProfile(overrides: Partial<Profile> = {}): Profile {
@@ -729,5 +730,64 @@ describe('checkEducationGrounded', () => {
       undefined,
     )
     expect(r).toEqual({ ok: true, skipped: true, flagged: [] })
+  })
+})
+
+describe('surfacedForms', () => {
+  test('splits the "JobForm (FactForm)" alias-pairing shape into two forms', () => {
+    expect(surfacedForms('Kubernetes (K8s)')).toEqual(['Kubernetes', 'K8s'])
+    expect(surfacedForms('Security+ (SY0-601)')).toEqual(['Security+', 'SY0-601'])
+  })
+  test('a plain skill is a single form', () => {
+    expect(surfacedForms('Azure')).toEqual(['Azure'])
+    expect(surfacedForms('VMware vSphere')).toEqual(['VMware vSphere'])
+  })
+})
+
+describe('checkNoFabrication skill grounding (alias-pairing for external ATS)', () => {
+  test('a fact "K8s" + JD "Kubernetes" may ship "Kubernetes (K8s)" and passes as grounded', () => {
+    const profile = makeProfile({ skills: ['K8s'] })
+    const tailored = makeTailored({ skills: ['Kubernetes (K8s)'], claims: [] })
+    const r = checkNoFabrication(tailored, profile)
+    expect(r.ungroundedSkills).toEqual([])
+    expect(r.ok).toBe(true)
+  })
+
+  test('the single JD form alone ("Kubernetes" for a "K8s" fact) is still grounded (unchanged)', () => {
+    const r = checkNoFabrication(makeTailored({ skills: ['Kubernetes'], claims: [] }), makeProfile({ skills: ['K8s'] }))
+    expect(r.ungroundedSkills).toEqual([])
+  })
+
+  test('BOUNDARY: pairing a fact skill with a DIFFERENT technology is still flagged ungrounded', () => {
+    // "Docker" is not a curated alias of "Kubernetes", so the parenthetical cannot smuggle it in.
+    const r = checkNoFabrication(makeTailored({ skills: ['Kubernetes (Docker)'], claims: [] }), makeProfile({ skills: ['K8s'] }))
+    expect(r.ungroundedSkills).toEqual(['Kubernetes (Docker)'])
+    expect(r.ok).toBe(false)
+  })
+
+  test('BOUNDARY: a plausible-looking form that is NOT in the curated alias table is flagged', () => {
+    // "Kube" superficially looks like a Kubernetes alias but is not in the curated table -> ungrounded.
+    const r = checkNoFabrication(makeTailored({ skills: ['Kubernetes (Kube)'], claims: [] }), makeProfile({ skills: ['K8s'] }))
+    expect(r.ungroundedSkills).toEqual(['Kubernetes (Kube)'])
+  })
+
+  test('BOUNDARY: surfacing a JD form for a skill the candidate does NOT hold is flagged', () => {
+    // Same-canonical forms, but neither traces to a real fact (profile holds Terraform, not Kubernetes).
+    const r = checkNoFabrication(makeTailored({ skills: ['Kubernetes (K8s)'], claims: [] }), makeProfile({ skills: ['Terraform'] }))
+    expect(r.ungroundedSkills).toEqual(['Kubernetes (K8s)'])
+    expect(r.ok).toBe(false)
+  })
+
+  test('REGRESSION: a term with no alias entry behaves exactly as before (grounded vs genuine gap)', () => {
+    const held = checkNoFabrication(makeTailored({ skills: ['Terraform'], claims: [] }), makeProfile({ skills: ['Terraform'] }))
+    expect(held.ungroundedSkills).toEqual([])
+    const gap = checkNoFabrication(makeTailored({ skills: ['Ansible'], claims: [] }), makeProfile({ skills: ['Terraform'] }))
+    expect(gap.ungroundedSkills).toEqual(['Ansible'])
+  })
+
+  test('REGRESSION: a parenthetical that is itself a verbatim fact (a versioned cert) stays grounded', () => {
+    const profile = makeProfile({ certs: [{ name: 'Security+ (SY0-601)' }] })
+    const r = checkNoFabrication(makeTailored({ skills: ['Security+ (SY0-601)'], claims: [] }), profile)
+    expect(r.ungroundedSkills).toEqual([])
   })
 })
