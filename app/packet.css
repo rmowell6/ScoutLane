@@ -11,7 +11,7 @@
   --color-bg: #f5f3ef;
   --color-surface: #ffffff;
   --color-text: #111827;
-  --color-text-muted: #4b5563;
+  --color-text-muted: #374151;
   --color-brand: #065f46;
   --color-brand-strong: #054b38;
   --color-accent: #065f46; /* graphic accent (gauge arc, markers) */
@@ -314,7 +314,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   padding: 3px 9px;
   border-radius: var(--radius-pill);
@@ -326,9 +326,9 @@
   flex: none;
 }
 .packet .badge.is-pass {
-  color: var(--color-pass);
+  color: var(--color-brand-strong);
   background: var(--color-pass-bg);
-  border: 1px solid #a7f3d0;
+  border: 1px solid #6ee7b7;
 }
 .packet .badge.is-info {
   color: var(--color-info);
@@ -398,53 +398,44 @@
 }
 
 /* ---- downloads (app affordance, styled in the design language) ---- */
-/* One row per document: a name label, a primary PDF button, and a small DOCX chip. Rows stack so
-   the format choice (PDF vs editable Word) reads clearly per document without a grid of buttons. */
+/* One row per document: a name label + two equal, full-size download buttons (PDF and DOCX). A
+   width-capped grid keeps the buttons beside the names and aligned in two columns, instead of
+   stretching the label across the full width of the card (which left a big empty gap). */
 .packet .downloads {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-width: 620px;
 }
 .packet .doc-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 160px 160px;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
 }
 .packet .doc-name {
-  flex: 1 1 140px;
-  min-width: 120px;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
   text-transform: capitalize;
 }
-.packet .doc-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-/* Small secondary chip for the editable Word file — clearly subordinate to the primary PDF button. */
-.packet .format-chip {
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  background: var(--color-surface);
-  color: var(--color-brand);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 7px 12px;
-  transition: border-color 0.15s, color 0.15s;
-}
-.packet .format-chip:hover {
-  border-color: var(--color-brand);
+/* Narrow screens: stack the name and both buttons full-width. */
+@media (max-width: 560px) {
+  .packet .downloads {
+    max-width: none;
+  }
+  .packet .doc-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 .packet .download-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
+  width: 100%;
+  white-space: nowrap;
   font: inherit;
   font-size: 12.5px;
   font-weight: 600;
@@ -528,8 +519,8 @@
   font-weight: 600;
   cursor: pointer;
   background: var(--color-pass-bg);
-  color: var(--color-brand);
-  border: 1.5px solid #6ee7b7;
+  color: var(--color-brand-strong);
+  border: 1.5px solid #34d399;
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   flex: none;
