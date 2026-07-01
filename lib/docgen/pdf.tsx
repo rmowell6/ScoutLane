@@ -81,10 +81,12 @@ const base = StyleSheet.create({
   bulletText: { flex: 1, fontSize: 10.5, lineHeight: 1.35 },
 })
 
-/** Section header: a small colored square + a navy title with a bottom rule. */
+/** Section header: a small colored square + a navy title with a bottom rule. `minPresenceAhead`
+ *  keeps a heading from stranding alone at the bottom of a page (it breaks to the next page unless
+ *  ~50pt of its section follows on the same page). */
 function SectionHeader({ text, t }: { text: string; t: Tokens }) {
   return (
-    <View style={[base.sectionHeader, { borderBottomColor: t.navy }]}>
+    <View style={[base.sectionHeader, { borderBottomColor: t.navy }]} minPresenceAhead={50}>
       <View style={[base.sectionSquare, { backgroundColor: t.accent }]} />
       <Text style={[base.sectionTitle, { color: t.navy }]}>{text.toUpperCase()}</Text>
     </View>
@@ -189,13 +191,19 @@ function ResumeDoc({ content, t }: { content: ResumeContent; t: Tokens }) {
           <>
             <SectionHeader text="Professional Experience" t={t} />
             {content.experience.map((e, i) => (
-              <View key={i} wrap={false}>
-                <View style={rs.jobHead}>
-                  <Text style={[rs.company, { color: t.navy }]}>{e.company}</Text>
-                  <Text style={[rs.dates, { color: t.accentText }]}>{e.dates}</Text>
+              // The entry itself may split across a page boundary so a long, bullet-heavy job flows
+              // onto the next page instead of jumping wholesale (which left half a page blank under the
+              // section header). Only the company/title header is kept together (wrap={false}), and
+              // minPresenceAhead keeps it from being orphaned alone at the very bottom of a page.
+              <View key={i}>
+                <View wrap={false} minPresenceAhead={54}>
+                  <View style={rs.jobHead}>
+                    <Text style={[rs.company, { color: t.navy }]}>{e.company}</Text>
+                    <Text style={[rs.dates, { color: t.accentText }]}>{e.dates}</Text>
+                  </View>
+                  <Text style={[rs.jobTitle, { color: t.slate }]}>{e.title}</Text>
+                  {e.context.trim() ? <Text style={[rs.jobContext, { color: t.slate }]}>{e.context}</Text> : null}
                 </View>
-                <Text style={[rs.jobTitle, { color: t.slate }]}>{e.title}</Text>
-                {e.context.trim() ? <Text style={[rs.jobContext, { color: t.slate }]}>{e.context}</Text> : null}
                 {e.bullets.map((b, j) => (
                   <Bullet key={j} text={b} color={t.accent} />
                 ))}
