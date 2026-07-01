@@ -2,9 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(npm run lint)",
+      "Bash(npm run lint *)",
       "Bash(npm run typecheck)",
+      "Bash(npm run typecheck *)",
       "Bash(npm run test:run)",
+      "Bash(npm run test:run *)",
       "Bash(npm run lint:copy)",
+      "Bash(npm run lint:copy *)",
+      "Bash(npm run build)",
+      "Bash(npm run build *)",
+      "Bash(npx vitest)",
+      "Bash(npx vitest *)",
       "mcp__github__pull_request_read",
       "mcp__github__list_pull_requests",
       "mcp__github__actions_list"
