@@ -30,4 +30,7 @@ export interface SourceResult {
   ok: boolean
   jobs: IngestedJob[]
   error?: string
+  /** True when the board answered 304 (unchanged): jobs is empty because we skipped the fetch+parse,
+   *  and the board's live rows were re-stamped instead. Distinguishes "unchanged" from "zero jobs". */
+  notModified?: boolean
 }

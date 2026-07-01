@@ -154,6 +154,26 @@ export async function expireStaleJobs(sources: string[], cutoffIso: string): Pro
 }
 
 /**
+ * Re-stamp validated_at = now for a board's still-live rows WITHOUT rewriting their content. Used on
+ * a conditional-GET 304: the board is byte-identical, so its live postings are confirmed current as
+ * of this run. This keeps them out of reach of the per-provider stale-expiry sweep (expireStaleJobs),
+ * exactly as a full re-upsert would, but with no body transfer. Scoped by (source, company) = the one
+ * board that returned 304. Returns the number of rows re-stamped.
+ */
+export async function touchJobsValidatedAt(provider: string, company: string, now: string): Promise<number> {
+  return runStep('touchValidatedAt', async () => {
+    const { error, count } = await db()
+      .from(TABLE)
+      .update({ validated_at: now }, { count: 'exact' })
+      .eq('status', 'live')
+      .eq('source', provider)
+      .eq('company', company)
+    if (error) throw error
+    return count ?? 0
+  })
+}
+
+/**
  * Physically reclaim rows that have been soft-expired and NOT re-seen since the (longer) `cutoffIso`.
  * Safe to run unconditionally and across all sources: a posting that reappeared was already flipped
  * back to 'live' by its upsert, so only genuinely-gone postings remain 'expired' past the window.

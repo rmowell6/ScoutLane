@@ -19,8 +19,9 @@ export function greenhouseUrl(token: string): string {
   return `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}/jobs?content=true`
 }
 
-export async function fetchGreenhouse(source: AtsSource): Promise<IngestedJob[]> {
-  const raw = await fetchJson(greenhouseUrl(source.token))
+/** Parse a Greenhouse board payload into normalized jobs. Split out from the fetch so the orchestrator
+ *  can reuse it on the conditional-GET (200) path without a second network call. */
+export function parseGreenhouse(raw: unknown, source: AtsSource): IngestedJob[] {
   const parsed = GreenhouseResponse.parse(raw)
   return (parsed.jobs ?? []).map((j) => ({
     provider: 'greenhouse' as const,
@@ -31,4 +32,8 @@ export async function fetchGreenhouse(source: AtsSource): Promise<IngestedJob[]>
     url: j.absolute_url ?? '',
     jdText: j.content ? htmlToText(j.content) : '',
   }))
+}
+
+export async function fetchGreenhouse(source: AtsSource): Promise<IngestedJob[]> {
+  return parseGreenhouse(await fetchJson(greenhouseUrl(source.token)), source)
 }

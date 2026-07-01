@@ -23,8 +23,9 @@ export function ashbyUrl(token: string): string {
   return `https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(token)}?includeCompensation=true&listedOnly=true`
 }
 
-export async function fetchAshby(source: AtsSource): Promise<IngestedJob[]> {
-  const raw = await fetchJson(ashbyUrl(source.token))
+/** Parse an Ashby board payload into normalized jobs. Split out from the fetch so the orchestrator
+ *  can reuse it on the conditional-GET (200) path without a second network call. */
+export function parseAshby(raw: unknown, source: AtsSource): IngestedJob[] {
   const parsed = AshbyResponse.parse(raw)
 
   const jobs: IngestedJob[] = []
@@ -44,4 +45,8 @@ export async function fetchAshby(source: AtsSource): Promise<IngestedJob[]> {
     })
   }
   return jobs
+}
+
+export async function fetchAshby(source: AtsSource): Promise<IngestedJob[]> {
+  return parseAshby(await fetchJson(ashbyUrl(source.token)), source)
 }
