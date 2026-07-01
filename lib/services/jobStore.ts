@@ -224,14 +224,16 @@ export async function listJobs(options: ListJobsOptions = {}): Promise<StoredJob
 
 /**
  * Fetch the live pool for role discovery: light metadata plus a truncated JD snippet (enough to
- * carry each posting's skill vocabulary for the lexical pre-filter), newest first. The snippet is
- * capped server-side so a huge JD can't bloat the candidate set.
+ * carry each posting's skill vocabulary for the lexical pre-filter), newest first. The snippet comes
+ * from the jd_snippet generated column (left(jd_raw, 600), migration 0017), so the full JD body never
+ * leaves the DB, a huge JD can't bloat the wire, and there is no client-side truncation to keep in
+ * sync. The 600-char cap lives with the data.
  */
-export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise<MatchableJob[]> {
+export async function listJobsForMatch(limit = 150): Promise<MatchableJob[]> {
   return runStep('listForMatch', async () => {
     const { data, error } = await db()
       .from(TABLE)
-      .select('id, source, title, company, location, url, jd_raw')
+      .select('id, source, title, company, location, url, jd_snippet')
       .eq('status', 'live')
       .order('created_at', { ascending: false })
       .limit(limit)
@@ -243,7 +245,8 @@ export async function listJobsForMatch(limit = 150, snippetChars = 600): Promise
       company: (r.company as string) ?? '',
       location: (r.location as string | null) ?? null,
       url: (r.url as string) ?? '',
-      snippet: ((r.jd_raw as string | null) ?? '').slice(0, snippetChars),
+      // Already capped at 600 chars by the DB (jd_snippet); pass through, coercing a null JD to ''.
+      snippet: (r.jd_snippet as string | null) ?? '',
     }))
   })
 }

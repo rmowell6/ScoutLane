@@ -39,6 +39,7 @@ import {
   getPoolStats,
   isJobStoreConfigured,
   listJobs,
+  listJobsForMatch,
   reclaimExpiredJobs,
   upsertJobs,
 } from './jobStore'
@@ -153,6 +154,71 @@ describe('listJobs', () => {
   test('surfaces a DB error tagged with step "list"', async () => {
     state.result = { data: null, error: new Error('boom'), count: null }
     await expect(listJobs()).rejects.toMatchObject({ name: 'JobStoreError', step: 'list' })
+  })
+})
+
+describe('listJobsForMatch', () => {
+  test('selects jd_snippet (never the full jd_raw body) and maps it to snippet', async () => {
+    state.result = {
+      data: [
+        { id: 'j1', source: 'lever', title: 'SRE', company: 'Acme', location: 'NYC', url: 'u', jd_snippet: 'Run reliable systems.' },
+      ],
+      error: null,
+      count: null,
+    }
+    const jobs = await listJobsForMatch()
+    // The overfetch fix: the read must pull the pre-truncated column, not the whole JD body.
+    const select = String(findCall('select')?.[1])
+    expect(select).toContain('jd_snippet')
+    expect(select).not.toContain('jd_raw')
+    expect(jobs[0]).toEqual({
+      id: 'j1',
+      provider: 'lever',
+      title: 'SRE',
+      company: 'Acme',
+      location: 'NYC',
+      url: 'u',
+      snippet: 'Run reliable systems.',
+    })
+  })
+
+  test('coerces a null/missing jd_snippet (and other columns) to safe defaults', async () => {
+    state.result = {
+      data: [{ id: 'j2', source: null, title: null, company: null, location: null, url: null, jd_snippet: null }],
+      error: null,
+      count: null,
+    }
+    const jobs = await listJobsForMatch()
+    expect(jobs[0]).toEqual({
+      id: 'j2',
+      provider: 'unknown',
+      title: 'Untitled role',
+      company: '',
+      location: null,
+      url: '',
+      snippet: '',
+    })
+  })
+
+  test('passes the DB snippet through unchanged (600-char cap now lives in the jd_snippet column)', async () => {
+    // The 600-char truncation moved from a client-side .slice(0, 600) to the jobs.jd_snippet generated
+    // column (left(jd_raw, 600), migration 0017), so a snippet the DB already capped at 600 chars must
+    // reach the pre-filter untouched. left(text, 600) matches .slice(0, 600) for JD text; exercising
+    // the SQL truncation itself needs a live DB, so this asserts the pass-through the app relies on.
+    const capped = 'x'.repeat(600)
+    state.result = {
+      data: [{ id: 'j3', source: 'lever', title: 'T', company: 'C', location: null, url: 'u', jd_snippet: capped }],
+      error: null,
+      count: null,
+    }
+    const jobs = await listJobsForMatch()
+    expect(jobs[0]?.snippet).toBe(capped)
+    expect(jobs[0]?.snippet.length).toBe(600)
+  })
+
+  test('tags a DB error with step "listForMatch"', async () => {
+    state.result = { data: null, error: new Error('boom'), count: null }
+    await expect(listJobsForMatch()).rejects.toMatchObject({ name: 'JobStoreError', step: 'listForMatch' })
   })
 })
 
