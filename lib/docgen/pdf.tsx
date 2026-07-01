@@ -399,8 +399,8 @@ function FitAssessmentDoc({ content, t }: { content: FitAssessmentContent; t: To
         ) : null}
 
         <Text style={[fa.footer, { color: t.slate }]}>
-          Built from your structured history and stated preferences. This is a private decision aid for you, never shared
-          with the employer.
+          Built from your structured history and stated preferences. This is a private decision aid,
+          separate from the resume and cover letter you download.
         </Text>
       </Page>
     </Document>
