@@ -45,3 +45,18 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 
 ## Code review
 - **Always ground code reviews in the architecture we've actually built.** Before reviewing, (re)read the current architecture in `docs/ScoutLane_POC_Build_Plan.md`, `docs/ScoutLane_Engineering_Plan.md`, and the latest review under `docs/reviews/`, then judge the diff against *those* patterns and invariants (thin handlers → services, structured outputs + `readParsed`, guardrails-after-model, per-step error handling, RLS, the no-fabrication/no-scraping product invariant) — not against generic best practice in the abstract.
+
+## Working rules (owner ruleset)
+
+### Subagents
+- **Do not spawn a subagent for work you can complete directly in a single response** (e.g. refactoring a function you can already see).
+- **Spawn multiple subagents in the same turn when fanning out** across items or reading multiple files.
+
+### Frontend aesthetics
+<frontend_aesthetics>
+NEVER use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), cliched color schemes (particularly purple gradients on white or dark backgrounds), predictable layouts and component patterns, and cookie-cutter design that lacks context-specific character. Use unique fonts, cohesive colors and themes, and animations for effects and micro-interactions.
+</frontend_aesthetics>
+
+### Issue reporting (reviews / audits)
+- **Report every issue you find**, including ones you are uncertain about or consider low-severity. Do not filter for importance or confidence at this stage; a separate verification step does that. The goal is **coverage**: better to surface a finding that later gets filtered out than to silently drop a real bug.
+- For each finding, include your **confidence level** and an **estimated severity** so a downstream filter can rank them.
