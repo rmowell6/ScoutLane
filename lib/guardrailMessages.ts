@@ -22,7 +22,7 @@ export function describeGuardrailFailure(g: GuardrailReport): FriendlyGuardrailF
     if (nf.ungroundedSkills.length > 0) {
       reasons.push(
         `A tailored skill (${list(nf.ungroundedSkills)}) doesn't appear in your resume, so we held the ` +
-          `packet back rather than overstate your background — ScoutLane only lists skills you've actually ` +
+          `packet back rather than overstate your background. ScoutLane only lists skills you've actually ` +
           `written down. What to do: add that skill to your resume in the same words and regenerate, or just ` +
           `try again (this can happen when the wording differs only slightly).`,
       )
@@ -71,7 +71,7 @@ export function describeGuardrailFailure(g: GuardrailReport): FriendlyGuardrailF
   }
 
   if (reasons.length === 0) {
-    reasons.push('A safety check held this packet back. Please regenerate — if it keeps happening, let us know.')
+    reasons.push('A safety check held this packet back. Please regenerate. If it keeps happening, let us know.')
   }
 
   return {

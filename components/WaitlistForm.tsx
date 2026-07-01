@@ -29,7 +29,7 @@ export default function WaitlistForm() {
         return
       }
       if (res.status === 429) {
-        setMessage('Too many requests — please try again in a minute.')
+        setMessage('Too many requests. Please try again in a minute.')
       } else if (res.status === 400) {
         setMessage('Please enter a valid email address.')
       } else {
@@ -45,7 +45,7 @@ export default function WaitlistForm() {
   if (status === 'done') {
     return (
       <p style={styles.success} role="status">
-        You’re on the list — we’ll email you when your invite is ready.
+        You’re on the list. We’ll email you when your invite is ready.
       </p>
     )
   }

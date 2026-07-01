@@ -145,7 +145,7 @@ export default function SignInPage() {
 
         {status === 'sent' ? (
           <p style={styles.sent}>
-            Check your inbox — we sent a sign-in link to <strong>{email}</strong>.
+            Check your inbox. We sent a sign-in link to <strong>{email}</strong>.
           </p>
         ) : (
           <form onSubmit={sendMagicLink} style={styles.form}>

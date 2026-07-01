@@ -677,9 +677,9 @@
   line-height: 1.3;
 }
 .getCardP {
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.6;
   margin-bottom: 14px;
   flex-grow: 1;
 }
@@ -695,7 +695,7 @@
   color: var(--text);
 }
 .mrtSub {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   line-height: 1.5;
   margin-top: 2px;
@@ -715,7 +715,7 @@
   align-items: center;
 }
 .miniDimLbl {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -732,7 +732,7 @@
   border-radius: 2px;
 }
 .miniDimScore {
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   text-align: right;
@@ -744,7 +744,7 @@
   gap: 8px;
 }
 .miniB {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--text2);
   line-height: 1.55;
   display: flex;
@@ -760,11 +760,11 @@
   display: block;
   font-style: italic;
   color: var(--muted);
-  font-size: 9.5px;
+  font-size: 11px;
   margin-top: 2px;
 }
 .clPreview {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--text2);
   font-style: italic;
   line-height: 1.7;
@@ -780,7 +780,7 @@
   gap: 5px;
 }
 .clChip {
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--muted);
   background: var(--bg);
@@ -792,7 +792,7 @@
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--muted);
   line-height: 1.5;
 }

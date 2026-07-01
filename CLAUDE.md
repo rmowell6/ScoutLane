@@ -56,6 +56,7 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 ### Frontend aesthetics
 <frontend_aesthetics>
 NEVER use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), cliched color schemes (particularly purple gradients on white or dark backgrounds), predictable layouts and component patterns, and cookie-cutter design that lacks context-specific character. Use unique fonts, cohesive colors and themes, and animations for effects and micro-interactions.
+House style — no em dashes: NEVER use em dashes (—) in any user-facing copy (marketing + app UI, aria-labels, emails, toast/error messages, sample data). Use a comma, colon, or period instead; use an en dash (–) only for numeric/date ranges (matching the docgen date convention). This mirrors the code-enforced no-em-dash rule on generated documents (lib/guardrails.ts checkStyle / deEmDash) — keep shipped text uniform with it. Also keep type sizes legible: avoid tiny body/detail text (roughly < 11px) so cards and captions stay readable.
 </frontend_aesthetics>
 
 ### Issue reporting (reviews / audits)
