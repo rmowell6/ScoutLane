@@ -54,7 +54,7 @@ export function indexFacts(profile: Profile): FactIndex {
 // one can never launder a fabrication (an invented skill/metric/credential is never on this list).
 // The check therefore fails CLOSED: an unknown connector over-blocks (a safe annoyance), it never
 // under-blocks. Widen this list freely; do not add content words.
-const GLUE_WORDS = new Set([
+export const GLUE_WORDS = new Set([
   // articles / determiners
   'a', 'an', 'the', 'this', 'that', 'these', 'those', 'such', 'its', 'their', 'it',
   // conjunctions
@@ -242,8 +242,10 @@ function ungroundedMetricsIn(prose: string, profileText: string): string[] {
 export function checkNoFabrication(
   tailored: TailoredContent,
   profile: Profile,
+  // Accept a prebuilt index so runGuardrails can share ONE indexFacts() build across the checks (and
+  // downstream analytics) instead of each rebuilding it. Defaults to building its own for direct callers.
+  index: FactIndex = indexFacts(profile),
 ): NoFabricationResult {
-  const index = indexFacts(profile)
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
   const profileText = index.texts.join(' \n ')
   const ungroundedSkills = tailored.skills.filter((s) => !groundedInFacts(index.texts, s))
@@ -301,8 +303,9 @@ export function checkBannedTerms(
   tailored: TailoredContent,
   profile: Profile,
   bannedTerms: string[],
+  index: FactIndex = indexFacts(profile),
 ): BannedTermsResult {
-  const facts = indexFacts(profile).texts
+  const facts = index.texts
   const tailoredText = normalize(
     [
       tailored.summary,
@@ -544,6 +547,10 @@ export interface GuardrailReport {
   certStatus: CertStatusResult
   /** Non-blocking flag: education entries with low overlap against the source resume. */
   educationGrounded: EducationGroundedResult
+  /** The normalized source-fact texts the checks ran against. Exposed so downstream consumers (e.g.
+   *  block analytics) reuse this single build instead of re-indexing the profile. Optional so partial
+   *  report literals in tests stay valid; always populated by runGuardrails. */
+  factTexts?: string[]
 }
 
 /** Run all guardrails and roll up a single pass/fail report. */
@@ -552,8 +559,11 @@ export function runGuardrails(
   profile: Profile,
   options: GuardrailOptions = {},
 ): GuardrailReport {
-  const noFabrication = checkNoFabrication(tailored, profile)
-  const bannedTerms = checkBannedTerms(tailored, profile, options.bannedTerms ?? [])
+  // Build the fact index ONCE and share it with the fact-based checks (and expose its texts on the
+  // report), instead of each check re-indexing the same profile.
+  const index = indexFacts(profile)
+  const noFabrication = checkNoFabrication(tailored, profile, index)
+  const bannedTerms = checkBannedTerms(tailored, profile, options.bannedTerms ?? [], index)
   const styleText = [
     tailored.summary,
     tailored.coverLetter,
@@ -570,5 +580,5 @@ export function runGuardrails(
   // certStatus and educationGrounded are NON-BLOCKING flags (surfaced for review), so they are
   // deliberately excluded from `ok`.
   const ok = noFabrication.ok && bannedTerms.ok && style.ok && (ats?.ok ?? true) && bulletsGrounded.ok
-  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded, certStatus, educationGrounded }
+  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded, certStatus, educationGrounded, factTexts: index.texts }
 }

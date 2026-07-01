@@ -8,8 +8,8 @@
 // Everything here is DERIVED (booleans + counts). We deliberately emit NO claim text, skill, or metric
 // string: those are verbatim resume content (user PII) and must never reach a third party. This mirrors
 // the route's existing "log counts, never the offending strings" rule.
-import { indexFacts, mentionsAny, normalize, type GuardrailReport } from '@/lib/guardrails'
-import type { Claim, Profile } from '@/lib/schemas'
+import { GLUE_WORDS, mentionsAny, normalize, type GuardrailReport } from '@/lib/guardrails'
+import type { Claim } from '@/lib/schemas'
 
 // Spelled-out quantities the tailor reaches for when it states a count in words. Kept separate from
 // number words so "three-time" (three + time) trips both the number and the quantifier signal.
@@ -45,13 +45,14 @@ function claimShape(claim: Claim, factsJoined: string): { hasNumber: boolean; ha
   const hasNumber = hasDigit || hasNumberWord
   const hasQuantifier = ts.some((t) => QUANTIFIER_WORDS.has(t))
 
-  // Content tokens = the substantive words once the count itself is removed. length >= 4 drops most
-  // stopwords (same convention as guardrails.contentTokens), so a stray "for"/"the" can't falsely
-  // ground the claim. The claim "looks like an aggregate" only if EVERY content word is genuinely in
-  // the profile (alias-aware) AND there is at least one such word, i.e. the sentence is true except
-  // for the count our lexical checker can't verify.
+  // Content tokens = the substantive words once the count itself is removed. Drop connectors via the
+  // SAME GLUE_WORDS set guardrails uses (not an ad-hoc length cutoff), so a benign function word like
+  // "with"/"from" that happens to be absent from the profile can't falsely sink the aggregate flag.
+  // The claim "looks like an aggregate" only if EVERY content word is genuinely in the profile
+  // (alias-aware) AND there is at least one such word, i.e. the sentence is true except for the count
+  // our lexical checker can't verify.
   const content = ts.filter(
-    (t) => t.length >= 4 && !/^\d+$/.test(t) && !NUMBER_WORDS.has(t) && !QUANTIFIER_WORDS.has(t),
+    (t) => !GLUE_WORDS.has(t) && !/^\d+$/.test(t) && !NUMBER_WORDS.has(t) && !QUANTIFIER_WORDS.has(t),
   )
   const contentGrounds = content.length > 0 && content.every((t) => mentionsAny(factsJoined, t))
   return { hasNumber, hasQuantifier, looksLikeAggregate: (hasNumber || hasQuantifier) && contentGrounds }
@@ -79,12 +80,13 @@ export type BlockSignals = {
 }
 
 /**
- * Derive the privacy-safe block signals from a failed guardrail report + the profile it was checked
- * against. Pure and deterministic; emits only counts/booleans/low-cardinality reason strings.
+ * Derive the privacy-safe block signals from a failed guardrail report. Pure and deterministic; emits
+ * only counts/booleans/low-cardinality reason strings. Reuses the fact texts the report already carries
+ * (runGuardrails.factTexts) rather than re-indexing the profile.
  */
-export function deriveBlockSignals(guardrails: GuardrailReport, profile: Profile): BlockSignals {
+export function deriveBlockSignals(guardrails: GuardrailReport): BlockSignals {
   const nf = guardrails.noFabrication
-  const factsJoined = indexFacts(profile).texts.join(' \n ')
+  const factsJoined = (guardrails.factTexts ?? []).join(' \n ')
   const shapes = nf.unverifiable.map((c) => claimShape(c, factsJoined))
 
   const block_reasons: string[] = []

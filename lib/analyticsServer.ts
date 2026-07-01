@@ -20,7 +20,9 @@ export const SERVER_EVENTS = {
 export type ServerAnalyticsEvent = (typeof SERVER_EVENTS)[keyof typeof SERVER_EVENTS]
 
 function serverKey(): string | undefined {
-  return process.env.POSTHOG_KEY ?? process.env.NEXT_PUBLIC_POSTHOG_KEY
+  // `||`, not `??`: an env var set to an empty string ("POSTHOG_KEY=") must fall through to the client
+  // key, not shadow it with a blank value that silently disables capture.
+  return process.env.POSTHOG_KEY || process.env.NEXT_PUBLIC_POSTHOG_KEY
 }
 
 function host(): string {
@@ -55,6 +57,10 @@ export async function captureServer(
         distinct_id: distinctId,
         properties: { ...properties, $lib: 'scoutlane-server' },
       }),
+      // Bound the request: this is awaited in the packet route, so without a timeout a slow/hung
+      // PostHog endpoint would stall the user's response and could push the route past maxDuration
+      // (a 504). 2s is plenty for an ingest POST; on abort we swallow below and move on.
+      signal: AbortSignal.timeout(2000),
     })
   } catch (err) {
     console.error('[analytics] server capture failed (non-blocking)', err)
