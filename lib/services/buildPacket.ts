@@ -86,6 +86,7 @@ async function generateDocuments(
   tailored: TailoredContent,
   jobReqs: JobReqs,
   fit: FitResult,
+  fitInput: FitInput,
   date: string,
   style: StyleRecord,
 ): Promise<PacketDocuments> {
@@ -102,7 +103,7 @@ async function generateDocuments(
   const [resumeBuf, coverBuf, fitBuf] = await Promise.all([
     buildResumeDocx(toResumeContent(profile, tailored, jobReqs), theme, font),
     buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date), theme, font),
-    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, jobReqs, date), theme, accent),
+    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, fitInput, jobReqs, date), theme, accent),
   ])
 
   const base = safeName(profile.name)
@@ -220,7 +221,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
 
   const documents = guardrails.ok
     ? await runStep('generateDocuments', () =>
-        generateDocuments(profile, tailored, jobReqs, fit, input.date ?? todayString(), style),
+        generateDocuments(profile, tailored, jobReqs, fit, fitInput, input.date ?? todayString(), style),
       )
     : null
 

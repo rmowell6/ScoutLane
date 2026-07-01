@@ -85,6 +85,10 @@ describe('docgen', () => {
         { label: 'Core skills coverage', scoreText: '70 / 100', note: 'You bring 3 of the 5 must-have skills.', group: 'stretch' },
       ],
       hardGaps: ['people management'],
+      preferredSkills: [
+        { skill: 'terraform', status: 'match' },
+        { skill: 'kubernetes', status: 'gap' },
+      ],
     }
     const buf = await buildFitAssessmentDocx(content, theme, accent)
     expect(isDocxBuffer(buf)).toBe(true)
@@ -102,6 +106,7 @@ describe('docgen', () => {
       holdingBack: '',
       dimensions: [],
       hardGaps: [],
+      preferredSkills: [],
     }, theme, accent)
     expect(isDocxBuffer(buf)).toBe(true)
   })

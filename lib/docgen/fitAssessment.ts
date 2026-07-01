@@ -52,6 +52,15 @@ export interface FitAssessmentContent {
   /** Dimensions already humanized + ordered strengths -> stretches -> not assessed. */
   dimensions: FitDimensionLine[]
   hardGaps: string[]
+  /** JD preferred / nice-to-have keywords + the candidate's coverage. Display-only (does NOT affect
+   *  the score). Empty when the JD lists no preferred skills. */
+  preferredSkills: { skill: string; status: 'match' | 'partial' | 'gap' }[]
+}
+
+const PREFERRED_STATUS_TEXT: Record<'match' | 'partial' | 'gap', string> = {
+  match: 'In your background',
+  partial: 'Partial / cert-backed',
+  gap: 'Not present',
 }
 
 const GROUP_TITLES: Record<FitDimGroup, string> = {
@@ -176,6 +185,39 @@ export async function buildFitAssessmentDocx(
 
   if (content.hardGaps.length > 0) {
     children.push(sectionHeader('Hard gaps'), ...content.hardGaps.map(gapItem))
+  }
+
+  if (content.preferredSkills.length > 0) {
+    const prefLine = (p: { skill: string; status: 'match' | 'partial' | 'gap' }) =>
+      new Paragraph({
+        spacing: { before: 40, after: 40, line: 264 },
+        tabStops: [{ type: TabStopType.RIGHT, position: 9420 }],
+        children: [
+          new TextRun({ text: p.skill, font: SANS, size: 21, color: NAVY }),
+          new TextRun({
+            text: `\t${PREFERRED_STATUS_TEXT[p.status]}`,
+            font: SANS,
+            size: 20,
+            color: p.status === 'match' ? ACCENT : SLATE,
+          }),
+        ],
+      })
+    children.push(
+      sectionHeader('Preferred keywords (nice-to-have)'),
+      new Paragraph({
+        spacing: { before: 20, after: 60, line: 268 },
+        children: [
+          new TextRun({
+            text: 'These help with ATS keyword matching but do NOT affect the score above, so a gap here is not a strike against you.',
+            font: SANS,
+            italics: true,
+            size: 19,
+            color: SLATE,
+          }),
+        ],
+      }),
+      ...content.preferredSkills.map(prefLine),
+    )
   }
 
   children.push(

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
-import type { FitResult } from '@/lib/fit/fitScore'
+import type { FitInput, FitResult } from '@/lib/fit/fitScore'
 
 const profile: Profile = {
   name: 'Jordan Rivera',
@@ -126,8 +126,28 @@ describe('toFitAssessmentContent', () => {
     ],
   }
 
+  const fitInput: FitInput = {
+    roleTypeMatch: 'solid',
+    mustHaveSkills: ['azure'],
+    preferredSkills: ['terraform', 'kubernetes'],
+    candidateSkills: ['azure', 'terraform'],
+    adjacentSkills: [],
+    seniorityMatch: 'exact',
+    compTopUsd: null,
+    targetCompTopUsd: 1,
+    employerType: 'direct',
+    location: 'remote_us',
+    vertical: 'match',
+    requiredCerts: [],
+    heldCerts: [],
+    adjacentCerts: [],
+    hardGaps: [],
+    flags: {},
+    lanesSurfaced: 1,
+  }
+
   test('maps the FitResult onto humanized, grouped doc content (band label, summary, dimensions)', () => {
-    const fa = toFitAssessmentContent(profile, fit, jobReqs, 'June 27, 2026')
+    const fa = toFitAssessmentContent(profile, fit, fitInput, jobReqs, 'June 27, 2026')
     expect(fa.candidateName).toBe('Jordan Rivera')
     expect(fa.roleTitle).toBe('Senior Cloud Engineer')
     expect(fa.overall).toBe(82)
@@ -141,5 +161,13 @@ describe('toFitAssessmentContent', () => {
       group: 'strength',
     })
     expect(fa.hardGaps).toEqual(['people management'])
+  })
+
+  test('maps preferred skills to coverage status (display-only; terraform held, kubernetes a gap)', () => {
+    const fa = toFitAssessmentContent(profile, fit, fitInput, jobReqs, 'June 27, 2026')
+    expect(fa.preferredSkills).toEqual([
+      { skill: 'terraform', status: 'match' },
+      { skill: 'kubernetes', status: 'gap' },
+    ])
   })
 })
