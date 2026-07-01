@@ -238,6 +238,545 @@
           }
         ]
       }
+    },
+    {
+      "name": "Meridian Freight - Cloud Operations Lead (stretch band)",
+      "input": {
+        "roleId": "meridian-cloud-ops-lead",
+        "title": "Cloud Operations Lead",
+        "roleTypeMatch": "solid",
+        "mustHaveSkills": [
+          "aws",
+          "terraform",
+          "kubernetes",
+          "observability",
+          "incident response"
+        ],
+        "candidateSkills": [
+          "aws",
+          "terraform",
+          "incident response"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "mismatch",
+        "compTopUsd": 153000,
+        "targetCompTopUsd": 170000,
+        "employerType": "consulting",
+        "location": "local_metro",
+        "locationFlags": {},
+        "vertical": "adjacent",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 69,
+        "band": "Stretch",
+        "base": 68.6,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 80,
+            "note": "Target-title fit: solid."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 60,
+            "note": "3 of 5 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 40,
+            "note": "Level fit: mismatch."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 78,
+            "note": "Posted top $153,000 vs target $170,000 (ratio 0.90)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 50,
+            "note": "Employer type: consulting."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 90,
+            "note": "local_metro."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 70,
+            "note": "Vertical: adjacent."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Offshore Staffing Co - Junior Helpdesk Rotation (lead band, worst-case categoricals)",
+      "input": {
+        "roleId": "offshore-helpdesk-rotation",
+        "title": "Junior Helpdesk Rotation",
+        "roleTypeMatch": "off",
+        "mustHaveSkills": [
+          "active directory",
+          "ticketing",
+          "call center",
+          "imaging"
+        ],
+        "candidateSkills": [
+          "imaging"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "mismatch",
+        "compTopUsd": 90000,
+        "targetCompTopUsd": 170000,
+        "employerType": "vendor",
+        "location": "onsite_elsewhere",
+        "locationFlags": {},
+        "vertical": "none",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 40,
+        "band": "Lead",
+        "base": 40.2,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 35,
+            "note": "Target-title fit: off."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 25,
+            "note": "1 of 4 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 40,
+            "note": "Level fit: mismatch."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 45,
+            "note": "Posted top $90,000 vs target $170,000 (ratio 0.53)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 45,
+            "note": "Employer type: vendor."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 30,
+            "note": "onsite_elsewhere."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 55,
+            "note": "Vertical: none."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Sentinel Defense Systems - Onsite SRE (stacked penalties, clamps at 0)",
+      "input": {
+        "roleId": "sentinel-onsite-sre",
+        "title": "Onsite Site Reliability Engineer",
+        "roleTypeMatch": "off",
+        "mustHaveSkills": [
+          "linux",
+          "python",
+          "networking"
+        ],
+        "candidateSkills": [],
+        "adjacentSkills": [],
+        "seniorityMatch": "mismatch",
+        "compTopUsd": null,
+        "targetCompTopUsd": 170000,
+        "employerType": "vendor",
+        "location": "onsite_elsewhere",
+        "locationFlags": {
+          "onCall": true,
+          "travelHeavy": true
+        },
+        "vertical": "none",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [
+          "ts/sci clearance",
+          "polygraph",
+          "relocation"
+        ],
+        "flags": {
+          "expired": true,
+          "unconfirmedLive": true,
+          "defenseAdjacent": true,
+          "heavyTravelOrPresales": true
+        },
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 0,
+        "band": "Lead",
+        "base": 35.7,
+        "bonus": 0,
+        "penaltyTotal": 45,
+        "penalties": {
+          "hardGaps": 10,
+          "expired": 15,
+          "unconfirmedLive": 6,
+          "defenseAdjacent": 10,
+          "heavyTravelOrPresales": 4
+        },
+        "hardGaps": [
+          "ts/sci clearance",
+          "polygraph",
+          "relocation"
+        ],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 35,
+            "note": "Target-title fit: off."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 0,
+            "note": "0 of 3 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 40,
+            "note": "Level fit: mismatch."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 65,
+            "note": "Comp not posted (neutral)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 45,
+            "note": "Employer type: vendor."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 16,
+            "note": "onsite_elsewhere (−on-call, −heavy travel)."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 55,
+            "note": "Vertical: none."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Harborview Health - Platform Engineer (exact 78 Strong-fit boundary)",
+      "input": {
+        "roleId": "harborview-platform-engineer",
+        "title": "Platform Engineer",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "kubernetes",
+          "terraform",
+          "aws",
+          "ci/cd",
+          "go"
+        ],
+        "candidateSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "exact",
+        "compTopUsd": 175000,
+        "targetCompTopUsd": 170000,
+        "employerType": "consulting",
+        "location": "hybrid_confirm",
+        "locationFlags": {},
+        "vertical": "adjacent",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 78,
+        "band": "Strong fit",
+        "base": 77.7,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 60,
+            "note": "3 of 5 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 92,
+            "note": "Posted top $175,000 vs target $170,000 (ratio 1.03)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 50,
+            "note": "Employer type: consulting."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 70,
+            "note": "hybrid_confirm."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 70,
+            "note": "Vertical: adjacent."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cascade Analytics - Infrastructure Engineer (neutral fallbacks: no comp, no certs, no flags)",
+      "input": {
+        "roleId": "cascade-infra-engineer",
+        "title": "Infrastructure Engineer",
+        "roleTypeMatch": "solid",
+        "mustHaveSkills": [
+          "vmware",
+          "networking",
+          "storage",
+          "backup/dr"
+        ],
+        "candidateSkills": [
+          "vmware",
+          "networking"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "adjacent",
+        "compTopUsd": null,
+        "targetCompTopUsd": 170000,
+        "employerType": "consulting",
+        "location": "local_metro",
+        "vertical": "adjacent",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1
+      },
+      "expected": {
+        "version": "1.0.0",
+        "overall": 69,
+        "band": "Stretch",
+        "base": 68.6,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 80,
+            "note": "Target-title fit: solid."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 50,
+            "note": "2 of 4 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 78,
+            "note": "Level fit: adjacent."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 65,
+            "note": "Comp not posted (neutral)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 50,
+            "note": "Employer type: consulting."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 90,
+            "note": "local_metro."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 70,
+            "note": "Vertical: adjacent."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
     }
   ]
 }
