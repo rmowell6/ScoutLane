@@ -79,6 +79,11 @@
 .packet .packet__col > .grid-2 {
   margin-bottom: 0;
 }
+/* A full-width band under the two columns. The ATS coverage tables need more room than the
+   half-width left column gives, so they live here and their two-up grid sits side by side again. */
+.packet .packet__wide {
+  grid-column: 1 / -1;
+}
 @media (min-width: 1024px) {
   .packet .packet__body {
     grid-template-columns: 1.1fr 0.9fr;

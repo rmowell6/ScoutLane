@@ -404,37 +404,6 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           </p>
         </section>
 
-        {(coverage.length > 0 || preferredCoverage.length > 0) && (
-          // Required + preferred keyword cards sit side by side on wide screens (one full-width column
-          // on mobile), so the two ATS tables don't each consume a full scroll of vertical space.
-          <div className="grid-2">
-            {coverage.length > 0 && (
-              <CoverageCard
-                id="pk-kw"
-                title="Keyword & ATS coverage"
-                skillHeader="Required skill"
-                rows={coverage}
-                footer={
-                  <p className="callout">
-                    <b>The honest part:</b> tailoring only resurfaces facts genuinely in your history, the
-                    no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
-                    Nothing here is invented.
-                  </p>
-                }
-              />
-            )}
-
-            {preferredCoverage.length > 0 && (
-              <CoverageCard
-                id="pk-kw-pref"
-                title="Preferred keywords (nice-to-have)"
-                skillHeader="Preferred skill"
-                rows={preferredCoverage}
-                intro="These are the role's preferred, bonus skills. They help with ATS keyword matching, but they do NOT affect your fit score, so a gap here is not a strike against you."
-              />
-            )}
-          </div>
-        )}
         </div>
 
         {/* Aside column: the act-on-it cards (documents, outreach, next steps). */}
@@ -570,6 +539,39 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           </ol>
         </section>
         </div>
+
+        {/* Keyword & ATS coverage spans the FULL width below the two columns: the required and
+            preferred tables need more room than the half-width left column, so placing them here
+            lets the two-up grid sit side by side again instead of stacking. */}
+        {(coverage.length > 0 || preferredCoverage.length > 0) && (
+          <div className="grid-2 packet__wide">
+            {coverage.length > 0 && (
+              <CoverageCard
+                id="pk-kw"
+                title="Keyword & ATS coverage"
+                skillHeader="Required skill"
+                rows={coverage}
+                footer={
+                  <p className="callout">
+                    <b>The honest part:</b> tailoring only resurfaces facts genuinely in your history, the
+                    no-fabrication guardrail {guardrails.noFabrication.ok ? 'passed' : 'flagged this packet'}.
+                    Nothing here is invented.
+                  </p>
+                }
+              />
+            )}
+
+            {preferredCoverage.length > 0 && (
+              <CoverageCard
+                id="pk-kw-pref"
+                title="Preferred keywords (nice-to-have)"
+                skillHeader="Preferred skill"
+                rows={preferredCoverage}
+                intro="These are the role's preferred, bonus skills. They help with ATS keyword matching, but they do NOT affect your fit score, so a gap here is not a strike against you."
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <footer>
