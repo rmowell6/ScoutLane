@@ -100,7 +100,7 @@
 
 /* ─── HERO ──────────────────────────────────────────── */
 .hero {
-  padding: 80px 48px 72px;
+  padding: 56px 48px 52px;
 }
 .heroInner {
   max-width: 1100px;
@@ -108,7 +108,7 @@
 }
 .heroHead {
   text-align: center;
-  margin-bottom: 52px;
+  margin-bottom: 36px;
 }
 .eyebrowGreen {
   display: inline-block;
@@ -130,7 +130,7 @@
   font-size: 17px;
   color: var(--muted);
   line-height: 1.7;
-  max-width: 560px;
+  max-width: 640px;
   margin: 0 auto 32px;
 }
 .ctaRow {
@@ -364,7 +364,7 @@
   font-size: 16px;
   color: var(--muted);
   line-height: 1.65;
-  margin-bottom: 48px;
+  margin-bottom: 34px;
 }
 
 /* ─── PRODUCT PREVIEW ───────────────────────────────── */
@@ -372,15 +372,15 @@
   background: var(--card);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 80px 48px;
+  padding: 56px 48px;
 }
 .previewInner {
   max-width: 940px;
   margin: 0 auto;
 }
 .previewHead {
-  max-width: 620px;
-  margin-bottom: 44px;
+  max-width: 700px;
+  margin-bottom: 32px;
 }
 .previewHead p {
   font-size: 15px;
@@ -618,15 +618,15 @@
 
 /* ─── WHAT YOU GET ──────────────────────────────────── */
 .getSection {
-  padding: 80px 48px;
+  padding: 56px 48px;
 }
 .getInner {
   max-width: 1000px;
   margin: 0 auto;
 }
 .getHead {
-  max-width: 580px;
-  margin-bottom: 40px;
+  max-width: 680px;
+  margin-bottom: 28px;
 }
 .getHead p {
   font-size: 15px;
@@ -795,7 +795,7 @@
 
 /* ─── HOW IT WORKS ──────────────────────────────────── */
 .howSection {
-  padding: 88px 48px;
+  padding: 60px 48px;
   background: var(--card);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -858,7 +858,7 @@
 /* ─── PLEDGE ────────────────────────────────────────── */
 .pledgeSection {
   background: var(--accent);
-  padding: 72px 48px;
+  padding: 52px 48px;
 }
 .pledgeInner {
   max-width: 880px;
@@ -874,7 +874,7 @@
 .pledgeSub {
   font-size: 16px;
   color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 44px;
+  margin-bottom: 30px;
   line-height: 1.6;
 }
 .pledgeGrid {
@@ -920,7 +920,7 @@
 
 /* ─── WAITLIST ──────────────────────────────────────── */
 .waitlist {
-  padding: 88px 48px;
+  padding: 60px 48px;
 }
 .waitlistInner {
   max-width: 520px;
