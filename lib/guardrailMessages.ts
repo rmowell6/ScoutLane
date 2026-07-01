@@ -79,3 +79,36 @@ export function describeGuardrailFailure(g: GuardrailReport): FriendlyGuardrailF
     reasons,
   }
 }
+
+/**
+ * Plain-language notes for the NON-BLOCKING review flags (cert currency, certs missing from the
+ * source, education overlap). These never hold a packet back, they surface things worth a glance
+ * before sending. Returns an empty array when there is nothing to review. Kept distinct from
+ * describeGuardrailFailure so the two failure modes read differently to the user.
+ */
+export function describeReviewFlags(g: GuardrailReport): string[] {
+  const notes: string[] = []
+
+  const cs = g.certStatus
+  if (cs.suspicious.length > 0) {
+    notes.push(
+      `Check cert currency: your uploaded resume looks to list ${list(cs.suspicious)} as previously held, ` +
+        `but the packet shows it as active. Review before sending.`,
+    )
+  }
+  if (cs.notFound.length > 0) {
+    notes.push(
+      `A certification (${list(cs.notFound)}) isn't in the resume you uploaded. If you earned it since, that's ` +
+        `fine, this is just a heads-up to confirm it before you send.`,
+    )
+  }
+
+  if (g.educationGrounded.flagged.length > 0) {
+    notes.push(
+      `An education entry (${list(g.educationGrounded.flagged.map((f) => f.text))}) has little overlap with your ` +
+        `uploaded resume. Double-check the school, degree, and field before sending.`,
+    )
+  }
+
+  return notes
+}

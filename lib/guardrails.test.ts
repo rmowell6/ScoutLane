@@ -5,6 +5,7 @@ import {
   checkBannedTerms,
   checkBulletsGrounded,
   checkCertStatus,
+  checkEducationGrounded,
   checkNoFabrication,
   checkStyle,
   indexFacts,
@@ -670,8 +671,63 @@ describe('checkCertStatus', () => {
     expect(r.ok).toBe(true)
   })
 
+  test('a cert present in the source is not flagged as not-found (regression)', () => {
+    const r = checkCertStatus(profile([{ name: 'VCP-DCV', status: 'active' }]), 'Certifications (Active):\n- VCP-DCV')
+    expect(r.notFound).toEqual([])
+    expect(r.ok).toBe(true)
+  })
+
+  test('a cert entirely absent from the source is flagged in notFound, not silently skipped', () => {
+    const r = checkCertStatus(
+      profile([{ name: 'VCP-DCV', status: 'active' }, { name: 'CISSP', status: 'active' }]),
+      'Certifications (Active):\n- VCP-DCV', // CISSP appears nowhere
+    )
+    expect(r.notFound).toEqual(['CISSP'])
+    expect(r.suspicious).toEqual([])
+    expect(r.ok).toBe(false) // non-blocking, but the flag is raised
+  })
+
+  test('a dash/punctuation variant is still found, not a false notFound (normalize consistency)', () => {
+    // profile "AZ-104" normalizes to "az 104"; the raw source keeps the dash ("az-104"). The old
+    // lower.indexOf("az 104") missed it and would have reported a false notFound; mentions() does not.
+    const r = checkCertStatus(profile([{ name: 'AZ-104', status: 'active' }]), 'Certifications: AZ-104 (2021)')
+    expect(r.notFound).toEqual([])
+  })
+
   test('skips (degrades open) when no source resume is available', () => {
     const r = checkCertStatus(profile([{ name: 'VCP-DCV', status: 'active' }]), undefined)
-    expect(r).toEqual({ ok: true, skipped: true, suspicious: [] })
+    expect(r).toEqual({ ok: true, skipped: true, suspicious: [], notFound: [] })
+  })
+})
+
+describe('checkEducationGrounded', () => {
+  const eduProfile = (education: Profile['education']) => makeProfile({ education })
+  const SOURCE = 'B.S. in Computer Science, Riverside State University, 2014. Minor in Mathematics.'
+
+  test('an entry with strong source overlap is not flagged', () => {
+    const r = checkEducationGrounded(
+      eduProfile([{ school: 'Riverside State University', degree: 'B.S.', field: 'Computer Science', year: '2014' }]),
+      SOURCE,
+    )
+    expect(r.ok).toBe(true)
+    expect(r.flagged).toEqual([])
+  })
+
+  test('an entry with little source overlap is flagged, but ok stays true (non-blocking)', () => {
+    const r = checkEducationGrounded(
+      eduProfile([{ school: 'Oxford University', degree: 'PhD', field: 'Astrophysics', year: '2010' }]),
+      SOURCE,
+    )
+    expect(r.flagged.length).toBe(1)
+    expect(r.flagged[0]?.overlap).toBeLessThan(0.5)
+    expect(r.ok).toBe(true) // flag only, never blocks
+  })
+
+  test('skips (degrades open) when no source resume is available', () => {
+    const r = checkEducationGrounded(
+      eduProfile([{ school: 'Oxford University', degree: 'PhD', field: 'Astrophysics', year: '2010' }]),
+      undefined,
+    )
+    expect(r).toEqual({ ok: true, skipped: true, flagged: [] })
   })
 })

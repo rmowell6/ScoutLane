@@ -445,32 +445,82 @@ export interface CertStatusResult {
   skipped: boolean
   /** Active certs that look previously-held in the source resume (likely misclassified). */
   suspicious: string[]
+  /** Certs that do not appear in the source resume AT ALL, possibly invented during structuring. */
+  notFound: string[]
 }
 
 /**
- * Flag active certs that the SOURCE resume appears to mark as previously-held. Non-blocking: a true
- * positive means structureResume mis-set the status and the doc would overstate the cert as current.
+ * Two source-grounded cert checks, both NON-BLOCKING (profiles can legitimately be edited after the
+ * original upload, e.g. a cert earned since, so hard-blocking would produce real false positives):
+ *   - notFound: the cert name traces to NOTHING in the source resume, which can mean structureResume
+ *     invented it wholesale (not just misclassified it). Uses mentions() so a dash/punctuation
+ *     difference alone (profile "AZ-104" -> "az 104" vs a raw "az-104" in the source) never causes a
+ *     false "not found", the earlier raw lower.indexOf did.
+ *   - suspicious: an ACTIVE cert the source appears to mark as previously-held (misclassification), so
+ *     the doc would overstate it as current.
  */
 export function checkCertStatus(profile: Profile, sourceResumeText?: string): CertStatusResult {
   const source = (sourceResumeText ?? '').trim()
-  if (!source) return { ok: true, skipped: true, suspicious: [] }
+  if (!source) return { ok: true, skipped: true, suspicious: [], notFound: [] }
 
   const lower = source.toLowerCase()
+  const srcNorm = normalize(source) // dash/space-consistent with normalize(cert.name), for findability
   const header = PREV_HELD_HEADER_RE.exec(source)
   const prevRegionStart = header?.index ?? -1
 
   const suspicious: string[] = []
+  const notFound: string[] = []
   for (const cert of profile.certs) {
-    if (cert.status === 'previously_held') continue // correctly classified, nothing to flag
     const name = normalize(cert.name)
     if (!name) continue
+    // Findability FIRST (for every cert, active or previously-held): a cert that traces to nothing in
+    // the source may have been invented during structuring, a distinct failure from misclassification.
+    if (!mentions(srcNorm, cert.name)) {
+      notFound.push(cert.name)
+      continue
+    }
+    if (cert.status === 'previously_held') continue // correctly classified, nothing to flag as suspicious
     const idx = lower.indexOf(name)
-    if (idx === -1) continue
+    if (idx === -1) continue // found via normalize but not in the raw lower (dash diff), can't position-check
     const inPrevRegion = prevRegionStart !== -1 && idx > prevRegionStart
     const inlineCue = INLINE_PREV_RE.test(source.slice(idx, idx + cert.name.length + 40))
     if (inPrevRegion || inlineCue) suspicious.push(cert.name)
   }
-  return { ok: suspicious.length === 0, skipped: false, suspicious }
+  return { ok: suspicious.length === 0 && notFound.length === 0, skipped: false, suspicious, notFound }
+}
+
+// ---- education grounding (defense-in-depth) --------------------------------------
+// Same rationale as checkBulletsGrounded: the structured education entries are LLM-derived, so ground
+// each against the ORIGINAL resume text by content-word overlap. NON-BLOCKING (rephrasing/abbreviation
+// is legitimate, e.g. "BS" vs "Bachelor of Science"); low-overlap entries are flagged for review only.
+
+export interface EducationGroundedResult {
+  /** Always true, this check never blocks; it only surfaces entries for review. */
+  ok: boolean
+  /** No source resume to check against, degrade OPEN (don't flag). */
+  skipped: boolean
+  /** Education entries whose content words barely overlap the source resume (surfaced for review). */
+  flagged: { text: string; overlap: number }[]
+}
+
+/**
+ * Ground each structured education entry against the ORIGINAL resume text. Builds the entry text the
+ * same way indexFacts does ([degree, field, school]) and reuses the bullet overlap helpers. Skips
+ * (degrades open) with no source text; never blocks.
+ */
+export function checkEducationGrounded(profile: Profile, sourceResumeText?: string): EducationGroundedResult {
+  const source = (sourceResumeText ?? '').trim()
+  if (!source) return { ok: true, skipped: true, flagged: [] }
+
+  const sourceTokens = contentTokens(source)
+  const flagged: { text: string; overlap: number }[] = []
+  for (const e of profile.education) {
+    const text = [e.degree, e.field, e.school].filter(Boolean).join(' ')
+    if (!text.trim()) continue
+    const overlap = sourceOverlap(text, sourceTokens)
+    if (overlap < OVERLAP_FLAG_THRESHOLD) flagged.push({ text, overlap: Math.round(overlap * 100) / 100 })
+  }
+  return { ok: true, skipped: false, flagged }
 }
 
 // ---- aggregate -------------------------------------------------------------------
@@ -490,8 +540,10 @@ export interface GuardrailReport {
   style: StyleResult
   ats: AtsResult | null
   bulletsGrounded: BulletsGroundedResult
-  /** Non-blocking flag: active certs that look previously-held in the source resume. */
+  /** Non-blocking flag: active certs that look previously-held, or certs absent from the source. */
   certStatus: CertStatusResult
+  /** Non-blocking flag: education entries with low overlap against the source resume. */
+  educationGrounded: EducationGroundedResult
 }
 
 /** Run all guardrails and roll up a single pass/fail report. */
@@ -513,8 +565,10 @@ export function runGuardrails(
   const ats = options.atsDoc ? checkAtsSafe(options.atsDoc) : null
   const bulletsGrounded = checkBulletsGrounded(profile, options.sourceResumeText)
   const certStatus = checkCertStatus(profile, options.sourceResumeText)
+  const educationGrounded = checkEducationGrounded(profile, options.sourceResumeText)
 
-  // certStatus is a NON-BLOCKING flag (surfaced for review), so it is deliberately excluded from `ok`.
+  // certStatus and educationGrounded are NON-BLOCKING flags (surfaced for review), so they are
+  // deliberately excluded from `ok`.
   const ok = noFabrication.ok && bannedTerms.ok && style.ok && (ats?.ok ?? true) && bulletsGrounded.ok
-  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded, certStatus }
+  return { ok, noFabrication, bannedTerms, style, ats, bulletsGrounded, certStatus, educationGrounded }
 }
