@@ -1,7 +1,7 @@
-// Deterministic guardrails — run AFTER the model and trust nothing (Engineering Plan §6).
+// Deterministic guardrails, run AFTER the model and trust nothing (Engineering Plan §6).
 // The no-fabrication check is the product's differentiator: every tailored claim must trace
 // to a real profile fact, enforced in code, not by prompt wording. A failed check blocks or
-// flags — it never ships silently.
+// flags, it never ships silently.
 import type { Profile, TailoredContent, Claim } from '@/lib/schemas'
 
 // ---- fact indexing ---------------------------------------------------------------
@@ -16,13 +16,13 @@ export interface FactIndex {
 // Fold whitespace AND every hyphen/dash variant to a single space, so grounding is insensitive to
 // punctuation reformatting. Example: a resume skill "Windows Server 2012–2022" (en dash, as parsed
 // from a .docx) and the tailor's "Windows Server 2012-2022" (the model drops the dash per the
-// no-em-dash house rule) must still match — otherwise a real, listed skill reads as fabricated and
+// no-em-dash house rule) must still match, otherwise a real, listed skill reads as fabricated and
 // the packet is wrongly blocked. This only equates separators; it can never let an actual
 // fabrication pass (all the words must still be present).
 function normalize(s: string): string {
   return s
     .toLowerCase()
-    .replace(/[\s‐-―−-]+/g, ' ') // whitespace + hyphen/dash variants (‐‑‒–—―, minus, ASCII -)
+    .replace(/[\s‐-―−-]+/g, ' ') // whitespace + hyphen/dash variants (U+2010 to U+2015, minus sign, ASCII hyphen)
     .trim()
 }
 
@@ -46,10 +46,10 @@ export function indexFacts(profile: Profile): FactIndex {
   return { byId, texts }
 }
 
-// "Glue" words the tailor may insert or drop when it rephrases a fact — articles, prepositions,
+// "Glue" words the tailor may insert or drop when it rephrases a fact, articles, prepositions,
 // conjunctions, light auxiliaries, and the list-introducing verbs/gerunds a model reaches for when
-// it strips an em dash ("services — VMs" -> "services including/covering/spanning VMs"). Crucially
-// this set contains ONLY generic function words, NEVER a domain term — so allowing the claim to add
+// it strips an em dash ("services, VMs" -> "services including/covering/spanning VMs"). Crucially
+// this set contains ONLY generic function words, NEVER a domain term, so allowing the claim to add
 // one can never launder a fabrication (an invented skill/metric/credential is never on this list).
 // The check therefore fails CLOSED: an unknown connector over-blocks (a safe annoyance), it never
 // under-blocks. Widen this list freely; do not add content words.
@@ -79,7 +79,7 @@ const NEGATION_WORDS = new Set([
 ])
 
 /** All lowercased alphanumeric word tokens (drops punctuation only), via the shared dash/space
- *  normalize. Unlike contentTokens() this keeps short words ("no", "vms") — they matter for negation
+ *  normalize. Unlike contentTokens() this keeps short words ("no", "vms"), they matter for negation
  *  polarity and for catching added substantive tokens. */
 function wordTokens(s: string): string[] {
   return normalize(s)
@@ -115,10 +115,10 @@ function groundedInFacts(facts: string[], term: string): boolean {
  *  phrase. Two routes:
  *   1. Substring: the shorter covers >= 70% of the longer (fast path for verbatim-ish text).
  *   2. Token faithfulness: the claim introduces NO new substantive word (only glue words may be
- *      added — anti-fabrication), covers >= 70% of the fact's tokens (not a tiny fragment), and
+ *      added, anti-fabrication), covers >= 70% of the fact's tokens (not a tiny fragment), and
  *      carries the same negation polarity (no silent meaning flip). This tolerates the rephrasings
- *      our own tailor makes — swapping an em dash for "including"/a comma, dropping a "(a, b, c)"
- *      parenthetical — which the substring rule wrongly rejected. */
+ *      our own tailor makes, swapping an em dash for "including"/a comma, dropping a "(a, b, c)"
+ *      parenthetical, which the substring rule wrongly rejected. */
 function isFaithfulRestatement(t: string, fact: string): boolean {
   if (fact === t) return true
 
@@ -138,7 +138,7 @@ function isFaithfulRestatement(t: string, fact: string): boolean {
   for (const w of factSet) if (claimSet.has(w)) covered++
   const substantial = covered / factSet.size >= 0.7 || claimContentCount >= 6
 
-  // Route 1 — verbatim substring of the fact (claim ⊆ fact): every word is present, in order, so it
+  // Route 1, verbatim substring of the fact (claim ⊆ fact): every word is present, in order, so it
   // cannot fabricate. Accept when substantial AND it doesn't drop a polarity word the rest of the fact
   // carried (e.g. a leading "Failed to"). If the claim is LONGER than the fact, fall through so the
   // token route below checks the ADDED words for fabrication.
@@ -146,7 +146,7 @@ function isFaithfulRestatement(t: string, fact: string): boolean {
     if (substantial && negationKey(claimSet) === negationKey(factSet)) return true
   }
 
-  // Route 2 — token faithfulness for light rephrasings (em dash -> comma/"including", dropped
+  // Route 2, token faithfulness for light rephrasings (em dash -> comma/"including", dropped
   // parenthetical). Anti-fabrication: every substantive (non-glue) claim token must come from the
   // fact. Then it must be substantial, and carry the same negation polarity (no silent meaning flip).
   for (const w of claimSet) {
@@ -157,7 +157,7 @@ function isFaithfulRestatement(t: string, fact: string): boolean {
 }
 
 /**
- * A claim is traceable iff its TEXT faithfully restates the fact it cites — citing a valid factId is
+ * A claim is traceable iff its TEXT faithfully restates the fact it cites, citing a valid factId is
  * NOT sufficient on its own. The earlier `factId exists -> true` shortcut let an injected instruction
  * launder a fabricated sentence behind any real id (the resume/JD are untrusted, prompt-injection
  * surface). Now the text is diffed against the specific cited fact; with no/invalid id we fall back
@@ -168,10 +168,10 @@ export function traceable(claim: Claim, index: FactIndex): boolean {
   // Cited path: prefer the CITED fact. If the text faithfully restates it, accept.
   if (claim.factId !== null && index.byId.has(claim.factId)) {
     if (isFaithfulRestatement(t, normalize(index.byId.get(claim.factId) as string))) return true
-    // Fall through — do NOT block yet. The model routinely copies a real bullet verbatim but attaches
+    // Fall through, do NOT block yet. The model routinely copies a real bullet verbatim but attaches
     // the WRONG (still valid) factId; that mis-citation must not reject a claim that faithfully restates
     // some OTHER real fact. Anti-fabrication is preserved because the fallback below still requires the
-    // text to faithfully restate a genuine profile fact — a fabrication restates none and stays blocked.
+    // text to faithfully restate a genuine profile fact, a fabrication restates none and stays blocked.
   }
   // Fallback (no/invalid/mis-cited id): faithful restatement of any one fact; guard tiny fragments.
   if (t.length < 12) return false
@@ -193,12 +193,12 @@ export interface NoFabricationResult {
 // ---- prose metric grounding ------------------------------------------------------
 // The summary and cover-letter BODY are free prose, not structured claims, so the claim/skill
 // traces below don't cover them. The most common and most damaging fabrication in that prose is an
-// invented QUANTITY — "cut costs 40%", "$2M saved", "team of 12", "managed 200 servers". We extract
+// invented QUANTITY, "cut costs 40%", "$2M saved", "team of 12", "managed 200 servers". We extract
 // numbers bound to a metric context and require each to appear in the profile facts. Bare numbers
-// and 4-digit years are deliberately NOT gated (too ambiguous — e.g. a computed "10 years").
+// and 4-digit years are deliberately NOT gated (too ambiguous, e.g. a computed "10 years").
 
 // Digit runs are bounded (`{0,24}` not `*`): a real metric never has 25+ digit/comma chars, and the
-// unbounded `[\d,]*` + optional groups backtrack catastrophically on a long numeric paste — measured
+// unbounded `[\d,]*` + optional groups backtrack catastrophically on a long numeric paste, measured
 // ~tens of seconds of event-loop block on a 100k-char digit string. The bound makes matching linear
 // without dropping any legitimate quantity (ReDoS hardening).
 const METRIC_RE = new RegExp(
@@ -312,7 +312,7 @@ export function checkBannedTerms(
 }
 
 export interface StyleOptions {
-  /** Disallow em dashes (—) per the house style. Default true. */
+  /** Disallow em dashes (, ) per the house style. Default true. */
   allowEmDash?: boolean
 }
 
@@ -326,7 +326,7 @@ export function checkStyle(text: string, options: StyleOptions = {}): StyleResul
   const { allowEmDash = false } = options
   const violations: string[] = []
   if (!allowEmDash && text.includes('—')) violations.push('contains em dash (—)')
-  // Flag repeated *spaces* within a line only — newlines and blank-line paragraph breaks are
+  // Flag repeated *spaces* within a line only, newlines and blank-line paragraph breaks are
   // intentional (cover letters), so they must not trip this check.
   if (/ {2,}/.test(text)) violations.push('contains repeated spaces')
   return { ok: violations.length === 0, violations }
@@ -356,13 +356,13 @@ export function checkAtsSafe(doc: AtsDocModel): AtsResult {
 }
 
 // ---- shipped-bullet grounding (ai-26) --------------------------------------------
-// The resume EXPERIENCE bullets + summary that actually ship come from the structured profile — and
+// The resume EXPERIENCE bullets + summary that actually ship come from the structured profile, and
 // the profile is itself LLM-derived (structureResume), so the claim-tracing above grounds them only
 // CIRCULARLY (against the very profile a structuring hallucination would have corrupted). Ground the
 // shipped bullets against the ORIGINAL uploaded resume text instead. Per the chosen policy:
 //   - BLOCK: an invented QUANTITY in a bullet/summary whose number is absent from the source resume
 //     (the most damaging fabrication class; reuses the metric grounding → near-zero false positives).
-//   - FLAG (non-blocking): a bullet whose content words barely overlap the source resume — surfaced
+//   - FLAG (non-blocking): a bullet whose content words barely overlap the source resume, surfaced
 //     for review, NOT blocked, because structureResume legitimately rephrases/condenses.
 
 const OVERLAP_FLAG_THRESHOLD = 0.5
@@ -384,11 +384,11 @@ function sourceOverlap(text: string, sourceTokens: Set<string>): number {
 export interface BulletsGroundedResult {
   /** Blocking pass/fail: false iff a shipped bullet/summary asserts an ungrounded quantity. */
   ok: boolean
-  /** True when no source resume was available to check against — degrade OPEN (don't block). */
+  /** True when no source resume was available to check against, degrade OPEN (don't block). */
   skipped: boolean
   /** Invented quantities in a shipped bullet/summary, absent from the source resume (BLOCKING). */
   ungroundedMetrics: string[]
-  /** Bullets/summary with low source-word overlap — surfaced for review, NOT blocking. */
+  /** Bullets/summary with low source-word overlap, surfaced for review, NOT blocking. */
   flagged: { text: string; overlap: number }[]
 }
 
@@ -421,7 +421,7 @@ export function checkBulletsGrounded(profile: Profile, sourceResumeText?: string
 
 // ---- cert currency (defense-in-depth) --------------------------------------------
 // structureResume classifies each cert active vs previously_held; mapProfile renders by that status.
-// This catches the dangerous MISCLASSIFICATION — a cert shipped as Active that the SOURCE resume
+// This catches the dangerous MISCLASSIFICATION, a cert shipped as Active that the SOURCE resume
 // marked previously-held (expired/lapsed/"held N years"/under a Previously-Held heading). FLAG only
 // (non-blocking): heuristic, and the corrected data flow is the primary guard; this is a safety net.
 
@@ -431,7 +431,7 @@ const INLINE_PREV_RE = /\(\s*(?:expired|lapsed|inactive|no longer\b|former\b|hel
 
 export interface CertStatusResult {
   ok: boolean
-  /** No source resume to check against — degrade OPEN (don't flag). */
+  /** No source resume to check against, degrade OPEN (don't flag). */
   skipped: boolean
   /** Active certs that look previously-held in the source resume (likely misclassified). */
   suspicious: string[]
@@ -451,7 +451,7 @@ export function checkCertStatus(profile: Profile, sourceResumeText?: string): Ce
 
   const suspicious: string[] = []
   for (const cert of profile.certs) {
-    if (cert.status === 'previously_held') continue // correctly classified — nothing to flag
+    if (cert.status === 'previously_held') continue // correctly classified, nothing to flag
     const name = normalize(cert.name)
     if (!name) continue
     const idx = lower.indexOf(name)
@@ -469,7 +469,7 @@ export interface GuardrailOptions {
   bannedTerms?: string[]
   style?: StyleOptions
   atsDoc?: AtsDocModel
-  /** Original uploaded resume text — grounds the shipped profile bullets/summary against it (ai-26). */
+  /** Original uploaded resume text, grounds the shipped profile bullets/summary against it (ai-26). */
   sourceResumeText?: string
 }
 

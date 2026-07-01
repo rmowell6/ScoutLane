@@ -1,6 +1,6 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Job Board Types
+// ScoutLane, Job Board Types
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ---------------------------------------------------------------------------
@@ -112,12 +112,12 @@ export interface AdzunaConfig extends ProviderConfig {
 
 export interface USAJobsConfig extends ProviderConfig {
   apiKey: string;
-  /** Required by USAJobs TOS — your app name or email */
+  /** Required by USAJobs TOS, your app name or email */
   userAgent: string;
 }
 
 export interface JSearchConfig extends ProviderConfig {
-  /** RapidAPI key — https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch */
+  /** RapidAPI key, https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch */
   rapidApiKey: string;
 }
 

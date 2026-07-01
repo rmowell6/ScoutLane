@@ -1,12 +1,12 @@
 // Next.js 16 middleware (conventionally named proxy.ts in v16).
-// Refreshes the Supabase session using getClaims() — do NOT trust getSession()/getUser()
+// Refreshes the Supabase session using getClaims(), do NOT trust getSession()/getUser()
 // in server code. See docs/ScoutLane_Engineering_Plan.md §4.3.
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
-  // Auth-code rescue: Supabase redirects to its configured Site URL ("/") — not the app's
-  // `redirectTo` (/auth/callback) — whenever the redirect allowlist doesn't match, so an OAuth /
+  // Auth-code rescue: Supabase redirects to its configured Site URL ("/"), not the app's
+  // `redirectTo` (/auth/callback), whenever the redirect allowlist doesn't match, so an OAuth /
   // magic-link `?code=` can land on any non-auth page instead of the callback. Forward it to
   // /auth/callback (which exchanges the code) so sign-in completes regardless of where it lands.
   const { pathname, searchParams } = request.nextUrl
@@ -36,7 +36,7 @@ export async function proxy(request: NextRequest) {
 // authorizeCron → bearer secret) so machine callers get a status code, not an HTML login redirect.
 function isPublicPath(pathname: string): boolean {
   return (
-    pathname === '/' || // marketing landing (M4) — the public front door
+    pathname === '/' || // marketing landing (M4), the public front door
     pathname === '/sign-in' ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/api/')

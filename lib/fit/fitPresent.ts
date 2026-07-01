@@ -1,4 +1,4 @@
-// Presentation-only helpers for the deterministic FitResult. These never change scoring — they map
+// Presentation-only helpers for the deterministic FitResult. These never change scoring, they map
 // the engine's output to candidate-facing language so the UI doesn't show a misleading verdict.
 //
 // `isUnassessed` is intentionally COUPLED to the engine's neutral-note format (see scoreComp /
@@ -134,7 +134,7 @@ export function splitDimensions(fit: FitResult): SplitDimensions {
   return { strengths, stretches, notAssessed }
 }
 
-// Dimensions a candidate can actually "lead with" in an application — their own strengths. The other
+// Dimensions a candidate can actually "lead with" in an application, their own strengths. The other
 // three (employerPreference, compAlignment, locationLogistics) describe the job/logistics and can score
 // 100 (a direct employer, pay meeting target, remote-US) yet are NOT something a candidate leads with,
 // so picking them as "your sharpest differentiator" is nonsense. Restrict the lead pick to these.
@@ -183,7 +183,7 @@ export function holdingBackLine(fit: FitResult): string {
 }
 
 /** Candidate-facing band label. The engine's lowest band is internally "Lead" (CRM jargon); show plain
- * language. Display only — the engine value and golden output are unchanged. */
+ * language. Display only, the engine value and golden output are unchanged. */
 export function bandLabel(band: string): string {
   return band === 'Lead' ? 'Long shot' : band
 }

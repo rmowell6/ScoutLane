@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Arbeitnow Provider
+// ScoutLane, Arbeitnow Provider
 // Docs: https://www.arbeitnow.com/blog/job-board-api
-// Auth: None — fully public
+// Auth: None, fully public
 // Coverage: Europe + Remote, heavily IT-focused
 // ─────────────────────────────────────────────────────────────────────────────
 

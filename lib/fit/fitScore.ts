@@ -1,4 +1,4 @@
-// ScoutLane — Deterministic Fit-Assessment Engine (ported from fit_score.js, rubric 1.0.0).
+// ScoutLane, Deterministic Fit-Assessment Engine (ported from fit_score.js, rubric 1.0.0).
 //
 // The fit score is the product's core value-add, so it must be REPRODUCIBLE: the same structured
 // input always produces the same output, on any machine. Design (Fit_Assessment_SPEC.md):
@@ -159,7 +159,7 @@ export function coverage(
 export function scoreComp(compTopUsd: number | null, targetTopUsd: number): { score: number; note: string } {
   if (compTopUsd == null) return { score: 65, note: 'Comp not posted (neutral).' }
   // A non-positive or non-finite target (user left it blank/0, or an upstream fallback) makes the
-  // ratio Infinity/NaN — which would silently bucket to a misleading score. Treat it as "no usable
+  // ratio Infinity/NaN, which would silently bucket to a misleading score. Treat it as "no usable
   // target" and return the same neutral value as an unposted comp rather than fabricating a verdict.
   if (!Number.isFinite(targetTopUsd) || targetTopUsd <= 0 || !Number.isFinite(compTopUsd) || compTopUsd <= 0) {
     return { score: 65, note: 'Comp target unavailable (neutral).' }

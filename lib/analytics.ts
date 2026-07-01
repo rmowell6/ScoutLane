@@ -1,6 +1,6 @@
 // Product analytics (M4-C). A thin, ENV-GATED wrapper over posthog-js: with no
 // NEXT_PUBLIC_POSTHOG_KEY set, every function here is a no-op, so the app behaves identically in
-// dev/CI and until PostHog is wired. Browser-only — guarded by `typeof window` so a server component
+// dev/CI and until PostHog is wired. Browser-only, guarded by `typeof window` so a server component
 // importing a client component that uses this never crashes.
 //
 // We intentionally do NOT identify users by email here: the Phase-0 thresholds are funnel RATES,

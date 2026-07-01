@@ -7,7 +7,7 @@ import type { AtsSource, IngestedJob } from './types'
 
 // `id` is optional on purpose: a top-level string `id` is NOT guaranteed by the public posting-api
 // (verified June 2026). If it were required, one id-less posting would throw on parse and drop the
-// whole board — so we tolerate its absence and fall back to jobUrl for the unique key.
+// whole board, so we tolerate its absence and fall back to jobUrl for the unique key.
 const AshbyJob = z.object({
   id: z.string().optional(),
   title: z.string().optional(),

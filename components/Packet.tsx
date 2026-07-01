@@ -1,7 +1,7 @@
 'use client'
 
 // Accessible Application Packet view (UI_UX_SPEC.md / packet.template.html). A pure render of the
-// deterministic FitResult + tailored content — no scoring logic here. Semantics per the spec:
+// deterministic FitResult + tailored content, no scoring logic here. Semantics per the spec:
 // one <h1>, sections labelled by their <h2>, role="meter" for the gauge and sub-score bars (never
 // progressbar), status conveyed by text + icon (never color alone), WCAG 2.2 AA tokens.
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
@@ -64,7 +64,7 @@ function Meter({ d }: { d: FitDimension }) {
   const status = meterStatus(d.score)
   const noteId = `meter-note-${d.key}`
   // No real data to score this dimension: show "Not assessed" rather than a placeholder bar that
-  // reads as a measured verdict. No role="meter" here — there is no meaningful value to announce.
+  // reads as a measured verdict. No role="meter" here, there is no meaningful value to announce.
   if (isUnassessed(d)) {
     return (
       <div className="meter is-muted">
@@ -209,7 +209,7 @@ function downloadDoc(doc: DocumentRef) {
     const url = URL.createObjectURL(new Blob([bytes], { type: doc.mime }))
     trigger(url)
     // Revoking on a 0ms timer can race the browser's own fetch of the blob and abort the download
-    // (notably in Firefox). Hold the URL for a comfortable window — the file is a few KB — then free it.
+    // (notably in Firefox). Hold the URL for a comfortable window, the file is a few KB, then free it.
     setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
 }
@@ -224,7 +224,7 @@ function DownloadIcon() {
 
 /**
  * One document, downloadable in each format as two equal buttons: PDF (opens anywhere) and DOCX
- * (editable Word). The row is a grid — name, then the two buttons — so the buttons stay beside the
+ * (editable Word). The row is a grid, name, then the two buttons, so the buttons stay beside the
  * name and line up in columns across the three documents.
  */
 function DocButton({ formats, label }: { formats: DocFormats; label: string }) {
@@ -264,7 +264,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
           setDone(true)
           setTimeout(() => setDone(false), 2500)
         } catch {
-          // Clipboard can be blocked (permissions / insecure context); fail quietly — the text is
+          // Clipboard can be blocked (permissions / insecure context); fail quietly, the text is
           // still visible on screen for manual selection.
         }
       }}
@@ -277,10 +277,10 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 export default function PacketView({ packet, sourceUrl }: { packet: Packet; sourceUrl?: string | null }) {
   const { fit, fitInput, jobReqs, guardrails, documents, style, styleWhy, tailored } = packet
   const roleTitle = jobReqs.title ?? 'Target role'
-  const heading = jobReqs.company ? `${jobReqs.company} — ${roleTitle}` : roleTitle
+  const heading = jobReqs.company ? `${jobReqs.company} · ${roleTitle}` : roleTitle
 
   // The on-screen packet uses a FIXED forest-green skin (app/packet.css) so the app matches the
-  // marketing site. The downloaded .docx keep their own document theme — styleLabel still names that
+  // marketing site. The downloaded .docx keep their own document theme, styleLabel still names that
   // palette so the "Style:" line stays truthful about the files the user gets.
   const styleLabel = styleNames(style.theme, style.font)
 
@@ -337,7 +337,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
         <p className="gen">
           Style: {styleLabel.theme} · {styleLabel.font}
           {style.source === 'recommended' ? ' (recommended)' : style.source === 'user' ? ' (your pick)' : ''}
-          {styleWhy ? ` — ${styleWhy}` : ''}
+          {styleWhy ? ` · ${styleWhy}` : ''}
         </p>
       </header>
 

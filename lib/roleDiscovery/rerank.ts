@@ -1,8 +1,8 @@
-// Role discovery — stage 2 of 2: the Claude RE-RANK contract + pure result assembly.
+// Role discovery, stage 2 of 2: the Claude RE-RANK contract + pure result assembly.
 //
 // The pre-filter (prefilter.ts) hands a high-recall candidate set to Claude, which judges true
 // similarity to the candidate's experience ACROSS title variance and returns a relevance score +
-// a one-line rationale per role. The model only ranks ids we gave it — assembleDiscoveries rejects
+// a one-line rationale per role. The model only ranks ids we gave it, assembleDiscoveries rejects
 // any hallucinated id and rejoins the model's verdict with the real posting data.
 import * as z from 'zod'
 import type { ScoredJob } from './prefilter'

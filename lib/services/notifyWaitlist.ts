@@ -3,7 +3,7 @@
 //
 // Server-only and ENV-GATED + degradable, exactly like waitlistStore/analytics: with no SES env set
 // this is a complete no-op, so dev/CI/preview and the signup flow behave identically until SES is
-// wired. It is also NEVER-THROWS by contract — the caller schedules it via `after()` as a
+// wired. It is also NEVER-THROWS by contract, the caller schedules it via `after()` as a
 // non-blocking side-effect, so a delivery failure must never fail the visitor's signup. Failures are
 // logged (with a safe step id, no secrets) and swallowed.
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
@@ -46,7 +46,7 @@ export async function notifyWaitlistSignup(input: WaitlistNotifyInput): Promise<
   const start = Date.now()
   try {
     // The signup fields are untrusted visitor input. They go into the email body as plain text only
-    // (never HTML, never headers), so there is no injection surface — the recipient is the admin and
+    // (never HTML, never headers), so there is no injection surface, the recipient is the admin and
     // the address (TO) is fixed from env, not derived from the submission.
     const lines = [
       `New ScoutLane waitlist signup:`,
@@ -70,7 +70,7 @@ export async function notifyWaitlistSignup(input: WaitlistNotifyInput): Promise<
     console.log(`[waitlist-notify] step ok: send (${Date.now() - start}ms)`)
     return true
   } catch (err) {
-    // Swallow — a failed notification must not affect the signup. Log a safe step id; the SDK error
+    // Swallow, a failed notification must not affect the signup. Log a safe step id; the SDK error
     // may carry endpoint detail but never our secret key.
     console.error(`[waitlist-notify] step failed: send (${Date.now() - start}ms)`, err)
     return false

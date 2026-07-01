@@ -1,4 +1,4 @@
-// /api/profile — persist a structured resume so it can be reused across jobs (M2).
+// /api/profile, persist a structured resume so it can be reused across jobs (M2).
 //   POST { resumeText } -> structure once, store -> { profileId, profile }
 //   GET  ?id=<uuid>     -> rehydrate a stored profile -> { profileId, profile }
 // Thin handlers: validate -> service -> map to HTTP. runtime='nodejs' (Supabase + SDK).

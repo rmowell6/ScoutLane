@@ -1,5 +1,5 @@
 // Job parsing: raw JD text -> schema-validated JobReqs (LLM + Zod).
-// The JD is untrusted third-party text — the classic indirect prompt-injection surface;
+// The JD is untrusted third-party text, the classic indirect prompt-injection surface;
 // isolated as labeled data (Engineering Plan §7). Live-URL fetch/validation is handled
 // separately by lib/validateJob (a later slice); this takes already-fetched JD text.
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
@@ -8,7 +8,7 @@ import { JobReqsSchema, type JobReqs } from '@/lib/schemas'
 
 const MAX_TOKENS = 1500
 
-// PLACEHOLDER — replace with the JD-parsing rules. Plumbing is final.
+// PLACEHOLDER, replace with the JD-parsing rules. Plumbing is final.
 const PARSE_INSTRUCTIONS = [
   'Parse a job description into structured requirements: must-have and nice-to-have skills,',
   'compensation, location, and employer type. Extract ONLY what the JD states.',

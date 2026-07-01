@@ -26,7 +26,7 @@ describe('isApifyDay', () => {
   })
 
   test('uses UTC, not local time, for the day-of-month boundary', () => {
-    // 2026-06-21T01:00Z is still the 20th in US time zones — must still read as the 21st (UTC).
+    // 2026-06-21T01:00Z is still the 20th in US time zones, must still read as the 21st (UTC).
     expect(isApifyDay('2026-06-21T01:00:00.000Z', {})).toBe(true)
   })
 

@@ -1,4 +1,4 @@
-// POST /api/extract — turn an uploaded resume file (PDF / DOCX / TXT) into plain text the
+// POST /api/extract, turn an uploaded resume file (PDF / DOCX / TXT) into plain text the
 // user can review and feed to /api/packet. Thin handler: read the multipart body, validate,
 // call the extraction service, map the result/failure to HTTP (Engineering Plan §4.1).
 // runtime='nodejs' because mammoth/unpdf need Node Buffer + APIs.

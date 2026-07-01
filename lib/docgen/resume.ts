@@ -1,10 +1,10 @@
-// ATS-safe resume builder — ported from resume_template_build.js, the LOCKED design system
+// ATS-safe resume builder, ported from resume_template_build.js, the LOCKED design system
 // (the resume template spec). Builder recipes and section structure are preserved EXACTLY; the
 // content is parameterized by ResumeContent and the color/typography by a Theme + FontPair so the
 // same skeleton renders in any of the style themes. Runs only in routes with runtime='nodejs'
 // (Packer.toBuffer needs Node Buffer).
 //
-// Non-negotiable design principle: legibility never depends on a background fill — all text is
+// Non-negotiable design principle: legibility never depends on a background fill, all text is
 // DARK on a LIGHT surface; structure comes from type scale, the accent, and BORDER rules.
 //
 // Color token mapping (Theme): NAVY→primary, INK→fixed '1A1A1A' (body never themed), SLATE→slate,
@@ -80,7 +80,7 @@ export async function buildResumeDocx(
   const NAVY = theme.primary // name, section headers, company/school names
   const ACCENT = theme.accent // GRAPHIC accent: rules, ■ markers, • separators, bullets
   const ACCENT_TEXT = theme.accentText // accent-colored TEXT: dates, taglines, cert sub-labels
-  const INK = '1A1A1A' // body — never themed
+  const INK = '1A1A1A' // body, never themed
   const SLATE = theme.slate // muted / context
   const WASH = theme.wash // very light header wash (text stays dark)
 
@@ -279,7 +279,7 @@ export async function buildResumeDocx(
 
   const doc = new Document({
     creator: content.name,
-    title: `${content.name} — ${content.tagline} Resume`,
+    title: `${content.name} · ${content.tagline} Resume`,
     styles: { default: { document: { run: { font: SANS, size: 21, color: INK } } } },
     numbering: {
       config: [

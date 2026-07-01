@@ -1,4 +1,4 @@
-// GET /api/jobs — the pool for the picker (light list, no JD bodies). Thin handler.
+// GET /api/jobs, the pool for the picker (light list, no JD bodies). Thin handler.
 import { NextResponse } from 'next/server'
 import * as z from 'zod'
 import { JobStoreError, isJobStoreConfigured, listJobs } from '@/lib/services/jobStore'

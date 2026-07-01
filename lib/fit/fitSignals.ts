@@ -3,8 +3,8 @@
 // extraction and scoring separate is what makes the score reproducible.
 //
 // Categoricals are enums; booleans/arrays are required (no optionals) so structured output never
-// omits a field. Candidate-side signals the resume can't supply — targetCompTopUsd (primary,
-// from preferences) and lanesSurfaced — are injected by assembleFitInput, not asked of the model.
+// omits a field. Candidate-side signals the resume can't supply, targetCompTopUsd (primary,
+// from preferences) and lanesSurfaced, are injected by assembleFitInput, not asked of the model.
 import * as z from 'zod'
 import type { CandidatePreferences, JobReqs } from '@/lib/schemas'
 import type { FitInput } from '@/lib/fit/fitScore'

@@ -76,7 +76,7 @@ const sampleFit: FitAssessmentContent = {
   ],
 }
 
-/** OOXML .docx files are ZIP archives — they start with the "PK" local-file-header magic. */
+/** OOXML .docx files are ZIP archives, they start with the "PK" local-file-header magic. */
 function isDocxBuffer(buf: Buffer): boolean {
   return Buffer.isBuffer(buf) && buf.length > 1000 && buf[0] === 0x50 && buf[1] === 0x4b
 }
@@ -105,7 +105,7 @@ describe('docgen', () => {
 
   test('an empty role context adds no phantom paragraph (consistent spacing)', async () => {
     // mapProfile currently always passes context: '' (no per-role context in the schema yet). An
-    // empty context must NOT emit a blank spacer paragraph between the job title and the bullets —
+    // empty context must NOT emit a blank spacer paragraph between the job title and the bullets, 
     // otherwise the experience section gains a phantom gap that reads as inconsistent spacing.
     const withContext = await documentXml(await buildResumeDocx(sampleResume, theme, font))
     const emptyContext = await documentXml(

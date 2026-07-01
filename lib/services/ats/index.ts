@@ -1,6 +1,6 @@
 // ATS ingestion orchestrator (M3): fetch every configured board, normalize, and roll up a
 // per-source report. One bad board (404, blocked domain, payload change) is isolated to its own
-// SourceResult.ok=false with a message — it never aborts the whole ingest (CLAUDE.md: localize
+// SourceResult.ok=false with a message, it never aborts the whole ingest (CLAUDE.md: localize
 // failures, never swallow them).
 import { fetchGreenhouse } from './greenhouse'
 import { fetchLever } from './lever'

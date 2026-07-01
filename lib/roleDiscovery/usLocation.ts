@@ -2,11 +2,11 @@
 // builder even stamps "Authorized to work in the U.S."), and the seed boards hire globally, so by
 // default discovery should drop clearly-non-US postings. Free-text `location` is messy
 // ("US Remote", "Seattle, WA", "Sydney, Australia", "Remote - EMEA"), so this is a heuristic, not a
-// parser: BIAS TOWARD KEEPING — only drop a posting that names a clearly non-US place and gives no
+// parser: BIAS TOWARD KEEPING, only drop a posting that names a clearly non-US place and gives no
 // US signal. "Remote" / unknown / unrecognized → kept (US-eligible).
 
 // A US signal: "US"/"USA"/"United States", a US state name, or a major US metro. If present, keep
-// even when a non-US place is also mentioned (e.g. "San Francisco or London") — bias toward keeping.
+// even when a non-US place is also mentioned (e.g. "San Francisco or London"), bias toward keeping.
 const US_HINT_RE = new RegExp(
   '\\b(' +
     'u\\.?s\\.?a?|united states|' +
@@ -52,7 +52,7 @@ const NON_US_RE = new RegExp(
 
 // Native-language country/region names, Canadian provinces, + the long tail of non-US towns the
 // metro list misses. Cheap to extend; only consulted when there's no US signal.
-// (WPAFB / Greene County are US — deliberately NOT listed — so a Wright-Patterson AFB posting stays.)
+// (WPAFB / Greene County are US, deliberately NOT listed, so a Wright-Patterson AFB posting stays.)
 const NON_US_EXTRA = new RegExp(
   '\\b(' +
     // native-language country / region names
@@ -64,7 +64,7 @@ const NON_US_EXTRA = new RegExp(
     'british columbia|ontario|alberta|manitoba|saskatchewan|quebec|québec|nova scotia|new brunswick|' +
     'newfoundland|labrador|prince edward island|northwest territories|nunavut|yukon|' +
     // EU/UK towns the metro list misses. Limited to places whose only US namesakes are tiny (e.g.
-    // Hamburg, NY) — an accepted cost for a US-only product; collision-heavy names are left out.
+    // Hamburg, NY), an accepted cost for a US-only product; collision-heavy names are left out.
     'asturias|principado|catalonia|cataluña|bavaria|bayern|gij[oó]n|heinsberg|aachen|pirmasens|' +
     'hamburg|cologne|köln|koln|stuttgart|düsseldorf|dusseldorf|dortmund|essen|bremen|hannover|' +
     'nuremberg|nürnberg|nurnberg|leipzig|dresden|bonn|mannheim|karlsruhe|wiesbaden|' +
@@ -76,7 +76,7 @@ const NON_US_EXTRA = new RegExp(
 
 // Mojibake signature: UTF-8 bytes mis-decoded as Latin-1 leave tell-tale bigrams (Ã³ = ó, Ã±/Â± = ñ,
 // etc.). A real US location is plain ASCII ("Austin, TX", "Remote"), so garbled high-bit pairs in a
-// location almost always mean a foreign, accented place. Treat that as a non-US signal — it both
+// location almost always mean a foreign, accented place. Treat that as a non-US signal, it both
 // drops the posting AND stops the garbled text from ever showing. (Also the proper place to notice
 // the upstream encoding bug; a full re-decode fix in the provider fetch is a separate follow-up.)
 // The lead-byte class spans 0xC2-0xEF (not just the Latin 0xC2/0xC3) so non-Latin scripts also match:
@@ -85,7 +85,7 @@ const MOJIBAKE_RE = /[\u00c2-\u00ef][\u0080-\u00bf]|\ufffd/
 
 // High-precision non-US ROLE markers that live in the company or title, not the location: European
 // legal company forms and the German/Austrian gender tag "(m/w/d)" and its variants. Each is a near
-// certain non-US signal; deliberately conservative (no bare "AG"/"SA"/"AB" — too many US false hits).
+// certain non-US signal; deliberately conservative (no bare "AG"/"SA"/"AB", too many US false hits).
 const NON_US_ROLE_MARKER_RE =
   /\bgmbh\b|\bgesmbh\b|\bmbh\b|\bs\.l\.|\bs\.r\.l\.|\bs\.p\.a\.|\bb\.v\.\b|\bs[àa]rl\b|\bsp\.?\s?z\s?o\.?o\b|\([mwfdx]\/[mwfdx](\/[mwfdx])?\)/i
 

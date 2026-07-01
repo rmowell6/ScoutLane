@@ -1,5 +1,5 @@
 /**
- * ScoutLane assessment accent resolution — lib/style/assessmentAccent.ts
+ * ScoutLane assessment accent resolution, lib/style/assessmentAccent.ts
  *
  * The fit assessment recolors its brand elements (top bar, gauge arc, headings)
  * from the selected theme. But the gauge arc must never visually resemble a
@@ -21,7 +21,7 @@ import themes from './themes.json';
 import type { Theme, AssessmentAccentResult } from './types';
 
 // ---------------------------------------------------------------------------
-// Protected semantic status colors (from UI_UX_SPEC.md — never themed)
+// Protected semantic status colors (from UI_UX_SPEC.md, never themed)
 // ---------------------------------------------------------------------------
 
 export const STATUS_COLORS = {
@@ -42,7 +42,7 @@ export type StatusKey = keyof typeof STATUS_COLORS;
  * enough that a viewer might confuse the gauge arc with a score indicator at a glance.
  *
  * We check proximity to FAIL-RED only (not warn-amber). Why:
- * - Red (#c0392b) has an immediate "failure" association — a red arc would read as
+ * - Red (#c0392b) has an immediate "failure" association, a red arc would read as
  *   a failed score before the user reads the number. This is the high-risk case.
  * - Warm-amber (#b45309) is NOT checked, because too many intentional brand accents
  *   (copper, amber, gold, bronze) live in the same hue zone. These accents are
@@ -57,7 +57,7 @@ export type StatusKey = keyof typeof STATUS_COLORS;
  * of luminance (e.g. near-identical reds).
  *
  * Canonical fallback cases: steel_crimson (#B23B3B), slate_rust (#B5532A),
- * oxford_burgundy (#7B2D3A) — all in the red/maroon hue family.
+ * oxford_burgundy (#7B2D3A), all in the red/maroon hue family.
  */
 const HUE_THRESHOLD_DEG = 20;    // within 20° of a guarded status hue → potential collision
 const HUE_CLOSE_DEG = 10;        // within 10° → hue-only trigger (no contrast check needed)
@@ -86,7 +86,7 @@ function linearise(c8: number): number {
 
 /**
  * WCAG 2.x relative luminance for a hex color (no '#').
- * Range [0, 1] — 0 = black, 1 = white.
+ * Range [0, 1], 0 = black, 1 = white.
  */
 export function relativeLuminance(hex: string): number {
   const [r, g, b] = parseHex(hex);
@@ -163,7 +163,7 @@ export function checkCollision(accentHex: string): CollisionReport {
     return { collides: false };
   }
 
-  // Only check fail-red and pass-green. Warn-amber is intentionally excluded —
+  // Only check fail-red and pass-green. Warn-amber is intentionally excluded, 
   // too many valid warm accents (copper, amber, gold, bronze) share that hue range.
   const guardedStatuses: StatusKey[] = ['fail', 'pass'];
 
@@ -174,7 +174,7 @@ export function checkCollision(accentHex: string): CollisionReport {
     const hd = hueDist(accentHue, statusHue);
     const cr = contrastRatio(accentHex, statusHex);
 
-    // Hue-only trigger for very close hues — catches dark reds regardless of luminance
+    // Hue-only trigger for very close hues, catches dark reds regardless of luminance
     if (hd < HUE_CLOSE_DEG) {
       return {
         collides: true,
@@ -250,7 +250,7 @@ export function resolveAssessmentAccentById(themeId: string): AssessmentAccentRe
 }
 
 // ---------------------------------------------------------------------------
-// Pre-computed lookup — exported for the web layer
+// Pre-computed lookup, exported for the web layer
 // ---------------------------------------------------------------------------
 
 /**

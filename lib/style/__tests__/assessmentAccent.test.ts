@@ -1,5 +1,5 @@
 /**
- * Assessment accent collision tests — lib/style/__tests__/assessmentAccent.test.ts
+ * Assessment accent collision tests, lib/style/__tests__/assessmentAccent.test.ts
  *
  * Asserts:
  *   1. steel_crimson and slate_rust fall back to primary (canonical collision cases).
@@ -43,7 +43,7 @@ describe('Canonical collision cases', () => {
   it('slate_rust falls back to primary (rust accent in red/fail zone)', () => {
     const result = resolveAssessmentAccentById('slate_rust');
     expect(result.fellBack).toBe(true);
-    // slate_rust #B5532A — rust orange, close to fail-red hue
+    // slate_rust #B5532A, rust orange, close to fail-red hue
     expect(['fail', 'warn']).toContain(result.collisionWith);
   });
 
@@ -55,7 +55,7 @@ describe('Canonical collision cases', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Clean themes — should NOT fall back
+// Clean themes, should NOT fall back
 // ---------------------------------------------------------------------------
 
 describe('Clean themes — no fallback', () => {
@@ -87,10 +87,10 @@ describe('Clean themes — no fallback', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Warm-accent themes — do NOT fall back (warn-amber is intentionally not checked)
+// Warm-accent themes, do NOT fall back (warn-amber is intentionally not checked)
 // ---------------------------------------------------------------------------
 //
-// These accents live in the orange/amber/gold/brown hue zone — the same hue
+// These accents live in the orange/amber/gold/brown hue zone, the same hue
 // space as the warn-amber status color. They are intentionally NOT treated as
 // collisions because:
 //   a) warm accents are recognisably branded (a copper arc ≠ a warn badge)
@@ -238,7 +238,7 @@ describe('checkCollision()', () => {
   });
 
   it('fail-red itself collides with fail', () => {
-    // STATUS_COLORS.fail is the exact status color — it should definitely collide
+    // STATUS_COLORS.fail is the exact status color, it should definitely collide
     const result = checkCollision(STATUS_COLORS.fail);
     expect(result.collides).toBe(true);
   });

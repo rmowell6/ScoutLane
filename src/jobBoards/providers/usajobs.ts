@@ -1,8 +1,8 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — USAJobs Provider
+// ScoutLane, USAJobs Provider
 // Docs: https://developer.usajobs.gov/
-// Auth: Free API key — register at https://developer.usajobs.gov/api-reference/
+// Auth: Free API key, register at https://developer.usajobs.gov/api-reference/
 // Coverage: All US federal government IT/tech jobs
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -103,7 +103,7 @@ function mapJob(item: USAJobsItem, source: string): Job {
 
   const jobType = normaliseJobType(d.PositionSchedule?.[0]?.Name);
 
-  // Guard the nested arrays — a row missing JobCategory/JobGrade must not throw and drop the batch.
+  // Guard the nested arrays, a row missing JobCategory/JobGrade must not throw and drop the batch.
   const tags = [
     ...(d.JobCategory ?? []).map((c) => c.Name),
     ...(d.JobGrade ?? []).map((g) => g.Code),

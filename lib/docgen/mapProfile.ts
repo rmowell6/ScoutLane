@@ -6,7 +6,7 @@
 //    *categorized* skills; categorization needs a richer structureResume output (follow-up).
 //  - "Earlier Experience" is empty; the recent/earlier split needs role recency metadata.
 //  - Role context lines are omitted (the schema has no per-role context yet).
-// Everything rendered still traces to real Profile facts — the guardrail runs independently.
+// Everything rendered still traces to real Profile facts, the guardrail runs independently.
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 import type { FitDimension, FitInput, FitResult } from '@/lib/fit/fitScore'
 import {
@@ -91,7 +91,7 @@ export function toFitAssessmentContent(
     bandLabel: bandLabel(fit.band),
     bandSummary: bandSummary(fit.band),
     holdingBack: holdingBackLine(fit),
-    // Strengths first, then stretches, then not-assessed — same grouping as the on-screen card.
+    // Strengths first, then stretches, then not-assessed, same grouping as the on-screen card.
     dimensions: [
       ...strengths.map((d) => toLine(d, 'strength')),
       ...stretches.map((d) => toLine(d, 'stretch')),
@@ -121,7 +121,7 @@ const CLOSING_RE = /^(sincerely|best regards|warm regards|kind regards|best|rega
 const CLOSING_MAX_LEN = 40
 
 /**
- * Drop scaffolding the model sometimes emits despite instructions — a leading "Dear …"
+ * Drop scaffolding the model sometimes emits despite instructions, a leading "Dear …"
  * salutation, a closing sign-off line ("Sincerely, …"), a "[Your Name]" placeholder, or a bare
  * signature line. The template supplies its own salutation/closing/signature, so leaving these
  * in would duplicate the closing. Matchers are deliberately tight (anchored + length-gated) so a

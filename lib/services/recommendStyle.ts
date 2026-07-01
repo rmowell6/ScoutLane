@@ -4,7 +4,7 @@
 // is reproducible code. Untrusted resume/JD text is passed as labeled data, never as instructions.
 //
 // FAIL-SOFT: a packet must ship even if this step errors. Any failure (LLM down, parse error, empty
-// data) returns the master skin with source 'default' instead of throwing — style is a nicety, never
+// data) returns the master skin with source 'default' instead of throwing, style is a nicety, never
 // a blocker for the hero pipeline.
 import * as z from 'zod'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
@@ -63,7 +63,7 @@ export interface StyleRecommendation {
   why: string
 }
 
-/** Read a pooled job's cached classification (validated). Returns null on miss OR any cache error —
+/** Read a pooled job's cached classification (validated). Returns null on miss OR any cache error, 
  *  a cache problem must never block the recommendation, it just falls through to a fresh classify. */
 async function readCachedSignals(jobId: string): Promise<StyleSignals | null> {
   try {
@@ -102,7 +102,7 @@ async function classify(profile: Profile, jobReqs: JobReqs): Promise<StyleSignal
 }
 
 /**
- * Recommend a theme + font for this application. Never throws — returns the master skin on any
+ * Recommend a theme + font for this application. Never throws, returns the master skin on any
  * failure so the packet still ships. When a `jobId` is given (pooled-job path), the classification
  * is read from / written to the job row, so a repeat packet against the same posting skips the LLM.
  */
@@ -115,7 +115,7 @@ export async function recommendStyle(
     let signals = jobId ? await readCachedSignals(jobId) : null
     if (!signals) {
       signals = await classify(profile, jobReqs)
-      // Best-effort cache write — never block the packet on it.
+      // Best-effort cache write, never block the packet on it.
       if (jobId) void saveJobStyleSignals(jobId, signals).catch((err) => console.warn('[packet] recommendStyle cache write failed', err))
     }
     const result = recommend(inferStyleInput(signals))

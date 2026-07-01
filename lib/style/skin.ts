@@ -4,7 +4,7 @@
 //
 // packet.css is token-driven (--color-brand / --color-accent / --color-wash / --font-sans), so
 // theming the preview is just overriding those custom properties on the .packet element. Status
-// colors (pass/warn/fail/info) are intentionally NOT themed — they must stay semantically stable.
+// colors (pass/warn/fail/info) are intentionally NOT themed, they must stay semantically stable.
 import themes from './themes.json'
 import fonts from './fonts.json'
 import type { Theme, FontPair } from './types'
@@ -41,7 +41,7 @@ export function styleNames(themeId: string, fontId: string): { theme: string; fo
   }
 }
 
-// Linux/web metric-twins for the live preview ONLY — never used in the .docx (see fonts.json note).
+// Linux/web metric-twins for the live preview ONLY, never used in the .docx (see fonts.json note).
 // They let a visitor without the MS fonts installed still see a faithful approximation in-browser.
 const PREVIEW_TWIN: Record<string, string> = {
   Cambria: 'Caladea',

@@ -1,10 +1,10 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Job Boards Module
+// ScoutLane, Job Boards Module
 // Public API
 //
 // NOTE: the in-memory/file cache layer (MemoryCache/FileCache/CachedAggregator) that shipped with
-// the original module was removed — ScoutLane caches via the Supabase `jobs` table (the daily cron
+// the original module was removed, ScoutLane caches via the Supabase `jobs` table (the daily cron
 // is the only thing that hits provider APIs), so those classes were dead code and a read-only-FS
 // trap on serverless. Use JobAggregator directly.
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 'use client'
 
-// Packet UI — the human-facing side of the hero pipeline (M1 definition of done).
+// Packet UI, the human-facing side of the hero pipeline (M1 definition of done).
 // Paste a resume + a JD, POST to /api/packet, then render the fit assessment, the
 // guardrail verdict, and download buttons for the two tailored .docx files.
 // This is a thin client: all generation and the no-fabrication guardrail live server-side.
@@ -38,7 +38,7 @@ interface PooledJob {
   url: string
 }
 
-/** A discovered role from /api/discover — a pooled job plus Claude's similarity verdict. */
+/** A discovered role from /api/discover, a pooled job plus Claude's similarity verdict. */
 interface SuggestedRole extends PooledJob {
   score: number
   reason: string
@@ -46,7 +46,7 @@ interface SuggestedRole extends PooledJob {
 
 type JdMode = 'paste' | 'pick'
 
-// Fully fictional sample persona — no real PII (this string ships to the browser).
+// Fully fictional sample persona, no real PII (this string ships to the browser).
 const SAMPLE_RESUME =
   'Jordan Rivera · Cloud Engineer\nAustin, TX · jordan.rivera@example.com\n\n' +
   'Skills: Azure, VMware, Veeam, PowerShell, Microsoft Sentinel, Azure Virtual Desktop\n\n' +
@@ -393,7 +393,7 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      {/* Sticky brand nav — matches the marketing site. Sign-out posts to the route handler
+      {/* Sticky brand nav, matches the marketing site. Sign-out posts to the route handler
           (POST avoids prefetch/CSRF logout). */}
       <nav className={styles.nav}>
         <span className={styles.navWordmark}>

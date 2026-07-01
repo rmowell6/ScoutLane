@@ -1,6 +1,6 @@
 // @ts-nocheck -- vendored job-board module (kept as delivered; integration code is strict)
 // ─────────────────────────────────────────────────────────────────────────────
-// ScoutLane — Job Aggregator
+// ScoutLane, Job Aggregator
 // Queries all configured providers in parallel, deduplicates, and sorts.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -60,8 +60,8 @@ function jobTime(job: Job): number {
 
 /**
  * Remove duplicate jobs. The normalized URL is the AUTHORITATIVE identity of a posting: two distinct
- * URLs are two distinct jobs, period. We dedup in a SINGLE keyed pass — keeping the higher-priority
- * source when two providers surface the same URL — and return that map's values.
+ * URLs are two distinct jobs, period. We dedup in a SINGLE keyed pass, keeping the higher-priority
+ * source when two providers surface the same URL, and return that map's values.
  *
  * The old implementation kept a second fuzzy (title+company) map and returned the set INTERSECTION of
  * the two, which (a) dropped BOTH copies of a same-URL cross-provider duplicate when the later job
@@ -77,7 +77,7 @@ export function deduplicateJobs(jobs: Job[]): Job[] {
 
   for (const job of jobs) {
     // Null-safe: one provider's url-less/garbage job must never crash the whole aggregation. Url-less
-    // jobs bypass URL dedup (so they don't all collapse under the '' key) — isStorableJob drops them
+    // jobs bypass URL dedup (so they don't all collapse under the '' key), isStorableJob drops them
     // downstream anyway, but never let one annihilate another here.
     const normUrl = (job.url ?? '').split('?')[0].toLowerCase();
     if (!normUrl) {
@@ -209,7 +209,7 @@ export class JobAggregator {
       allJobs = deduplicateJobs(allJobs);
     }
 
-    // Sort: newest first (NaN-safe — an invalid provider date sorts as epoch 0, never poisons it)
+    // Sort: newest first (NaN-safe, an invalid provider date sorts as epoch 0, never poisons it)
     allJobs.sort((a, b) => jobTime(b) - jobTime(a));
 
     return {

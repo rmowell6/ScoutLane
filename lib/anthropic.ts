@@ -1,21 +1,21 @@
 import Anthropic from '@anthropic-ai/sdk'
 
-// Reads ANTHROPIC_API_KEY from the environment (server-only — never expose to the browser).
+// Reads ANTHROPIC_API_KEY from the environment (server-only, never expose to the browser).
 //
 // timeout (P2/R-1): the SDK default request timeout is 10 MINUTES and request timeouts are themselves
-// retried, so a single hung model call could wait far longer than the /api/packet 120s budget — the
+// retried, so a single hung model call could wait far longer than the /api/packet 120s budget, the
 // function got killed by the platform (opaque 504, full token spend, the isTransientAnthropicError→503
 // mapping never reached). A 45s per-attempt timeout bounds a hung call to ~45s (it then errors and
 // maps cleanly), while still covering legitimate Sonnet latency (tailoring is typically <30s).
 //
-// maxRetries 2 (was 4): the timeout changes the trade-off — timeout×(retries+1) must stay near the
+// maxRetries 2 (was 4): the timeout changes the trade-off, timeout×(retries+1) must stay near the
 // budget, so retries are capped at 2 (≈135s worst case for a persistently-failing single call). Two
 // retries with exponential backoff + Retry-After still absorb the common brief 429/529 overload; the
 // org-level spend cap remains the non-bypassable backstop.
 export const anthropic = new Anthropic({ maxRetries: 2, timeout: 45_000 })
 
 /**
- * True when an error (or its wrapped cause) is a TRANSIENT upstream model failure — an overload /
+ * True when an error (or its wrapped cause) is a TRANSIENT upstream model failure, an overload /
  * rate-limit / 5xx / connection error that a retry can clear. Lets route handlers return a 503
  * "busy, try again" (honest + retryable) instead of a generic 500 that reads like a crash.
  * Unwraps a few levels of `.cause` since services wrap the SDK error (e.g. DiscoverError/PacketError).
@@ -53,12 +53,12 @@ export type ModelKey = keyof typeof MODELS
  *  - `stop_reason === 'refusal'`: a streaming safety classifier declined the request. This is a
  *    successful HTTP 200 (NOT an APIError), so it would otherwise fall through to the generic
  *    "no structured output" path and read like a bug. It is a policy decision, not a glitch, and is
- *    NON-RETRYABLE — identical input refuses again — so it must be a distinct error that
+ *    NON-RETRYABLE, identical input refuses again, so it must be a distinct error that
  *    `isTransientAnthropicError` never classifies as transient (it isn't an APIError, so it won't).
  *    Sonnet 5 is the first Sonnet-tier model with real-time safeguards, making this reachable here.
  *  - `stop_reason === 'max_tokens'`: the model ran out of output budget mid-JSON, so `parsed_output`
  *    is partial/invalid. This must surface as an explicit truncation error (raise max_tokens), NOT
- *    an opaque "no structured output" — the two need different fixes.
+ *    an opaque "no structured output", the two need different fixes.
  *  - `parsed_output` null for any other reason: the model returned nothing parseable.
  * Centralized here so every model call site handles these consistently. The refusal and truncation
  * checks come BEFORE the null check so they win even when a partial `parsed_output` is present.
@@ -70,7 +70,7 @@ export function readParsed<T>(
 ): T {
   if (message.stop_reason === 'refusal') {
     throw new Error(
-      `${label}: the model declined this request (stop_reason=refusal) — a content-policy refusal, ` +
+      `${label}: the model declined this request (stop_reason=refusal), a content-policy refusal, ` +
         `not a transient error. Retrying the same input will not help.`,
     )
   }

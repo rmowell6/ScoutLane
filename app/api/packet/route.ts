@@ -1,4 +1,4 @@
-// POST /api/packet — the hero pipeline. Thin handler: validate -> call service -> map to HTTP
+// POST /api/packet, the hero pipeline. Thin handler: validate -> call service -> map to HTTP
 // (Engineering Plan §4.1). runtime='nodejs' is required once docgen lands (docx needs Buffer);
 // pinned now so the contract is stable.
 import { NextResponse } from 'next/server'
@@ -48,7 +48,7 @@ const Body = z
 export async function POST(request: Request) {
   try {
     // Abuse control FIRST: this route fans out to ~4 paid model calls, so cap per-IP frequency
-    // before any work (the Anthropic spend cap is the absolute backstop — see DEPLOY.md).
+    // before any work (the Anthropic spend cap is the absolute backstop, see DEPLOY.md).
     const limited = await rateLimit(request, 'packet')
     if (limited) return limited
 
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       jobId: parsed.data.jobId,
     })
 
-    // Never ship a failed guardrail silently — surface it for regeneration / human review. A 422
+    // Never ship a failed guardrail silently, surface it for regeneration / human review. A 422
     // here is NOT request validation (that's 400 above); it means the generated packet failed a
     // guardrail. We return PLAIN-LANGUAGE reasons (why it failed + how to fix) for the user, plus the
     // raw guardrails object for debugging. The precise technical detail is logged server-side.
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
       )
     }
     // Surface which step failed (a safe identifier). The raw message is withheld in production
-    // (it can carry internal detail); the step is always safe — it's a fixed name from our code.
+    // (it can carry internal detail); the step is always safe, it's a fixed name from our code.
     const step =
       err instanceof PacketError
         ? err.step
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
           : err instanceof JobStoreError
             ? `job:${err.step}`
             : null
-    // A transient model overload (429/529/5xx) is not a crash — return 503 + a retry hint instead
+    // A transient model overload (429/529/5xx) is not a crash, return 503 + a retry hint instead
     // of a generic 500, so the user knows to try again rather than seeing "internal error".
     if (isTransientAnthropicError(err)) {
       console.warn('[packet] transient upstream error, returning 503', step ?? '')

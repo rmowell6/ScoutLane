@@ -1,5 +1,5 @@
 // Profile persistence (M2): structure a resume once, store it, reuse it across jobs.
-// Server-only — uses the Supabase SECRET key, which bypasses RLS, so persistence works
+// Server-only, uses the Supabase SECRET key, which bypasses RLS, so persistence works
 // pre-auth while the `profiles` table stays locked to the browser (migration 0001).
 //
 // Lazy + degradable like lib/storage.ts: the client is built on first use, so importing this
@@ -53,7 +53,7 @@ export interface StoredProfile {
   profile: Profile
   /** Candidate preferences saved with the profile; null when none were provided. */
   preferences: CandidatePreferences | null
-  /** The original uploaded resume text — ground truth for the no-fabrication guardrail (ai-26). */
+  /** The original uploaded resume text, ground truth for the no-fabrication guardrail (ai-26). */
   sourceResume: string
 }
 
@@ -68,7 +68,7 @@ export async function saveProfile(
     const { data, error } = await db()
       .from(TABLE)
       // Stamp the owner so reads can be scoped to them (Auth Phase B). The server uses the secret
-      // key (bypasses RLS), so this column — not RLS alone — is what enforces ownership in code.
+      // key (bypasses RLS), so this column, not RLS alone, is what enforces ownership in code.
       .insert({ user_id: userId, source_resume: sourceResume, structured: profile, preferences: preferences ?? null })
       .select('id')
       .single()
@@ -95,10 +95,10 @@ function coerceLegacyCerts(structured: unknown): unknown {
 
 /**
  * Load a stored profile (+ preferences) by id, SCOPED TO ITS OWNER (Auth Phase B). The query filters
- * on user_id, so a caller can only read their own profile even if they hold someone else's UUID —
+ * on user_id, so a caller can only read their own profile even if they hold someone else's UUID, 
  * the id is no longer a bearer capability. A row owned by another user (or a legacy row with a null
  * user_id) returns null, identical to "not found" (we don't reveal existence). Stored JSON is
- * re-validated with its schema — never trust persisted shape blindly.
+ * re-validated with its schema, never trust persisted shape blindly.
  */
 export async function getStoredProfile(id: string, userId: string): Promise<StoredProfile | null> {
   return runStep('select', async () => {

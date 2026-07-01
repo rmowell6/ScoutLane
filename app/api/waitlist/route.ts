@@ -1,4 +1,4 @@
-// POST /api/waitlist — capture an access request from the public landing (M4). Open to anonymous
+// POST /api/waitlist, capture an access request from the public landing (M4). Open to anonymous
 // visitors (no requireUser), so it's rate-limited and deliberately NON-ENUMERATING: it returns the
 // same generic success whether the email is new, already waiting, or already invited, so the
 // endpoint can't be used to probe who's on the list. Thin handler: validate → service → map.
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     // If storage isn't wired (e.g. a preview without secrets), say so honestly with a 503 rather
-    // than pretend-succeeding — the visitor's request would otherwise be silently dropped.
+    // than pretend-succeeding, the visitor's request would otherwise be silently dropped.
     if (!isWaitlistConfigured()) {
       return NextResponse.json(
         { error: 'Waitlist not configured', message: 'Supabase secret key is not set' },
@@ -46,10 +46,10 @@ export async function POST(request: Request) {
     // Notify the admin AFTER the response is sent: after() guarantees the work runs on Vercel
     // (unlike a bare fire-and-forget, which can be frozen) while keeping the signup fast.
     // notifyWaitlistSignup never throws and no-ops when SES is unconfigured, so this can't affect the
-    // 200 we return — a notification failure must never fail the visitor's signup.
+    // 200 we return, a notification failure must never fail the visitor's signup.
     after(() => notifyWaitlistSignup({ email: parsed.data.email, note: parsed.data.note, source: 'landing' }))
 
-    // Same response for new vs. already-present — no enumeration.
+    // Same response for new vs. already-present, no enumeration.
     return NextResponse.json({ ok: true }, { status: 200 })
   } catch (err) {
     const step = err instanceof WaitlistStoreError ? `waitlist:${err.step}` : null

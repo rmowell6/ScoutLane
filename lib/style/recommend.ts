@@ -1,5 +1,5 @@
 /**
- * ScoutLane style recommender — lib/style/recommend.ts
+ * ScoutLane style recommender, lib/style/recommend.ts
  *
  * Pure function: given fit-engine signals (industry/domain, seniority, roleType),
  * returns a recommended {theme, font} pair plus a full ranking of all 10 options
@@ -43,7 +43,7 @@ const MASTER_THEME = 'navy_copper';
 const MASTER_FONT = 'cambria_calibri';
 const MAX_FORMALITY = 5;
 
-/** Fixed safe default — always returned alongside the recommendation. */
+/** Fixed safe default, always returned alongside the recommendation. */
 const SAFE_DEFAULT = { theme: MASTER_THEME, font: MASTER_FONT } as const;
 
 // ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ export function recommend(input: RecommendInput): RecommendResult {
   // 3. Build match tag set (lowercase for case-insensitive matching)
   const matchSet = new Set<string>();
   matchSet.add(industry.toLowerCase());
-  // Add role-type affinities (secondary — industry still dominates via specificity)
+  // Add role-type affinities (secondary, industry still dominates via specificity)
   if (roleType) {
     for (const tag of (ROLE_TAGS[roleType] ?? [])) {
       matchSet.add(tag.toLowerCase());
@@ -286,7 +286,7 @@ export function recommend(input: RecommendInput): RecommendResult {
   // Full rankings are kept as-is so the UI can still display them.
   const noSignal = industry === 'default' && !seniority && !roleType;
 
-  // noUncheckedIndexedAccess: .find() + [0] both return T|undefined — guard required.
+  // noUncheckedIndexedAccess: .find() + [0] both return T|undefined, guard required.
   const bestThemeEntry = noSignal
     ? (themeRanking.find((t) => t.theme.id === MASTER_THEME) ?? themeRanking[0])
     : themeRanking[0];
@@ -294,7 +294,7 @@ export function recommend(input: RecommendInput): RecommendResult {
     ? (fontRanking.find((f) => f.font.id === MASTER_FONT) ?? fontRanking[0])
     : fontRanking[0];
   if (!bestThemeEntry || !bestFontEntry) {
-    throw new Error('Style data is empty — themes.json or fonts.json may be corrupted');
+    throw new Error('Style data is empty, themes.json or fonts.json may be corrupted');
   }
   const bestTheme = bestThemeEntry.theme;
   const bestFont = bestFontEntry.font;
@@ -331,7 +331,7 @@ function buildWhyString(
   const formalLabel = formalityTarget >= 4 ? 'traditional' : formalityTarget <= 2 ? 'modern' : 'balanced';
 
   return (
-    `${theme.name} + ${font.name} — matched to${seniorityLabel} ${industryLabel} ` +
+    `${theme.name} + ${font.name}, matched to${seniorityLabel} ${industryLabel} ` +
     `(${formalLabel} formality). ${theme.recruiter ?? ''}`
   ).trim();
 }

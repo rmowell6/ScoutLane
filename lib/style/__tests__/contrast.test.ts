@@ -1,11 +1,11 @@
 /**
- * Contrast test suite — lib/style/__tests__/contrast.test.ts
+ * Contrast test suite, lib/style/__tests__/contrast.test.ts
  *
  * Asserts WCAG contrast requirements for ALL 10 themes:
- *   - accentText ≥ 4.5:1 on white (AA text — used for dates, taglines)
- *   - primary ≥ 4.5:1 on white (AA text — used for name, headings)
- *   - primary ≥ 4.5:1 on wash (AA text — name on the header band)
- *   - accent ≥ 3:1 vs white (graphic threshold — rules, markers, gauge arc)
+ *   - accentText ≥ 4.5:1 on white (AA text, used for dates, taglines)
+ *   - primary ≥ 4.5:1 on white (AA text, used for name, headings)
+ *   - primary ≥ 4.5:1 on wash (AA text, name on the header band)
+ *   - accent ≥ 3:1 vs white (graphic threshold, rules, markers, gauge arc)
  *
  * Additionally snapshots the semantic status colors to assert they are
  * unchanged (they must NEVER be modified by theme changes).
@@ -90,7 +90,7 @@ describe('accentText luminance ≤ accent luminance (accentText is the darkened 
 });
 
 // ---------------------------------------------------------------------------
-// Semantic status color snapshot — must NEVER change
+// Semantic status color snapshot, must NEVER change
 // ---------------------------------------------------------------------------
 
 describe('Semantic status colors — snapshot (must not change)', () => {
@@ -128,7 +128,7 @@ describe('Semantic status colors — snapshot (must not change)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Token completeness — every theme has all required fields
+// Token completeness, every theme has all required fields
 // ---------------------------------------------------------------------------
 
 describe('Token completeness', () => {

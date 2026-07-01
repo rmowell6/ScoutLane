@@ -1,4 +1,4 @@
-// POST /api/discover — find pool roles similar to the candidate's experience (lexical pre-filter
+// POST /api/discover, find pool roles similar to the candidate's experience (lexical pre-filter
 // → Claude re-rank). Provide a resume one of two ways: paste raw text (stateless) OR reference a
 // saved profile (reuse path). Thin handler: validate → service → map to HTTP (Engineering Plan §4.1).
 import { NextResponse } from 'next/server'
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
           : err instanceof JobStoreError
             ? `job:${err.step}`
             : null
-    // A transient model overload is not a crash — return 503 + a clear retry hint (the client
+    // A transient model overload is not a crash, return 503 + a clear retry hint (the client
     // auto-retries once) instead of an opaque 500 "internal error".
     if (isTransientAnthropicError(err)) {
       console.warn('[discover] transient upstream error, returning 503', step ?? '')

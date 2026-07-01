@@ -1,5 +1,5 @@
 /**
- * ScoutLane style system — shared TypeScript types.
+ * ScoutLane style system, shared TypeScript types.
  *
  * The two independent style axes are Theme (color) and FontPair (typography).
  * Together they form a StyleSelection. One StyleSelection applies to ALL three
@@ -22,7 +22,7 @@ export interface Theme {
 
   /**
    * Graphic accent: rules, section markers, bullet accents, gauge arc.
-   * GRAPHIC ONLY — never use as text color; use accentText for text.
+   * GRAPHIC ONLY, never use as text color; use accentText for text.
    * Passes 3:1 graphic contrast threshold, but NOT 4.5:1 text threshold.
    */
   accent: string; // hex without '#'
@@ -58,10 +58,10 @@ export interface FontPair {
   master?: boolean;
   name: string;
 
-  /** Heading / name font — real Microsoft font name, always. */
+  /** Heading / name font, real Microsoft font name, always. */
   head: string;
 
-  /** Body / paragraph font — real Microsoft font name, always. */
+  /** Body / paragraph font, real Microsoft font name, always. */
   body: string;
 
   character?: string;
@@ -88,7 +88,7 @@ export interface StyleSelection {
   font: string;  // FontPair.id
 }
 
-/** How the style was chosen — written to generations.style.source for analytics. */
+/** How the style was chosen, written to generations.style.source for analytics. */
 export type StyleSource = 'recommended' | 'user' | 'default';
 
 /** Full style record persisted to generations.style */
@@ -102,7 +102,7 @@ export interface StyleRecord extends StyleSelection {
 
 /**
  * Inputs to the recommender. All three come from signals the fit engine
- * already derives — do not re-infer them. Map domain/vertical labels to the
+ * already derives, do not re-infer them. Map domain/vertical labels to the
  * industry keys the recommender expects via domainToIndustry() in recommend.ts.
  */
 export interface RecommendInput {
@@ -164,7 +164,7 @@ export interface RecommendResult {
     why: string;
   };
 
-  /** Always navy_copper + cambria_calibri — always present in the UI */
+  /** Always navy_copper + cambria_calibri, always present in the UI */
   safeDefault: StyleSelection;
 
   /** All 10 themes ranked best → worst (for debugging / UI ordering) */
@@ -178,7 +178,7 @@ export interface RecommendResult {
 // Assessment accent resolution
 // ---------------------------------------------------------------------------
 
-/** Result of resolveAssessmentAccent — always a valid hex string */
+/** Result of resolveAssessmentAccent, always a valid hex string */
 export interface AssessmentAccentResult {
   /** Hex color (no '#') to use for the gauge arc and brand graphics */
   color: string;

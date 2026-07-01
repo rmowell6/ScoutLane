@@ -1,5 +1,5 @@
 // Resume structuring: raw resume text -> schema-validated Profile (LLM + Zod).
-// The resume is untrusted third-party text — isolated as labeled data (Engineering Plan §7).
+// The resume is untrusted third-party text, isolated as labeled data (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
 import { ProfileSchema, type Profile } from '@/lib/schemas'
@@ -9,7 +9,7 @@ import { ProfileSchema, type Profile } from '@/lib/schemas'
 // headroom, and readParsed turns a genuine overflow into an explicit truncation error.
 const MAX_TOKENS = 4000
 
-// PLACEHOLDER — replace with the resume SPEC structuring rules. Plumbing is final.
+// PLACEHOLDER, replace with the resume SPEC structuring rules. Plumbing is final.
 const STRUCTURE_INSTRUCTIONS = [
   'Convert a raw resume into a structured profile. Extract ONLY facts literally present in',
   'the resume — do not infer, embellish, or invent skills, dates, titles, or achievements.',

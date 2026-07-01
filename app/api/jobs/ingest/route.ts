@@ -1,7 +1,7 @@
-// POST /api/jobs/ingest — fetch the seed pool from public ATS APIs and upsert it (M3).
+// POST /api/jobs/ingest, fetch the seed pool from public ATS APIs and upsert it (M3).
 // Idempotent (upsert on source+external_id), so it's safe to re-run and safe for a future cron.
 // Auth: require `Authorization: Bearer <CRON_SECRET>`. This writes to the DB and calls out to
-// external APIs, so it must not be openly callable in production. Fail CLOSED in prod — if no
+// external APIs, so it must not be openly callable in production. Fail CLOSED in prod, if no
 // secret is configured, the endpoint is unavailable (503) rather than wide open. Outside prod
 // (local/preview POC) it stays open when no secret is set, for convenience.
 import { timingSafeEqual } from 'node:crypto'
@@ -30,7 +30,7 @@ function authorize(request: Request): AuthResult {
   return safeEqual(request.headers.get('authorization') ?? '', `Bearer ${secret}`) ? 'ok' : 'unauthorized'
 }
 
-// Exported for both GET (so this manual route is also cron-/browser-triggerable, like ingest-all —
+// Exported for both GET (so this manual route is also cron-/browser-triggerable, like ingest-all, 
 // Vercel Cron sends GET) and POST (existing curl callers). authorize() reads the header either way.
 async function handleIngest(request: Request) {
   try {

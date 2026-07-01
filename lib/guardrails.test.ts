@@ -119,7 +119,7 @@ describe('checkNoFabrication', () => {
   })
 
   test('accepts a claim that verbatim-restates a fact even with a wrong/null factId', () => {
-    // The model cited null but the text is an exact restatement of a real bullet — not fabricated.
+    // The model cited null but the text is an exact restatement of a real bullet, not fabricated.
     const tailored = makeTailored({ claims: [{ text: 'Migrated 40 VMs to Azure', factId: null }] })
     expect(checkNoFabrication(tailored, makeProfile()).ok).toBe(true)
   })
@@ -127,7 +127,7 @@ describe('checkNoFabrication', () => {
   test('accepts a claim that faithfully restates a real fact but cites the WRONG valid factId (mis-citation)', () => {
     // Regression for the "couldn't be traced back to your resume" false block: the model copied a real
     // bullet verbatim but attached a valid id for a DIFFERENT fact. The claim is truthful, so a
-    // bookkeeping mis-cite must not block it — the fallback re-checks the text against every real fact.
+    // bookkeeping mis-cite must not block it, the fallback re-checks the text against every real fact.
     const tailored = makeTailored({
       // text == role:0:bullet:0 ("Migrated 40 VMs to Azure"), but points at cert:0 instead.
       claims: [{ text: 'Migrated 40 VMs to Azure', factId: 'cert:0' }],
@@ -263,7 +263,7 @@ describe('checkNoFabrication: negation-aware grounding', () => {
 })
 
 // Regression: the substring matcher false-positive-blocked faithful bullets when the tailor strips
-// an em dash and rephrases (swaps "—" for "including"/a comma, drops a "(a, b, c)" parenthetical).
+// an em dash and rephrases (swaps ", " for "including"/a comma, drops a "(a, b, c)" parenthetical).
 // These ARE in the resume, so they must trace; fabrications and meaning-flips must still be rejected.
 describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)', () => {
   const dashProfile = makeProfile({
@@ -357,7 +357,7 @@ describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)'
 })
 
 // Regression: a faithful PARTIAL restatement of a LONG fact (the summary is the longest) covers well
-// under 70% of that fact, which the old "covers >= 70% of the fact" rule wrongly rejected — so a
+// under 70% of that fact, which the old "covers >= 70% of the fact" rule wrongly rejected, so a
 // near-verbatim summary claim blocked the whole packet. A substantial partial restatement must pass;
 // a tiny sliver and a fabrication must still be rejected.
 describe('checkNoFabrication — partial restatement of a long fact (summary)', () => {
@@ -602,7 +602,7 @@ describe('runGuardrails', () => {
     const report = runGuardrails(tailored, profile, { sourceResumeText: source })
     expect(report.certStatus.ok).toBe(false)
     expect(report.certStatus.suspicious).toContain('AWS Solutions Architect')
-    expect(report.ok).toBe(true) // flag only — packet still ships
+    expect(report.ok).toBe(true) // flag only, packet still ships
   })
 })
 

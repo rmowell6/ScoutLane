@@ -1,7 +1,7 @@
 'use client'
 
-// Sign-in page — the auth boundary. Two passwordless methods (Engineering Plan §4.3):
-//   1. Email magic link  (signInWithOtp)   — gated by a Cloudflare Turnstile captcha token
+// Sign-in page, the auth boundary. Two passwordless methods (Engineering Plan §4.3):
+//   1. Email magic link  (signInWithOtp), gated by a Cloudflare Turnstile captcha token
 //   2. Continue with Google (signInWithOAuth)
 // Sign-UP is restricted to an invite allowlist enforced in Postgres (migration 0008): a non-listed
 // email gets a clean "not invited" outcome on its first sign-in attempt. Captcha is verified by
@@ -44,7 +44,7 @@ export default function SignInPage() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
   // Surface a callback error passed back as ?error=. Read it via useSyncExternalStore so the value
-  // is null on the SERVER snapshot and on the client's first (hydration) render — eliminating the
+  // is null on the SERVER snapshot and on the client's first (hydration) render, eliminating the
   // hydration mismatch a window.location read in a lazy useState initializer would cause when
   // ?error= is present. The URL doesn't change while mounted, so the subscribe is a no-op.
   const urlError = useSyncExternalStore(
@@ -100,7 +100,7 @@ export default function SignInPage() {
       console.error('[sign-in] magic link failed', err)
       setError('Could not send the sign-in link. Check the address and try again.')
       setStatus('idle')
-      // A used Turnstile token is single-use — reset so the next attempt gets a fresh one.
+      // A used Turnstile token is single-use, reset so the next attempt gets a fresh one.
       if (window.turnstile && widgetId.current) {
         window.turnstile.reset(widgetId.current)
         setCaptchaToken(null)
@@ -178,7 +178,7 @@ export default function SignInPage() {
 
 // Inline styles keep the auth boundary self-contained (no new global CSS); matches the POC's
 // lightweight UI footprint.
-// "Signal" palette — warm off-white + forest green, matching the marketing site + app reskin.
+// "Signal" palette, warm off-white + forest green, matching the marketing site + app reskin.
 const styles: Record<string, React.CSSProperties> = {
   main: { minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '2rem', background: '#F5F3EF', color: '#111827' },
   card: { width: '100%', maxWidth: 400, background: '#fff', border: '1px solid #E1DAD1', borderRadius: 16, padding: '2rem', boxShadow: '0 4px 24px rgba(6,95,70,0.06)' },

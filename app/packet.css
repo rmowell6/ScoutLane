@@ -1,8 +1,8 @@
 /* ============================================================================
-   ScoutLane — Application Packet design system. "Signal" reskin (WI2): warm off-white
+   ScoutLane, Application Packet design system. "Signal" reskin (WI2): warm off-white
    + forest green, matching the marketing site and app-packet-output.html. Tokens are
    FIXED on .packet (the on-screen packet is intentionally forest green regardless of the
-   selected DOCUMENT theme — the generated .docx keep their own theme palette). Accessible
+   selected DOCUMENT theme, the generated .docx keep their own theme palette). Accessible
    components (WCAG 2.2 AA): status conveyed by color + TEXT + icon, dark text on light only.
    ============================================================================ */
 
@@ -494,7 +494,7 @@
   opacity: 0.88;
 }
 
-/* ---- apply CTA (links out to the validated posting) — lighter green treatment ---- */
+/* ---- apply CTA (links out to the validated posting), lighter green treatment ---- */
 .packet .apply-btn {
   display: inline-flex;
   align-items: center;
