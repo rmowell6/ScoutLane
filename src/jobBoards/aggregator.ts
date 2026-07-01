@@ -19,6 +19,13 @@ import { RemotiveProvider } from './providers/remotive';
 import { RemoteOKProvider } from './providers/remoteok';
 import { USAJobsProvider } from './providers/usajobs';
 import { JSearchProvider } from './providers/jsearch';
+import { mapWithConcurrency } from '@/lib/concurrency';
+
+// Bounded fan-out across providers. Lower than the ATS feed cap (10) because each provider's search()
+// paginates internally and can issue several page requests, so even 6 providers in flight already
+// means a small multiple of that in real outbound requests. 6 keeps total concurrent connections
+// bounded while still running the current provider set effectively in parallel.
+const MAX_PROVIDER_CONCURRENCY = 6;
 
 // ---------------------------------------------------------------------------
 // Aggregated result
@@ -172,10 +179,16 @@ export class JobAggregator {
         ),
       ]);
 
-    const results = await Promise.allSettled(
-      this.providers.map((provider) =>
-        withTimeout(provider.search(params), this.config.timeoutMs),
-      ),
+    // Bounded fan-out (MAX_PROVIDER_CONCURRENCY) instead of firing every provider at once. The worker
+    // catches so one failing/timed-out provider never aborts the batch, producing the same
+    // settled-shaped results the loop below already expects.
+    const results = await mapWithConcurrency(
+      this.providers,
+      MAX_PROVIDER_CONCURRENCY,
+      (provider) =>
+        withTimeout(provider.search(params), this.config.timeoutMs)
+          .then((value) => ({ status: 'fulfilled', value }))
+          .catch((reason) => ({ status: 'rejected', reason })),
     );
 
     const sources: SourceStatus[] = [];

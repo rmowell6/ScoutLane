@@ -20,7 +20,12 @@ import { serverErrorBody } from '@/lib/http/errors'
 import { JobAggregator } from '@/src/jobBoards/aggregator'
 
 export const runtime = 'nodejs'
-export const maxDuration = 120 // matches the existing ingest routes (proven to deploy here)
+// 120s matches the existing ingest routes (proven to deploy here). Fan-out is concurrency-capped and
+// upserts are chunked, so this covers the current source list with room to spare. SCALING SIGNPOST:
+// past roughly 40-50 ATS sources (see lib/services/ats/sources.ts) the whole run may not finish in
+// one invocation. Revisit then: raise this toward the plan's ceiling if allowed, or shard the source
+// list across runs. Housekeeping is already idempotent, so a cut-off run self-heals on the next one.
+export const maxDuration = 120
 
 // Retention: a posting from a source confirmed live this run but unseen for this long is soft-
 // expired (reversibly hidden). Wide enough to survive a transient provider outage (a job blips out

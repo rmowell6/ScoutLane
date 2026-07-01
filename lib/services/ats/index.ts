@@ -8,8 +8,15 @@ import { ashbyUrl, parseAshby } from './ashby'
 import { fetchJsonConditional } from './fetchJson'
 import { getIngestState, saveIngestState, touchIngestState } from './ingestState'
 import { touchJobsValidatedAt } from '@/lib/services/jobStore'
+import { mapWithConcurrency } from '@/lib/concurrency'
 import { SOURCES } from './sources'
 import type { AtsProvider, AtsSource, IngestedJob, SourceResult } from './types'
+
+// Bounded fan-out: at most this many board fetches run at once. 10 is comfortably parallel while
+// staying well under typical serverless outbound-connection ceilings and upstream rate limits. At
+// today's ~13 sources it barely bites; it becomes the real guardrail as sources.ts grows toward the
+// 40-50 range flagged there (past which one invocation would otherwise open 50-100 sockets at once).
+const MAX_SOURCE_CONCURRENCY = 10
 
 /** Per-provider feed URL + payload parser, so the orchestrator can run one conditional GET and parse
  *  the result generically (the fetchX helpers remain the simple unconditional API for unit tests). */
@@ -65,9 +72,10 @@ async function fetchSource(source: AtsSource): Promise<SourceResult> {
   }
 }
 
-/** Fetch a given list of sources concurrently. */
+/** Fetch a given list of sources concurrently, capped at MAX_SOURCE_CONCURRENCY in flight. Order is
+ *  preserved and fetchSource never throws, so this returns one SourceResult per input source. */
 export async function ingestSources(sources: AtsSource[]): Promise<SourceResult[]> {
-  return Promise.all(sources.map(fetchSource))
+  return mapWithConcurrency(sources, MAX_SOURCE_CONCURRENCY, fetchSource)
 }
 
 /** Fetch the configured seed pool. */

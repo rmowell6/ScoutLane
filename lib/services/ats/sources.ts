@@ -2,6 +2,12 @@
 // gated pages or logins (product invariant). EDIT THIS LIST freely: it's plain config. Tokens are
 // best-effort and must be verified against production (the ingest report flags any that fail, e.g.
 // a 404 means the token/slug changed). Keep the list small for the POC.
+//
+// SCALING SIGNPOST: fetches are already concurrency-capped (MAX_SOURCE_CONCURRENCY in ./index.ts) and
+// upserts are chunked, so growing this list is safe for a while. But the whole list still runs to
+// completion inside one maxDuration=120s invocation (app/api/jobs/ingest-all/route.ts). Past roughly
+// 40-50 sources, revisit that: raise maxDuration if the plan allows, or shard the list across runs
+// (e.g. by day-of-month, like the Apify cadence). Below that, one run comfortably covers everything.
 import type { AtsSource } from './types'
 
 export const SOURCES: AtsSource[] = [

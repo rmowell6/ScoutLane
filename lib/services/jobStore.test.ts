@@ -261,6 +261,25 @@ describe('upsertJobs', () => {
     })
     expect(up?.[2]).toMatchObject({ onConflict: 'source,external_id' })
   })
+
+  test('a single small batch still issues exactly one upsert (behavior unchanged at normal scale)', async () => {
+    state.result = { data: null, error: null, count: 3 }
+    await upsertJobs([JOB, { ...JOB, externalId: 'gh-2' }, { ...JOB, externalId: 'gh-3' }], '2026-06-27T00:00:00Z')
+    expect(state.calls.filter((c) => c[0] === 'upsert')).toHaveLength(1)
+  })
+
+  test('chunks a large row set into 500-row upserts, writing every row', async () => {
+    state.result = { data: null, error: null, count: null } // fall back to batch.length per batch
+    const big = Array.from({ length: 1200 }, (_, i) => ({ ...JOB, externalId: `gh-${i}` }))
+    const n = await upsertJobs(big, '2026-06-27T00:00:00Z')
+    const upserts = state.calls.filter((c) => c[0] === 'upsert')
+    // 1200 rows / 500 -> 3 batches of 500, 500, 200.
+    expect(upserts.map((c) => (c[1] as unknown[]).length)).toEqual([500, 500, 200])
+    // Every external_id was sent for upsert exactly once (no row dropped or duplicated by chunking).
+    const ids = upserts.flatMap((c) => (c[1] as Array<{ external_id: string }>).map((r) => r.external_id))
+    expect(new Set(ids).size).toBe(1200)
+    expect(n).toBe(1200) // sum of per-batch counts
+  })
 })
 
 describe('expireStaleJobs', () => {

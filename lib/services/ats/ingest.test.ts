@@ -31,4 +31,30 @@ describe('ingestSources', () => {
     expect(ashby?.error).toContain('404')
     expect(ashby?.jobs).toEqual([])
   })
+
+  test('caps concurrent source fetches at MAX_SOURCE_CONCURRENCY (10)', async () => {
+    // Store must stay unconfigured so getIngestState degrades to null (no real network per source).
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    delete process.env.SUPABASE_SECRET_KEY
+    let active = 0
+    let maxActive = 0
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        active++
+        maxActive = Math.max(maxActive, active)
+        await new Promise((r) => setTimeout(r, 5))
+        active--
+        return { ok: true, status: 200, json: async () => ({ jobs: [] }) }
+      }),
+    )
+    const many: AtsSource[] = Array.from({ length: 30 }, (_, i) => ({
+      provider: 'greenhouse',
+      token: `board-${i}`,
+      company: `Co ${i}`,
+    }))
+    const results = await ingestSources(many)
+    expect(results).toHaveLength(30) // every source still fetched
+    expect(maxActive).toBe(10) // 30 sources, cap 10 -> the pool tops out at 10 in flight, not 30
+  })
 })
