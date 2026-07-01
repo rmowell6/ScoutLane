@@ -1,7 +1,7 @@
 // ScoutLane, Deterministic Fit-Assessment Engine (ported from fit_score.js, rubric 1.0.0).
 //
 // The fit score is the product's core value-add, so it must be REPRODUCIBLE: the same structured
-// input always produces the same output, on any machine. Design (Fit_Assessment_SPEC.md):
+// input always produces the same output, on any machine. Design (see docs/Fit_Assessment_SPEC.md):
 //   - Extraction (fuzzy, upstream, LLM): reads resume + JD -> structured FitInput.
 //   - Scoring (exact, THIS module): pure, rule-based math over FitInput. No model call, no
 //     randomness, no Date/locale-by-default. Identical input -> identical output.
