@@ -3,11 +3,8 @@
 // Copy follows the house style guardrail (lib/guardrails.ts checkStyle): no em dashes, no double spaces.
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Inter } from 'next/font/google'
 import WaitlistForm from '@/components/WaitlistForm'
 import styles from './page.module.css'
-
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: 'ScoutLane: the resume tool that can’t make things up',
@@ -23,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <main className={`${styles.page} ${inter.variable}`}>
+    <main className={styles.page}>
       {/* NAV */}
       <nav className={styles.nav}>
         <div className={styles.logo}>
@@ -145,8 +142,8 @@ export default function LandingPage() {
                   <svg width="120" height="120" viewBox="0 0 120 120" aria-label="Fit score: 89 out of 100">
                     <circle cx="60" cy="60" r="46" stroke="#E5E7EB" strokeWidth="9" fill="none" />
                     <circle cx="60" cy="60" r="46" stroke="#065F46" strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray="257 32" transform="rotate(-90 60 60)" />
-                    <text x="60" y="53" textAnchor="middle" fontFamily="Inter,system-ui,sans-serif" fontSize="26" fontWeight="800" fill="#111827">89</text>
-                    <text x="60" y="70" textAnchor="middle" fontFamily="Inter,system-ui,sans-serif" fontSize="11" fill="#4B5563">/100</text>
+                    <text x="60" y="53" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="26" fontWeight="800" fill="#111827">89</text>
+                    <text x="60" y="70" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="11" fill="#4B5563">/100</text>
                   </svg>
                   <div className={styles.ringVerdict}>Strong match</div>
                   <div className={styles.ringSub}>Weighted 86.8 base<br />+ adjustment 2.2</div>
@@ -225,8 +222,8 @@ export default function LandingPage() {
                 <svg width="60" height="60" viewBox="0 0 60 60" aria-label="Fit score 89">
                   <circle cx="30" cy="30" r="23" stroke="#E5E7EB" strokeWidth="5" fill="none" />
                   <circle cx="30" cy="30" r="23" stroke="#065F46" strokeWidth="5" fill="none" strokeLinecap="round" strokeDasharray="129 16" transform="rotate(-90 30 30)" />
-                  <text x="30" y="26" textAnchor="middle" fontFamily="Inter,system-ui,sans-serif" fontSize="13" fontWeight="800" fill="#111827">89</text>
-                  <text x="30" y="37" textAnchor="middle" fontFamily="Inter,system-ui,sans-serif" fontSize="7" fill="#4B5563">/100</text>
+                  <text x="30" y="26" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="13" fontWeight="800" fill="#111827">89</text>
+                  <text x="30" y="37" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="7" fill="#4B5563">/100</text>
                 </svg>
                 <div>
                   <div className={styles.mrtVerdict}>Strong match</div>
