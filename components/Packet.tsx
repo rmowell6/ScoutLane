@@ -342,6 +342,8 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
       </header>
 
       <div className="packet__body">
+        {/* Main column: the fit analysis (role, gauge + dimensions, keyword coverage). */}
+        <div className="packet__col packet__col--main">
         <section className="card" aria-labelledby="pk-role">
           <h3 id="pk-role">Role</h3>
           {pills.length > 0 && (
@@ -433,7 +435,10 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             )}
           </div>
         )}
+        </div>
 
+        {/* Aside column: the act-on-it cards (documents, outreach, next steps). */}
+        <div className="packet__col packet__col--aside">
         <section className="card" aria-labelledby="pk-docs">
           <h3 id="pk-docs">Documents &amp; checks</h3>
           <ul className="pill-row" aria-label="Guardrail checks">
@@ -564,6 +569,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             )}
           </ol>
         </section>
+        </div>
       </div>
 
       <footer>
