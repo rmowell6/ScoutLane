@@ -10,10 +10,7 @@
 // captcha is skipped.
 import { useCallback, useRef, useState, useSyncExternalStore } from 'react'
 import Script from 'next/script'
-import { Inter } from 'next/font/google'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
-
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] })
 
 // Minimal typing for the Cloudflare Turnstile global (loaded via <Script>).
 interface TurnstileApi {
@@ -128,7 +125,7 @@ export default function SignInPage() {
   }
 
   return (
-    <main className={inter.className} style={styles.main}>
+    <main style={styles.main}>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
