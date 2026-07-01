@@ -1,0 +1,4829 @@
+{
+  "note": "RAW candidate aliases (Phase 1). Not deduped, not filtered, not trusted. Review in Phase 2.",
+  "counts": {
+    "onet": 342,
+    "stackexchange": 151,
+    "total": 493
+  },
+  "candidates": [
+    {
+      "source": "onet",
+      "full": "A mathematical programming language",
+      "acronym": "AMPL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "A mathematical programming language AMPL",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "A programming language",
+      "acronym": "APL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "A programming language APL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "AWS Elastic MapReduce",
+      "acronym": "EMR",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "AWS Elastic MapReduce (EMR)",
+      "elementName": "Business intelligence and data analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "AdTrack Customer Acquisition Management",
+      "acronym": "CAM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "AdTrack Customer Acquisition Management CAM",
+      "elementName": "Customer relationship management CRM software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Address Management System",
+      "acronym": "AMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Address Management System AMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Adobe Experience Manager",
+      "acronym": "AEM",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Adobe Experience Manager (AEM)",
+      "elementName": "Web page creation and editing software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Advanced boolean expression language",
+      "acronym": "ABEL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Advanced boolean expression language ABEL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Advanced business application programming",
+      "acronym": "ABAP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Advanced business application programming ABAP",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Advanced computer simulation language",
+      "acronym": "ACSL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Advanced computer simulation language ACSL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Advanced technologies and oceanic procedures",
+      "acronym": "ATOP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Advanced technologies and oceanic procedures ATOP",
+      "elementName": "Expert system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "AgInfoLink Meat Inventory Tracking System",
+      "acronym": "MITS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "AgInfoLink Meat Inventory Tracking System MITS",
+      "elementName": "Inventory management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Agile Product Lifecyle Management",
+      "acronym": "PLM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Agile Product Lifecyle Management PLM",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Agilent Advanced Design System",
+      "acronym": "ADS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Agilent Advanced Design System ADS",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Altera hardware description language",
+      "acronym": "AHDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Altera hardware description language AHDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Amazon Elastic Container Service",
+      "acronym": "ECS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Amazon Elastic Container Service ECS",
+      "elementName": "Application server software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Analysis and Visualization of Time Sequences",
+      "acronym": "AVTS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Analysis and Visualization of Time Sequences AVTS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Anisotropic Crystalline Etch Simulation",
+      "acronym": "ACES",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Anisotropic Crystalline Etch Simulation ACES",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Aquatic Plant Information Retrieval System",
+      "acronym": "APIRS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Aquatic Plant Information Retrieval System APIRS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Archeological Sites Management Information System",
+      "acronym": "ASMIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Archeological Sites Management Information System ASMIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Architecture description language",
+      "acronym": "ADL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Architecture description language ADL",
+      "elementName": "Requirements analysis and system architecture software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Arrival Departure Information System",
+      "acronym": "ADIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Arrival Departure Information System ADIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Assistant Software for Antimicrobial Susceptibility Interpretation",
+      "acronym": "ASASI",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Assistant Software for Antimicrobial Susceptibility Interpretation ASASI",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Astronomical Image Processing System",
+      "acronym": "AIPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Astronomical Image Processing System AIPS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Atria smoke management engineering tools",
+      "acronym": "ASMET",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Atria smoke management engineering tools ASMET",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Biometric Identification System",
+      "acronym": "ABIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Biometric Identification System ABIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Data Collection System",
+      "acronym": "ADCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Data Collection System ADCS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Geospatial Watershed Assessment",
+      "acronym": "AGWA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Geospatial Watershed Assessment AGWA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Manifest System",
+      "acronym": "AMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Manifest System AMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated National Catalog System",
+      "acronym": "ANCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated National Catalog System ANCS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Package Processing System",
+      "acronym": "APPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Package Processing System APPS",
+      "elementName": "Inventory management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated Targeting System",
+      "acronym": "ATS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated Targeting System ATS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated commercial environment software",
+      "acronym": "ACE",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Automated commercial environment software ACE",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automated radar terminal systems",
+      "acronym": "ARTS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automated radar terminal systems ARTS",
+      "elementName": "Expert system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automatic dynamic incremental nonlinear analysis",
+      "acronym": "ADINA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automatic dynamic incremental nonlinear analysis ADINA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Automatic test program generation",
+      "acronym": "ATPG",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Automatic test program generation ATPG",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Avaaz Innovations Computerized Speech Research Environment",
+      "acronym": "CSRE",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Avaaz Innovations Computerized Speech Research Environment CSRE",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Available Safe Egress Time",
+      "acronym": "ASET",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Available Safe Egress Time ASET",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Aveva Group Plant Design Management System",
+      "acronym": "PDMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Aveva Group Plant Design Management System PDMS",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Baron Volumetric Imaging and Processing of Integrated Radar",
+      "acronym": "VIPIR",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Baron Volumetric Imaging and Processing of Integrated Radar VIPIR",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Basic Local Alignment Search Tool",
+      "acronym": "BLAST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Basic Local Alignment Search Tool BLAST",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Beeline Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Beeline Learning Management System LMS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Beginner's all-purpose symbolic instruction code",
+      "acronym": "BASIC",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Beginner's all-purpose symbolic instruction code BASIC",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Behavioral Assessment and Research System",
+      "acronym": "BARS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Behavioral Assessment and Research System BARS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Best Linear Unbiased Prediction",
+      "acronym": "BLUP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Best Linear Unbiased Prediction BLUP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Bidirectional encoder representations from transformers",
+      "acronym": "BERT",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Bidirectional encoder representations from transformers (BERT)",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Biometric Storage System",
+      "acronym": "BSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Biometric Storage System BSS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Blast Output Browser",
+      "acronym": "BOB",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Blast Output Browser BOB",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Border Gateway Protocol",
+      "acronym": "BGP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Border Gateway Protocol BGP",
+      "elementName": "Switch or router software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Boundary scan description language",
+      "acronym": "BSDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Boundary scan description language BSDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Business Management Systems Municipal Geographic Management System",
+      "acronym": "MGMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Business Management Systems Municipal Geographic Management System MGMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "CAMA Software Quality Collaboration By Design",
+      "acronym": "QCBD",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "CAMA Software Quality Collaboration By Design QCBD",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "CERN Physics Analysis Workstation",
+      "acronym": "PAW",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "CERN Physics Analysis Workstation PAW",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "CSC Automated Work Distributor",
+      "acronym": "AWD",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "CSC Automated Work Distributor AWD",
+      "elementName": "Access software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Camstar Manufacturing Execution System",
+      "acronym": "MES",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Camstar Manufacturing Execution System MES",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Career management systems",
+      "acronym": "CMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Career management systems CMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Carpet Dealer Management System",
+      "acronym": "CDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Carpet Dealer Management System CDMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Carrier Hourly Analysis Program",
+      "acronym": "HAP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Carrier Hourly Analysis Program HAP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cascading style sheets",
+      "acronym": "CSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Cascading style sheets CSS",
+      "elementName": "Web platform development software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Centaur Systems Centaur Travel Business Management System",
+      "acronym": "TBMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Centaur Systems Centaur Travel Business Management System TBMS",
+      "elementName": "Customer relationship management CRM software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Center TRACON automation systems",
+      "acronym": "CTAS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Center TRACON automation systems CTAS",
+      "elementName": "Expert system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ChemSW Chemical Inventory System",
+      "acronym": "CIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ChemSW Chemical Inventory System CIS",
+      "elementName": "Inventory management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ChemSW Laboratory Document Control System",
+      "acronym": "LDCS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ChemSW Laboratory Document Control System LDCS",
+      "elementName": "Document management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Chilled Water System Analysis Tool",
+      "acronym": "CWSAT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Chilled Water System Analysis Tool CWSAT",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cisco Systems Cisco Web Cache Communication Protocol",
+      "acronym": "WCCP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Cisco Systems Cisco Web Cache Communication Protocol WCCP",
+      "elementName": "Switch or router software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cisco Systems Gateway Load Balancing Protocol",
+      "acronym": "GLBP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Cisco Systems Gateway Load Balancing Protocol GLBP",
+      "elementName": "Switch or router software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cisco Systems Hot Standby Router Protocol",
+      "acronym": "HSRP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Cisco Systems Hot Standby Router Protocol HSRP",
+      "elementName": "Switch or router software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cisco Systems Wireless Control System",
+      "acronym": "WCS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Cisco Systems Wireless Control System WCS",
+      "elementName": "Administration software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Clinical data management system",
+      "acronym": "CDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Clinical data management system CDMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Cobent Learning and Compliance Suite",
+      "acronym": "LCS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Cobent Learning and Compliance Suite LCS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "CogniSyst Computerized Assessment of Response Bias",
+      "acronym": "CARB",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "CogniSyst Computerized Assessment of Response Bias CARB",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Collaborative Application Markup Language",
+      "acronym": "CAML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Collaborative Application Markup Language CAML",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Collection Point Management System",
+      "acronym": "CPMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Collection Point Management System CPMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Combined Heat and Power Application Tool",
+      "acronym": "CHP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Combined Heat and Power Application Tool CHP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Commercial driver's license information system",
+      "acronym": "CDLIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Commercial driver's license information system CDLIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Common Lisp Object System",
+      "acronym": "CLOS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Common Lisp Object System CLOS",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Common gateway interface",
+      "acronym": "CGI",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Common gateway interface CGI",
+      "elementName": "Enterprise application integration software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Community Climate System Model",
+      "acronym": "CCSM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Community Climate System Model CCSM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Component-based Scalable Logical Architecture",
+      "acronym": "CSLA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Component-based Scalable Logical Architecture CSLA",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Comprehensive Affect Testing System",
+      "acronym": "CATS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Comprehensive Affect Testing System CATS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computer Aided Vision Therapy",
+      "acronym": "CAVT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Computer Aided Vision Therapy CAVT",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computer Algebra System for Algebraic Geometry",
+      "acronym": "CASA",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Computer Algebra System for Algebraic Geometry CASA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computer Linked Application Information Management System",
+      "acronym": "CLAIMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Computer Linked Application Information Management System CLAIMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computer aided design and drafting software",
+      "acronym": "CADD",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Computer aided design and drafting software CADD",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computerized aircraft log manager",
+      "acronym": "CALM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Computerized aircraft log manager CALM",
+      "elementName": "Information retrieval or search software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computerized maintenance management system",
+      "acronym": "CMMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Computerized maintenance management system CMMS",
+      "elementName": "Facilities management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Computerized maintenance management system software",
+      "acronym": "CMMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Computerized maintenance management system software CMMS",
+      "elementName": "Facilities management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Consolidated compartment fire model",
+      "acronym": "CCFM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Consolidated compartment fire model CCFM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Consular Consolidated Database",
+      "acronym": "CCD",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Consular Consolidated Database CCD",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Content management systems",
+      "acronym": "CMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Content management systems CMS",
+      "elementName": "Web page creation and editing software",
+      "hotTechnology": false,
+      "inDemand": true
+    },
+    {
+      "source": "onet",
+      "full": "Continuous emissions monitoring systems",
+      "acronym": "CEMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Continuous emissions monitoring systems CEMS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Core Informatics Laboratory Information Management System",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Core Informatics Laboratory Information Management System LIMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Corporate Information Factory",
+      "acronym": "CIF",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Corporate Information Factory CIF",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Crash Mapping Analysis Tool",
+      "acronym": "CMAT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Crash Mapping Analysis Tool CMAT",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Creative Solutions UltraTax",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Creative Solutions UltraTax CS",
+      "elementName": "Tax preparation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Credit adjudication and lending management system",
+      "acronym": "CALMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Credit adjudication and lending management system CALMS",
+      "elementName": "Document management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Crystallography & NMR System",
+      "acronym": "CNS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Crystallography & NMR System (CNS)",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Customer information control system",
+      "acronym": "CICS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Customer information control system CICS",
+      "elementName": "Transaction server software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Darwin information typing architecture",
+      "acronym": "DITA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Darwin information typing architecture DITA",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Data definition language",
+      "acronym": "DDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Data definition language DDL",
+      "elementName": "Data base management system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Data manipulation language",
+      "acronym": "DML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Data manipulation language DML",
+      "elementName": "Data base management system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Delivery Routing System",
+      "acronym": "DRS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Delivery Routing System DRS",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Delivery operations information system",
+      "acronym": "DOIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Delivery operations information system DOIS",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Desktop digital photogrammetry system",
+      "acronym": "DDPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Desktop digital photogrammetry system DDPS",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Diffraction Limited MaxIm",
+      "acronym": "DL",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Diffraction Limited MaxIm DL",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Digital control systems",
+      "acronym": "DCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Digital control systems DCS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Disease Mapping and Analysis Program",
+      "acronym": "DMAP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Disease Mapping and Analysis Program DMAP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Disk operating system",
+      "acronym": "DOS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Disk operating system DOS",
+      "elementName": "Operating system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Distributed control system",
+      "acronym": "DCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Distributed control system DCS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Distribution management system",
+      "acronym": "DMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Distribution management system DMS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Domain name system",
+      "acronym": "DNS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Domain name system DNS",
+      "elementName": "Internet directory services software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Dynamic host configuration protocol",
+      "acronym": "DHCP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Dynamic host configuration protocol DHCP",
+      "elementName": "Administration software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "EPA Storm Water Management Model",
+      "acronym": "SWMM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "EPA Storm Water Management Model SWMM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ESSA TechnologiesTool for Exploratory Landscape Scenario Analyses",
+      "acronym": "TELSA",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ESSA TechnologiesTool for Exploratory Landscape Scenario Analyses TELSA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Electro Meridian Imaging",
+      "acronym": "EMI",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Electro Meridian Imaging EMI",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Electronic Time Clock",
+      "acronym": "ETC",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Electronic Time Clock ETC",
+      "elementName": "Time accounting software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Electronic adjudication management systems",
+      "acronym": "EAM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Electronic adjudication management systems EAM",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Electronic document management system",
+      "acronym": "EDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Electronic document management system EDMS",
+      "elementName": "Document management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Electronic train management systems",
+      "acronym": "ETMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Electronic train management systems ETMS",
+      "elementName": "Expert system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Emergency Managers Weather Information Network",
+      "acronym": "EMWIN",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Emergency Managers Weather Information Network EMWIN",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Energy management system",
+      "acronym": "EMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Energy management system EMS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Enhanced Interior Gateway Routing Protocol",
+      "acronym": "EIGRP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Enhanced Interior Gateway Routing Protocol EIGRP",
+      "elementName": "Switch or router software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Enterprise risk management software",
+      "acronym": "ERMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Enterprise risk management software ERMS",
+      "elementName": "Risk management data and analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Environmental Knowledge and Assessment Tool",
+      "acronym": "EKAT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Environmental Knowledge and Assessment Tool EKAT",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Erosion Productivity Impact Calculator",
+      "acronym": "EPIC",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Erosion Productivity Impact Calculator EPIC",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Estima Regression Analysis of Time Series",
+      "acronym": "RATS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Estima Regression Analysis of Time Series RATS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Estimates Delivery System",
+      "acronym": "EDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Estimates Delivery System EDS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Exact Software Macola",
+      "acronym": "ES",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Exact Software Macola ES",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Experimental Physics and Industrial Control System",
+      "acronym": "EPICS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Experimental Physics and Industrial Control System EPICS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "FANUC Robotics Diagnostic Resource Center",
+      "acronym": "DRC",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "FANUC Robotics Diagnostic Resource Center DRC",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "FANUC Robotics Through Arc Seam Tracking",
+      "acronym": "TAST",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "FANUC Robotics Through Arc Seam Tracking TAST",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Facility Energy Decision Systems",
+      "acronym": "FEDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Facility Energy Decision Systems FEDS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Fan System Assessment Tool",
+      "acronym": "FSAT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Fan System Assessment Tool FSAT",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Federal Emergency Management Information System",
+      "acronym": "FEMIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Federal Emergency Management Information System FEMIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Federal Renewable Energy Screening Assistant",
+      "acronym": "FRESA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Federal Renewable Energy Screening Assistant FRESA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Final approach spacing tool",
+      "acronym": "FAST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Final approach spacing tool FAST",
+      "elementName": "Flight control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Financial aid management system",
+      "acronym": "FAM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Financial aid management system FAM",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "FindLaw Code of Federal Regulations",
+      "acronym": "CFR",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "FindLaw Code of Federal Regulations CFR",
+      "elementName": "Information retrieval or search software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Fire Dynamics Software",
+      "acronym": "FDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Fire Dynamics Software FDS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Fixed income alternative trading systems",
+      "acronym": "ATS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Fixed income alternative trading systems ATS",
+      "elementName": "Financial analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Flow Analysis Software Toolkit",
+      "acronym": "FAST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Flow Analysis Software Toolkit FAST",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Foundatino Directory Online",
+      "acronym": "FDO",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Foundatino Directory Online (FDO)",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Framework for integrated test",
+      "acronym": "FIT",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Framework for integrated test FIT",
+      "elementName": "Program testing software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Fuel Characteristic Classification System",
+      "acronym": "FCCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Fuel Characteristic Classification System FCCS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Fully Integrated Environmental Location Decision Support",
+      "acronym": "FIELDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Fully Integrated Environmental Location Decision Support FIELDS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "GE Energy Positive Sequence Load Flow Software",
+      "acronym": "PSLF",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "GE Energy Positive Sequence Load Flow Software PSLF",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "GNU Image Manipulation Program",
+      "acronym": "GIMP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "GNU Image Manipulation Program GIMP",
+      "elementName": "Graphics or photo imaging software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Gamma waste assay system",
+      "acronym": "GWAS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Gamma waste assay system GWAS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Gene Recognition and Assembly Internet Link",
+      "acronym": "GRAIL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Gene Recognition and Assembly Internet Link GRAIL",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "General Atomic and Molecular Electronic Structure System",
+      "acronym": "GAMESS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "General Atomic and Molecular Electronic Structure System GAMESS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "General Electric Mark VI Distributed Control System",
+      "acronym": "DCS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "General Electric Mark VI Distributed Control System DCS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "General Electric Mark VI Integrated Control System",
+      "acronym": "ICS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "General Electric Mark VI Integrated Control System ICS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "General Structural Analysis System",
+      "acronym": "GSAS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "General Structural Analysis System GSAS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "General algebraic modeling system",
+      "acronym": "GAMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "General algebraic modeling system GAMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Geographic resources analysis support system",
+      "acronym": "GRASS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Geographic resources analysis support system GRASS",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Geospatial data abstraction library",
+      "acronym": "GDAL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Geospatial data abstraction library GDAL",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Google Compute Engine",
+      "acronym": "GCE",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Google Compute Engine (GCE)",
+      "elementName": "Application server software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Groundwater modeling system",
+      "acronym": "GMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Groundwater modeling system GMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Hardware description language",
+      "acronym": "HDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Hardware description language HDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "HarrisData Human Resources Information System",
+      "acronym": "HRIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "HarrisData Human Resources Information System HRIS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Healthcare common procedure coding system",
+      "acronym": "HCPCS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Healthcare common procedure coding system HCPCS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "High School Scheduling and Transcript",
+      "acronym": "HSST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "High School Scheduling and Transcript HSST",
+      "elementName": "Calendar and scheduling software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Home Energy Efficient Design",
+      "acronym": "HEED",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Home Energy Efficient Design HEED",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Houchen Bindery Library Automated Retrieval System",
+      "acronym": "LARS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Houchen Bindery Library Automated Retrieval System LARS",
+      "elementName": "Library software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Human resource information system",
+      "acronym": "HRIS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Human resource information system (HRIS)",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Human resource management software",
+      "acronym": "HRMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Human resource management software HRMS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Human resources management system",
+      "acronym": "HRMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Human resources management system HRMS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Information Management System",
+      "acronym": "IMS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "IBM Information Management System (IMS)",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Interactive System Productivity Facility",
+      "acronym": "ISPF",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Interactive System Productivity Facility ISPF",
+      "elementName": "Data base management system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Judicial Enforcement Management System",
+      "acronym": "JEMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Judicial Enforcement Management System JEMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Resource Access Control Facility",
+      "acronym": "RACF",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Resource Access Control Facility RACF",
+      "elementName": "Network security or virtual private network VPN management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Software Configuration and Library Manager",
+      "acronym": "SCLM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Software Configuration and Library Manager SCLM",
+      "elementName": "Configuration management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Tivoli Access Management",
+      "acronym": "TAM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Tivoli Access Management TAM",
+      "elementName": "Access software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IBM Tivoli Identity Management",
+      "acronym": "TIM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "IBM Tivoli Identity Management TIM",
+      "elementName": "Authentication server software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ITC Integrated Land and Water Information System",
+      "acronym": "ILWIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ITC Integrated Land and Water Information System ILWIS",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Illumina Laboratory Information Management System",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Illumina Laboratory Information Management System LIMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Infobright Community Edition",
+      "acronym": "ICE",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Infobright Community Edition ICE",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Inspection Selection System",
+      "acronym": "ISS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Inspection Selection System ISS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Integrated Automated Fingerprint Identification System",
+      "acronym": "IAFIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Integrated Automated Fingerprint Identification System IAFIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Intelladon Enterprise Knowledge Platform",
+      "acronym": "EKP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Intelladon Enterprise Knowledge Platform EKP",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "IntelliTrack Warehouse Management System",
+      "acronym": "WMS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "IntelliTrack Warehouse Management System (WMS)",
+      "elementName": "Materials requirements planning logistics and supply chain software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Interactive Mathematical Proof System",
+      "acronym": "IMPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Interactive Mathematical Proof System IMPS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Interactive radar analysis software",
+      "acronym": "IRAS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Interactive radar analysis software IRAS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Interface definition language",
+      "acronym": "IDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Interface definition language IDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Intergraph ImageStation Stereo Softcopy Kit",
+      "acronym": "SSK",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Intergraph ImageStation Stereo Softcopy Kit SSK",
+      "elementName": "Map creation software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Intergraph Plant Design System",
+      "acronym": "PDS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Intergraph Plant Design System PDS",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "International Material Data System",
+      "acronym": "IMDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "International Material Data System IMDS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Internet Grievance System",
+      "acronym": "IGS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Internet Grievance System IGS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Intrusion detection system",
+      "acronym": "IDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Intrusion detection system IDS",
+      "elementName": "Network security or virtual private network VPN management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Intrusion prevention system",
+      "acronym": "IPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Intrusion prevention system IPS",
+      "elementName": "Network security or virtual private network VPN management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Job control language",
+      "acronym": "JCL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Job control language JCL",
+      "elementName": "Operating system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "K&K Associates Thermal Analysis Kit",
+      "acronym": "TAK",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "K&K Associates Thermal Analysis Kit TAK",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Keffer Development Services Athletic Trainer System",
+      "acronym": "ATS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Keffer Development Services Athletic Trainer System ATS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Kodak Dental Systems Kodak PRACTICEWORKS Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Kodak Dental Systems Kodak PRACTICEWORKS Practice management software PMS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Kodak Dental Systems Kodak SOFTDENT Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Kodak Dental Systems Kodak SOFTDENT Practice management software PMS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Lablite Laboratory Information Management Systems",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Lablite Laboratory Information Management Systems LIMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Laboratory Automated Quality Control Systems",
+      "acronym": "LAQC",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Laboratory Automated Quality Control Systems LAQC",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Laboratory information management system",
+      "acronym": "LIMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Laboratory information management system LIMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Laboratory information system",
+      "acronym": "LIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Laboratory information system LIS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Landscape Management System",
+      "acronym": "LMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Landscape Management System LMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Learning management system",
+      "acronym": "LMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Learning management system LMS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": true
+    },
+    {
+      "source": "onet",
+      "full": "Legislative Automative Workflow System",
+      "acronym": "LAWS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Legislative Automative Workflow System LAWS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Location allocation decision support system",
+      "acronym": "LADSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Location allocation decision support system LADSS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Logger data manager",
+      "acronym": "LDM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Logger data manager LDM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "MICROS Systems OPERA Enterprise Solution",
+      "acronym": "OES",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "MICROS Systems OPERA Enterprise Solution OES",
+      "elementName": "Facilities management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "MICROS Systems OPERA Property Management System",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "MICROS Systems OPERA Property Management System PMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Management information systems",
+      "acronym": "MIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Management information systems MIS",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Manufacturing execution system",
+      "acronym": "MES",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Manufacturing execution system MES",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Marel production system",
+      "acronym": "MPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Marel production system MPS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Mass appraisal records system",
+      "acronym": "MARS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Mass appraisal records system MARS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Maya Embedded Language",
+      "acronym": "MEL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Maya Embedded Language MEL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Medicaid management information system",
+      "acronym": "MMIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Medicaid management information system MMIS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Micosoft SQL Server Analysis Services",
+      "acronym": "SSAS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Micosoft SQL Server Analysis Services SSAS",
+      "elementName": "Business intelligence and data analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microchip MPLAB Integrated Development Environment",
+      "acronym": "IDE",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Microchip MPLAB Integrated Development Environment (IDE)",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Active Server Pages",
+      "acronym": "ASP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft Active Server Pages ASP",
+      "elementName": "Web platform development software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Business Intelligence",
+      "acronym": "BI",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft Business Intelligence BI",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Extensible Application Markup Language",
+      "acronym": "XAML",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Microsoft Extensible Application Markup Language (XAML)",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft High Level Shader Language",
+      "acronym": "HLSL",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft High Level Shader Language HLSL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Internet Information Services",
+      "acronym": "IIS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Microsoft Internet Information Services (IIS)",
+      "elementName": "Transaction server software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Mobile Explorer",
+      "acronym": "MME",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Microsoft Mobile Explorer MME",
+      "elementName": "Internet browser software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft SQL Server Integration Services",
+      "acronym": "SSIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft SQL Server Integration Services SSIS",
+      "elementName": "Enterprise application integration software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft SQL Server Reporting Services",
+      "acronym": "SSRS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft SQL Server Reporting Services SSRS",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Visual Basic for Applications",
+      "acronym": "VBA",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft Visual Basic for Applications VBA",
+      "elementName": "Development environment software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Microsoft Visual Basic.NET Compact Framework",
+      "acronym": "CF",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Microsoft Visual Basic.NET Compact Framework CF",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Multipath Corporation Fast Matrix Solver",
+      "acronym": "FMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Multipath Corporation Fast Matrix Solver FMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Multipurpose Interactive Image Processing System",
+      "acronym": "MIIPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Multipurpose Interactive Image Processing System MIIPS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "NCAR Command Language",
+      "acronym": "NCL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "NCAR Command Language NCL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "NCSS Power Analysis and Sample Size",
+      "acronym": "PASS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "NCSS Power Analysis and Sample Size PASS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Driver Register",
+      "acronym": "NDR",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "National Driver Register NDR",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Fire Incident Reporting System",
+      "acronym": "NFIRS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "National Fire Incident Reporting System NFIRS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Instruments NI Vision Builder for Automated Inspection",
+      "acronym": "AI",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "National Instruments NI Vision Builder for Automated Inspection AI",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Integrated Ballistics Information Network",
+      "acronym": "NIBIN",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "National Integrated Ballistics Information Network NIBIN",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Land Cover Database",
+      "acronym": "NLCD",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "National Land Cover Database NLCD",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Law Enforcement Telecommunications System",
+      "acronym": "NLETS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "National Law Enforcement Telecommunications System NLETS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Resources Conservation Service Ecological Site Information System",
+      "acronym": "ESIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "National Resources Conservation Service Ecological Site Information System ESIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Resources Conservation Service NRCS PEDON Description Program",
+      "acronym": "PDP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "National Resources Conservation Service NRCS PEDON Description Program PDP",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Resources Conservation Service Web Soil Survey",
+      "acronym": "WSS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "National Resources Conservation Service Web Soil Survey WSS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "National Union Catalog of Manuscript Collections",
+      "acronym": "NUCMC",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "National Union Catalog of Manuscript Collections (NUCMC)",
+      "elementName": "Information retrieval or search software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "NetDimensions Enterprise Knowledge Platform",
+      "acronym": "EKP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "NetDimensions Enterprise Knowledge Platform EKP",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Network intrusion prevention systems",
+      "acronym": "NIPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Network intrusion prevention systems NIPS",
+      "elementName": "Network monitoring software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Ohio Automation Integrated Computer Aided Mine Planning System",
+      "acronym": "ICAMPS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Ohio Automation Integrated Computer Aided Mine Planning System ICAMPS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Online Dictionary for Library and Information Science",
+      "acronym": "ODLIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Online Dictionary for Library and Information Science ODLIS",
+      "elementName": "Library software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Online Mendelian Inheritance in Animals",
+      "acronym": "OMIA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Online Mendelian Inheritance in Animals OMIA",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Open Shortest Path First",
+      "acronym": "OSPF",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Open Shortest Path First OSPF",
+      "elementName": "Internet protocol IP multimedia subsystem software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Opportunity management system",
+      "acronym": "OMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Opportunity management system OMS",
+      "elementName": "Financial analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Oracle Agile Product Lifecycle Management",
+      "acronym": "PLM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Oracle Agile Product Lifecycle Management PLM",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Oracle Java Enterprise Edition",
+      "acronym": "EE",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Oracle Java Enterprise Edition EE",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Oracle Java Message Service",
+      "acronym": "JMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Oracle Java Message Service JMS",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Oracle Real Application Cluster",
+      "acronym": "RAC",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Oracle Real Application Cluster RAC",
+      "elementName": "Clustering software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Outage management system",
+      "acronym": "OMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Outage management system OMS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": true
+    },
+    {
+      "source": "onet",
+      "full": "Past Inspection Query",
+      "acronym": "PIQ",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Past Inspection Query PIQ",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Pathogen Modeling Program",
+      "acronym": "PMP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Pathogen Modeling Program PMP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Pentana audit work system",
+      "acronym": "PAWS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Pentana audit work system PAWS",
+      "elementName": "Financial analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Pile Dynamics Pile Driving Analyzer",
+      "acronym": "PDA",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Pile Dynamics Pile Driving Analyzer PDA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Plant Clearance Automated Reutilization Screening System",
+      "acronym": "PCARSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Plant Clearance Automated Reutilization Screening System PCARSS",
+      "elementName": "Inventory management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Plant design management system",
+      "acronym": "PDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Plant design management system PDMS",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Plateau Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Plateau Learning Management System LMS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Practice management software PMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ProQuest Library and Information Science Abstracts",
+      "acronym": "LISA",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ProQuest Library and Information Science Abstracts LISA",
+      "elementName": "Library software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Process Heating Assessment and Survey Tool",
+      "acronym": "PHAST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Process Heating Assessment and Survey Tool PHAST",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Production Flow Analysis and Simplification Toolkit",
+      "acronym": "PFAST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Production Flow Analysis and Simplification Toolkit PFAST",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Program for Energy Analysis of Residences",
+      "acronym": "PEAR",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Program for Energy Analysis of Residences PEAR",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Public Access to Court Electronic Records",
+      "acronym": "PACER",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Public Access to Court Electronic Records (PACER)",
+      "elementName": "Information retrieval or search software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Pure Data",
+      "acronym": "PD",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Pure Data PD",
+      "elementName": "Music or sound editing software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Python Experimental Economics Toolkit",
+      "acronym": "PEET",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Python Experimental Economics Toolkit PEET",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Python Tools for Visual Studio",
+      "acronym": "PTVS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Python Tools for Visual Studio (PTVS)",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Radiology information systems",
+      "acronym": "RIS",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "Radiology information systems (RIS)",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Railyard management software",
+      "acronym": "RMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Railyard management software RMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Real Estate Assistant",
+      "acronym": "REA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Real Estate Assistant REA",
+      "elementName": "Customer relationship management CRM software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Really Simple Syndication",
+      "acronym": "RSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Really Simple Syndication RSS",
+      "elementName": "Web page creation and editing software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Realtors Property Resource",
+      "acronym": "RPR",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Realtors Property Resource RPR",
+      "elementName": "Data base reporting software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Refugee, Asylum and Parole System",
+      "acronym": "RAPS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Refugee, Asylum and Parole System RAPS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Register transfer language",
+      "acronym": "RTL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Register transfer language RTL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Relational database management system",
+      "acronym": "RDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Relational database management system RDMS",
+      "elementName": "Data base management system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Resource Ordering and Statusing System",
+      "acronym": "ROSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Resource Ordering and Statusing System ROSS",
+      "elementName": "Project management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Retrofit Energy Savings Estimation Model",
+      "acronym": "RESEM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Retrofit Energy Savings Estimation Model RESEM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Rice Simulator for ILP Multiprocessors",
+      "acronym": "RSIM",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Rice Simulator for ILP Multiprocessors RSIM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "SAP Americas mySAP ERP Human Capital Management",
+      "acronym": "HCM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "SAP Americas mySAP ERP Human Capital Management HCM",
+      "elementName": "Time accounting software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "SAP Master Data Management",
+      "acronym": "MDM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "SAP Master Data Management MDM",
+      "elementName": "Metadata management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "SSA Global Warehouse Management System",
+      "acronym": "WMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "SSA Global Warehouse Management System WMS",
+      "elementName": "Materials requirements planning logistics and supply chain software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Sage Fixed Asset Solution",
+      "acronym": "FAS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Sage Fixed Asset Solution FAS",
+      "elementName": "Accounting software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Sawtooth Composite Product Mapping",
+      "acronym": "CPM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Sawtooth Composite Product Mapping CPM",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Scalable vector graphics",
+      "acronym": "SVG",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Scalable vector graphics SVG",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Scientific Software Group Filter Drain",
+      "acronym": "FD",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Scientific Software Group Filter Drain FD",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Seaworthy Systems Shipboard Automated Maintenance Management",
+      "acronym": "SAMM",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Seaworthy Systems Shipboard Automated Maintenance Management SAMM",
+      "elementName": "Facilities management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Security assertion markup language",
+      "acronym": "SAML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Security assertion markup language SAML",
+      "elementName": "Web platform development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Session Initiation Protocol",
+      "acronym": "SIP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Session Initiation Protocol SIP",
+      "elementName": "Internet protocol IP multimedia subsystem software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Siemens Power Plant Automation",
+      "acronym": "SPPA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Siemens Power Plant Automation SPPA",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Silverbyte Systems Optima Property Management System",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Silverbyte Systems Optima Property Management System PMS",
+      "elementName": "Facilities management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Simple API for XML",
+      "acronym": "SAX",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Simple API for XML SAX",
+      "elementName": "Object or component oriented development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Simple DirectMedia Layer",
+      "acronym": "SDL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Simple DirectMedia Layer SDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Simple Model of the Atmospheric Radiative Transfer of Sunshine",
+      "acronym": "SMARTS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Simple Model of the Atmospheric Radiative Transfer of Sunshine SMARTS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Simple mail transfer protocol",
+      "acronym": "SMTP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Simple mail transfer protocol SMTP",
+      "elementName": "Operating system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Software Design Associates Computer Fencing System",
+      "acronym": "CFS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Software Design Associates Computer Fencing System CFS",
+      "elementName": "Project management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Solar and Wind Energy Resource Assessment",
+      "acronym": "SWERA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Solar and Wind Energy Resource Assessment SWERA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Spatial Analysis and Decision Assistance",
+      "acronym": "SADA",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Spatial Analysis and Decision Assistance SADA",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Special Education Student Information System",
+      "acronym": "SESIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Special Education Student Information System SESIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Standard generalized markup language",
+      "acronym": "SGML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Standard generalized markup language SGML",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Standardized general markup language",
+      "acronym": "SGML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Standardized general markup language SGML",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Structure query language",
+      "acronym": "SQL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Structure query language SQL",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Structured Query Report",
+      "acronym": "SQR",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Structured Query Report SQR",
+      "elementName": "Data base management system software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Structured query language",
+      "acronym": "SQL",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Structured query language SQL",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": true,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Student and Exchange Visitor Information System",
+      "acronym": "SEVIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Student and Exchange Visitor Information System SEVIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Syntactically awesome style sheets",
+      "acronym": "SASS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Syntactically awesome style sheets SASS",
+      "elementName": "Web platform development software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "System for Electronic Rate and Form Filing",
+      "acronym": "SERFF",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "System for Electronic Rate and Form Filing SERFF",
+      "elementName": "Compliance software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Technical Data Management System",
+      "acronym": "TDMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Technical Data Management System TDMS",
+      "elementName": "Document management software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Telvent Responder Outage Management System",
+      "acronym": "OMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Telvent Responder Outage Management System OMS",
+      "elementName": "Industrial control software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Texas Transportation Institute TTI Progression Analysis and Signal System Evaluation Routine",
+      "acronym": "PASSER",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Texas Transportation Institute TTI Progression Analysis and Signal System Evaluation Routine PASSER",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "The Nature Conservancy Weed Information Management System",
+      "acronym": "WIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "The Nature Conservancy Weed Information Management System WIMS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Thermal Dynamics Ground Loop Design",
+      "acronym": "GLD",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Thermal Dynamics Ground Loop Design GLD",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Thermal Synthesizer System",
+      "acronym": "TSS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Thermal Synthesizer System TSS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Thermo Fisher Scientific Laboratory Information Management Systems",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Thermo Fisher Scientific Laboratory Information Management Systems LIMS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Thomson Creative Solutions Engagement",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Thomson Creative Solutions Engagement CS",
+      "elementName": "Financial analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Thomson Creative Solutions Financial Analysis",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Thomson Creative Solutions Financial Analysis CS",
+      "elementName": "Financial analysis software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Tidepool Scientific Software Comprehensive Environmental Toxicity Information System",
+      "acronym": "CETIS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Tidepool Scientific Software Comprehensive Environmental Toxicity Information System CETIS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Time and Attendance Collection System",
+      "acronym": "TACS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Time and Attendance Collection System TACS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Total Officer Personnel Management Information System",
+      "acronym": "TOPMIS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Total Officer Personnel Management Information System TOPMIS",
+      "elementName": "Human resources software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "TrainOnTrack Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "TrainOnTrack Learning Management System LMS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Transient reactor analysis code",
+      "acronym": "TRAC",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Transient reactor analysis code TRAC",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Treasury Enforcement Communications System",
+      "acronym": "TECS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Treasury Enforcement Communications System TECS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Tritech Financial Systems General Insurance Management System",
+      "acronym": "GIMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Tritech Financial Systems General Insurance Management System GIMS",
+      "elementName": "Enterprise resource planning ERP software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "USDA Database for Inventory, Monitoring and Assessment",
+      "acronym": "DIMA",
+      "confidence": "parenthetical",
+      "needsScrutiny": false,
+      "workplaceExample": "USDA Database for Inventory, Monitoring and Assessment (DIMA)",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "USDA Forest Vegetation Simulator",
+      "acronym": "FVS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "USDA Forest Vegetation Simulator FVS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Unidata Gempak Analysis and Rendering Program",
+      "acronym": "GARP",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Unidata Gempak Analysis and Rendering Program GARP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Unidata Integrated Data Viewer",
+      "acronym": "IDV",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Unidata Integrated Data Viewer IDV",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Unified modeling language",
+      "acronym": "UML",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Unified modeling language UML",
+      "elementName": "Requirements analysis and system architecture software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "University of California Thesaurus Linguae Graecae",
+      "acronym": "TLG",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "University of California Thesaurus Linguae Graecae TLG",
+      "elementName": "Dictionary software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Very high-speed integrated circuit VHSIC hardware description language",
+      "acronym": "VHDL",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Very high-speed integrated circuit VHSIC hardware description language VHDL",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Veterinary practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Veterinary practice management software PMS",
+      "elementName": "Medical software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Vienna Ab-Initio Simulation Package",
+      "acronym": "VASP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Vienna Ab-Initio Simulation Package VASP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Virtual Router Redundancy Protocol",
+      "acronym": "VRRP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Virtual Router Redundancy Protocol VRRP",
+      "elementName": "Switch or router software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Visual Molecular Dynamics",
+      "acronym": "VMD",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Visual Molecular Dynamics VMD",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "VorTek Site Assessment of Tornado Threat",
+      "acronym": "SATT",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "VorTek Site Assessment of Tornado Threat SATT",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Wallingford Software InfoWorks",
+      "acronym": "WS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Wallingford Software InfoWorks WS",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Warehouse management system",
+      "acronym": "WMS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Warehouse management system WMS",
+      "elementName": "Materials requirements planning logistics and supply chain software",
+      "hotTechnology": false,
+      "inDemand": true
+    },
+    {
+      "source": "onet",
+      "full": "Water Erosion Prediction Project",
+      "acronym": "WEPP",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Water Erosion Prediction Project WEPP",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Wildland Fire Assessment System",
+      "acronym": "WFAS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Wildland Fire Assessment System WFAS",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Worldwide Instructional Design System",
+      "acronym": "WIDS",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Worldwide Instructional Design System WIDS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "XML User Interface",
+      "acronym": "XUI",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "XML User Interface XUI",
+      "elementName": "Development environment software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Xilinx Integrated Software Environment",
+      "acronym": "ISE",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Xilinx Integrated Software Environment ISE",
+      "elementName": "Computer aided design CAD software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Xilinx Synthesis Technology",
+      "acronym": "XST",
+      "confidence": "initials-exact",
+      "needsScrutiny": false,
+      "workplaceExample": "Xilinx Synthesis Technology XST",
+      "elementName": "Analytical or scientific software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "Xyleme Learning Content Management System",
+      "acronym": "LCMS",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "Xyleme Learning Content Management System LCMS",
+      "elementName": "Computer based training software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "onet",
+      "full": "ddlsoftware.com drivers daily log program",
+      "acronym": "DDL",
+      "confidence": "initials-substring",
+      "needsScrutiny": true,
+      "workplaceExample": "ddlsoftware.com drivers daily log program DDL",
+      "elementName": "Data base user interface and query software",
+      "hotTechnology": false,
+      "inDemand": false
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "dockerfile",
+      "toTag": "docker",
+      "appliedCount": 211,
+      "questionCount": 140419
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "linux-development",
+      "toTag": "linux",
+      "appliedCount": 0,
+      "questionCount": 228545
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "kubernetes-pod",
+      "toTag": "kubernetes",
+      "appliedCount": 1019,
+      "questionCount": 58240
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "active-directory-group",
+      "toTag": "active-directory",
+      "appliedCount": 53,
+      "questionCount": 16325
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "github-workflow",
+      "toTag": "github-actions",
+      "appliedCount": 24,
+      "questionCount": 11480
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "git-commands",
+      "toTag": "git",
+      "appliedCount": 2,
+      "questionCount": 154246
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "az",
+      "toTag": "azure",
+      "appliedCount": 109,
+      "questionCount": 146190
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "k8s",
+      "toTag": "kubernetes",
+      "appliedCount": 1124,
+      "questionCount": 58240
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "gcp",
+      "toTag": "google-cloud-platform",
+      "appliedCount": 6420,
+      "questionCount": 51002
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "ansible-playbook",
+      "toTag": "ansible",
+      "appliedCount": 9758,
+      "questionCount": 23047
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "google-cloud",
+      "toTag": "google-cloud-platform",
+      "appliedCount": 985,
+      "questionCount": 51002
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "httpd",
+      "toTag": "apache",
+      "appliedCount": 1729,
+      "questionCount": 91813
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "windows-azure",
+      "toTag": "azure",
+      "appliedCount": 321,
+      "questionCount": 146190
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "aws",
+      "toTag": "amazon-web-services",
+      "appliedCount": 40038,
+      "questionCount": 159645
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-standards",
+      "toTag": "sql",
+      "appliedCount": 0,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-or",
+      "toTag": "sql",
+      "appliedCount": 0,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-and",
+      "toTag": "sql",
+      "appliedCount": 0,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "react-component",
+      "toTag": "reactjs",
+      "appliedCount": 390,
+      "questionCount": 478529
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "phpinfo",
+      "toTag": "php",
+      "appliedCount": 6,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vanilla-typescript",
+      "toTag": "typescript",
+      "appliedCount": 5,
+      "questionCount": 235940
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "java-api",
+      "toTag": "java",
+      "appliedCount": 21,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "react.js",
+      "toTag": "reactjs",
+      "appliedCount": 1469,
+      "questionCount": 478529
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "cxx",
+      "toTag": "c++",
+      "appliedCount": 20,
+      "questionCount": 818025
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "angularjs2",
+      "toTag": "angular",
+      "appliedCount": 1,
+      "questionCount": 307740
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "atscript",
+      "toTag": "typescript",
+      "appliedCount": 0,
+      "questionCount": 235940
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-namespaces",
+      "toTag": "php",
+      "appliedCount": 33,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vanillajs",
+      "toTag": "javascript",
+      "appliedCount": 132,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vanilla-js",
+      "toTag": "javascript",
+      "appliedCount": 54,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "py",
+      "toTag": "python",
+      "appliedCount": 957,
+      "questionCount": 2219843
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javax",
+      "toTag": "java",
+      "appliedCount": 624,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "openjdk",
+      "toTag": "java",
+      "appliedCount": 2455,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "bash-function",
+      "toTag": "bash",
+      "appliedCount": 68,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".bash-profile",
+      "toTag": "bash",
+      "appliedCount": 662,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "react-jsx",
+      "toTag": "reactjs",
+      "appliedCount": 3593,
+      "questionCount": 478529
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "angular4.x",
+      "toTag": "angular",
+      "appliedCount": 650,
+      "questionCount": 307740
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "angular4",
+      "toTag": "angular",
+      "appliedCount": 12229,
+      "questionCount": 307740
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "angular2",
+      "toTag": "angular",
+      "appliedCount": 6818,
+      "questionCount": 307740
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-include",
+      "toTag": "php",
+      "appliedCount": 292,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "oraclejdk",
+      "toTag": "java",
+      "appliedCount": 152,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".cs-file",
+      "toTag": "c#",
+      "appliedCount": 1,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "phtml",
+      "toTag": "php",
+      "appliedCount": 69,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "react",
+      "toTag": "reactjs",
+      "appliedCount": 99780,
+      "questionCount": 478529
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-module",
+      "toTag": "javascript",
+      "appliedCount": 22,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vanilla-javascript",
+      "toTag": "javascript",
+      "appliedCount": 99,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-runtime",
+      "toTag": "javascript",
+      "appliedCount": 3,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-fpm",
+      "toTag": "php",
+      "appliedCount": 1159,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "io.js",
+      "toTag": "node.js",
+      "appliedCount": 118,
+      "questionCount": 472658
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-library",
+      "toTag": "javascript",
+      "appliedCount": 119,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "swift1.2",
+      "toTag": "swift",
+      "appliedCount": 95,
+      "questionCount": 337241
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "select-statement",
+      "toTag": "sql",
+      "appliedCount": 26,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "java-libraries",
+      "toTag": "java",
+      "appliedCount": 61,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "csharp",
+      "toTag": "c#",
+      "appliedCount": 2564,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sqlselect",
+      "toTag": "sql",
+      "appliedCount": 46,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-disabled",
+      "toTag": "javascript",
+      "appliedCount": 20,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "python-shell",
+      "toTag": "python",
+      "appliedCount": 93,
+      "questionCount": 2219843
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "swift-ios",
+      "toTag": "swift",
+      "appliedCount": 15,
+      "questionCount": 337241
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "swift-language",
+      "toTag": "swift",
+      "appliedCount": 267,
+      "questionCount": 337241
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-session",
+      "toTag": "php",
+      "appliedCount": 16,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-dom",
+      "toTag": "javascript",
+      "appliedCount": 31,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-functions",
+      "toTag": "php",
+      "appliedCount": 6,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-cgi",
+      "toTag": "php",
+      "appliedCount": 47,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-mail",
+      "toTag": "php",
+      "appliedCount": 137,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-alert",
+      "toTag": "javascript",
+      "appliedCount": 4,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "bash-variables",
+      "toTag": "bash",
+      "appliedCount": 13,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "bash-alias",
+      "toTag": "bash",
+      "appliedCount": 7,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-errors",
+      "toTag": "php",
+      "appliedCount": 70,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "jre",
+      "toTag": "java",
+      "appliedCount": 1360,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "jdk",
+      "toTag": "java",
+      "appliedCount": 2940,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-cli",
+      "toTag": "php",
+      "appliedCount": 145,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "nodejs",
+      "toTag": "node.js",
+      "appliedCount": 47374,
+      "questionCount": 472658
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "python-interpreter",
+      "toTag": "python",
+      "appliedCount": 53,
+      "questionCount": 2219843
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php.ini",
+      "toTag": "php",
+      "appliedCount": 495,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "hypertext-preprocessor",
+      "toTag": "php",
+      "appliedCount": 0,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-frameworks",
+      "toTag": "php",
+      "appliedCount": 232,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php5",
+      "toTag": "php",
+      "appliedCount": 1158,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-date",
+      "toTag": "php",
+      "appliedCount": 12,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-select",
+      "toTag": "sql",
+      "appliedCount": 107,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "pythonic",
+      "toTag": "python",
+      "appliedCount": 212,
+      "questionCount": 2219843
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "classic-javascript",
+      "toTag": "javascript",
+      "appliedCount": 0,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "php-oop",
+      "toTag": "php",
+      "appliedCount": 47,
+      "questionCount": 1464593
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "visual-c#",
+      "toTag": "c#",
+      "appliedCount": 115,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-syntax",
+      "toTag": "sql",
+      "appliedCount": 89,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "core-java",
+      "toTag": "java",
+      "appliedCount": 113,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "j2se",
+      "toTag": "java",
+      "appliedCount": 156,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".java",
+      "toTag": "java",
+      "appliedCount": 305,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".bashrc",
+      "toTag": "bash",
+      "appliedCount": 113,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "bashrc",
+      "toTag": "bash",
+      "appliedCount": 236,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-statement",
+      "toTag": "sql",
+      "appliedCount": 32,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "cpp",
+      "toTag": "c++",
+      "appliedCount": 7811,
+      "questionCount": 818025
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-query",
+      "toTag": "sql",
+      "appliedCount": 447,
+      "questionCount": 675273
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "java-se",
+      "toTag": "java",
+      "appliedCount": 88,
+      "questionCount": 1921052
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "javascript-execution",
+      "toTag": "javascript",
+      "appliedCount": 50,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "bash-script",
+      "toTag": "bash",
+      "appliedCount": 294,
+      "questionCount": 157020
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "c#-language",
+      "toTag": "c#",
+      "appliedCount": 18,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".js",
+      "toTag": "javascript",
+      "appliedCount": 752,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "windows-powershell",
+      "toTag": "powershell",
+      "appliedCount": 24,
+      "questionCount": 119741
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "ecmascript",
+      "toTag": "javascript",
+      "appliedCount": 663,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "golang",
+      "toTag": "go",
+      "appliedCount": 12595,
+      "questionCount": 75039
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "go-language",
+      "toTag": "go",
+      "appliedCount": 20,
+      "questionCount": 75039
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "c#.net",
+      "toTag": "c#",
+      "appliedCount": 3690,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "js",
+      "toTag": "javascript",
+      "appliedCount": 61297,
+      "questionCount": 2530832
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "c-sharp",
+      "toTag": "c#",
+      "appliedCount": 251,
+      "questionCount": 1626194
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "azure-database-postgresql",
+      "toTag": "postgresql",
+      "appliedCount": 1,
+      "questionCount": 179961
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "kafka-cluster",
+      "toTag": "apache-kafka",
+      "appliedCount": 12,
+      "questionCount": 33478
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "spring-java-config",
+      "toTag": "spring",
+      "appliedCount": 66,
+      "questionCount": 212612
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "spring-config",
+      "toTag": "spring",
+      "appliedCount": 399,
+      "questionCount": 212612
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysql-if",
+      "toTag": "mysql",
+      "appliedCount": 0,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vue-js",
+      "toTag": "vue.js",
+      "appliedCount": 32,
+      "questionCount": 108408
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysqlsh",
+      "toTag": "mysql",
+      "appliedCount": 32,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "nextjs",
+      "toTag": "next.js",
+      "appliedCount": 7042,
+      "questionCount": 43312
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vue",
+      "toTag": "vue.js",
+      "appliedCount": 14316,
+      "questionCount": 108408
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "elastic",
+      "toTag": "elasticsearch",
+      "appliedCount": 851,
+      "questionCount": 58346
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "vuejs",
+      "toTag": "vue.js",
+      "appliedCount": 6728,
+      "questionCount": 108408
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysqldump",
+      "toTag": "mysql",
+      "appliedCount": 1977,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "kafka",
+      "toTag": "apache-kafka",
+      "appliedCount": 7359,
+      "questionCount": 33478
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysqlclient",
+      "toTag": "mysql",
+      "appliedCount": 190,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysqld",
+      "toTag": "mysql",
+      "appliedCount": 124,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "flask-blueprint",
+      "toTag": "flask",
+      "appliedCount": 25,
+      "questionCount": 55511
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-srever",
+      "toTag": "sql-server",
+      "appliedCount": 62,
+      "questionCount": 337193
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysql-table",
+      "toTag": "mysql",
+      "appliedCount": 38,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "expressjs",
+      "toTag": "express",
+      "appliedCount": 2401,
+      "questionCount": 95402
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysql-server",
+      "toTag": "mysql",
+      "appliedCount": 150,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "aspdotnet",
+      "toTag": "asp.net",
+      "appliedCount": 18,
+      "questionCount": 373533
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mongod",
+      "toTag": "mongodb",
+      "appliedCount": 252,
+      "questionCount": 175911
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "express.js",
+      "toTag": "express",
+      "appliedCount": 1764,
+      "questionCount": 95402
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mongo",
+      "toTag": "mongodb",
+      "appliedCount": 5442,
+      "questionCount": 175911
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "asp.net-website",
+      "toTag": "asp.net",
+      "appliedCount": 8,
+      "questionCount": 373533
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": ".net-framework",
+      "toTag": ".net",
+      "appliedCount": 217,
+      "questionCount": 341637
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sql-postgres",
+      "toTag": "postgresql",
+      "appliedCount": 18,
+      "questionCount": 179961
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mysql-query",
+      "toTag": "mysql",
+      "appliedCount": 2506,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "aspx",
+      "toTag": "asp.net",
+      "appliedCount": 2728,
+      "questionCount": 373533
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "spring-framework",
+      "toTag": "spring",
+      "appliedCount": 485,
+      "questionCount": 212612
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "pgsql",
+      "toTag": "postgresql",
+      "appliedCount": 398,
+      "questionCount": 179961
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "ms-sql-server",
+      "toTag": "sql-server",
+      "appliedCount": 79,
+      "questionCount": 337193
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "dot-net",
+      "toTag": ".net",
+      "appliedCount": 30,
+      "questionCount": 341637
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "my-sql",
+      "toTag": "mysql",
+      "appliedCount": 80,
+      "questionCount": 658797
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "mssql",
+      "toTag": "sql-server",
+      "appliedCount": 14677,
+      "questionCount": 337193
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "asp-net",
+      "toTag": "asp.net",
+      "appliedCount": 279,
+      "questionCount": 373533
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "postgres",
+      "toTag": "postgresql",
+      "appliedCount": 10239,
+      "questionCount": 179961
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "dotnet",
+      "toTag": ".net",
+      "appliedCount": 4333,
+      "questionCount": 341637
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "numpy-dtype",
+      "toTag": "numpy",
+      "appliedCount": 2,
+      "questionCount": 115517
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "numpy-indexing",
+      "toTag": "numpy",
+      "appliedCount": 6,
+      "questionCount": 115517
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "pandas-2.x",
+      "toTag": "pandas",
+      "appliedCount": 1,
+      "questionCount": 289670
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "pandas-1.x",
+      "toTag": "pandas",
+      "appliedCount": 0,
+      "questionCount": 289670
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "tensorflow-gpu",
+      "toTag": "tensorflow",
+      "appliedCount": 2773,
+      "questionCount": 82585
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "spark",
+      "toTag": "apache-spark",
+      "appliedCount": 17726,
+      "questionCount": 82748
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "spark-cluster-framework",
+      "toTag": "apache-spark",
+      "appliedCount": 108,
+      "questionCount": 82748
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "sklearn",
+      "toTag": "scikit-learn",
+      "appliedCount": 3000,
+      "questionCount": 28318
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "apache-hadoop",
+      "toTag": "hadoop",
+      "appliedCount": 17,
+      "questionCount": 44196
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "scikits-learn",
+      "toTag": "scikit-learn",
+      "appliedCount": 3,
+      "questionCount": 28318
+    },
+    {
+      "source": "stackexchange",
+      "fromTag": "salesforce.com",
+      "toTag": "salesforce",
+      "appliedCount": 179,
+      "questionCount": 10429
+    }
+  ]
+}

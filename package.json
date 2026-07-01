@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:copy": "tsx scripts/check-copy-style.ts",
+    "skills:candidates": "tsx scripts/skills/buildAliasCandidates.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
