@@ -1,19 +1,20 @@
 // Marketing landing: "The Signal" (M4 redesign, Cowork-approved mockup C-v2). Public front door;
 // the gated packet app lives at /app. Server component (no client JS) except the waitlist form.
-// Copy follows the house style guardrail (lib/guardrails.ts checkStyle): no em dashes, no double spaces.
+// Copy follows docs/VOICE_STYLE_GUIDE.md, enforced by `npm run lint:copy` (no em dashes, no repeated
+// spaces, one CTA verb, vocabulary rotation), the same bar guardrails.ts holds on generated documents.
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import WaitlistForm from '@/components/WaitlistForm'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
-  title: 'ScoutLane: the resume tool that can’t make things up',
+  title: 'ScoutLane: the application packet that can’t make things up',
   description:
-    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, a cover letter, and hiring-manager outreach) that maps honestly to what’s actually there. No fabrication, no invented credentials, no auto-applying.',
+    'Paste a job and your own history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, a cover letter, and hiring-manager outreach) that maps to what’s there. No fabrication, no invented credentials, no auto-applying.',
   openGraph: {
-    title: 'ScoutLane: the resume tool that can’t make things up',
+    title: 'ScoutLane: the application packet that can’t make things up',
     description:
-      'A fit assessment plus a tailored, ATS-safe resume, cover letter, and hiring-manager outreach, built only from your real history.',
+      'A fit assessment plus a tailored, ATS-safe resume, cover letter, and hiring-manager outreach, built only from your own history.',
     type: 'website',
   },
 }
@@ -43,12 +44,11 @@ export default function LandingPage() {
           <div className={styles.heroHead}>
             <div className={styles.eyebrowGreen}>No fabrication. Enforced in code.</div>
             <h1 className={styles.headline}>
-              The resume tool<br />that can’t make things up.
+              The application packet<br />that can’t make things up.
             </h1>
             <p className={styles.heroHeadP}>
-              Paste a job. Add your real history. ScoutLane returns a complete application packet that
-              maps honestly to what’s actually there. No invented bullets, no stuffed keywords, no
-              spray-and-pray.
+              Paste a job. Add your real history. ScoutLane returns a complete application packet where
+              every line is built from what you gave it and checked before it ships.
             </p>
             <div className={styles.ctaRow}>
               <a href="#waitlist" className={styles.btnPrimary}>Request access →</a>
@@ -92,7 +92,7 @@ export default function LandingPage() {
               <div className={styles.afterBullets}>
                 <div className={styles.afterBullet}>
                   <span className={styles.abk}>✓</span>
-                  <div>Cut API p95 latency 40% by migrating to an async message queue. <span className={styles.why}>Meets JD: “high-throughput, low-latency systems”</span></div>
+                  <div>Cut p95 API latency 40% by migrating to an async message queue. <span className={styles.why}>Meets JD: “high-throughput, low-latency systems”</span></div>
                 </div>
                 <div className={styles.afterBullet}>
                   <span className={styles.abk}>✓</span>
@@ -122,7 +122,7 @@ export default function LandingPage() {
       <section className={styles.previewSection} id="preview">
         <div className={styles.previewInner}>
           <div className={styles.previewHead}>
-            <div className={styles.eyebrow}>The actual output</div>
+            <div className={styles.eyebrow}>The finished output</div>
             <h2 className={styles.h2}>Here’s what you get<br />when it’s done.</h2>
             <p>One candidate, one specific role, scored across eight dimensions. Every claim is checked against the history they provided, and the gaps are shown too.</p>
           </div>
@@ -184,7 +184,7 @@ export default function LandingPage() {
               </div>
 
               <div className={styles.honestBox}>
-                <strong>The honest part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed: zero invented bullets, zero inferred credentials, zero keyword stuffing. The domain gap above is real, and it’s in your packet too.
+                <strong>The unfiltered part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed: zero invented bullets, zero inferred credentials, zero keyword stuffing. The domain gap above is real, and it’s in your packet too.
               </div>
             </div>
           </div>
@@ -208,15 +208,15 @@ export default function LandingPage() {
         <div className={styles.getInner}>
           <div className={styles.getHead}>
             <div className={styles.eyebrow}>The packet</div>
-            <h2 className={styles.h2}>Four deliverables.<br />One honest source.</h2>
-            <p>Not a resume rewriter. Not a cover-letter spinner. A complete application packet, where every piece connects back to what you actually gave us.</p>
+            <h2 className={styles.h2}>Four deliverables.<br />One source.</h2>
+            <p>A complete application packet: a fit score, a tailored resume, a cover letter, and hiring-manager outreach, every piece connected back to what you gave us.</p>
           </div>
 
           <div className={styles.getCards}>
             {/* Card 1: Fit Report */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Fit Report</div>
-              <h3 className={styles.getCardTitle}>Your real match, scored.</h3>
+              <h3 className={styles.getCardTitle}>Your verified match, scored.</h3>
               <p className={styles.getCardP}>Eight dimensions, one verdict. Every requirement is flagged met, partial, or missing, so you apply with confidence or skip with clarity.</p>
               <div className={styles.miniRingArea}>
                 <svg width="60" height="60" viewBox="0 0 60 60" aria-label="Fit score 89">
@@ -245,12 +245,12 @@ export default function LandingPage() {
             {/* Card 2: Tailored Resume */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Tailored Resume</div>
-              <h3 className={styles.getCardTitle}>Your history, exactly where it counts.</h3>
-              <p className={styles.getCardP}>Bullets rewritten to match the role’s language and requirements, with every edit traceable to something you told us.</p>
+              <h3 className={styles.getCardTitle}>Your history, matched to the role.</h3>
+              <p className={styles.getCardP}>Bullets rewritten to match the role’s language and requirements, with every edit sourced to something you told us.</p>
               <div className={styles.miniBullets}>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Cut p95 latency 40% via an async queue migration<span className={styles.mw}>meets JD: “high-throughput, low-latency systems”</span></div></div>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Led auth migration for a 3-person team, 2 weeks early<span className={styles.mw}>meets JD: “cross-functional collaboration”</span></div></div>
-                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Held 99.97% uptime across 4 deployments in FY24<span className={styles.mw}>meets JD: “production reliability ownership”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Cut p95 API latency 40% by migrating to an async message queue<span className={styles.mw}>meets JD: “high-throughput, low-latency systems”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Led a 3-engineer auth migration, delivered 2 weeks ahead of schedule<span className={styles.mw}>meets JD: “cross-functional collaboration”</span></div></div>
+                <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Held 99.97% uptime across 4 service deployments in FY24<span className={styles.mw}>meets JD: “production reliability ownership”</span></div></div>
               </div>
               <div className={styles.getCardFoot}>4 bullets adjusted · 0 invented · Every source citable in an interview</div>
             </div>
@@ -258,8 +258,8 @@ export default function LandingPage() {
             {/* Card 3: Cover Letter */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Cover Letter</div>
-              <h3 className={styles.getCardTitle}>One letter, one role, actually relevant.</h3>
-              <p className={styles.getCardP}>Stage-aware and role-specific, written from your real talking points instead of a generic opener that could go anywhere.</p>
+              <h3 className={styles.getCardTitle}>One letter, written for one role.</h3>
+              <p className={styles.getCardP}>Stage-aware and role-specific, written from your own talking points instead of a generic opener that could go anywhere.</p>
               <div className={styles.clPreview}>
                 “Novalus’s focus on rebuilding core infrastructure at Series B is exactly the high-ownership environment where I’ve delivered most. Most recently, I cut p95 API latency 40% through a migration I scoped and led end to end…”
               </div>
@@ -268,13 +268,13 @@ export default function LandingPage() {
                   <span className={styles.clChip} key={c}>{c}</span>
                 ))}
               </div>
-              <div className={styles.getCardFoot}>Tied to this role’s specifics · References your actual talking points</div>
+              <div className={styles.getCardFoot}>Tied to this role’s specifics · References your own talking points</div>
             </div>
 
             {/* Card 4: Hiring Manager Outreach */}
             <div className={styles.getCard}>
               <div className={styles.getChip}>Hiring Manager Outreach</div>
-              <h3 className={styles.getCardTitle}>One note. One person. Actually honest.</h3>
+              <h3 className={styles.getCardTitle}>One note, built from the same facts.</h3>
               <p className={styles.getCardP}>A LinkedIn connection note and a follow-up email, pulled from the same facts as your packet, meant to be personalized, never mass-sent.</p>
               <div className={styles.clPreview}>
                 “Hi, saw the Senior Engineer opening at Novalus and thought of the async migration work I led that cut p95 latency 40%. Would love to connect and hear more about the team’s roadmap.”
@@ -294,13 +294,13 @@ export default function LandingPage() {
       <section className={styles.howSection} id="how">
         <div className={styles.sectionInner}>
           <div className={styles.eyebrow}>Process</div>
-          <h2 className={styles.h2}>Three inputs.<br />One honest packet.</h2>
+          <h2 className={styles.h2}>From three inputs<br />to one packet.</h2>
           <p className={styles.sectP}>No inventing. No enriching your profile from outside sources. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
           <div className={styles.stepsV}>
             {[
-              ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role actually requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
-              ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
-              ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with traceable sources, a cover letter written for the actual role, and hiring-manager outreach you can personalize. Every line traces back to something you told us, and nothing else.'],
+              ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
+              ['2', 'Connect your own history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
+              ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with cited sources, a cover letter written for the role, and hiring-manager outreach you can personalize. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
               <div className={styles.stepv} key={n}>
                 <div className={styles.stepvN}>{n}</div>
@@ -318,7 +318,7 @@ export default function LandingPage() {
       <div className={styles.pledgeSection} id="pledge">
         <div className={styles.pledgeInner}>
           <h2 className={styles.pledgeHead}>We set hard limits.<br />Then we built around them.</h2>
-          <p className={styles.pledgeSub}>Most AI resume tools optimize for looking good. ScoutLane optimizes for being honest. These aren’t settings you can toggle off.</p>
+          <p className={styles.pledgeSub}>Most AI resume tools optimize for looking good. ScoutLane optimizes for being accountable. These aren’t settings you can toggle off.</p>
           <div className={styles.pledgeGrid}>
             <div className={styles.pledgeCol}>
               <div className={styles.pledgeColHead}>What we will never do</div>
