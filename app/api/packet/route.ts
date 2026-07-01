@@ -13,6 +13,8 @@ import { rateLimit } from '@/lib/http/rateLimit'
 import { requireUser } from '@/lib/auth'
 import { isTransientAnthropicError } from '@/lib/anthropic'
 import { describeGuardrailFailure } from '@/lib/guardrailMessages'
+import { captureServer, SERVER_EVENTS } from '@/lib/analyticsServer'
+import { deriveBlockSignals } from '@/lib/blockSignals'
 
 // Bound request size before any work: a resume is a few KB of text; these ceilings fail a
 // pathological multi-MB paste fast (with a clear 400) instead of melting the LLM call downstream.
@@ -151,6 +153,16 @@ export async function POST(request: Request) {
           ats: packet.guardrails.ats?.problems.length ?? null,
         }),
       )
+      // Emit the same block as a PostHog event with DERIVED, non-PII signals (no claim/skill text): it
+      // lets us measure, in aggregate, how often a block is a true computed aggregate (looks_like_aggregate)
+      // vs a genuine invention, so the eventual robust fix is driven by data. Env-gated + fail-open, so
+      // it's a no-op until a key is set. Wrapped like the persistence below so a signal/capture error can
+      // never turn this 422 into a 500.
+      try {
+        await captureServer(SERVER_EVENTS.packetBlocked, user.id, deriveBlockSignals(packet.guardrails, packet.profile))
+      } catch (err) {
+        console.error('[analytics] block-signal capture failed (non-blocking)', err)
+      }
       // Record the blocked attempt too (status derived as 'blocked' inside saveGeneration). Same
       // strictly non-blocking pattern as the shipped path: a persistence failure must never turn this
       // 422 into a 500. This is what lets blocked-then-abandoned users be seen in the history.
