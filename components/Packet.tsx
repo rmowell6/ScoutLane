@@ -355,8 +355,6 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
       </header>
 
       <div className="packet__body">
-        {/* Main column: the fit analysis (role, gauge + dimensions, keyword coverage). */}
-        <div className="packet__col packet__col--main">
         <section className="card" aria-labelledby="pk-role">
           <h3 id="pk-role">Role</h3>
           {pills.length > 0 && (
@@ -437,79 +435,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           </p>
         </section>
 
-        </div>
-
-        {/* Aside column: Documents & checks. Outreach and Next steps moved to full-width bands below. */}
-        <div className="packet__col packet__col--aside">
-        <section className="card" aria-labelledby="pk-docs">
-          <h3 id="pk-docs">Documents &amp; checks</h3>
-          <ul className="pill-row" aria-label="Guardrail checks">
-            <li>
-              <span className={`badge ${guardrails.noFabrication.ok ? 'is-pass' : 'is-fail'}`}>
-                <StatusIcon status={guardrails.noFabrication.ok ? 'is-pass' : 'is-fail'} /> No fabrication
-              </span>
-            </li>
-            <li>
-              <span className={`badge ${guardrails.bannedTerms.ok ? 'is-pass' : 'is-fail'}`}>
-                <StatusIcon status={guardrails.bannedTerms.ok ? 'is-pass' : 'is-fail'} /> Banned terms
-              </span>
-            </li>
-            <li>
-              <span className={`badge ${guardrails.style.ok ? 'is-pass' : 'is-fail'}`}>
-                <StatusIcon status={guardrails.style.ok ? 'is-pass' : 'is-fail'} /> Style
-              </span>
-            </li>
-            {guardrails.ats && (
-              <li>
-                <span className={`badge ${guardrails.ats.ok ? 'is-pass' : 'is-fail'}`}>
-                  <StatusIcon status={guardrails.ats.ok ? 'is-pass' : 'is-fail'} /> ATS-safe
-                </span>
-              </li>
-            )}
-            {!guardrails.certStatus.skipped && (
-              <li>
-                <span className={`badge ${guardrails.certStatus.ok ? 'is-pass' : 'is-warn'}`}>
-                  <StatusIcon status={guardrails.certStatus.ok ? 'is-pass' : 'is-warn'} /> Cert currency
-                </span>
-              </li>
-            )}
-          </ul>
-          {guardrails.certStatus.suspicious.length > 0 && (
-            <p className="callout">
-              <b>Check cert currency:</b> the source resume looks to list{' '}
-              {guardrails.certStatus.suspicious.join(', ')} as previously held, but{' '}
-              {guardrails.certStatus.suspicious.length === 1 ? 'it was' : 'they were'} placed under
-              Active. Review before sending.
-            </p>
-          )}
-          {documents ? (
-            <>
-              <p className="muted" style={{ margin: '0 0 10px', fontSize: '12.5px' }}>
-                Your packet, download each as a PDF (opens anywhere) or an editable Word file (DOCX):
-              </p>
-              <div className="downloads">
-                <DocButton formats={documents.fitAssessment} label="fit assessment" />
-                <DocButton formats={documents.resume} label="résumé" />
-                <DocButton formats={documents.coverLetter} label="cover letter" />
-              </div>
-              {sourceUrl && (
-                <p style={{ margin: '12px 0 0' }}>
-                  <a className="apply-btn" href={sourceUrl} target="_blank" rel="noopener noreferrer">
-                    Apply to this posting ↗
-                  </a>
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="muted">A guardrail blocked this packet, so no documents were generated.</p>
-          )}
-        </section>
-
-        </div>
-
-        {/* Keyword & ATS coverage spans the FULL width below the two columns: the required and
-            preferred tables need more room than the half-width left column, so placing them here
-            lets the two-up grid sit side by side again instead of stacking. */}
+        {/* Keyword & ATS coverage + preferred keywords, shown two-up on desktop, stacking on mobile. */}
         {(coverage.length > 0 || preferredCoverage.length > 0) && (
           <div className="grid-2 packet__wide">
             {coverage.length > 0 && (
@@ -572,6 +498,72 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
             </div>
           </section>
         )}
+
+        {/* Documents & checks: placed just above Next steps so the download controls sit where the
+            reader naturally lands after reading the fit, coverage, and outreach, right before they act. */}
+        <section className="card packet__wide" aria-labelledby="pk-docs">
+          <h3 id="pk-docs">Documents &amp; checks</h3>
+          <ul className="pill-row" aria-label="Guardrail checks">
+            <li>
+              <span className={`badge ${guardrails.noFabrication.ok ? 'is-pass' : 'is-fail'}`}>
+                <StatusIcon status={guardrails.noFabrication.ok ? 'is-pass' : 'is-fail'} /> No fabrication
+              </span>
+            </li>
+            <li>
+              <span className={`badge ${guardrails.bannedTerms.ok ? 'is-pass' : 'is-fail'}`}>
+                <StatusIcon status={guardrails.bannedTerms.ok ? 'is-pass' : 'is-fail'} /> Banned terms
+              </span>
+            </li>
+            <li>
+              <span className={`badge ${guardrails.style.ok ? 'is-pass' : 'is-fail'}`}>
+                <StatusIcon status={guardrails.style.ok ? 'is-pass' : 'is-fail'} /> Style
+              </span>
+            </li>
+            {guardrails.ats && (
+              <li>
+                <span className={`badge ${guardrails.ats.ok ? 'is-pass' : 'is-fail'}`}>
+                  <StatusIcon status={guardrails.ats.ok ? 'is-pass' : 'is-fail'} /> ATS-safe
+                </span>
+              </li>
+            )}
+            {!guardrails.certStatus.skipped && (
+              <li>
+                <span className={`badge ${guardrails.certStatus.ok ? 'is-pass' : 'is-warn'}`}>
+                  <StatusIcon status={guardrails.certStatus.ok ? 'is-pass' : 'is-warn'} /> Cert currency
+                </span>
+              </li>
+            )}
+          </ul>
+          {guardrails.certStatus.suspicious.length > 0 && (
+            <p className="callout">
+              <b>Check cert currency:</b> the source resume looks to list{' '}
+              {guardrails.certStatus.suspicious.join(', ')} as previously held, but{' '}
+              {guardrails.certStatus.suspicious.length === 1 ? 'it was' : 'they were'} placed under
+              Active. Review before sending.
+            </p>
+          )}
+          {documents ? (
+            <>
+              <p className="muted" style={{ margin: '0 0 10px', fontSize: '12.5px' }}>
+                Your packet, download each as a PDF (opens anywhere) or an editable Word file (DOCX):
+              </p>
+              <div className="downloads">
+                <DocButton formats={documents.fitAssessment} label="fit assessment" />
+                <DocButton formats={documents.resume} label="résumé" />
+                <DocButton formats={documents.coverLetter} label="cover letter" />
+              </div>
+              {sourceUrl && (
+                <p style={{ margin: '12px 0 0' }}>
+                  <a className="apply-btn" href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                    Apply to this posting ↗
+                  </a>
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="muted">A guardrail blocked this packet, so no documents were generated.</p>
+          )}
+        </section>
 
         {/* Next steps: the LAST content, so both gap-referencing bullets (topGap, missingSkill) sit
             below the Keyword & ATS coverage table they point at. Content/logic unchanged from before. */}
