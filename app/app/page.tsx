@@ -9,12 +9,9 @@ import type { Packet } from '@/lib/services/buildPacket'
 import PacketView from '@/components/Packet'
 import PacketFeedback from '@/components/PacketFeedback'
 import { track, EVENTS } from '@/lib/analytics'
-import { Inter } from 'next/font/google'
 import { THEME_OPTIONS, FONT_OPTIONS } from '@/lib/style/skin'
 import StylePreviewCard, { RecommendedCard } from '@/components/StylePreviewCard'
 import styles from './page.module.css'
-
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-inter' })
 
 /** A saved profile + the resume snapshot it was structured from (for staleness detection). */
 interface SavedProfile {
@@ -395,7 +392,7 @@ export default function Home() {
   }
 
   return (
-    <div className={`${styles.page} ${inter.variable}`}>
+    <div className={styles.page}>
       {/* Sticky brand nav — matches the marketing site. Sign-out posts to the route handler
           (POST avoids prefetch/CSRF logout). */}
       <nav className={styles.nav}>
