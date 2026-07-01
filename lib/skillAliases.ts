@@ -39,6 +39,12 @@ const ALIAS_GROUPS: string[][] = [
   ['mongodb', 'mongo'],
   ['node.js', 'nodejs'],
   ['virtual machines', 'virtual machine', 'vms', 'vm'],
+  // VMware's virtualization platform: ESXi is the hypervisor, vSphere the suite built on it. A JD and
+  // a resume routinely name the same skill differently ("VMware ESXi" vs "vSphere / ESXi"), so treat
+  // these spellings as one. Deliberately NOT including the generic "virtualization" (vendor-neutral,
+  // also covers Hyper-V/KVM/containers) nor bare "VMware" (spans Workstation/NSX/vSAN).
+  // Normalize preserves slashes and only folds whitespace, so both slash spacings are listed.
+  ['vmware esxi', 'esxi', 'vmware vsphere', 'vsphere', 'vsphere/esxi', 'vsphere / esxi', 'vmware vsphere/esxi', 'vmware vsphere / esxi'],
 ]
 
 // normalizedForm -> canonical normalized form (self-contained, safe to build at module load).
