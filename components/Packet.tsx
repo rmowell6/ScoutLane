@@ -17,6 +17,7 @@ import {
   leadDimension,
 } from '@/lib/fit/fitPresent'
 import { styleNames } from '@/lib/style/skin'
+import { describeGuardrailFailure } from '@/lib/guardrailMessages'
 import { track, EVENTS } from '@/lib/analytics'
 
 /** Allow CSS custom properties (e.g. --value) in inline styles. */
@@ -290,6 +291,14 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
     `${humanize(fitInput.employerType)} employer`,
   ].filter((p): p is string => Boolean(p))
 
+  // Held back: a guardrail failed OR no documents were generated. Per the product's flag-don't-hide
+  // guardrail philosophy the score stays visible (it is still real fit signal), but it must never
+  // read as a clean, finished result, so we pair it with a review banner carrying the plain-language
+  // reasons. `describeGuardrailFailure` assumes a failed report; guarding on `friendly` keeps the
+  // banner out of the normal path. Defense-in-depth: the route already withholds a failed packet
+  // (422), so this protects any path that DOES hand the view a blocked packet.
+  const friendly = !guardrails.ok || documents === null ? describeGuardrailFailure(guardrails) : null
+
   // Group the deterministic dimensions for a strengths-first read, and derive the one-line "what's
   // holding this back". All shared with the generated document via lib/fit/fitPresent.
   const { strengths, stretches, notAssessed } = splitDimensions(fit)
@@ -382,6 +391,26 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
               {holdingBack && <p className="fit-holdback">{holdingBack}</p>}
             </div>
           </div>
+
+          {friendly && (
+            <div className="fit-review" role="status">
+              <p className="fit-review__title">
+                <StatusIcon status="is-warn" /> Held back for review
+              </p>
+              <p className="fit-review__lead">
+                {friendly.title}. This score still reflects your fit, but the tailored documents are
+                on hold until the flagged items are resolved, so treat it as a signal to act on, not a
+                finished packet.
+              </p>
+              {friendly.reasons.length > 0 && (
+                <ul className="tight fit-review__reasons">
+                  {friendly.reasons.map((reason, i) => (
+                    <li key={i}>{reason}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           <MeterGroup title="Your strengths" dims={strengths} emptyHint="No standout strengths for this role yet." />
           <MeterGroup title="Worth shoring up" dims={stretches} />

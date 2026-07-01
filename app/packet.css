@@ -627,6 +627,43 @@
   font-size: 12.5px;
   color: var(--color-text-muted);
 }
+/* Held-back review banner: sits right under the score so a blocked packet never reads as clean. */
+.packet .fit-review {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--color-warn-bg);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-warn);
+  border-radius: 8px;
+}
+.packet .fit-review__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-warn);
+}
+.packet .fit-review__title svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.packet .fit-review__lead {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text);
+}
+.packet .fit-review__reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.packet .fit-review__reasons li + li {
+  margin-top: 6px;
+}
 .packet .meter-group {
   margin-top: 16px;
 }
