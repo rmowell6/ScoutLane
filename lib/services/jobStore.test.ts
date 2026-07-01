@@ -41,6 +41,7 @@ import {
   listJobs,
   listJobsForMatch,
   reclaimExpiredJobs,
+  touchJobsValidatedAt,
   upsertJobs,
 } from './jobStore'
 
@@ -306,6 +307,29 @@ describe('reclaimExpiredJobs', () => {
     await expect(reclaimExpiredJobs('2026-05-29T00:00:00Z')).rejects.toMatchObject({
       name: 'JobStoreError',
       step: 'reclaim',
+    })
+  })
+})
+
+describe('touchJobsValidatedAt', () => {
+  test('re-stamps validated_at for one board (source+company) live rows and returns the count', async () => {
+    state.result = { data: null, error: null, count: 3 }
+    const n = await touchJobsValidatedAt('greenhouse', 'Acme', '2026-07-01T00:00:00Z')
+    expect(n).toBe(3)
+    const update = findCall('update')
+    expect(update?.[1]).toEqual({ validated_at: '2026-07-01T00:00:00Z' })
+    // Scoped to LIVE rows of exactly this provider + company (the one board that returned 304).
+    const eqs = state.calls.filter((c) => c[0] === 'eq')
+    expect(eqs).toContainEqual(['eq', 'status', 'live'])
+    expect(eqs).toContainEqual(['eq', 'source', 'greenhouse'])
+    expect(eqs).toContainEqual(['eq', 'company', 'Acme'])
+  })
+
+  test('tags a DB error with step "touchValidatedAt"', async () => {
+    state.result = { data: null, error: new Error('boom'), count: null }
+    await expect(touchJobsValidatedAt('greenhouse', 'Acme', '2026-07-01T00:00:00Z')).rejects.toMatchObject({
+      name: 'JobStoreError',
+      step: 'touchValidatedAt',
     })
   })
 })

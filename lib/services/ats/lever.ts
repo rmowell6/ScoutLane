@@ -36,8 +36,9 @@ function assembleJd(p: z.infer<typeof LeverPosting>): string {
   return parts.filter((s) => s.trim().length > 0).join('\n').trim()
 }
 
-export async function fetchLever(source: AtsSource): Promise<IngestedJob[]> {
-  const raw = await fetchJson(leverUrl(source.token))
+/** Parse a Lever postings payload into normalized jobs. Split out from the fetch so the orchestrator
+ *  can reuse it on the conditional-GET (200) path without a second network call. */
+export function parseLever(raw: unknown, source: AtsSource): IngestedJob[] {
   const postings = LeverResponse.parse(raw)
   return postings.map((p) => ({
     provider: 'lever' as const,
@@ -48,4 +49,8 @@ export async function fetchLever(source: AtsSource): Promise<IngestedJob[]> {
     url: p.hostedUrl ?? '',
     jdText: assembleJd(p),
   }))
+}
+
+export async function fetchLever(source: AtsSource): Promise<IngestedJob[]> {
+  return parseLever(await fetchJson(leverUrl(source.token)), source)
 }
