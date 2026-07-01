@@ -55,6 +55,11 @@ const buildResumeDocx = vi.hoisted(() => vi.fn(async (..._args: unknown[]) => Bu
 vi.mock('@/lib/docgen/resume', () => ({ buildResumeDocx }))
 vi.mock('@/lib/docgen/coverLetter', () => ({ buildCoverLetterDocx: async () => Buffer.from('c') }))
 vi.mock('@/lib/docgen/fitAssessment', () => ({ buildFitAssessmentDocx: async () => Buffer.from('f') }))
+vi.mock('@/lib/docgen/pdf', () => ({
+  buildResumePdf: async () => Buffer.from('rp'),
+  buildCoverLetterPdf: async () => Buffer.from('cp'),
+  buildFitAssessmentPdf: async () => Buffer.from('fp'),
+}))
 vi.mock('@/lib/docgen/mapProfile', () => ({
   toResumeContent: () => ({}),
   toCoverLetterContent: () => ({}),
@@ -62,7 +67,11 @@ vi.mock('@/lib/docgen/mapProfile', () => ({
 }))
 vi.mock('@/lib/storage', () => ({
   isStorageConfigured: () => false,
-  uploadDocx: vi.fn(),
+  uploadDoc: vi.fn(),
+  FORMAT_META: {
+    docx: { ext: 'docx', contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+    pdf: { ext: 'pdf', contentType: 'application/pdf' },
+  },
 }))
 
 import { buildPacket, PacketError } from './buildPacket'
@@ -90,7 +99,13 @@ describe('buildPacket profile vs resumeText', () => {
     // Fit is the deterministic engine's FitResult, and the packet ships three documents.
     expect(packet.fit.band).toBeTypeOf('string')
     expect(packet.fit.dimensions).toHaveLength(8)
-    expect(packet.documents?.fitAssessment.filename).toContain('Fit_Assessment')
+    // Each document ships in both formats, named <Candidate>_<DocType>.<ext> (no company here).
+    const fit = packet.documents?.fitAssessment
+    expect(fit?.pdf.filename).toBe('Ada_Lovelace_Fit_Assessment.pdf')
+    expect(fit?.pdf.mime).toBe('application/pdf')
+    expect(fit?.docx.filename).toBe('Ada_Lovelace_Fit_Assessment.docx')
+    expect(packet.documents?.resume.pdf.filename).toBe('Ada_Lovelace_Resume.pdf')
+    expect(packet.documents?.coverLetter.docx.filename).toBe('Ada_Lovelace_Cover_Letter.docx')
   })
 
   test('stateless path: raw resumeText calls structureResume', async () => {

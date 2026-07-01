@@ -5,7 +5,7 @@
 // one <h1>, sections labelled by their <h2>, role="meter" for the gauge and sub-score bars (never
 // progressbar), status conveyed by text + icon (never color alone), WCAG 2.2 AA tokens.
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import type { Packet, DocumentRef } from '@/lib/services/buildPacket'
+import type { Packet, DocumentRef, DocFormats } from '@/lib/services/buildPacket'
 import type { FitDimension } from '@/lib/fit/fitScore'
 import {
   isUnassessed,
@@ -191,8 +191,6 @@ function CoverageCard({
   )
 }
 
-const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-
 function downloadDoc(doc: DocumentRef) {
   const trigger = (url: string) => {
     const a = document.createElement('a')
@@ -207,10 +205,11 @@ function downloadDoc(doc: DocumentRef) {
     const binary = atob(doc.base64)
     const bytes = new Uint8Array(binary.length)
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-    const url = URL.createObjectURL(new Blob([bytes], { type: DOCX_MIME }))
+    // Use the ref's own MIME so a PDF reconstructs as application/pdf, a docx as its Office type.
+    const url = URL.createObjectURL(new Blob([bytes], { type: doc.mime }))
     trigger(url)
     // Revoking on a 0ms timer can race the browser's own fetch of the blob and abort the download
-    // (notably in Firefox). Hold the URL for a comfortable window — the docx is a few KB — then free it.
+    // (notably in Firefox). Hold the URL for a comfortable window — the file is a few KB — then free it.
     setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
 }
@@ -223,24 +222,38 @@ function DownloadIcon() {
   )
 }
 
-/** A download button that clearly reads as a download, with a brief confirmation on click. */
-function DocButton({ doc, label }: { doc: DocumentRef; label: string }) {
-  const [done, setDone] = useState(false)
+/**
+ * One document, downloadable in each format: a primary PDF button (the format everyone can open)
+ * plus a small DOCX chip for the editable Word file. The label names the document; the button/chip
+ * name the format, so the two never blur together.
+ */
+function DocButton({ formats, label }: { formats: DocFormats; label: string }) {
+  const [done, setDone] = useState<'pdf' | 'docx' | null>(null)
+  const grab = (format: 'pdf' | 'docx') => {
+    downloadDoc(formats[format])
+    // Activation funnel: downloading a tailored doc is the "opened a packet" signal.
+    track(EVENTS.packetOpened, { doc: label, format })
+    setDone(format)
+    setTimeout(() => setDone((d) => (d === format ? null : d)), 2500)
+  }
   return (
-    <button
-      type="button"
-      className="download-btn"
-      onClick={() => {
-        downloadDoc(doc)
-        // Activation funnel: downloading a tailored doc is the "opened a packet" signal.
-        track(EVENTS.packetOpened, { doc: label })
-        setDone(true)
-        setTimeout(() => setDone(false), 2500)
-      }}
-    >
-      <DownloadIcon />
-      {done ? `Downloaded ${label} ✓` : `Download ${label}`}
-    </button>
+    <div className="doc-row">
+      <span className="doc-name">{label}</span>
+      <div className="doc-actions">
+        <button type="button" className="download-btn" onClick={() => grab('pdf')}>
+          <DownloadIcon />
+          {done === 'pdf' ? 'Downloaded PDF ✓' : 'Download PDF'}
+        </button>
+        <button
+          type="button"
+          className="format-chip"
+          onClick={() => grab('docx')}
+          aria-label={`Download ${label} as an editable Word file`}
+        >
+          {done === 'docx' ? 'DOCX ✓' : 'DOCX'}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -470,13 +483,13 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           )}
           {documents ? (
             <>
-              <p className="muted" style={{ margin: '0 0 8px', fontSize: '12.5px' }}>
-                Your packet — click to download each Word file (.docx):
+              <p className="muted" style={{ margin: '0 0 10px', fontSize: '12.5px' }}>
+                Your packet — download each as a PDF (opens anywhere) or an editable Word file (DOCX):
               </p>
               <div className="downloads">
-                <DocButton doc={documents.fitAssessment} label="fit assessment" />
-                <DocButton doc={documents.resume} label="résumé" />
-                <DocButton doc={documents.coverLetter} label="cover letter" />
+                <DocButton formats={documents.fitAssessment} label="fit assessment" />
+                <DocButton formats={documents.resume} label="résumé" />
+                <DocButton formats={documents.coverLetter} label="cover letter" />
               </div>
               {sourceUrl && (
                 <p style={{ margin: '12px 0 0' }}>

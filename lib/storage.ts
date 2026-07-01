@@ -6,6 +6,14 @@ import { serverSupabase } from '@/lib/supabaseServer'
 const BUCKET = 'documents'
 const DOCX_CONTENT_TYPE =
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+const PDF_CONTENT_TYPE = 'application/pdf'
+
+/** The download formats a packet document ships in. */
+export type DocFormat = 'docx' | 'pdf'
+export const FORMAT_META: Record<DocFormat, { ext: string; contentType: string }> = {
+  docx: { ext: 'docx', contentType: DOCX_CONTENT_TYPE },
+  pdf: { ext: 'pdf', contentType: PDF_CONTENT_TYPE },
+}
 
 /** True when the server-side Supabase secrets are present. */
 export function isStorageConfigured(): boolean {
@@ -17,24 +25,27 @@ function storageClient() {
 }
 
 /**
- * Upload a .docx buffer and return a time-limited signed URL.
+ * Upload a generated document buffer and return a time-limited signed URL.
+ * @param format 'docx' or 'pdf' — sets the object's content type and storage extension
  * @param prefix a folder/name prefix, e.g. 'resumes' or 'cover-letters'
  * @param id a unique id (caller supplies; crypto.randomUUID() upstream)
- * @param downloadName the filename the browser should save as
+ * @param downloadName the filename the browser should save as (its extension must match `format`)
  */
-export async function uploadDocx(
+export async function uploadDoc(
   buffer: Buffer,
+  format: DocFormat,
   prefix: string,
   id: string,
   downloadName: string,
   expiresInSeconds = 60 * 60,
 ): Promise<{ path: string; signedUrl: string }> {
   const supabase = storageClient()
-  const path = `${prefix}/${id}.docx`
+  const { ext, contentType } = FORMAT_META[format]
+  const path = `${prefix}/${id}.${ext}`
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, buffer, { contentType: DOCX_CONTENT_TYPE, upsert: false })
+    .upload(path, buffer, { contentType, upsert: false })
   if (uploadError) throw uploadError
 
   const { data, error: signError } = await supabase.storage
