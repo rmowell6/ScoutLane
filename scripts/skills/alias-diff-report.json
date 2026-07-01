@@ -1,0 +1,231 @@
+{
+  "note": "Alias-table differential safety report (Phase 5). CORE-only vs CORE+IMPORTED, over synthetic inputs. Review, do not auto-merge.",
+  "summary": {
+    "totalDiffs": 22,
+    "towardMatch": 22,
+    "awayFromMatch": 0,
+    "towardGrounded": 4
+  },
+  "records": [
+    {
+      "case": "React: JD \"ReactJS\" vs resume \"React\"",
+      "consumer": "coverage",
+      "term": "ReactJS",
+      "against": "React",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "react / reactjs / react.js"
+    },
+    {
+      "case": "React: JD \"ReactJS\" vs resume \"React\"",
+      "consumer": "skillCoverage",
+      "term": "ReactJS",
+      "against": "React",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "react / reactjs / react.js"
+    },
+    {
+      "case": "React: JD \"ReactJS\" vs resume \"React\"",
+      "consumer": "grounding",
+      "term": "ReactJS",
+      "against": "Built customer dashboards in React",
+      "core": "false",
+      "full": "true",
+      "direction": "toward-match",
+      "causedBy": "react / reactjs / react.js"
+    },
+    {
+      "case": "SQL Server: JD \"SQL Server\" vs resume \"MSSQL\"",
+      "consumer": "coverage",
+      "term": "SQL Server",
+      "against": "MSSQL",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "sql server / mssql / ms sql server"
+    },
+    {
+      "case": "SQL Server: JD \"SQL Server\" vs resume \"MSSQL\"",
+      "consumer": "skillCoverage",
+      "term": "SQL Server",
+      "against": "MSSQL",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "sql server / mssql / ms sql server"
+    },
+    {
+      "case": "SQL Server: JD \"SQL Server\" vs resume \"MSSQL\"",
+      "consumer": "grounding",
+      "term": "SQL Server",
+      "against": "Tuned MSSQL stored procedures",
+      "core": "false",
+      "full": "true",
+      "direction": "toward-match",
+      "causedBy": "sql server / mssql / ms sql server"
+    },
+    {
+      "case": "Kafka: JD \"Apache Kafka\" vs resume \"Kafka\"",
+      "consumer": "coverage",
+      "term": "Apache Kafka",
+      "against": "Kafka",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "apache kafka / kafka"
+    },
+    {
+      "case": "Kafka: JD \"Apache Kafka\" vs resume \"Kafka\"",
+      "consumer": "skillCoverage",
+      "term": "Apache Kafka",
+      "against": "Kafka",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "apache kafka / kafka"
+    },
+    {
+      "case": "Kafka: JD \"Apache Kafka\" vs resume \"Kafka\"",
+      "consumer": "grounding",
+      "term": "Apache Kafka",
+      "against": "Ran Kafka clusters in production",
+      "core": "false",
+      "full": "true",
+      "direction": "toward-match",
+      "causedBy": "apache kafka / kafka"
+    },
+    {
+      "case": "scikit-learn: JD \"scikit-learn\" vs resume \"sklearn\"",
+      "consumer": "coverage",
+      "term": "scikit-learn",
+      "against": "sklearn",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "scikit-learn / sklearn"
+    },
+    {
+      "case": "scikit-learn: JD \"scikit-learn\" vs resume \"sklearn\"",
+      "consumer": "skillCoverage",
+      "term": "scikit-learn",
+      "against": "sklearn",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "scikit-learn / sklearn"
+    },
+    {
+      "case": "scikit-learn: JD \"scikit-learn\" vs resume \"sklearn\"",
+      "consumer": "grounding",
+      "term": "scikit-learn",
+      "against": "Trained models with sklearn",
+      "core": "false",
+      "full": "true",
+      "direction": "toward-match",
+      "causedBy": "scikit-learn / sklearn"
+    },
+    {
+      "case": "C++: JD \"C++\" vs resume \"CPP\"",
+      "consumer": "coverage",
+      "term": "C++",
+      "against": "CPP",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "c++ / cpp / cxx"
+    },
+    {
+      "case": "C++: JD \"C++\" vs resume \"CPP\"",
+      "consumer": "skillCoverage",
+      "term": "C++",
+      "against": "CPP",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "c++ / cpp / cxx"
+    },
+    {
+      "case": "Next.js: JD \"Next.js\" vs resume \"nextjs\"",
+      "consumer": "coverage",
+      "term": "Next.js",
+      "against": "nextjs",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "next.js / nextjs"
+    },
+    {
+      "case": "Next.js: JD \"Next.js\" vs resume \"nextjs\"",
+      "consumer": "skillCoverage",
+      "term": "Next.js",
+      "against": "nextjs",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "next.js / nextjs"
+    },
+    {
+      "case": "Hadoop: JD \"Apache Hadoop\" vs resume \"Hadoop\"",
+      "consumer": "coverage",
+      "term": "Apache Hadoop",
+      "against": "Hadoop",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "hadoop / apache hadoop"
+    },
+    {
+      "case": "Hadoop: JD \"Apache Hadoop\" vs resume \"Hadoop\"",
+      "consumer": "skillCoverage",
+      "term": "Apache Hadoop",
+      "against": "Hadoop",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "hadoop / apache hadoop"
+    },
+    {
+      "case": "PowerShell: JD \"PowerShell\" vs resume \"Windows PowerShell\"",
+      "consumer": "coverage",
+      "term": "PowerShell",
+      "against": "Windows PowerShell",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "powershell / windows powershell"
+    },
+    {
+      "case": "PowerShell: JD \"PowerShell\" vs resume \"Windows PowerShell\"",
+      "consumer": "skillCoverage",
+      "term": "PowerShell",
+      "against": "Windows PowerShell",
+      "core": "gap",
+      "full": "match",
+      "direction": "toward-match",
+      "causedBy": "powershell / windows powershell"
+    },
+    {
+      "case": "Vue.js partial: JD \"Vue.js\" vs adjacent \"vuejs\"",
+      "consumer": "coverage",
+      "term": "Vue.js",
+      "against": "vuejs",
+      "core": "gap",
+      "full": "partial",
+      "direction": "toward-match",
+      "causedBy": "vue.js / vue / vuejs"
+    },
+    {
+      "case": "Vue.js partial: JD \"Vue.js\" vs adjacent \"vuejs\"",
+      "consumer": "skillCoverage",
+      "term": "Vue.js",
+      "against": "vuejs",
+      "core": "gap",
+      "full": "partial",
+      "direction": "toward-match",
+      "causedBy": "vue.js / vue / vuejs"
+    }
+  ]
+}
