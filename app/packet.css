@@ -509,12 +509,15 @@
   text-decoration: none;
 }
 
-/* ---- hiring-manager outreach (collapsible, copy-to-clipboard) ---- */
+/* ---- hiring-manager outreach (copy-to-clipboard) ---- */
+/* The two openers sit side by side in a `.grid-2` on desktop. Make each a flex column so its message
+   box can grow to fill the cell: the grid stretches both cells to the taller opener's height, and the
+   growing text box makes the short LinkedIn note and the long email line up as equal panels with
+   aligned tops AND bottoms. No per-item top margin (which used to offset the two heads); the grid gap
+   owns all spacing. */
 .packet .outreach-item {
-  margin-top: 14px;
-}
-.packet .outreach-item:first-of-type {
-  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
 }
 .packet .outreach-head {
   display: flex;
@@ -535,6 +538,7 @@
 }
 .packet .outreach-text {
   margin: 0;
+  flex: 1; /* fill the stretched grid cell so paired openers reach equal height (aligned bottoms) */
   white-space: pre-wrap;
   font-size: 13px;
   line-height: 1.55;
