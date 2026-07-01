@@ -5,6 +5,7 @@
 // email was already on the list. Self-contained inline styles (matches the sign-in page pattern) so
 // it doesn't couple to the landing's CSS module.
 import { useState } from 'react'
+import { EVENTS, track } from '@/lib/analytics'
 
 type Status = 'idle' | 'sending' | 'done' | 'error'
 
@@ -25,6 +26,9 @@ export default function WaitlistForm() {
         body: JSON.stringify({ email: email.trim(), note: note.trim() || undefined }),
       })
       if (res.ok) {
+        // Top-of-funnel signup event. PII-free by design (no email/note text), consistent with the
+        // anonymous-distinct_id posture documented in lib/analytics.ts.
+        track(EVENTS.waitlistSignup, { has_note: Boolean(note.trim()) })
         setStatus('done')
         return
       }
