@@ -112,6 +112,18 @@ describe('coverage (skills/certs)', () => {
   it('matching is case-insensitive', () => {
     expect(coverage(['Azure'], ['azure'], [], 80).full).toBe(1)
   })
+
+  it('canonical synonyms count as a full match (K8s held covers a Kubernetes requirement)', () => {
+    const r = coverage(['Kubernetes'], ['K8s'], [], 80)
+    expect(r.full).toBe(1)
+    expect(r.score).toBe(100)
+  })
+
+  it('does NOT match genuinely different skills after canonicalization (no false positive)', () => {
+    const r = coverage(['Kubernetes'], ['Docker'], [], 80)
+    expect(r.full).toBe(0)
+    expect(r.score).toBe(0)
+  })
 })
 
 describe('scoreLocation deductions', () => {

@@ -262,6 +262,34 @@ describe('checkNoFabrication: negation-aware grounding', () => {
   })
 })
 
+// The deterministic synonym safety net: a profile that spells a skill one way ("K8s") should ground a
+// tailored skill spelled the equivalent way ("Kubernetes"), so a real, qualified candidate is not
+// wrongly blocked as fabricating. It must compose with negation, not undermine it.
+describe('checkNoFabrication: canonical synonym grounding', () => {
+  test('a profile skill "K8s" grounds a tailored "Kubernetes" (alias, not fabrication)', () => {
+    const profile = makeProfile({ skills: ['K8s', 'Azure'] })
+    expect(checkNoFabrication(makeTailored({ skills: ['Kubernetes'], claims: [] }), profile).ungroundedSkills).toEqual([])
+  })
+
+  test('a NEGATED alias mention still fails to ground (synonym net composes with negation)', () => {
+    const profile = makeProfile({
+      skills: ['Azure', 'VMware'],
+      roles: [
+        {
+          company: 'Analytical Engines',
+          title: 'Platform Engineer',
+          startDate: '2022',
+          endDate: null,
+          bullets: ['Migrated 40 VMs to Azure', 'No hands-on K8s experience'],
+        },
+      ],
+    })
+    const result = checkNoFabrication(makeTailored({ skills: ['Kubernetes'], claims: [] }), profile)
+    expect(result.ungroundedSkills).toContain('Kubernetes')
+    expect(result.ok).toBe(false)
+  })
+})
+
 // Regression: the substring matcher false-positive-blocked faithful bullets when the tailor strips
 // an em dash and rephrases (swaps ", " for "including"/a comma, drops a "(a, b, c)" parenthetical).
 // These ARE in the resume, so they must trace; fabrications and meaning-flips must still be rejected.
