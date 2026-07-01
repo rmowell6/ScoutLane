@@ -24,7 +24,7 @@ function normalizeTerm(s: string): string {
 
 // Each group is one equivalence class: [canonical, ...synonyms]. Compared after normalizeTerm, so
 // write forms in their natural spelling (dots/slashes are preserved by normalize, only dashes fold).
-const ALIAS_GROUPS: string[][] = [
+const CORE_ALIAS_GROUPS: string[][] = [
   ['kubernetes', 'k8s'],
   ['javascript', 'js'],
   ['amazon web services', 'aws'],
@@ -46,6 +46,39 @@ const ALIAS_GROUPS: string[][] = [
   // Normalize preserves slashes and only folds whitespace, so both slash spacings are listed.
   ['vmware esxi', 'esxi', 'vmware vsphere', 'vsphere', 'vsphere/esxi', 'vsphere / esxi', 'vmware vsphere/esxi', 'vmware vsphere / esxi'],
 ]
+
+// Approved imports from the O*NET / Stack Exchange bootstrap (scripts/skills, Phases 1-2). Each pair
+// was user-signed-off and hand-filtered to a genuine spelling/abbreviation variant of ONE skill, held
+// to the same unambiguous bar as the core table. Stack Exchange tag synonyms only: every O*NET
+// parenthetical candidate was a short collision-prone acronym (EMR/IMS/GCE/CNS/...) and was excluded,
+// as were Stack Overflow sub-topic/version tags (jdk, php-fpm, angular2) and pairs already in core.
+const IMPORTED_ALIAS_GROUPS: string[][] = [
+  // Stack Exchange: React spellings, "react" is the resume-facing form, "reactjs"/"react.js" the SO/npm ones.
+  ['react', 'reactjs', 'react.js'],
+  // Stack Exchange: Vue.js written several ways for the one framework.
+  ['vue.js', 'vue', 'vuejs'],
+  // Stack Exchange: Next.js dotted vs undotted spelling.
+  ['next.js', 'nextjs'],
+  // Stack Exchange: Microsoft SQL Server, "MSSQL" is the ubiquitous short form of the same product.
+  ['sql server', 'mssql', 'ms sql server'],
+  // Stack Exchange: scikit-learn and its import-name abbreviation "sklearn".
+  ['scikit-learn', 'sklearn'],
+  // Stack Exchange: Apache Hadoop with or without the "Apache" vendor prefix.
+  ['hadoop', 'apache hadoop'],
+  // Stack Exchange: Apache Kafka with or without the prefix ("Kafka" is unambiguous in a tech context).
+  ['apache kafka', 'kafka'],
+  // Stack Exchange: Salesforce and its salesforce.com domain spelling.
+  ['salesforce', 'salesforce.com'],
+  // Stack Exchange: PowerShell and its "Windows PowerShell" full name.
+  ['powershell', 'windows powershell'],
+  // Stack Exchange: C++ and its ASCII-safe short forms "cpp"/"cxx" (unambiguous, unlike bare "C").
+  ['c++', 'cpp', 'cxx'],
+]
+
+// The active table is the core hand-authored groups plus the approved imports. Pure data merge, the
+// canonicalize/aliasForms logic below is unchanged. Exported so a test can assert no term maps to two
+// different canonical forms.
+export const ALIAS_GROUPS: string[][] = [...CORE_ALIAS_GROUPS, ...IMPORTED_ALIAS_GROUPS]
 
 // normalizedForm -> canonical normalized form (self-contained, safe to build at module load).
 const CANON = new Map<string, string>()

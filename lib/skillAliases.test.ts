@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { aliasForms, canonicalize } from './skillAliases'
+import { ALIAS_GROUPS, aliasForms, canonicalize } from './skillAliases'
 
 describe('canonicalize', () => {
   test('collapses curated synonyms to a shared canonical form', () => {
@@ -41,5 +41,39 @@ describe('aliasForms', () => {
 
   test('returns a single normalized element for an unknown term', () => {
     expect(aliasForms('Docker')).toEqual(['docker'])
+  })
+
+  test('exposes an imported spelling group (React)', () => {
+    expect(aliasForms('reactjs').sort()).toEqual(['react', 'react.js', 'reactjs'])
+  })
+})
+
+describe('imported alias groups (O*NET / Stack Exchange, Phase 3)', () => {
+  test('collapses a representative sample of the approved import spellings', () => {
+    expect(canonicalize('React')).toBe(canonicalize('reactjs'))
+    expect(canonicalize('react.js')).toBe(canonicalize('React'))
+    expect(canonicalize('Vue.js')).toBe(canonicalize('vuejs'))
+    expect(canonicalize('nextjs')).toBe(canonicalize('Next.js'))
+    expect(canonicalize('MSSQL')).toBe(canonicalize('SQL Server'))
+    expect(canonicalize('sklearn')).toBe(canonicalize('scikit-learn'))
+    expect(canonicalize('Kafka')).toBe(canonicalize('Apache Kafka'))
+    expect(canonicalize('salesforce.com')).toBe(canonicalize('Salesforce'))
+    expect(canonicalize('cpp')).toBe(canonicalize('C++'))
+  })
+
+  test('imported groups stay distinct from each other and from core (no false merges)', () => {
+    expect(canonicalize('React')).not.toBe(canonicalize('Vue.js'))
+    expect(canonicalize('Kafka')).not.toBe(canonicalize('Hadoop'))
+    expect(canonicalize('React')).not.toBe(canonicalize('Kubernetes')) // vs a core group
+  })
+})
+
+describe('alias table integrity', () => {
+  test('no term maps to two different canonical forms (groups consistent + mutually exclusive)', () => {
+    const canonOf = ALIAS_GROUPS.map((g) => canonicalize(g[0] as string))
+    // Every member of a group canonicalizes to that group's canonical.
+    ALIAS_GROUPS.forEach((g, i) => g.forEach((form) => expect(canonicalize(form)).toBe(canonOf[i])))
+    // Distinct groups have distinct canonicals (no two groups collapse to the same form).
+    expect(new Set(canonOf).size).toBe(canonOf.length)
   })
 })
