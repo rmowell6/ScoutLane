@@ -14,6 +14,7 @@ import posthog from 'posthog-js'
  *  - willingness to pay (~30%):           wouldPay
  */
 export const EVENTS = {
+  waitlistSignup: 'waitlist_signup',
   signedIn: 'signed_in',
   packetGenerated: 'packet_generated',
   packetOpened: 'packet_opened',
