@@ -1,7 +1,7 @@
-// Generation persistence (M2 / observability): record each SHIPPED packet so there is a durable
-// history of what was generated, for whom, against which job, and how the guardrails ruled. The
-// generations table + its owner-only RLS have existed since migrations 0001/0007/0009/0015 with no
-// writer, this is that writer.
+// Generation persistence (M2 / observability): record each packet, both SHIPPED and guardrail-BLOCKED
+// (status column, migration 0016), so there is a durable history of what was generated, for whom,
+// against which job, and how the guardrails ruled. The generations table + its owner-only RLS have
+// existed since migrations 0001/0007/0009/0015 with no writer, this is that writer.
 //
 // Best-effort by design: a failed insert must NEVER break packet delivery (the packet already
 // succeeded when this runs), so the caller invokes this inside a try/catch and this module returns
@@ -29,16 +29,20 @@ export interface SaveGenerationInput {
 }
 
 /**
- * Persist a record of a shipped packet. Returns the new id, or null when the store is unconfigured
- * (degrade quietly). Throws only on a genuine insert error so the caller can log it; the caller must
- * treat that as non-blocking. Stores the fit scores, the keyword-coverage inputs, the guardrail
- * report, the applied style, and the document filenames (a human-meaningful reference; the durable
- * Storage keys are not threaded through the Packet today).
+ * Persist a record of a packet, shipped OR guardrail-blocked (status is derived from
+ * packet.guardrails.ok). Returns the new id, or null when the store is unconfigured (degrade
+ * quietly). Throws only on a genuine insert error so the caller can log it; the caller must treat
+ * that as non-blocking. Stores the fit scores, the keyword-coverage inputs, the guardrail report, the
+ * applied style, and the document filenames (null for a blocked packet, which has no documents).
  */
 export async function saveGeneration(input: SaveGenerationInput): Promise<{ id: string } | null> {
   if (!isGenerationStoreConfigured()) return null
   const { userId, profileId, jobId, packet } = input
   const start = Date.now()
+
+  // Derive status from the packet itself (the single source of truth), never a caller argument, so the
+  // stored status can never disagree with the guardrail outcome. Blocked packets have documents: null.
+  const status = packet.guardrails.ok ? 'shipped' : 'blocked'
 
   const db: SupabaseClient = serverSupabase()
   const { data, error } = await db
@@ -46,6 +50,7 @@ export async function saveGeneration(input: SaveGenerationInput): Promise<{ id: 
     .insert({
       // Stamp the owner in code (the secret key bypasses RLS), mirroring saveProfile.
       user_id: userId,
+      status,
       profile_id: profileId ?? null,
       job_id: jobId ?? null,
       scores: packet.fit,

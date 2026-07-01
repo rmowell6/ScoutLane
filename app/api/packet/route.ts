@@ -151,6 +151,20 @@ export async function POST(request: Request) {
           ats: packet.guardrails.ats?.problems.length ?? null,
         }),
       )
+      // Record the blocked attempt too (status derived as 'blocked' inside saveGeneration). Same
+      // strictly non-blocking pattern as the shipped path: a persistence failure must never turn this
+      // 422 into a 500. This is what lets blocked-then-abandoned users be seen in the history.
+      try {
+        await saveGeneration({
+          userId: user.id,
+          profileId: parsed.data.profileId ?? null,
+          jobId: parsed.data.jobId ?? null,
+          packet,
+        })
+      } catch (err) {
+        console.error('[packet] blocked-generation persistence failed (non-blocking)', err)
+      }
+
       return NextResponse.json(
         { error: friendly.title, reasons: friendly.reasons, guardrails: packet.guardrails },
         { status: 422 },
