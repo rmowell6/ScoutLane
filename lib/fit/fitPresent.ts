@@ -7,6 +7,7 @@
 // render "Not assessed" instead of a number that reads as a real strength or gap. fitPresent.test.ts
 // drives the real engine to pin this coupling, so a future note-text change can't silently break it.
 import type { FitDimension, FitResult } from './fitScore'
+import { canonicalize } from '@/lib/skillAliases'
 
 /** True when the engine could not actually judge this dimension (neutral placeholder, not a verdict). */
 export function isUnassessed(d: FitDimension): boolean {
@@ -149,16 +150,20 @@ const LEADABLE_KEYS = new Set([
 export type SkillCoverageStatus = 'match' | 'partial' | 'gap'
 
 /** Per-skill ATS coverage: a JD skill is a `match` if the candidate holds it, `partial` if only
- *  adjacent / cert-backed, else a `gap`. Shared so the on-screen table and the document agree. */
+ *  adjacent / cert-backed, else a `gap`. Shared so the on-screen table and the document agree.
+ *  Both sides run through canonicalize (the curated-alias table) exactly like fitScore.coverage(),
+ *  so "K8s" satisfies a "Kubernetes" requirement here too and this table agrees with the fit score.
+ *  Purely additive: a term not in the table canonicalizes to its plain normalized form, so exact
+ *  matching is unchanged. */
 export function skillCoverage(
   skills: string[],
   candidateSkills: string[],
   adjacentSkills: string[] = [],
 ): { skill: string; status: SkillCoverageStatus }[] {
-  const held = new Set(candidateSkills.map((s) => s.toLowerCase().trim()))
-  const adj = new Set(adjacentSkills.map((s) => s.toLowerCase().trim()))
+  const held = new Set(candidateSkills.map(canonicalize))
+  const adj = new Set(adjacentSkills.map(canonicalize))
   return skills.map((skill) => {
-    const k = skill.toLowerCase().trim()
+    const k = canonicalize(skill)
     const status: SkillCoverageStatus = held.has(k) ? 'match' : adj.has(k) ? 'partial' : 'gap'
     return { skill, status }
   })
