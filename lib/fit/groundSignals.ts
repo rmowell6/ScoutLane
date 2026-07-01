@@ -4,7 +4,7 @@
 // anywhere in the profile facts. JD-side lists (mustHaveSkills / requiredCerts / hardGaps) describe
 // the job, not the candidate, so they are NOT filtered, they must stay intact for coverage to mean
 // anything.
-import { indexFacts, mentions, normalize, numbersIn } from '@/lib/guardrails'
+import { indexFacts, mentionsAny, normalize, numbersIn } from '@/lib/guardrails'
 import type { FitSignals } from '@/lib/fit/fitSignals'
 import type { Profile } from '@/lib/schemas'
 
@@ -24,7 +24,7 @@ export function groundCandidateSignals(signals: FitSignals, profile: Profile): G
 
   const keep = (tokens: string[]): string[] =>
     (tokens ?? []).filter((t) => {
-      const grounded = mentions(profileText, t)
+      const grounded = mentionsAny(profileText, t)
       if (!grounded) dropped.push(t)
       return grounded
     })
@@ -88,7 +88,7 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
 
   const keepJd = (tokens: string[]): string[] =>
     (tokens ?? []).filter((t) => {
-      const grounded = mentions(jdNorm, t)
+      const grounded = mentionsAny(jdNorm, t)
       if (!grounded) droppedJd.push(t)
       return grounded
     })
@@ -105,7 +105,7 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
   })
 
   // hardGaps: flag ungrounded gaps for telemetry, but keep them (paraphrase-safe, non-blocking).
-  const ungroundedHardGaps = (signals.hardGaps ?? []).filter((g) => !mentions(jdNorm, g))
+  const ungroundedHardGaps = (signals.hardGaps ?? []).filter((g) => !mentionsAny(jdNorm, g))
 
   return {
     signals: {

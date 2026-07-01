@@ -10,6 +10,8 @@
 // Do NOT edit constants/formulas casually: a change alters the contract. On a deliberate rubric
 // change, bump RUBRIC_VERSION and regenerate the golden file from the reference engine.
 
+import { canonicalize } from '@/lib/skillAliases'
+
 export const RUBRIC_VERSION = '1.0.0'
 
 export type RoleTypeMatch = 'best' | 'solid' | 'stretch' | 'off'
@@ -134,19 +136,22 @@ export interface CoverageResult {
   total: number
 }
 
-// list-coverage scorer (skills, certs): full match = 1, adjacent = 0.5
+// list-coverage scorer (skills, certs): full match = 1, adjacent = 0.5. Both sides are run through
+// canonicalize (a deterministic curated-alias table lookup, no fuzzy/model matching) so equivalent
+// terms written differently ("K8s" vs "Kubernetes") still count. Purely additive: a term not in the
+// alias table canonicalizes to its plain normalized form, so exact matching is unchanged.
 export function coverage(
   required: string[] | undefined,
   held: string[] | undefined,
   adjacent: string[] | undefined,
   neutralIfEmpty: number,
 ): CoverageResult {
-  const heldSet = new Set((held || []).map((s) => s.toLowerCase().trim()))
-  const adjSet = new Set((adjacent || []).map((s) => s.toLowerCase().trim()))
+  const heldSet = new Set((held || []).map(canonicalize))
+  const adjSet = new Set((adjacent || []).map(canonicalize))
   let full = 0
   let partial = 0
   for (const r of required || []) {
-    const k = r.toLowerCase().trim()
+    const k = canonicalize(r)
     if (heldSet.has(k)) full++
     else if (adjSet.has(k)) partial++
   }

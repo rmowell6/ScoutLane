@@ -3,6 +3,7 @@
 // to a real profile fact, enforced in code, not by prompt wording. A failed check blocks or
 // flags, it never ships silently.
 import type { Profile, TailoredContent, Claim } from '@/lib/schemas'
+import { aliasForms } from '@/lib/skillAliases'
 
 // ---- fact indexing ---------------------------------------------------------------
 
@@ -105,9 +106,11 @@ function factIsNegated(fact: string): boolean {
  *  profile text (the old approach) let a disclaimer ground the very skill it denies: "No hands-on
  *  Kubernetes experience" wrongly grounded "Kubernetes". Checking fact-by-fact and skipping any negated
  *  fact fixes that while keeping every real, positively-stated skill grounded. Fails CLOSED: when in
- *  doubt a term reads as ungrounded (over-blocks), never as silently grounded. */
+ *  doubt a term reads as ungrounded (over-blocks), never as silently grounded. Alias-aware
+ *  (mentionsAny) so "K8s" in the profile grounds a tailored "Kubernetes"; the alias net composes with
+ *  negation because each alias form is still only tried against the NON-negated facts. */
 function groundedInFacts(facts: string[], term: string): boolean {
-  return facts.some((fact) => !factIsNegated(fact) && mentions(fact, term))
+  return facts.some((fact) => !factIsNegated(fact) && mentionsAny(fact, term))
 }
 
 /** Near-equality: a faithful restatement of `fact`, NOT a one-directional stripped fragment (which
@@ -276,6 +279,13 @@ export function mentions(haystack: string, term: string): boolean {
   // inside "javascript"). `\b` fails when an edge char is non-word (+/#/.), which false-blocked real,
   // listed skills. Negative word-char lookarounds keep the whole-token intent without that bug.
   return new RegExp(`(?<!\\w)${escaped}(?!\\w)`).test(haystack)
+}
+
+/** Alias-aware mentions: true when `term` OR any curated canonical-equivalent form (K8s <-> Kubernetes,
+ *  IaC <-> Infrastructure as Code, ...) appears in `haystack`. Purely additive over mentions(), a term
+ *  with no alias behaves identically. Deterministic table lookup, never a fuzzy/similarity match. */
+export function mentionsAny(haystack: string, term: string): boolean {
+  return aliasForms(term).some((form) => mentions(haystack, form))
 }
 
 export interface BannedTermsResult {
