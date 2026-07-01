@@ -25,7 +25,7 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ScoutLane — Application Packet",
+  title: "ScoutLane: Application Packet",
   description:
     "Paste a resume and a job description to generate a fit assessment plus a tailored, ATS-safe resume and cover letter, built only from your real history.",
 };

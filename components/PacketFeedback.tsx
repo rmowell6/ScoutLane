@@ -65,7 +65,7 @@ export default function PacketFeedback() {
         </div>
       )}
 
-      {paid !== null && <p style={styles.thanks}>Thanks — your feedback helps us improve ScoutLane.</p>}
+      {paid !== null && <p style={styles.thanks}>Thanks, your feedback helps us improve ScoutLane.</p>}
     </section>
   )
 }

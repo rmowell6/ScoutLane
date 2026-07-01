@@ -48,7 +48,7 @@ export const RecommendedCard = forwardRef<HTMLButtonElement, Omit<CommonProps, '
         role="radio"
         aria-checked={checked}
         tabIndex={tabIndex}
-        aria-label="Recommended for this role — ScoutLane picks the best theme automatically"
+        aria-label="Recommended for this role, ScoutLane picks the best theme automatically"
         onClick={() => onSelect('__recommended__')}
         style={shellStyle(checked, APP_ACCENT)}
       >
@@ -130,8 +130,8 @@ const StylePreviewCard = forwardRef<HTMLButtonElement, StylePreviewCardProps>(fu
         <Section accent={s.accent} primary={s.primary} headFont={s.headFont}>
           EXPERIENCE
         </Section>
-        <Job s={s} title="Staff Engineer, Acme" date="2022 — Present" />
-        <Job s={s} title="Senior Engineer, Globex" date="2019 — 2022" />
+        <Job s={s} title="Staff Engineer, Acme" date="2022 – Present" />
+        <Job s={s} title="Senior Engineer, Globex" date="2019 – 2022" />
 
         <Section accent={s.accent} primary={s.primary} headFont={s.headFont}>
           SKILLS

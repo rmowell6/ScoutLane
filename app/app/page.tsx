@@ -51,9 +51,9 @@ type JdMode = 'paste' | 'pick'
 
 // Fully fictional sample persona — no real PII (this string ships to the browser).
 const SAMPLE_RESUME =
-  'Jordan Rivera — Cloud Engineer\nAustin, TX · jordan.rivera@example.com\n\n' +
+  'Jordan Rivera · Cloud Engineer\nAustin, TX · jordan.rivera@example.com\n\n' +
   'Skills: Azure, VMware, Veeam, PowerShell, Microsoft Sentinel, Azure Virtual Desktop\n\n' +
-  'Experience:\nNorthwind Health — Cloud Engineer (2024–present)\n' +
+  'Experience:\nNorthwind Health · Cloud Engineer (2024–present)\n' +
   '- Built and ran hybrid Azure infrastructure under HIPAA compliance\n' +
   '- Deployed Microsoft Sentinel for security monitoring across the estate\n' +
   '- Rolled out Azure Virtual Desktop for remote staff\n\n' +
@@ -293,7 +293,7 @@ export default function Home() {
       // pause so a transient overload doesn't force the user to click again.
       let res = await post()
       if (res.status === 503) {
-        setDiscoverNote('Matching service is busy — retrying…')
+        setDiscoverNote('Matching service is busy. Retrying…')
         await new Promise((r) => setTimeout(r, 1500))
         res = await post()
       }
@@ -377,7 +377,7 @@ export default function Home() {
         return
       }
       setResumeText((data as { text: string }).text)
-      setUploadNote(`Loaded ${file.name} (${(data as { chars: number }).chars.toLocaleString()} chars) — review and edit below.`)
+      setUploadNote(`Loaded ${file.name} (${(data as { chars: number }).chars.toLocaleString()} chars). Review and edit below.`)
     } catch (err) {
       setUploadNote(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -413,7 +413,7 @@ export default function Home() {
           <h1 className={styles.title}>New application packet</h1>
           <p className={styles.tagline}>
             Paste a resume and a job description. Get a fit assessment plus a tailored,
-            ATS-safe resume and cover letter — built only from facts in the resume, with a
+            ATS-safe resume and cover letter, built only from facts in the resume, with a
             code-enforced no-fabrication guardrail.
           </p>
         </header>
@@ -530,7 +530,7 @@ export default function Home() {
                   )}
                   {suggestMode && suggested.length > 0 && (
                     <span className={styles.jobSub}>
-                      AI-suggested matches based on your experience — review each posting before applying.
+                      AI-suggested matches based on your experience. Review each posting before applying.
                     </span>
                   )}
                   {suggestMode && suggested.length > 0 && (
@@ -570,7 +570,7 @@ export default function Home() {
                   {selectedJob && (
                     <div className={styles.selectedJob}>
                       <span>
-                        <strong>{selectedJob.title}</strong> — {selectedJob.company}
+                        <strong>{selectedJob.title}</strong> · {selectedJob.company}
                         {selectedJob.location ? ` · ${selectedJob.location}` : ''}
                       </span>
                       <span className={styles.selectedJobActions}>
@@ -640,7 +640,7 @@ export default function Home() {
 
           <details className={styles.prefs}>
             <summary className={styles.prefsSummary}>
-              Preferences <span className={styles.prefsHint}>— tune the fit score (optional)</span>
+              Preferences <span className={styles.prefsHint}>· tune the fit score (optional)</span>
             </summary>
             <div className={styles.prefsGrid}>
               <label className={styles.prefField}>
@@ -704,7 +704,7 @@ export default function Home() {
 
           <details className={styles.prefs}>
             <summary className={styles.prefsSummary}>
-              Style <span className={styles.prefsHint}>— theme &amp; font for your documents (optional)</span>
+              Style <span className={styles.prefsHint}>· theme &amp; font for your documents (optional)</span>
             </summary>
             <div className={styles.styleCardsField}>
               <span className={styles.prefLabel}>
@@ -790,7 +790,7 @@ export default function Home() {
           {profileNote && <span className={styles.uploadNote}>{profileNote}</span>}
           {saved && !reuseActive && (
             <span className={styles.uploadNote}>
-              Resume edited since save — this run will re-structure. Save again to reuse.
+              Resume edited since save. This run will re-structure, save again to reuse.
             </span>
           )}
         </form>
@@ -825,7 +825,7 @@ function ChipGroup({
     <div className={styles.prefField}>
       <span className={styles.prefLabel}>
         {legend}
-        {hint && <span className={styles.prefsHint}> — {hint}</span>}
+        {hint && <span className={styles.prefsHint}> · {hint}</span>}
       </span>
       <div className={styles.chipGroup} role="group" aria-label={legend}>
         {options.map((o) => {

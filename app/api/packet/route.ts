@@ -168,7 +168,7 @@ export async function POST(request: Request) {
           error: "We couldn't generate your documents",
           step: 'generateDocuments',
           message:
-            'Your fit assessment was ready, but the résumé and cover-letter files failed to build. Please try again — if it keeps happening, remove unusual formatting or special characters from your resume and retry.',
+            'Your fit assessment was ready, but the résumé and cover-letter files failed to build. Please try again. If it keeps happening, remove unusual formatting or special characters from your resume and retry.',
         },
         { status: 500 },
       )

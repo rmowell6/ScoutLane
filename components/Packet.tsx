@@ -452,7 +452,7 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           {documents ? (
             <>
               <p className="muted" style={{ margin: '0 0 10px', fontSize: '12.5px' }}>
-                Your packet — download each as a PDF (opens anywhere) or an editable Word file (DOCX):
+                Your packet, download each as a PDF (opens anywhere) or an editable Word file (DOCX):
               </p>
               <div className="downloads">
                 <DocButton formats={documents.fitAssessment} label="fit assessment" />
