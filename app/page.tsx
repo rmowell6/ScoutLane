@@ -12,11 +12,11 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '
 export const metadata: Metadata = {
   title: 'ScoutLane: the resume tool that can’t make things up',
   description:
-    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, and a cover letter) that maps honestly to what’s actually there. No fabrication, no invented credentials, no auto-applying.',
+    'Paste a job and your real history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, a cover letter, and hiring-manager outreach) that maps honestly to what’s actually there. No fabrication, no invented credentials, no auto-applying.',
   openGraph: {
     title: 'ScoutLane: the resume tool that can’t make things up',
     description:
-      'A fit assessment plus a tailored, ATS-safe resume and cover letter, built only from your real history.',
+      'A fit assessment plus a tailored, ATS-safe resume, cover letter, and hiring-manager outreach, built only from your real history.',
     type: 'website',
   },
 }
@@ -109,6 +109,7 @@ export default function LandingPage() {
               <div className={styles.goodFlags}>
                 <div className={styles.goodFlag}><span className={styles.gx}>✓</span>ATS scan: 0 flags · 0 invisible text · 0 stuffing</div>
                 <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Cover letter speaks to Acme’s Series B stage and engineering mandate</div>
+                <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Hiring-manager outreach ready to personalize, never mass-sent</div>
                 <div className={styles.goodFlag}><span className={styles.gx}>✓</span>Every bullet traceable to your provided history</div>
               </div>
               <div className={styles.afterNote}>
@@ -210,7 +211,7 @@ export default function LandingPage() {
         <div className={styles.getInner}>
           <div className={styles.getHead}>
             <div className={styles.eyebrow}>The packet</div>
-            <h2 className={styles.h2}>Three deliverables.<br />One honest source.</h2>
+            <h2 className={styles.h2}>Four deliverables.<br />One honest source.</h2>
             <p>Not a resume rewriter. Not a cover-letter spinner. A complete application packet, where every piece connects back to what you actually gave us.</p>
           </div>
 
@@ -272,6 +273,22 @@ export default function LandingPage() {
               </div>
               <div className={styles.getCardFoot}>Tied to this role’s specifics · References your actual talking points</div>
             </div>
+
+            {/* Card 4: Hiring Manager Outreach */}
+            <div className={styles.getCard}>
+              <div className={styles.getChip}>Hiring Manager Outreach</div>
+              <h3 className={styles.getCardTitle}>One note. One person. Actually honest.</h3>
+              <p className={styles.getCardP}>A LinkedIn connection note and a follow-up email, pulled from the same facts as your packet, meant to be personalized, never mass-sent.</p>
+              <div className={styles.clPreview}>
+                “Hi, saw the Senior Engineer opening at Novalus and thought of the async migration work I led that cut p95 latency 40%. Would love to connect and hear more about the team’s roadmap.”
+              </div>
+              <div className={styles.clChips}>
+                {['181/300 chars', '2 openers', 'LinkedIn + email'].map((c) => (
+                  <span className={styles.clChip} key={c}>{c}</span>
+                ))}
+              </div>
+              <div className={styles.getCardFoot}>2 ready-to-send openers · 0 invented · Personalize before sending</div>
+            </div>
           </div>
         </div>
       </section>
@@ -286,7 +303,7 @@ export default function LandingPage() {
             {[
               ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role actually requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
               ['2', 'Connect your real history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
-              ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with traceable sources, and a cover letter written for the actual role. Every line traces back to something you told us, and nothing else.'],
+              ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with traceable sources, a cover letter written for the actual role, and hiring-manager outreach you can personalize. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
               <div className={styles.stepv} key={n}>
                 <div className={styles.stepvN}>{n}</div>
