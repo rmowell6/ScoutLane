@@ -39,6 +39,22 @@ describe('captureServer (server-side PostHog)', () => {
     expect(body.distinct_id).toBe('user-1')
     expect(body.properties.looks_like_aggregate).toBe(true)
     expect(body.properties.$lib).toBe('scoutlane-server')
+    // The request is bounded so a hung PostHog endpoint can't stall the awaiting route.
+    expect(init.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  test('an empty POSTHOG_KEY falls through to NEXT_PUBLIC_POSTHOG_KEY (|| not ??)', async () => {
+    vi.stubEnv('POSTHOG_KEY', '') // set but blank must NOT shadow the client key
+    vi.stubEnv('NEXT_PUBLIC_POSTHOG_KEY', 'phc_client')
+    const fetchMock = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(
+      async () => new Response(null, { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    expect(serverAnalyticsEnabled()).toBe(true)
+    await captureServer(SERVER_EVENTS.packetBlocked, 'user-1', {})
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(JSON.parse(init.body as string).api_key).toBe('phc_client')
   })
 
   test('swallows a network error (never throws, so it cannot break the response)', async () => {

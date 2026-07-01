@@ -159,7 +159,7 @@ export async function POST(request: Request) {
       // it's a no-op until a key is set. Wrapped like the persistence below so a signal/capture error can
       // never turn this 422 into a 500.
       try {
-        await captureServer(SERVER_EVENTS.packetBlocked, user.id, deriveBlockSignals(packet.guardrails, packet.profile))
+        await captureServer(SERVER_EVENTS.packetBlocked, user.id, deriveBlockSignals(packet.guardrails))
       } catch (err) {
         console.error('[analytics] block-signal capture failed (non-blocking)', err)
       }

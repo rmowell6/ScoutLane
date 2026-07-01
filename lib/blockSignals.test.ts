@@ -45,7 +45,7 @@ describe('deriveBlockSignals', () => {
     expect(report.ok).toBe(false)
     expect(report.noFabrication.unverifiable.length).toBe(3) // all three are blocked as unverifiable
 
-    const s = deriveBlockSignals(report, profile)
+    const s = deriveBlockSignals(report)
     expect(s.block_reasons).toContain('unverifiable_claims')
     expect(s.unverifiable_count).toBe(3)
     expect(s.claims_with_number).toBe(2) // "three-time" (word) + "5" (digit)
@@ -57,7 +57,7 @@ describe('deriveBlockSignals', () => {
   test('a pure invention with no count does NOT look like an aggregate', () => {
     const report = reportFor([{ text: 'Led Kubernetes platform migration', factId: null }])
     expect(report.ok).toBe(false)
-    const s = deriveBlockSignals(report, profile)
+    const s = deriveBlockSignals(report)
     expect(s.unverifiable_count).toBe(1)
     expect(s.claims_with_number).toBe(0)
     expect(s.claims_with_quantifier).toBe(0)
@@ -68,7 +68,7 @@ describe('deriveBlockSignals', () => {
   test('a clean report yields all-zero signals and no reasons (safe to call unconditionally)', () => {
     const report = reportFor([{ text: 'Migrated 40 VMs to Azure', factId: 'role:0:bullet:1' }])
     expect(report.ok).toBe(true) // faithful restatement, nothing blocked
-    const s = deriveBlockSignals(report, profile)
+    const s = deriveBlockSignals(report)
     expect(s.block_reasons).toEqual([])
     expect(s.unverifiable_count).toBe(0)
     expect(s.looks_like_aggregate).toBe(false)
@@ -82,7 +82,7 @@ describe('deriveBlockSignals', () => {
       { atsDoc },
     )
     expect(report.ok).toBe(false)
-    const s = deriveBlockSignals(report, profile)
+    const s = deriveBlockSignals(report)
     expect(s.block_reasons).toContain('style')
     expect(s.style_violation_count).toBeGreaterThan(0)
   })

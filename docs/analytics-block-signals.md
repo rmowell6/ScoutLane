@@ -36,5 +36,6 @@ answer one question with data instead of guesswork:
 - **`looks_like_aggregate` low** → blocks are mostly genuine inventions; tighten the tailor prompt
   rather than expand the fact base.
 
-`claims_like_aggregate` is a deliberately conservative heuristic (content words length ≥ 4, alias-aware
-grounding), meant for bucketing analytics only. It never affects whether a packet ships.
+`claims_like_aggregate` is a deliberately conservative heuristic (connectors dropped via guardrails'
+shared `GLUE_WORDS`, alias-aware grounding), meant for bucketing analytics only. It never affects
+whether a packet ships.
