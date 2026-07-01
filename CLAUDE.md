@@ -12,6 +12,7 @@ ScoutLane turns a validated job shortlist into a one-click **application packet*
 ## Full specs — read before building
 - `docs/ScoutLane_POC_Build_Plan.md` — what to build and in what order (milestones M0–M5).
 - `docs/ScoutLane_Engineering_Plan.md` — **authoritative** verified syntax, versions, and architecture rules. Follow it exactly.
+- `docs/VOICE_STYLE_GUIDE.md` — voice/tone rules and hard style constraints (no em dash, no repeated spaces, one CTA verb, vocabulary rotation) for ALL user-facing copy, not just LLM-generated documents. Enforced by `npm run lint:copy`.
 
 ## Stack (pinned; verified June 2026)
 - Next.js **16.2** (App Router, TypeScript) on Vercel · Node **24**
