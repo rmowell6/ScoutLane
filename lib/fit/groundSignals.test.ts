@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { groundCandidateSignals } from './groundSignals'
-import type { FitSignals } from './fitSignals'
+import { groundCandidateSignals, groundJobSignals } from './groundSignals'
+import { assembleFitInput, type FitSignals } from './fitSignals'
+import { assessFit } from './fitScore'
 import type { Profile } from '@/lib/schemas'
 
 function profile(over: Partial<Profile> = {}): Profile {
@@ -38,6 +39,7 @@ function signals(over: Partial<FitSignals> = {}): FitSignals {
     adjacentCerts: [],
     hardGaps: [],
     flags: { expired: false, unconfirmedLive: false, defenseAdjacent: false, heavyTravelOrPresales: false },
+    evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '' },
     ...over,
   }
 }
@@ -79,5 +81,97 @@ describe('groundCandidateSignals', () => {
     expect(out.mustHaveSkills).toEqual(['azure', 'aws']) // aws not in profile but kept (JD-side)
     expect(out.requiredCerts).toEqual(['az-104', 'ccna'])
     expect(out.hardGaps).toEqual(['aws'])
+  })
+})
+
+// A clean JD carrying every token, figure, and evidence phrase the fully-grounded cases reference.
+const JD = [
+  'Senior Cloud Engineer, remote in the US.',
+  'Required qualifications: Azure, Terraform, incident response. Must hold AZ-104.',
+  'Preferred: Kubernetes and Python.',
+  'Compensation up to $150,000 for this direct-hire role at a healthcare company.',
+].join('\n')
+
+const goodEvidence = {
+  roleTypeMatch: 'Senior Cloud Engineer',
+  seniorityMatch: 'Senior Cloud Engineer',
+  location: 'remote in the US',
+  employerType: 'direct-hire role',
+  vertical: 'healthcare company',
+}
+
+describe('groundJobSignals', () => {
+  test('Tier 1: drops JD skills/certs absent from the JD, keeps present ones (case/dash variants)', () => {
+    const g = groundJobSignals(
+      signals({
+        mustHaveSkills: ['azure', 'terraform', 'cobol'], // cobol appears nowhere
+        preferredSkills: ['Kubernetes', 'fortran'], // case variant kept, fortran dropped
+        requiredCerts: ['AZ-104', 'ccna'], // AZ-104 present (case/dash), ccna absent
+      }),
+      JD,
+    )
+    expect(g.signals.mustHaveSkills).toEqual(['azure', 'terraform'])
+    expect(g.signals.preferredSkills).toEqual(['Kubernetes'])
+    expect(g.signals.requiredCerts).toEqual(['AZ-104'])
+    expect(g.droppedJd.sort()).toEqual(['ccna', 'cobol', 'fortran'])
+  })
+
+  test('Tier 2: keeps a compTopUsd matching a JD figure written as $150,000', () => {
+    const g = groundJobSignals(signals({ compTopUsd: 150000 }), JD)
+    expect(g.signals.compTopUsd).toBe(150000)
+    expect(g.compNulled).toBe(false)
+  })
+
+  test('Tier 2: matches the k shorthand ($150K stands for 150000)', () => {
+    const g = groundJobSignals(signals({ compTopUsd: 150000 }), 'Comp up to $150K for this role.')
+    expect(g.signals.compTopUsd).toBe(150000)
+    expect(g.compNulled).toBe(false)
+  })
+
+  test('Tier 2: nulls a comp with no matching JD figure and routes to scoreComp neutral 65', () => {
+    const g = groundJobSignals(signals({ compTopUsd: 999999 }), JD)
+    expect(g.signals.compTopUsd).toBeNull()
+    expect(g.compNulled).toBe(true)
+    const fit = assessFit(assembleFitInput(g.signals, undefined, { title: 'x', mustHave: [], niceToHave: [] }))
+    expect(fit.dimensions.find((d) => d.key === 'compAlignment')?.score).toBe(65)
+  })
+
+  test('Tier 3: a real evidence quote passes with no flag; a bad quote flags the field but keeps its value', () => {
+    const good = groundJobSignals(signals({ location: 'remote_us', evidence: goodEvidence }), JD)
+    expect(good.lowConfidenceFields).toEqual([])
+
+    const bad = groundJobSignals(
+      signals({ location: 'onsite_elsewhere', evidence: { ...goodEvidence, location: 'onsite in Berlin' } }),
+      JD,
+    )
+    expect(bad.lowConfidenceFields).toEqual(['location'])
+    expect(bad.signals.location).toBe('onsite_elsewhere') // categorical value never altered
+  })
+
+  test('hardGaps: an ungrounded gap is flagged for telemetry but not dropped', () => {
+    const g = groundJobSignals(signals({ hardGaps: ['ts/sci clearance'] }), JD)
+    expect(g.ungroundedHardGaps).toEqual(['ts/sci clearance'])
+    expect(g.signals.hardGaps).toEqual(['ts/sci clearance']) // kept, non-blocking
+  })
+
+  test('full happy path: a clean, fully-grounded JD produces zero drops and zero flags', () => {
+    const g = groundJobSignals(
+      signals({
+        mustHaveSkills: ['azure', 'terraform'],
+        preferredSkills: ['kubernetes'],
+        requiredCerts: ['az-104'],
+        compTopUsd: 150000,
+        hardGaps: [],
+        location: 'remote_us',
+        evidence: goodEvidence,
+      }),
+      JD,
+    )
+    expect(g.droppedJd).toEqual([])
+    expect(g.compNulled).toBe(false)
+    expect(g.lowConfidenceFields).toEqual([])
+    expect(g.ungroundedHardGaps).toEqual([])
+    expect(g.signals.mustHaveSkills).toEqual(['azure', 'terraform'])
+    expect(g.signals.compTopUsd).toBe(150000)
   })
 })

@@ -19,7 +19,7 @@ export interface FactIndex {
 // no-em-dash house rule) must still match, otherwise a real, listed skill reads as fabricated and
 // the packet is wrongly blocked. This only equates separators; it can never let an actual
 // fabrication pass (all the words must still be present).
-function normalize(s: string): string {
+export function normalize(s: string): string {
   return s
     .toLowerCase()
     .replace(/[\s‐-―−-]+/g, ' ') // whitespace + hyphen/dash variants (U+2010 to U+2015, minus sign, ASCII hyphen)
@@ -215,7 +215,7 @@ const METRIC_RE = new RegExp(
 
 /** Pull comma-stripped numeric tokens out of a string (e.g. "$500,000" -> ["500000"]). Digit run
  *  bounded ({0,24}) for the same ReDoS reason as METRIC_RE. */
-function numbersIn(s: string): string[] {
+export function numbersIn(s: string): string[] {
   return (s.match(/\d[\d,]{0,24}(?:\.\d{0,12})?/g) ?? []).map((n) => n.replace(/,/g, ''))
 }
 

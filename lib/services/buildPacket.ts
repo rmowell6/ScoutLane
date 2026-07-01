@@ -244,7 +244,7 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   // (recommendStyle is fail-soft). Skip it entirely when the user already chose a style.
   const needRecommend = !input.style
   const [fitInput, tailored, recommendation] = await Promise.all([
-    runStep('extractFitInput', () => extractFitInput(profile, jobReqs, input.preferences)),
+    runStep('extractFitInput', () => extractFitInput(profile, jobReqs, input.jdText, input.preferences)),
     runStep('tailorResume', () => tailorResume(profile, jobReqs)),
     needRecommend
       ? runStep('recommendStyle', () => recommendStyle(profile, jobReqs, input.jobId))
