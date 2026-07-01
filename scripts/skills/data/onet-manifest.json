@@ -1,0 +1,2743 @@
+{
+  "note": "Tracks the O*NET release reflected in onet-software-skills.csv and, per extracted candidate, the release it was first seen in and last confirmed present in. Updated by the scheduled O*NET sync; never edited by hand.",
+  "onetVersion": "30.3",
+  "source": "scripts/skills/data/onet-software-skills.csv",
+  "entries": [
+    {
+      "key": "a mathematical programming language|ampl",
+      "full": "A mathematical programming language",
+      "acronym": "AMPL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "a programming language|apl",
+      "full": "A programming language",
+      "acronym": "APL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "aws elastic mapreduce|emr",
+      "full": "AWS Elastic MapReduce",
+      "acronym": "EMR",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "adtrack customer acquisition management|cam",
+      "full": "AdTrack Customer Acquisition Management",
+      "acronym": "CAM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "address management system|ams",
+      "full": "Address Management System",
+      "acronym": "AMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "adobe experience manager|aem",
+      "full": "Adobe Experience Manager",
+      "acronym": "AEM",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "advanced boolean expression language|abel",
+      "full": "Advanced boolean expression language",
+      "acronym": "ABEL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "advanced business application programming|abap",
+      "full": "Advanced business application programming",
+      "acronym": "ABAP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "advanced computer simulation language|acsl",
+      "full": "Advanced computer simulation language",
+      "acronym": "ACSL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "advanced technologies and oceanic procedures|atop",
+      "full": "Advanced technologies and oceanic procedures",
+      "acronym": "ATOP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "aginfolink meat inventory tracking system|mits",
+      "full": "AgInfoLink Meat Inventory Tracking System",
+      "acronym": "MITS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "agile product lifecyle management|plm",
+      "full": "Agile Product Lifecyle Management",
+      "acronym": "PLM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "agilent advanced design system|ads",
+      "full": "Agilent Advanced Design System",
+      "acronym": "ADS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "altera hardware description language|ahdl",
+      "full": "Altera hardware description language",
+      "acronym": "AHDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "amazon elastic container service|ecs",
+      "full": "Amazon Elastic Container Service",
+      "acronym": "ECS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "analysis and visualization of time sequences|avts",
+      "full": "Analysis and Visualization of Time Sequences",
+      "acronym": "AVTS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "anisotropic crystalline etch simulation|aces",
+      "full": "Anisotropic Crystalline Etch Simulation",
+      "acronym": "ACES",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "aquatic plant information retrieval system|apirs",
+      "full": "Aquatic Plant Information Retrieval System",
+      "acronym": "APIRS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "archeological sites management information system|asmis",
+      "full": "Archeological Sites Management Information System",
+      "acronym": "ASMIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "architecture description language|adl",
+      "full": "Architecture description language",
+      "acronym": "ADL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "arrival departure information system|adis",
+      "full": "Arrival Departure Information System",
+      "acronym": "ADIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "assistant software for antimicrobial susceptibility interpretation|asasi",
+      "full": "Assistant Software for Antimicrobial Susceptibility Interpretation",
+      "acronym": "ASASI",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "astronomical image processing system|aips",
+      "full": "Astronomical Image Processing System",
+      "acronym": "AIPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "atria smoke management engineering tools|asmet",
+      "full": "Atria smoke management engineering tools",
+      "acronym": "ASMET",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated biometric identification system|abis",
+      "full": "Automated Biometric Identification System",
+      "acronym": "ABIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated data collection system|adcs",
+      "full": "Automated Data Collection System",
+      "acronym": "ADCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated geospatial watershed assessment|agwa",
+      "full": "Automated Geospatial Watershed Assessment",
+      "acronym": "AGWA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated manifest system|ams",
+      "full": "Automated Manifest System",
+      "acronym": "AMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated national catalog system|ancs",
+      "full": "Automated National Catalog System",
+      "acronym": "ANCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated package processing system|apps",
+      "full": "Automated Package Processing System",
+      "acronym": "APPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated targeting system|ats",
+      "full": "Automated Targeting System",
+      "acronym": "ATS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated commercial environment software|ace",
+      "full": "Automated commercial environment software",
+      "acronym": "ACE",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automated radar terminal systems|arts",
+      "full": "Automated radar terminal systems",
+      "acronym": "ARTS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automatic dynamic incremental nonlinear analysis|adina",
+      "full": "Automatic dynamic incremental nonlinear analysis",
+      "acronym": "ADINA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "automatic test program generation|atpg",
+      "full": "Automatic test program generation",
+      "acronym": "ATPG",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "avaaz innovations computerized speech research environment|csre",
+      "full": "Avaaz Innovations Computerized Speech Research Environment",
+      "acronym": "CSRE",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "available safe egress time|aset",
+      "full": "Available Safe Egress Time",
+      "acronym": "ASET",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "aveva group plant design management system|pdms",
+      "full": "Aveva Group Plant Design Management System",
+      "acronym": "PDMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "baron volumetric imaging and processing of integrated radar|vipir",
+      "full": "Baron Volumetric Imaging and Processing of Integrated Radar",
+      "acronym": "VIPIR",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "basic local alignment search tool|blast",
+      "full": "Basic Local Alignment Search Tool",
+      "acronym": "BLAST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "beeline learning management system|lms",
+      "full": "Beeline Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "beginner's all purpose symbolic instruction code|basic",
+      "full": "Beginner's all-purpose symbolic instruction code",
+      "acronym": "BASIC",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "behavioral assessment and research system|bars",
+      "full": "Behavioral Assessment and Research System",
+      "acronym": "BARS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "best linear unbiased prediction|blup",
+      "full": "Best Linear Unbiased Prediction",
+      "acronym": "BLUP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "bidirectional encoder representations from transformers|bert",
+      "full": "Bidirectional encoder representations from transformers",
+      "acronym": "BERT",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "biometric storage system|bss",
+      "full": "Biometric Storage System",
+      "acronym": "BSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "blast output browser|bob",
+      "full": "Blast Output Browser",
+      "acronym": "BOB",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "border gateway protocol|bgp",
+      "full": "Border Gateway Protocol",
+      "acronym": "BGP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "boundary scan description language|bsdl",
+      "full": "Boundary scan description language",
+      "acronym": "BSDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "business management systems municipal geographic management system|mgms",
+      "full": "Business Management Systems Municipal Geographic Management System",
+      "acronym": "MGMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cama software quality collaboration by design|qcbd",
+      "full": "CAMA Software Quality Collaboration By Design",
+      "acronym": "QCBD",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cern physics analysis workstation|paw",
+      "full": "CERN Physics Analysis Workstation",
+      "acronym": "PAW",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "csc automated work distributor|awd",
+      "full": "CSC Automated Work Distributor",
+      "acronym": "AWD",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "camstar manufacturing execution system|mes",
+      "full": "Camstar Manufacturing Execution System",
+      "acronym": "MES",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "career management systems|cms",
+      "full": "Career management systems",
+      "acronym": "CMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "carpet dealer management system|cdms",
+      "full": "Carpet Dealer Management System",
+      "acronym": "CDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "carrier hourly analysis program|hap",
+      "full": "Carrier Hourly Analysis Program",
+      "acronym": "HAP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cascading style sheets|css",
+      "full": "Cascading style sheets",
+      "acronym": "CSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "centaur systems centaur travel business management system|tbms",
+      "full": "Centaur Systems Centaur Travel Business Management System",
+      "acronym": "TBMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "center tracon automation systems|ctas",
+      "full": "Center TRACON automation systems",
+      "acronym": "CTAS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "chemsw chemical inventory system|cis",
+      "full": "ChemSW Chemical Inventory System",
+      "acronym": "CIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "chemsw laboratory document control system|ldcs",
+      "full": "ChemSW Laboratory Document Control System",
+      "acronym": "LDCS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "chilled water system analysis tool|cwsat",
+      "full": "Chilled Water System Analysis Tool",
+      "acronym": "CWSAT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cisco systems cisco web cache communication protocol|wccp",
+      "full": "Cisco Systems Cisco Web Cache Communication Protocol",
+      "acronym": "WCCP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cisco systems gateway load balancing protocol|glbp",
+      "full": "Cisco Systems Gateway Load Balancing Protocol",
+      "acronym": "GLBP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cisco systems hot standby router protocol|hsrp",
+      "full": "Cisco Systems Hot Standby Router Protocol",
+      "acronym": "HSRP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cisco systems wireless control system|wcs",
+      "full": "Cisco Systems Wireless Control System",
+      "acronym": "WCS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "clinical data management system|cdms",
+      "full": "Clinical data management system",
+      "acronym": "CDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cobent learning and compliance suite|lcs",
+      "full": "Cobent Learning and Compliance Suite",
+      "acronym": "LCS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "cognisyst computerized assessment of response bias|carb",
+      "full": "CogniSyst Computerized Assessment of Response Bias",
+      "acronym": "CARB",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "collaborative application markup language|caml",
+      "full": "Collaborative Application Markup Language",
+      "acronym": "CAML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "collection point management system|cpms",
+      "full": "Collection Point Management System",
+      "acronym": "CPMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "combined heat and power application tool|chp",
+      "full": "Combined Heat and Power Application Tool",
+      "acronym": "CHP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "commercial driver's license information system|cdlis",
+      "full": "Commercial driver's license information system",
+      "acronym": "CDLIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "common lisp object system|clos",
+      "full": "Common Lisp Object System",
+      "acronym": "CLOS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "common gateway interface|cgi",
+      "full": "Common gateway interface",
+      "acronym": "CGI",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "community climate system model|ccsm",
+      "full": "Community Climate System Model",
+      "acronym": "CCSM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "component based scalable logical architecture|csla",
+      "full": "Component-based Scalable Logical Architecture",
+      "acronym": "CSLA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "comprehensive affect testing system|cats",
+      "full": "Comprehensive Affect Testing System",
+      "acronym": "CATS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computer aided vision therapy|cavt",
+      "full": "Computer Aided Vision Therapy",
+      "acronym": "CAVT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computer algebra system for algebraic geometry|casa",
+      "full": "Computer Algebra System for Algebraic Geometry",
+      "acronym": "CASA",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computer linked application information management system|claims",
+      "full": "Computer Linked Application Information Management System",
+      "acronym": "CLAIMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computer aided design and drafting software|cadd",
+      "full": "Computer aided design and drafting software",
+      "acronym": "CADD",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computerized aircraft log manager|calm",
+      "full": "Computerized aircraft log manager",
+      "acronym": "CALM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computerized maintenance management system|cmms",
+      "full": "Computerized maintenance management system",
+      "acronym": "CMMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "computerized maintenance management system software|cmms",
+      "full": "Computerized maintenance management system software",
+      "acronym": "CMMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "consolidated compartment fire model|ccfm",
+      "full": "Consolidated compartment fire model",
+      "acronym": "CCFM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "consular consolidated database|ccd",
+      "full": "Consular Consolidated Database",
+      "acronym": "CCD",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "content management systems|cms",
+      "full": "Content management systems",
+      "acronym": "CMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "continuous emissions monitoring systems|cems",
+      "full": "Continuous emissions monitoring systems",
+      "acronym": "CEMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "core informatics laboratory information management system|lims",
+      "full": "Core Informatics Laboratory Information Management System",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "corporate information factory|cif",
+      "full": "Corporate Information Factory",
+      "acronym": "CIF",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "crash mapping analysis tool|cmat",
+      "full": "Crash Mapping Analysis Tool",
+      "acronym": "CMAT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "creative solutions ultratax|cs",
+      "full": "Creative Solutions UltraTax",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "credit adjudication and lending management system|calms",
+      "full": "Credit adjudication and lending management system",
+      "acronym": "CALMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "crystallography & nmr system|cns",
+      "full": "Crystallography & NMR System",
+      "acronym": "CNS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "customer information control system|cics",
+      "full": "Customer information control system",
+      "acronym": "CICS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "darwin information typing architecture|dita",
+      "full": "Darwin information typing architecture",
+      "acronym": "DITA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "data definition language|ddl",
+      "full": "Data definition language",
+      "acronym": "DDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "data manipulation language|dml",
+      "full": "Data manipulation language",
+      "acronym": "DML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "delivery routing system|drs",
+      "full": "Delivery Routing System",
+      "acronym": "DRS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "delivery operations information system|dois",
+      "full": "Delivery operations information system",
+      "acronym": "DOIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "desktop digital photogrammetry system|ddps",
+      "full": "Desktop digital photogrammetry system",
+      "acronym": "DDPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "diffraction limited maxim|dl",
+      "full": "Diffraction Limited MaxIm",
+      "acronym": "DL",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "digital control systems|dcs",
+      "full": "Digital control systems",
+      "acronym": "DCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "disease mapping and analysis program|dmap",
+      "full": "Disease Mapping and Analysis Program",
+      "acronym": "DMAP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "disk operating system|dos",
+      "full": "Disk operating system",
+      "acronym": "DOS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "distributed control system|dcs",
+      "full": "Distributed control system",
+      "acronym": "DCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "distribution management system|dms",
+      "full": "Distribution management system",
+      "acronym": "DMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "domain name system|dns",
+      "full": "Domain name system",
+      "acronym": "DNS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "dynamic host configuration protocol|dhcp",
+      "full": "Dynamic host configuration protocol",
+      "acronym": "DHCP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "epa storm water management model|swmm",
+      "full": "EPA Storm Water Management Model",
+      "acronym": "SWMM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "essa technologiestool for exploratory landscape scenario analyses|telsa",
+      "full": "ESSA TechnologiesTool for Exploratory Landscape Scenario Analyses",
+      "acronym": "TELSA",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "electro meridian imaging|emi",
+      "full": "Electro Meridian Imaging",
+      "acronym": "EMI",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "electronic time clock|etc",
+      "full": "Electronic Time Clock",
+      "acronym": "ETC",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "electronic adjudication management systems|eam",
+      "full": "Electronic adjudication management systems",
+      "acronym": "EAM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "electronic document management system|edms",
+      "full": "Electronic document management system",
+      "acronym": "EDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "electronic train management systems|etms",
+      "full": "Electronic train management systems",
+      "acronym": "ETMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "emergency managers weather information network|emwin",
+      "full": "Emergency Managers Weather Information Network",
+      "acronym": "EMWIN",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "energy management system|ems",
+      "full": "Energy management system",
+      "acronym": "EMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "enhanced interior gateway routing protocol|eigrp",
+      "full": "Enhanced Interior Gateway Routing Protocol",
+      "acronym": "EIGRP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "enterprise risk management software|erms",
+      "full": "Enterprise risk management software",
+      "acronym": "ERMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "environmental knowledge and assessment tool|ekat",
+      "full": "Environmental Knowledge and Assessment Tool",
+      "acronym": "EKAT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "erosion productivity impact calculator|epic",
+      "full": "Erosion Productivity Impact Calculator",
+      "acronym": "EPIC",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "estima regression analysis of time series|rats",
+      "full": "Estima Regression Analysis of Time Series",
+      "acronym": "RATS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "estimates delivery system|eds",
+      "full": "Estimates Delivery System",
+      "acronym": "EDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "exact software macola|es",
+      "full": "Exact Software Macola",
+      "acronym": "ES",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "experimental physics and industrial control system|epics",
+      "full": "Experimental Physics and Industrial Control System",
+      "acronym": "EPICS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fanuc robotics diagnostic resource center|drc",
+      "full": "FANUC Robotics Diagnostic Resource Center",
+      "acronym": "DRC",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fanuc robotics through arc seam tracking|tast",
+      "full": "FANUC Robotics Through Arc Seam Tracking",
+      "acronym": "TAST",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "facility energy decision systems|feds",
+      "full": "Facility Energy Decision Systems",
+      "acronym": "FEDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fan system assessment tool|fsat",
+      "full": "Fan System Assessment Tool",
+      "acronym": "FSAT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "federal emergency management information system|femis",
+      "full": "Federal Emergency Management Information System",
+      "acronym": "FEMIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "federal renewable energy screening assistant|fresa",
+      "full": "Federal Renewable Energy Screening Assistant",
+      "acronym": "FRESA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "final approach spacing tool|fast",
+      "full": "Final approach spacing tool",
+      "acronym": "FAST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "financial aid management system|fam",
+      "full": "Financial aid management system",
+      "acronym": "FAM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "findlaw code of federal regulations|cfr",
+      "full": "FindLaw Code of Federal Regulations",
+      "acronym": "CFR",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fire dynamics software|fds",
+      "full": "Fire Dynamics Software",
+      "acronym": "FDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fixed income alternative trading systems|ats",
+      "full": "Fixed income alternative trading systems",
+      "acronym": "ATS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "flow analysis software toolkit|fast",
+      "full": "Flow Analysis Software Toolkit",
+      "acronym": "FAST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "foundatino directory online|fdo",
+      "full": "Foundatino Directory Online",
+      "acronym": "FDO",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "framework for integrated test|fit",
+      "full": "Framework for integrated test",
+      "acronym": "FIT",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fuel characteristic classification system|fccs",
+      "full": "Fuel Characteristic Classification System",
+      "acronym": "FCCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "fully integrated environmental location decision support|fields",
+      "full": "Fully Integrated Environmental Location Decision Support",
+      "acronym": "FIELDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ge energy positive sequence load flow software|pslf",
+      "full": "GE Energy Positive Sequence Load Flow Software",
+      "acronym": "PSLF",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "gnu image manipulation program|gimp",
+      "full": "GNU Image Manipulation Program",
+      "acronym": "GIMP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "gamma waste assay system|gwas",
+      "full": "Gamma waste assay system",
+      "acronym": "GWAS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "gene recognition and assembly internet link|grail",
+      "full": "Gene Recognition and Assembly Internet Link",
+      "acronym": "GRAIL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "general atomic and molecular electronic structure system|gamess",
+      "full": "General Atomic and Molecular Electronic Structure System",
+      "acronym": "GAMESS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "general electric mark vi distributed control system|dcs",
+      "full": "General Electric Mark VI Distributed Control System",
+      "acronym": "DCS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "general electric mark vi integrated control system|ics",
+      "full": "General Electric Mark VI Integrated Control System",
+      "acronym": "ICS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "general structural analysis system|gsas",
+      "full": "General Structural Analysis System",
+      "acronym": "GSAS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "general algebraic modeling system|gams",
+      "full": "General algebraic modeling system",
+      "acronym": "GAMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "geographic resources analysis support system|grass",
+      "full": "Geographic resources analysis support system",
+      "acronym": "GRASS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "geospatial data abstraction library|gdal",
+      "full": "Geospatial data abstraction library",
+      "acronym": "GDAL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "google compute engine|gce",
+      "full": "Google Compute Engine",
+      "acronym": "GCE",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "groundwater modeling system|gms",
+      "full": "Groundwater modeling system",
+      "acronym": "GMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "hardware description language|hdl",
+      "full": "Hardware description language",
+      "acronym": "HDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "harrisdata human resources information system|hris",
+      "full": "HarrisData Human Resources Information System",
+      "acronym": "HRIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "healthcare common procedure coding system|hcpcs",
+      "full": "Healthcare common procedure coding system",
+      "acronym": "HCPCS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "high school scheduling and transcript|hsst",
+      "full": "High School Scheduling and Transcript",
+      "acronym": "HSST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "home energy efficient design|heed",
+      "full": "Home Energy Efficient Design",
+      "acronym": "HEED",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "houchen bindery library automated retrieval system|lars",
+      "full": "Houchen Bindery Library Automated Retrieval System",
+      "acronym": "LARS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "human resource information system|hris",
+      "full": "Human resource information system",
+      "acronym": "HRIS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "human resource management software|hrms",
+      "full": "Human resource management software",
+      "acronym": "HRMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "human resources management system|hrms",
+      "full": "Human resources management system",
+      "acronym": "HRMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm information management system|ims",
+      "full": "IBM Information Management System",
+      "acronym": "IMS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm interactive system productivity facility|ispf",
+      "full": "IBM Interactive System Productivity Facility",
+      "acronym": "ISPF",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm judicial enforcement management system|jems",
+      "full": "IBM Judicial Enforcement Management System",
+      "acronym": "JEMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm resource access control facility|racf",
+      "full": "IBM Resource Access Control Facility",
+      "acronym": "RACF",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm software configuration and library manager|sclm",
+      "full": "IBM Software Configuration and Library Manager",
+      "acronym": "SCLM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm tivoli access management|tam",
+      "full": "IBM Tivoli Access Management",
+      "acronym": "TAM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ibm tivoli identity management|tim",
+      "full": "IBM Tivoli Identity Management",
+      "acronym": "TIM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "itc integrated land and water information system|ilwis",
+      "full": "ITC Integrated Land and Water Information System",
+      "acronym": "ILWIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "illumina laboratory information management system|lims",
+      "full": "Illumina Laboratory Information Management System",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "infobright community edition|ice",
+      "full": "Infobright Community Edition",
+      "acronym": "ICE",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "inspection selection system|iss",
+      "full": "Inspection Selection System",
+      "acronym": "ISS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "integrated automated fingerprint identification system|iafis",
+      "full": "Integrated Automated Fingerprint Identification System",
+      "acronym": "IAFIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intelladon enterprise knowledge platform|ekp",
+      "full": "Intelladon Enterprise Knowledge Platform",
+      "acronym": "EKP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intellitrack warehouse management system|wms",
+      "full": "IntelliTrack Warehouse Management System",
+      "acronym": "WMS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "interactive mathematical proof system|imps",
+      "full": "Interactive Mathematical Proof System",
+      "acronym": "IMPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "interactive radar analysis software|iras",
+      "full": "Interactive radar analysis software",
+      "acronym": "IRAS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "interface definition language|idl",
+      "full": "Interface definition language",
+      "acronym": "IDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intergraph imagestation stereo softcopy kit|ssk",
+      "full": "Intergraph ImageStation Stereo Softcopy Kit",
+      "acronym": "SSK",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intergraph plant design system|pds",
+      "full": "Intergraph Plant Design System",
+      "acronym": "PDS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "international material data system|imds",
+      "full": "International Material Data System",
+      "acronym": "IMDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "internet grievance system|igs",
+      "full": "Internet Grievance System",
+      "acronym": "IGS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intrusion detection system|ids",
+      "full": "Intrusion detection system",
+      "acronym": "IDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "intrusion prevention system|ips",
+      "full": "Intrusion prevention system",
+      "acronym": "IPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "job control language|jcl",
+      "full": "Job control language",
+      "acronym": "JCL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "k&k associates thermal analysis kit|tak",
+      "full": "K&K Associates Thermal Analysis Kit",
+      "acronym": "TAK",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "keffer development services athletic trainer system|ats",
+      "full": "Keffer Development Services Athletic Trainer System",
+      "acronym": "ATS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "kodak dental systems kodak practiceworks practice management software|pms",
+      "full": "Kodak Dental Systems Kodak PRACTICEWORKS Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "kodak dental systems kodak softdent practice management software|pms",
+      "full": "Kodak Dental Systems Kodak SOFTDENT Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "lablite laboratory information management systems|lims",
+      "full": "Lablite Laboratory Information Management Systems",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "laboratory automated quality control systems|laqc",
+      "full": "Laboratory Automated Quality Control Systems",
+      "acronym": "LAQC",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "laboratory information management system|lims",
+      "full": "Laboratory information management system",
+      "acronym": "LIMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "laboratory information system|lis",
+      "full": "Laboratory information system",
+      "acronym": "LIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "landscape management system|lms",
+      "full": "Landscape Management System",
+      "acronym": "LMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "learning management system|lms",
+      "full": "Learning management system",
+      "acronym": "LMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "legislative automative workflow system|laws",
+      "full": "Legislative Automative Workflow System",
+      "acronym": "LAWS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "location allocation decision support system|ladss",
+      "full": "Location allocation decision support system",
+      "acronym": "LADSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "logger data manager|ldm",
+      "full": "Logger data manager",
+      "acronym": "LDM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "micros systems opera enterprise solution|oes",
+      "full": "MICROS Systems OPERA Enterprise Solution",
+      "acronym": "OES",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "micros systems opera property management system|pms",
+      "full": "MICROS Systems OPERA Property Management System",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "management information systems|mis",
+      "full": "Management information systems",
+      "acronym": "MIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "manufacturing execution system|mes",
+      "full": "Manufacturing execution system",
+      "acronym": "MES",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "marel production system|mps",
+      "full": "Marel production system",
+      "acronym": "MPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "mass appraisal records system|mars",
+      "full": "Mass appraisal records system",
+      "acronym": "MARS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "maya embedded language|mel",
+      "full": "Maya Embedded Language",
+      "acronym": "MEL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "medicaid management information system|mmis",
+      "full": "Medicaid management information system",
+      "acronym": "MMIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "micosoft sql server analysis services|ssas",
+      "full": "Micosoft SQL Server Analysis Services",
+      "acronym": "SSAS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microchip mplab integrated development environment|ide",
+      "full": "Microchip MPLAB Integrated Development Environment",
+      "acronym": "IDE",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft active server pages|asp",
+      "full": "Microsoft Active Server Pages",
+      "acronym": "ASP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft business intelligence|bi",
+      "full": "Microsoft Business Intelligence",
+      "acronym": "BI",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft extensible application markup language|xaml",
+      "full": "Microsoft Extensible Application Markup Language",
+      "acronym": "XAML",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft high level shader language|hlsl",
+      "full": "Microsoft High Level Shader Language",
+      "acronym": "HLSL",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft internet information services|iis",
+      "full": "Microsoft Internet Information Services",
+      "acronym": "IIS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft mobile explorer|mme",
+      "full": "Microsoft Mobile Explorer",
+      "acronym": "MME",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft sql server integration services|ssis",
+      "full": "Microsoft SQL Server Integration Services",
+      "acronym": "SSIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft sql server reporting services|ssrs",
+      "full": "Microsoft SQL Server Reporting Services",
+      "acronym": "SSRS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft visual basic for applications|vba",
+      "full": "Microsoft Visual Basic for Applications",
+      "acronym": "VBA",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "microsoft visual basic.net compact framework|cf",
+      "full": "Microsoft Visual Basic.NET Compact Framework",
+      "acronym": "CF",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "multipath corporation fast matrix solver|fms",
+      "full": "Multipath Corporation Fast Matrix Solver",
+      "acronym": "FMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "multipurpose interactive image processing system|miips",
+      "full": "Multipurpose Interactive Image Processing System",
+      "acronym": "MIIPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ncar command language|ncl",
+      "full": "NCAR Command Language",
+      "acronym": "NCL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ncss power analysis and sample size|pass",
+      "full": "NCSS Power Analysis and Sample Size",
+      "acronym": "PASS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national driver register|ndr",
+      "full": "National Driver Register",
+      "acronym": "NDR",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national fire incident reporting system|nfirs",
+      "full": "National Fire Incident Reporting System",
+      "acronym": "NFIRS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national instruments ni vision builder for automated inspection|ai",
+      "full": "National Instruments NI Vision Builder for Automated Inspection",
+      "acronym": "AI",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national integrated ballistics information network|nibin",
+      "full": "National Integrated Ballistics Information Network",
+      "acronym": "NIBIN",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national land cover database|nlcd",
+      "full": "National Land Cover Database",
+      "acronym": "NLCD",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national law enforcement telecommunications system|nlets",
+      "full": "National Law Enforcement Telecommunications System",
+      "acronym": "NLETS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national resources conservation service ecological site information system|esis",
+      "full": "National Resources Conservation Service Ecological Site Information System",
+      "acronym": "ESIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national resources conservation service nrcs pedon description program|pdp",
+      "full": "National Resources Conservation Service NRCS PEDON Description Program",
+      "acronym": "PDP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national resources conservation service web soil survey|wss",
+      "full": "National Resources Conservation Service Web Soil Survey",
+      "acronym": "WSS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "national union catalog of manuscript collections|nucmc",
+      "full": "National Union Catalog of Manuscript Collections",
+      "acronym": "NUCMC",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "netdimensions enterprise knowledge platform|ekp",
+      "full": "NetDimensions Enterprise Knowledge Platform",
+      "acronym": "EKP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "network intrusion prevention systems|nips",
+      "full": "Network intrusion prevention systems",
+      "acronym": "NIPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ohio automation integrated computer aided mine planning system|icamps",
+      "full": "Ohio Automation Integrated Computer Aided Mine Planning System",
+      "acronym": "ICAMPS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "online dictionary for library and information science|odlis",
+      "full": "Online Dictionary for Library and Information Science",
+      "acronym": "ODLIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "online mendelian inheritance in animals|omia",
+      "full": "Online Mendelian Inheritance in Animals",
+      "acronym": "OMIA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "open shortest path first|ospf",
+      "full": "Open Shortest Path First",
+      "acronym": "OSPF",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "opportunity management system|oms",
+      "full": "Opportunity management system",
+      "acronym": "OMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "oracle agile product lifecycle management|plm",
+      "full": "Oracle Agile Product Lifecycle Management",
+      "acronym": "PLM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "oracle java enterprise edition|ee",
+      "full": "Oracle Java Enterprise Edition",
+      "acronym": "EE",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "oracle java message service|jms",
+      "full": "Oracle Java Message Service",
+      "acronym": "JMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "oracle real application cluster|rac",
+      "full": "Oracle Real Application Cluster",
+      "acronym": "RAC",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "outage management system|oms",
+      "full": "Outage management system",
+      "acronym": "OMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "past inspection query|piq",
+      "full": "Past Inspection Query",
+      "acronym": "PIQ",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "pathogen modeling program|pmp",
+      "full": "Pathogen Modeling Program",
+      "acronym": "PMP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "pentana audit work system|paws",
+      "full": "Pentana audit work system",
+      "acronym": "PAWS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "pile dynamics pile driving analyzer|pda",
+      "full": "Pile Dynamics Pile Driving Analyzer",
+      "acronym": "PDA",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "plant clearance automated reutilization screening system|pcarss",
+      "full": "Plant Clearance Automated Reutilization Screening System",
+      "acronym": "PCARSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "plant design management system|pdms",
+      "full": "Plant design management system",
+      "acronym": "PDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "plateau learning management system|lms",
+      "full": "Plateau Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "practice management software|pms",
+      "full": "Practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "proquest library and information science abstracts|lisa",
+      "full": "ProQuest Library and Information Science Abstracts",
+      "acronym": "LISA",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "process heating assessment and survey tool|phast",
+      "full": "Process Heating Assessment and Survey Tool",
+      "acronym": "PHAST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "production flow analysis and simplification toolkit|pfast",
+      "full": "Production Flow Analysis and Simplification Toolkit",
+      "acronym": "PFAST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "program for energy analysis of residences|pear",
+      "full": "Program for Energy Analysis of Residences",
+      "acronym": "PEAR",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "public access to court electronic records|pacer",
+      "full": "Public Access to Court Electronic Records",
+      "acronym": "PACER",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "pure data|pd",
+      "full": "Pure Data",
+      "acronym": "PD",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "python experimental economics toolkit|peet",
+      "full": "Python Experimental Economics Toolkit",
+      "acronym": "PEET",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "python tools for visual studio|ptvs",
+      "full": "Python Tools for Visual Studio",
+      "acronym": "PTVS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "radiology information systems|ris",
+      "full": "Radiology information systems",
+      "acronym": "RIS",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "railyard management software|rms",
+      "full": "Railyard management software",
+      "acronym": "RMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "real estate assistant|rea",
+      "full": "Real Estate Assistant",
+      "acronym": "REA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "really simple syndication|rss",
+      "full": "Really Simple Syndication",
+      "acronym": "RSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "realtors property resource|rpr",
+      "full": "Realtors Property Resource",
+      "acronym": "RPR",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "refugee, asylum and parole system|raps",
+      "full": "Refugee, Asylum and Parole System",
+      "acronym": "RAPS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "register transfer language|rtl",
+      "full": "Register transfer language",
+      "acronym": "RTL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "relational database management system|rdms",
+      "full": "Relational database management system",
+      "acronym": "RDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "resource ordering and statusing system|ross",
+      "full": "Resource Ordering and Statusing System",
+      "acronym": "ROSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "retrofit energy savings estimation model|resem",
+      "full": "Retrofit Energy Savings Estimation Model",
+      "acronym": "RESEM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "rice simulator for ilp multiprocessors|rsim",
+      "full": "Rice Simulator for ILP Multiprocessors",
+      "acronym": "RSIM",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "sap americas mysap erp human capital management|hcm",
+      "full": "SAP Americas mySAP ERP Human Capital Management",
+      "acronym": "HCM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "sap master data management|mdm",
+      "full": "SAP Master Data Management",
+      "acronym": "MDM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ssa global warehouse management system|wms",
+      "full": "SSA Global Warehouse Management System",
+      "acronym": "WMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "sage fixed asset solution|fas",
+      "full": "Sage Fixed Asset Solution",
+      "acronym": "FAS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "sawtooth composite product mapping|cpm",
+      "full": "Sawtooth Composite Product Mapping",
+      "acronym": "CPM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "scalable vector graphics|svg",
+      "full": "Scalable vector graphics",
+      "acronym": "SVG",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "scientific software group filter drain|fd",
+      "full": "Scientific Software Group Filter Drain",
+      "acronym": "FD",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "seaworthy systems shipboard automated maintenance management|samm",
+      "full": "Seaworthy Systems Shipboard Automated Maintenance Management",
+      "acronym": "SAMM",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "security assertion markup language|saml",
+      "full": "Security assertion markup language",
+      "acronym": "SAML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "session initiation protocol|sip",
+      "full": "Session Initiation Protocol",
+      "acronym": "SIP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "siemens power plant automation|sppa",
+      "full": "Siemens Power Plant Automation",
+      "acronym": "SPPA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "silverbyte systems optima property management system|pms",
+      "full": "Silverbyte Systems Optima Property Management System",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "simple api for xml|sax",
+      "full": "Simple API for XML",
+      "acronym": "SAX",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "simple directmedia layer|sdl",
+      "full": "Simple DirectMedia Layer",
+      "acronym": "SDL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "simple model of the atmospheric radiative transfer of sunshine|smarts",
+      "full": "Simple Model of the Atmospheric Radiative Transfer of Sunshine",
+      "acronym": "SMARTS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "simple mail transfer protocol|smtp",
+      "full": "Simple mail transfer protocol",
+      "acronym": "SMTP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "software design associates computer fencing system|cfs",
+      "full": "Software Design Associates Computer Fencing System",
+      "acronym": "CFS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "solar and wind energy resource assessment|swera",
+      "full": "Solar and Wind Energy Resource Assessment",
+      "acronym": "SWERA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "spatial analysis and decision assistance|sada",
+      "full": "Spatial Analysis and Decision Assistance",
+      "acronym": "SADA",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "special education student information system|sesis",
+      "full": "Special Education Student Information System",
+      "acronym": "SESIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "standard generalized markup language|sgml",
+      "full": "Standard generalized markup language",
+      "acronym": "SGML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "standardized general markup language|sgml",
+      "full": "Standardized general markup language",
+      "acronym": "SGML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "structure query language|sql",
+      "full": "Structure query language",
+      "acronym": "SQL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "structured query report|sqr",
+      "full": "Structured Query Report",
+      "acronym": "SQR",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "structured query language|sql",
+      "full": "Structured query language",
+      "acronym": "SQL",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "student and exchange visitor information system|sevis",
+      "full": "Student and Exchange Visitor Information System",
+      "acronym": "SEVIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "syntactically awesome style sheets|sass",
+      "full": "Syntactically awesome style sheets",
+      "acronym": "SASS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "system for electronic rate and form filing|serff",
+      "full": "System for Electronic Rate and Form Filing",
+      "acronym": "SERFF",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "technical data management system|tdms",
+      "full": "Technical Data Management System",
+      "acronym": "TDMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "telvent responder outage management system|oms",
+      "full": "Telvent Responder Outage Management System",
+      "acronym": "OMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "texas transportation institute tti progression analysis and signal system evaluation routine|passer",
+      "full": "Texas Transportation Institute TTI Progression Analysis and Signal System Evaluation Routine",
+      "acronym": "PASSER",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "the nature conservancy weed information management system|wims",
+      "full": "The Nature Conservancy Weed Information Management System",
+      "acronym": "WIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "thermal dynamics ground loop design|gld",
+      "full": "Thermal Dynamics Ground Loop Design",
+      "acronym": "GLD",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "thermal synthesizer system|tss",
+      "full": "Thermal Synthesizer System",
+      "acronym": "TSS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "thermo fisher scientific laboratory information management systems|lims",
+      "full": "Thermo Fisher Scientific Laboratory Information Management Systems",
+      "acronym": "LIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "thomson creative solutions engagement|cs",
+      "full": "Thomson Creative Solutions Engagement",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "thomson creative solutions financial analysis|cs",
+      "full": "Thomson Creative Solutions Financial Analysis",
+      "acronym": "CS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "tidepool scientific software comprehensive environmental toxicity information system|cetis",
+      "full": "Tidepool Scientific Software Comprehensive Environmental Toxicity Information System",
+      "acronym": "CETIS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "time and attendance collection system|tacs",
+      "full": "Time and Attendance Collection System",
+      "acronym": "TACS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "total officer personnel management information system|topmis",
+      "full": "Total Officer Personnel Management Information System",
+      "acronym": "TOPMIS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "trainontrack learning management system|lms",
+      "full": "TrainOnTrack Learning Management System",
+      "acronym": "LMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "transient reactor analysis code|trac",
+      "full": "Transient reactor analysis code",
+      "acronym": "TRAC",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "treasury enforcement communications system|tecs",
+      "full": "Treasury Enforcement Communications System",
+      "acronym": "TECS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "tritech financial systems general insurance management system|gims",
+      "full": "Tritech Financial Systems General Insurance Management System",
+      "acronym": "GIMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "usda database for inventory, monitoring and assessment|dima",
+      "full": "USDA Database for Inventory, Monitoring and Assessment",
+      "acronym": "DIMA",
+      "confidence": "parenthetical",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "usda forest vegetation simulator|fvs",
+      "full": "USDA Forest Vegetation Simulator",
+      "acronym": "FVS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "unidata gempak analysis and rendering program|garp",
+      "full": "Unidata Gempak Analysis and Rendering Program",
+      "acronym": "GARP",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "unidata integrated data viewer|idv",
+      "full": "Unidata Integrated Data Viewer",
+      "acronym": "IDV",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "unified modeling language|uml",
+      "full": "Unified modeling language",
+      "acronym": "UML",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "university of california thesaurus linguae graecae|tlg",
+      "full": "University of California Thesaurus Linguae Graecae",
+      "acronym": "TLG",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "very high speed integrated circuit vhsic hardware description language|vhdl",
+      "full": "Very high-speed integrated circuit VHSIC hardware description language",
+      "acronym": "VHDL",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "veterinary practice management software|pms",
+      "full": "Veterinary practice management software",
+      "acronym": "PMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "vienna ab initio simulation package|vasp",
+      "full": "Vienna Ab-Initio Simulation Package",
+      "acronym": "VASP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "virtual router redundancy protocol|vrrp",
+      "full": "Virtual Router Redundancy Protocol",
+      "acronym": "VRRP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "visual molecular dynamics|vmd",
+      "full": "Visual Molecular Dynamics",
+      "acronym": "VMD",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "vortek site assessment of tornado threat|satt",
+      "full": "VorTek Site Assessment of Tornado Threat",
+      "acronym": "SATT",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "wallingford software infoworks|ws",
+      "full": "Wallingford Software InfoWorks",
+      "acronym": "WS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "warehouse management system|wms",
+      "full": "Warehouse management system",
+      "acronym": "WMS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "water erosion prediction project|wepp",
+      "full": "Water Erosion Prediction Project",
+      "acronym": "WEPP",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "wildland fire assessment system|wfas",
+      "full": "Wildland Fire Assessment System",
+      "acronym": "WFAS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "worldwide instructional design system|wids",
+      "full": "Worldwide Instructional Design System",
+      "acronym": "WIDS",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "xml user interface|xui",
+      "full": "XML User Interface",
+      "acronym": "XUI",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "xilinx integrated software environment|ise",
+      "full": "Xilinx Integrated Software Environment",
+      "acronym": "ISE",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "xilinx synthesis technology|xst",
+      "full": "Xilinx Synthesis Technology",
+      "acronym": "XST",
+      "confidence": "initials-exact",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "xyleme learning content management system|lcms",
+      "full": "Xyleme Learning Content Management System",
+      "acronym": "LCMS",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    },
+    {
+      "key": "ddlsoftware.com drivers daily log program|ddl",
+      "full": "ddlsoftware.com drivers daily log program",
+      "acronym": "DDL",
+      "confidence": "initials-substring",
+      "firstSeenVersion": "30.3",
+      "lastConfirmedVersion": "30.3"
+    }
+  ]
+}

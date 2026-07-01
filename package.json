@@ -14,6 +14,7 @@
     "skills:candidates": "tsx scripts/skills/buildAliasCandidates.ts",
     "skills:review": "tsx scripts/skills/reviewCandidates.ts",
     "skills:aliasdiff": "tsx scripts/skills/runAliasDiff.ts",
+    "skills:sync-onet": "tsx scripts/skills/runOnetSync.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
