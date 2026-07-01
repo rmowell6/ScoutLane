@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { assembleFitInput, type FitSignals } from './fitSignals'
 import { assessFit } from './fitScore'
-import type { JobReqs } from '@/lib/schemas'
+import { CandidatePreferencesSchema, type JobReqs } from '@/lib/schemas'
 
 const SIGNALS: FitSignals = {
   roleTypeMatch: 'best',
@@ -15,12 +15,14 @@ const SIGNALS: FitSignals = {
   location: 'remote_us',
   locationFlags: { onCall: false, travelModerate: false, travelHeavy: false },
   vertical: 'match',
+  engagementType: 'unspecified',
+  sponsorshipAvailable: 'unspecified',
   requiredCerts: [],
   heldCerts: [],
   adjacentCerts: [],
   hardGaps: [],
   flags: { expired: false, unconfirmedLive: false, defenseAdjacent: false, heavyTravelOrPresales: false },
-  evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '' },
+  evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '', engagementType: '', sponsorshipAvailable: '' },
 }
 
 const JOB: JobReqs = { title: 'Cloud Engineer', mustHave: [], niceToHave: [] }
@@ -53,5 +55,19 @@ describe('assembleFitInput', () => {
     const result = assessFit(input)
     expect(result.overall).toBeGreaterThan(0)
     expect(result.dimensions).toHaveLength(8)
+  })
+
+  test('preferences that predate the engagement/sponsorship fields default sensibly (no penalty)', () => {
+    // A CandidatePreferences object saved before rubric 1.1.0 has neither field; it must still parse
+    // and leave the candidate-side inputs undefined, so the new penalties never fire from missing data.
+    const prefs = CandidatePreferencesSchema.parse({})
+    expect(prefs.preferredEngagementType).toBeUndefined()
+    expect(prefs.needsSponsorship).toBeUndefined()
+    const input = assembleFitInput(SIGNALS, prefs, JOB)
+    expect(input.preferredEngagementType).toBeUndefined()
+    expect(input.needsSponsorship).toBeUndefined()
+    const r = assessFit(input)
+    expect(r.penalties.workAuthMismatch).toBe(0)
+    expect(r.penalties.engagementMismatch).toBe(0)
   })
 })

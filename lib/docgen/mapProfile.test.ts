@@ -119,7 +119,7 @@ describe('toFitAssessmentContent', () => {
     base: 81.7,
     bonus: 0,
     penaltyTotal: 0,
-    penalties: { hardGaps: 0, expired: 0, unconfirmedLive: 0, defenseAdjacent: 0, heavyTravelOrPresales: 0 },
+    penalties: { hardGaps: 0, expired: 0, unconfirmedLive: 0, defenseAdjacent: 0, heavyTravelOrPresales: 0, workAuthMismatch: 0, engagementMismatch: 0 },
     hardGaps: ['people management'],
     dimensions: [
       { key: 'roleTypeMatch', label: 'Role-type match', weight: 0.2, score: 80, note: 'Target-title fit: solid.' },

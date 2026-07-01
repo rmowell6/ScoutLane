@@ -27,6 +27,11 @@ export const FitSignalsSchema = z.object({
     travelHeavy: z.boolean(),
   }),
   vertical: z.enum(['match', 'adjacent', 'none']),
+  // Engagement (tax/legal structure) and visa sponsorship, extracted ONLY when the JD is explicit;
+  // 'unspecified' otherwise (never guess). These feed rubric 1.1.0 penalties, so they are grounded in
+  // groundJobSignals (neutralized back to 'unspecified' if their evidence quote is not in the JD).
+  engagementType: z.enum(['w2_fte', 'w2_contract', 'c2c', 'c2c_1099', 'unspecified']),
+  sponsorshipAvailable: z.enum(['yes', 'no', 'unspecified']),
   requiredCerts: z.array(z.string()),
   heldCerts: z.array(z.string()),
   adjacentCerts: z.array(z.string()),
@@ -46,6 +51,8 @@ export const FitSignalsSchema = z.object({
     location: z.string(),
     employerType: z.string(),
     vertical: z.string(),
+    engagementType: z.string(),
+    sponsorshipAvailable: z.string(),
   }),
 })
 export type FitSignals = z.infer<typeof FitSignalsSchema>
@@ -83,5 +90,11 @@ export function assembleFitInput(
     hardGaps: signals.hardGaps,
     flags: signals.flags,
     lanesSurfaced: 1,
+    // Engagement + work-auth (rubric 1.1.0): JD side from the (grounded) signals, candidate side from
+    // preferences. Absent candidate preferences leave these undefined -> no penalty.
+    engagementType: signals.engagementType,
+    sponsorshipAvailable: signals.sponsorshipAvailable,
+    preferredEngagementType: preferences?.preferredEngagementType,
+    needsSponsorship: preferences?.needsSponsorship,
   }
 }

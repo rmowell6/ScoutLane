@@ -37,9 +37,11 @@ function signals(over: Partial<FitSignals> = {}): FitSignals {
     requiredCerts: ['az-104'],
     heldCerts: ['az-104'],
     adjacentCerts: [],
+    engagementType: 'unspecified',
+    sponsorshipAvailable: 'unspecified',
     hardGaps: [],
     flags: { expired: false, unconfirmedLive: false, defenseAdjacent: false, heavyTravelOrPresales: false },
-    evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '' },
+    evidence: { roleTypeMatch: '', seniorityMatch: '', location: '', employerType: '', vertical: '', engagementType: '', sponsorshipAvailable: '' },
     ...over,
   }
 }
@@ -98,6 +100,8 @@ const goodEvidence = {
   location: 'remote in the US',
   employerType: 'direct-hire role',
   vertical: 'healthcare company',
+  engagementType: '',
+  sponsorshipAvailable: '',
 }
 
 describe('groundJobSignals', () => {
@@ -146,6 +150,24 @@ describe('groundJobSignals', () => {
     )
     expect(bad.lowConfidenceFields).toEqual(['location'])
     expect(bad.signals.location).toBe('onsite_elsewhere') // categorical value never altered
+  })
+
+  test('neutralizes a penalizing signal (sponsorship "no") when its evidence quote is not in the JD', () => {
+    // A hallucinated "no sponsorship" must not apply a penalty from thin air: no matching quote -> reset
+    // to "unspecified" (and flagged). A grounded one is kept.
+    const hallucinated = groundJobSignals(
+      signals({ sponsorshipAvailable: 'no', evidence: { ...goodEvidence, sponsorshipAvailable: 'we do not sponsor visas' } }),
+      JD, // JD says nothing about sponsorship
+    )
+    expect(hallucinated.signals.sponsorshipAvailable).toBe('unspecified')
+    expect(hallucinated.lowConfidenceFields).toContain('sponsorshipAvailable')
+
+    const jdWithClause = `${JD}\nWe are unable to sponsor visas for this role.`
+    const grounded = groundJobSignals(
+      signals({ sponsorshipAvailable: 'no', evidence: { ...goodEvidence, sponsorshipAvailable: 'unable to sponsor visas' } }),
+      jdWithClause,
+    )
+    expect(grounded.signals.sponsorshipAvailable).toBe('no') // real, kept
   })
 
   test('hardGaps: an ungrounded gap is flagged for telemetry but not dropped', () => {

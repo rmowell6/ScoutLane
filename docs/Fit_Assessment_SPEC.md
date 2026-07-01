@@ -95,6 +95,25 @@ Weights/tables are constants at the top of `lib/fit/fitScore.ts`. On any change:
 
 ---
 
+## Rubric 1.1.0 additions: engagement + work authorization (July 1, 2026)
+
+New capability, NOT a port. `RUBRIC_VERSION` is bumped `1.0.0` -> `1.1.0`. The 1.0.0 core (the 8 weighted dimensions + the original 5 penalties) is unchanged and still byte-parity with the reference `fit_score.js`; 1.1.0 only adds two PENALTIES for signals that were previously invisible to scoring. There is no `fit_score.js` value to stay in parity with for these fields, so the three new golden cases were scored by `lib/fit/fitScore.ts` directly (their case names say so).
+
+**Why penalties, not a 9th weighted dimension.** Adding a weighted dimension would force taking weight from the existing 8, a rebalancing this change should not make unilaterally. The existing penalty framework already models exactly this "otherwise-good role with a specific dealbreaker" pattern.
+
+**New JD-side signals** (`fitSignals.ts`): `engagementType` (`w2_fte | w2_contract | c2c | c2c_1099 | unspecified`) and `sponsorshipAvailable` (`yes | no | unspecified`). Extracted only when the JD is EXPLICIT; both carry an evidence quote and are grounded in `groundJobSignals`, which resets either to `unspecified` when its quote is not literally in the JD (so a hallucinated value can never apply a penalty). **New candidate-side preferences** (`CandidatePreferencesSchema`): `preferredEngagementType` and `needsSponsorship`, both optional (absent = no preference / no need). These are distinct from the existing `employmentTypes` (a schedule axis) and `employerType` (who employs you).
+
+**Penalty magnitudes and rationale** (both fire ONLY when BOTH sides are explicit; missing data never penalizes):
+
+| Penalty | Value | Rationale |
+|---|---|---|
+| `workAuthMismatch` | **25** | Candidate `needsSponsorship` AND JD `sponsorshipAvailable` is `no`. The LARGEST single penalty: a legal ELIGIBILITY wall, not a preference (the candidate literally cannot take the role). Set above `expired` (15), which is only a re-verifiable data-freshness issue. Deliberately not a hard 100 (zero-out): the underlying fit is still useful to show, and sponsorship policies occasionally flex, so it drops a strong role to roughly Stretch/Lead without declaring a non-match. |
+| `engagementMismatch` | **8** | Candidate and JD engagement are explicit and in different FAMILIES (W2/employee vs corp-to-corp/1099). Smaller than work-auth and than `expired` because it is a real friction but MORE OFTEN NEGOTIABLE (frequently brokered through an agency). Family-based on purpose: intra-family differences (permanent vs contract within W2) are preferences, not blockers, so they do NOT penalize. |
+
+`penalties` gains `workAuthMismatch` and `engagementMismatch` keys (both `0` when not triggered), and `penaltyTotal` sums them. Any FitInput lacking the new (optional) fields scores identically to 1.0.0 except for the `version` string and the two new zero-valued penalty keys.
+
+---
+
 ## Drift audit (reconstructed from code, July 1, 2026)
 
 Reference `fit_score.js` (rubric `1.0.0`) diffed line-by-line against live `lib/fit/fitScore.ts`. Every scoring input is identical:

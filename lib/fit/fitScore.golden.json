@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "generatedBy": "fit_score.js",
-  "note": "Cross-implementation parity contract. assessFit(input) MUST deep-equal expected for each case.",
+  "version": "1.1.0",
+  "generatedBy": "lib/fit/fitScore.ts",
+  "note": "Cross-implementation parity contract at rubric 1.1.0. The 1.0.0 scoring (8 weighted dimensions + the original penalties) stays byte-parity with the reference fit_score.js; the 1.1.0 workAuthMismatch / engagementMismatch penalty fields are NEW capability with no fit_score.js equivalent and were scored by lib/fit/fitScore.ts directly.",
   "cases": [
     {
       "name": "Jack Henry — Infrastructure Engineering Manager (stretch)",
@@ -42,7 +42,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 82,
         "band": "Strong fit",
         "base": 81.7,
@@ -53,7 +53,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -165,7 +167,7 @@
         "lanesSurfaced": 2
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 88,
         "band": "Best fit",
         "base": 86.2,
@@ -176,7 +178,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -272,7 +276,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 69,
         "band": "Stretch",
         "base": 68.6,
@@ -283,7 +287,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -376,7 +382,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 40,
         "band": "Lead",
         "base": 40.2,
@@ -387,7 +393,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -489,7 +497,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 0,
         "band": "Lead",
         "base": 35.7,
@@ -500,7 +508,9 @@
           "expired": 15,
           "unconfirmedLive": 6,
           "defenseAdjacent": 10,
-          "heavyTravelOrPresales": 4
+          "heavyTravelOrPresales": 4,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [
           "ts/sci clearance",
@@ -600,7 +610,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 78,
         "band": "Strong fit",
         "base": 77.7,
@@ -611,7 +621,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -704,7 +716,7 @@
         "lanesSurfaced": 1
       },
       "expected": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "overall": 69,
         "band": "Stretch",
         "base": 68.6,
@@ -715,7 +727,9 @@
           "expired": 0,
           "unconfirmedLive": 0,
           "defenseAdjacent": 0,
-          "heavyTravelOrPresales": 0
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
         },
         "hardGaps": [],
         "dimensions": [
@@ -767,6 +781,332 @@
             "weight": 0.08,
             "score": 70,
             "note": "Vertical: adjacent."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Acme Platform Engineer, work-auth mismatch (1.1.0, TS-scored, no fit_score.js equivalent)",
+      "input": {
+        "roleId": "acme-platform-engineer",
+        "title": "Platform Engineer",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "candidateSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "exact",
+        "compTopUsd": 180000,
+        "targetCompTopUsd": 170000,
+        "employerType": "direct",
+        "location": "remote_us",
+        "vertical": "match",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1,
+        "needsSponsorship": true,
+        "sponsorshipAvailable": "no"
+      },
+      "expected": {
+        "version": "1.1.0",
+        "overall": 71,
+        "band": "Stretch",
+        "base": 95.6,
+        "bonus": 0,
+        "penaltyTotal": 25,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 25,
+          "engagementMismatch": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 100,
+            "note": "3 of 3 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 92,
+            "note": "Posted top $180,000 vs target $170,000 (ratio 1.06)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 100,
+            "note": "Employer type: direct."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 95,
+            "note": "remote_us."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 90,
+            "note": "Vertical: match."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Acme Platform Engineer, engagement mismatch W2 vs C2C (1.1.0, TS-scored)",
+      "input": {
+        "roleId": "acme-platform-engineer",
+        "title": "Platform Engineer",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "candidateSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "exact",
+        "compTopUsd": 180000,
+        "targetCompTopUsd": 170000,
+        "employerType": "direct",
+        "location": "remote_us",
+        "vertical": "match",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1,
+        "preferredEngagementType": "w2_fte",
+        "engagementType": "c2c"
+      },
+      "expected": {
+        "version": "1.1.0",
+        "overall": 88,
+        "band": "Best fit",
+        "base": 95.6,
+        "bonus": 0,
+        "penaltyTotal": 8,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 8
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 100,
+            "note": "3 of 3 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 92,
+            "note": "Posted top $180,000 vs target $170,000 (ratio 1.06)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 100,
+            "note": "Employer type: direct."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 95,
+            "note": "remote_us."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 90,
+            "note": "Vertical: match."
+          },
+          {
+            "key": "certRequirementFit",
+            "label": "Certifications & specialized reqs",
+            "weight": 0.08,
+            "score": 80,
+            "note": "No specific certs required (neutral)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Acme Platform Engineer, sponsorship needed but JD unspecified so NO penalty (1.1.0, TS-scored)",
+      "input": {
+        "roleId": "acme-platform-engineer",
+        "title": "Platform Engineer",
+        "roleTypeMatch": "best",
+        "mustHaveSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "candidateSkills": [
+          "kubernetes",
+          "terraform",
+          "aws"
+        ],
+        "adjacentSkills": [],
+        "seniorityMatch": "exact",
+        "compTopUsd": 180000,
+        "targetCompTopUsd": 170000,
+        "employerType": "direct",
+        "location": "remote_us",
+        "vertical": "match",
+        "requiredCerts": [],
+        "heldCerts": [],
+        "hardGaps": [],
+        "flags": {},
+        "lanesSurfaced": 1,
+        "needsSponsorship": true,
+        "sponsorshipAvailable": "unspecified",
+        "preferredEngagementType": "w2_fte",
+        "engagementType": "unspecified"
+      },
+      "expected": {
+        "version": "1.1.0",
+        "overall": 96,
+        "band": "Best fit",
+        "base": 95.6,
+        "bonus": 0,
+        "penaltyTotal": 0,
+        "penalties": {
+          "hardGaps": 0,
+          "expired": 0,
+          "unconfirmedLive": 0,
+          "defenseAdjacent": 0,
+          "heavyTravelOrPresales": 0,
+          "workAuthMismatch": 0,
+          "engagementMismatch": 0
+        },
+        "hardGaps": [],
+        "dimensions": [
+          {
+            "key": "roleTypeMatch",
+            "label": "Role-type match",
+            "weight": 0.2,
+            "score": 100,
+            "note": "Target-title fit: best."
+          },
+          {
+            "key": "skillsCoverage",
+            "label": "Core skills coverage",
+            "weight": 0.22,
+            "score": 100,
+            "note": "3 of 3 must-haves matched."
+          },
+          {
+            "key": "seniorityMatch",
+            "label": "Seniority / scope match",
+            "weight": 0.1,
+            "score": 95,
+            "note": "Level fit: exact."
+          },
+          {
+            "key": "compAlignment",
+            "label": "Compensation alignment",
+            "weight": 0.12,
+            "score": 92,
+            "note": "Posted top $180,000 vs target $170,000 (ratio 1.06)."
+          },
+          {
+            "key": "employerPreference",
+            "label": "Employer-type preference",
+            "weight": 0.1,
+            "score": 100,
+            "note": "Employer type: direct."
+          },
+          {
+            "key": "locationLogistics",
+            "label": "Location & logistics",
+            "weight": 0.1,
+            "score": 95,
+            "note": "remote_us."
+          },
+          {
+            "key": "verticalFit",
+            "label": "Domain / vertical fit",
+            "weight": 0.08,
+            "score": 90,
+            "note": "Vertical: match."
           },
           {
             "key": "certRequirementFit",

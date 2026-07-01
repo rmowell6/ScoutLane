@@ -195,4 +195,6 @@ export const PENALTY_LABELS: Record<string, string> = {
   unconfirmedLive: 'the posting is not confirmed live',
   defenseAdjacent: 'a defense or clearance-adjacent role',
   heavyTravelOrPresales: 'heavy travel or pre-sales',
+  workAuthMismatch: 'the role does not offer the visa sponsorship you need',
+  engagementMismatch: 'the engagement type (W2 vs corp-to-corp) does not match your preference',
 }

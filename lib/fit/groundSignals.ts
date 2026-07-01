@@ -99,10 +99,25 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
   const compTopUsd = compGrounded ? signals.compTopUsd : null
 
   // Tier 3: flag any categorical whose evidence quote is missing or not literally in the JD.
-  const lowConfidenceFields = EVIDENCE_FIELDS.filter((f) => {
+  const lowConfidenceFields: string[] = EVIDENCE_FIELDS.filter((f) => {
     const quote = normalize(signals.evidence?.[f] ?? '')
     return !quote || !jdNorm.includes(quote)
   })
+
+  // Rubric 1.1.0 penalizing signals (engagementType, sponsorshipAvailable): NEUTRALIZE to 'unspecified'
+  // when their evidence quote is not in the JD, so a hallucinated "no sponsorship" or wrong engagement
+  // type can never apply a penalty from thin air. This is stronger than the Tier-3 flag above (which
+  // only annotates): because these drive penalties, they fail SAFE by dropping to the no-penalty value.
+  const jdHasQuote = (q: string | undefined): boolean => {
+    const n = normalize(q ?? '')
+    return n.length > 0 && jdNorm.includes(n)
+  }
+  const engagementGrounded =
+    signals.engagementType === 'unspecified' || jdHasQuote(signals.evidence?.engagementType)
+  const sponsorshipGrounded =
+    signals.sponsorshipAvailable === 'unspecified' || jdHasQuote(signals.evidence?.sponsorshipAvailable)
+  if (!engagementGrounded) lowConfidenceFields.push('engagementType')
+  if (!sponsorshipGrounded) lowConfidenceFields.push('sponsorshipAvailable')
 
   // hardGaps: flag ungrounded gaps for telemetry, but keep them (paraphrase-safe, non-blocking).
   const ungroundedHardGaps = (signals.hardGaps ?? []).filter((g) => !mentionsAny(jdNorm, g))
@@ -114,6 +129,8 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
       preferredSkills: keepJd(signals.preferredSkills),
       requiredCerts: keepJd(signals.requiredCerts),
       compTopUsd,
+      engagementType: engagementGrounded ? signals.engagementType : 'unspecified',
+      sponsorshipAvailable: sponsorshipGrounded ? signals.sponsorshipAvailable : 'unspecified',
     },
     droppedJd,
     compNulled,
