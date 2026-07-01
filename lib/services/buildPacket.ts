@@ -149,12 +149,15 @@ async function generateDocuments(
   ]
 
   // Build every (document × format) buffer up front (in parallel); how we serve them is decided below.
+  // Kick off both formats before awaiting either: an object literal evaluates its properties left to
+  // right, so `{ pdf: await s.pdf(), docx: await s.docx() }` would fully build the PDF before the DOCX
+  // even starts. The two builders are independent, so run them concurrently.
   const formats: DocFormat[] = ['pdf', 'docx']
   const built = await Promise.all(
-    specs.map(async (s) => ({
-      spec: s,
-      buffers: { pdf: await s.pdf(), docx: await s.docx() } as Record<DocFormat, Buffer>,
-    })),
+    specs.map(async (s) => {
+      const [pdf, docx] = await Promise.all([s.pdf(), s.docx()])
+      return { spec: s, buffers: { pdf, docx } as Record<DocFormat, Buffer> }
+    }),
   )
 
   const filenameOf = (stem: string, format: DocFormat) => `${stem}.${FORMAT_META[format].ext}`
@@ -165,13 +168,16 @@ async function generateDocuments(
       const id = crypto.randomUUID()
       const uploaded = await Promise.all(
         built.map(async ({ spec, buffers }) => {
-          const refs = {} as DocFormats
-          for (const format of formats) {
-            const filename = filenameOf(spec.stem, format)
-            const { signedUrl } = await uploadDoc(buffers[format], format, spec.prefix, `${id}-${spec.slug}`, filename)
-            refs[format] = { filename, mime: mimeOf(format), signedUrl }
-          }
-          return [spec.key, refs] as const
+          // Upload both formats of a document concurrently: each uploadDoc is an independent network
+          // round trip to Storage, so a serial `for` loop would stack their latencies for no reason.
+          const entries = await Promise.all(
+            formats.map(async (format) => {
+              const filename = filenameOf(spec.stem, format)
+              const { signedUrl } = await uploadDoc(buffers[format], format, spec.prefix, `${id}-${spec.slug}`, filename)
+              return [format, { filename, mime: mimeOf(format), signedUrl }] as const
+            }),
+          )
+          return [spec.key, Object.fromEntries(entries) as DocFormats] as const
         }),
       )
       const byKey = Object.fromEntries(uploaded) as Record<(typeof specs)[number]['key'], DocFormats>
@@ -233,10 +239,16 @@ export async function buildPacket(input: PacketInput): Promise<Packet> {
   if (!input.profile && !input.resumeText) {
     throw new PacketError('input', new Error('buildPacket requires either profile or resumeText'))
   }
-  const profile =
-    input.profile ??
-    (await runStep('structureResume', () => structureResume(input.resumeText as string)))
-  const jobReqs = await runStep('parseJob', () => parseJob(input.jdText))
+  // structureResume (resume text -> profile) and parseJob (jd text -> requirements) share no data,
+  // so run them concurrently. On the stateless path this saves a full LLM round trip of latency
+  // before the fit/tailor/style batch below. runStep still tags and logs each step independently, so
+  // a failure in either still surfaces the right PacketError.step.
+  const [profile, jobReqs] = await Promise.all([
+    input.profile
+      ? Promise.resolve(input.profile)
+      : runStep('structureResume', () => structureResume(input.resumeText as string)),
+    runStep('parseJob', () => parseJob(input.jdText)),
+  ])
 
   // Fit: the LLM EXTRACTS signals (fuzzy), then the deterministic engine SCORES them (exact).
   // Style recommendation rides in the same parallel batch when the caller didn't pick a style, so
