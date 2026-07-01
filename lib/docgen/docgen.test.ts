@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import JSZip from 'jszip'
 import { buildResumeDocx, type ResumeContent } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx, type CoverLetterContent } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx, type FitAssessmentContent } from '@/lib/docgen/fitAssessment'
@@ -59,10 +60,40 @@ function isDocxBuffer(buf: Buffer): boolean {
   return Buffer.isBuffer(buf) && buf.length > 1000 && buf[0] === 0x50 && buf[1] === 0x4b
 }
 
+/** Unzip a .docx buffer and return the raw word/document.xml body. */
+async function documentXml(buf: Buffer): Promise<string> {
+  const zip = await JSZip.loadAsync(buf)
+  return zip.file('word/document.xml')!.async('string')
+}
+
+/** Count <w:p> paragraph elements (both <w:p>…</w:p> and self-closing <w:p/>). */
+function paragraphCount(xml: string): number {
+  return (xml.match(/<w:p[ >/]/g) ?? []).length
+}
+
 describe('docgen', () => {
   test('buildResumeDocx produces a non-trivial .docx buffer', async () => {
     const buf = await buildResumeDocx(sampleResume, theme, font)
     expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('an empty role context adds no phantom paragraph (consistent spacing)', async () => {
+    // mapProfile currently always passes context: '' (no per-role context in the schema yet). An
+    // empty context must NOT emit a blank spacer paragraph between the job title and the bullets —
+    // otherwise the experience section gains a phantom gap that reads as inconsistent spacing.
+    const withContext = await documentXml(await buildResumeDocx(sampleResume, theme, font))
+    const emptyContext = await documentXml(
+      await buildResumeDocx(
+        { ...sampleResume, experience: sampleResume.experience.map((e) => ({ ...e, context: '' })) },
+        theme,
+        font,
+      ),
+    )
+    // Exactly one fewer paragraph per role when the context line is dropped (here: one role).
+    expect(paragraphCount(emptyContext)).toBe(paragraphCount(withContext) - sampleResume.experience.length)
+    // The dropped context text is gone; the bullet it used to sit above still renders.
+    expect(emptyContext).not.toContain('Run hybrid Azure and on-prem infrastructure')
+    expect(emptyContext).toContain('Own Azure and on-prem operations across the engineering org')
   })
 
   test('buildCoverLetterDocx produces a non-trivial .docx buffer', async () => {

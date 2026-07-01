@@ -234,10 +234,13 @@ export async function buildResumeDocx(
   if (content.experience.length > 0) {
     children.push(
       sectionHeader('Professional Experience'),
+      // Render the context line ONLY when there is context. An empty context still carries a full
+      // line height plus after-spacing, so emitting it unconditionally injects a phantom blank
+      // paragraph between the job title and the first bullet, which reads as inconsistent spacing.
       ...content.experience.flatMap((e) => [
         jobHeader(e.company, e.dates),
         jobTitle(e.title),
-        jobContext(e.context),
+        ...(e.context.trim() ? [jobContext(e.context)] : []),
         ...e.bullets.map(bullet),
       ]),
     )
