@@ -3,6 +3,7 @@ import JSZip from 'jszip'
 import { buildResumeDocx, type ResumeContent } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx, type CoverLetterContent } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx, type FitAssessmentContent } from '@/lib/docgen/fitAssessment'
+import { buildResumePdf, buildCoverLetterPdf, buildFitAssessmentPdf } from '@/lib/docgen/pdf'
 import themes from '@/lib/style/themes.json'
 import fonts from '@/lib/style/fonts.json'
 import { resolveAssessmentAccent } from '@/lib/style/assessmentAccent'
@@ -55,9 +56,34 @@ const sampleCover: CoverLetterContent = {
   signature: 'Jordan Rivera',
 }
 
+const sampleFit: FitAssessmentContent = {
+  candidateName: 'Jordan Rivera',
+  roleTitle: 'Senior Cloud Engineer',
+  company: 'Acme',
+  date: 'June 27, 2026',
+  overall: 82,
+  bandLabel: 'Strong fit',
+  bandSummary: 'A strong match with a couple of honest stretches, well worth tailoring a packet for.',
+  holdingBack: 'Biggest gap: Core skills coverage (70/100).',
+  dimensions: [
+    { label: 'Role-type match', scoreText: '80 / 100', note: 'Your title lines up closely with this role.', group: 'strength' },
+    { label: 'Core skills coverage', scoreText: '70 / 100', note: 'You bring 3 of the 5 must-have skills.', group: 'stretch' },
+  ],
+  hardGaps: ['people management'],
+  preferredSkills: [
+    { skill: 'terraform', status: 'match' },
+    { skill: 'kubernetes', status: 'gap' },
+  ],
+}
+
 /** OOXML .docx files are ZIP archives — they start with the "PK" local-file-header magic. */
 function isDocxBuffer(buf: Buffer): boolean {
   return Buffer.isBuffer(buf) && buf.length > 1000 && buf[0] === 0x50 && buf[1] === 0x4b
+}
+
+/** PDF files start with the "%PDF-" magic bytes. */
+function isPdfBuffer(buf: Buffer): boolean {
+  return Buffer.isBuffer(buf) && buf.length > 500 && buf.subarray(0, 5).toString() === '%PDF-'
 }
 
 /** Unzip a .docx buffer and return the raw word/document.xml body. */
@@ -102,27 +128,33 @@ describe('docgen', () => {
   })
 
   test('buildFitAssessmentDocx produces a non-trivial .docx buffer', async () => {
-    const content: FitAssessmentContent = {
-      candidateName: 'Jordan Rivera',
-      roleTitle: 'Senior Cloud Engineer',
-      company: 'Acme',
-      date: 'June 27, 2026',
-      overall: 82,
-      bandLabel: 'Strong fit',
-      bandSummary: 'A strong match with a couple of honest stretches, well worth tailoring a packet for.',
-      holdingBack: 'Biggest gap: Core skills coverage (70/100).',
-      dimensions: [
-        { label: 'Role-type match', scoreText: '80 / 100', note: 'Your title lines up closely with this role.', group: 'strength' },
-        { label: 'Core skills coverage', scoreText: '70 / 100', note: 'You bring 3 of the 5 must-have skills.', group: 'stretch' },
-      ],
-      hardGaps: ['people management'],
-      preferredSkills: [
-        { skill: 'terraform', status: 'match' },
-        { skill: 'kubernetes', status: 'gap' },
-      ],
-    }
-    const buf = await buildFitAssessmentDocx(content, theme, accent)
+    const buf = await buildFitAssessmentDocx(sampleFit, theme, accent)
     expect(isDocxBuffer(buf)).toBe(true)
+  })
+
+  test('the three PDF builders produce valid %PDF buffers', async () => {
+    const [resume, cover, fit] = await Promise.all([
+      buildResumePdf(sampleResume, theme),
+      buildCoverLetterPdf(sampleCover, theme),
+      buildFitAssessmentPdf(sampleFit, theme, accent),
+    ])
+    expect(isPdfBuffer(resume)).toBe(true)
+    expect(isPdfBuffer(cover)).toBe(true)
+    expect(isPdfBuffer(fit)).toBe(true)
+  })
+
+  test('PDF builders tolerate empty/minimal content without throwing', async () => {
+    const bareResume = await buildResumePdf(
+      { ...sampleResume, summary: '', skillCategories: [], experience: [], earlier: [], education: [], authLine: '' },
+      theme,
+    )
+    const bareFit = await buildFitAssessmentPdf(
+      { ...sampleFit, holdingBack: '', dimensions: [], hardGaps: [], preferredSkills: [] },
+      theme,
+      accent,
+    )
+    expect(isPdfBuffer(bareResume)).toBe(true)
+    expect(isPdfBuffer(bareFit)).toBe(true)
   })
 
   test('buildFitAssessmentDocx tolerates empty dimensions and hard gaps', async () => {

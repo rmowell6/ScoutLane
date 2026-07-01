@@ -398,10 +398,48 @@
 }
 
 /* ---- downloads (app affordance, styled in the design language) ---- */
+/* One row per document: a name label, a primary PDF button, and a small DOCX chip. Rows stack so
+   the format choice (PDF vs editable Word) reads clearly per document without a grid of buttons. */
 .packet .downloads {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
+}
+.packet .doc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
+}
+.packet .doc-name {
+  flex: 1 1 140px;
+  min-width: 120px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+.packet .doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Small secondary chip for the editable Word file — clearly subordinate to the primary PDF button. */
+.packet .format-chip {
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  background: var(--color-surface);
+  color: var(--color-brand);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.packet .format-chip:hover {
+  border-color: var(--color-brand);
 }
 .packet .download-btn {
   display: inline-flex;

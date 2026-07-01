@@ -12,8 +12,9 @@ import { BANNED_TERMS, STYLE_RULES } from '@/lib/profileRules'
 import { buildResumeDocx } from '@/lib/docgen/resume'
 import { buildCoverLetterDocx } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx } from '@/lib/docgen/fitAssessment'
+import { buildResumePdf, buildCoverLetterPdf, buildFitAssessmentPdf } from '@/lib/docgen/pdf'
 import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
-import { isStorageConfigured, uploadDocx } from '@/lib/storage'
+import { isStorageConfigured, uploadDoc, FORMAT_META, type DocFormat } from '@/lib/storage'
 import themes from '@/lib/style/themes.json'
 import fonts from '@/lib/style/fonts.json'
 import { resolveAssessmentAccent } from '@/lib/style/assessmentAccent'
@@ -44,17 +45,22 @@ export interface PacketInput {
 
 export interface DocumentRef {
   filename: string
+  /** MIME type of this file — the browser uses it when reconstructing an inline (base64) download. */
+  mime: string
   /** Present when stored in Supabase Storage. */
   signedUrl?: string
-  /** Present when Storage is unconfigured/unavailable — the docx inline, base64-encoded. */
+  /** Present when Storage is unconfigured/unavailable — the file inline, base64-encoded. */
   base64?: string
 }
 
+/** Every packet document ships in each supported format (PDF to view/print, DOCX to edit). */
+export type DocFormats = Record<DocFormat, DocumentRef>
+
 export interface PacketDocuments {
   storage: 'supabase' | 'inline'
-  resume: DocumentRef
-  coverLetter: DocumentRef
-  fitAssessment: DocumentRef
+  resume: DocFormats
+  coverLetter: DocFormats
+  fitAssessment: DocFormats
 }
 
 export interface Packet {
@@ -75,6 +81,15 @@ export interface Packet {
 
 function safeName(name: string): string {
   return name.trim().replace(/\s+/g, '_').replace(/[^\w.-]/g, '') || 'candidate'
+}
+
+/**
+ * Build the saved-as filename stem: `<Candidate>_<Company>_<DocType>` (e.g. Joe_Smith_Acme_Resume).
+ * The company segment is dropped when the JD has no company, so the name never has an empty gap.
+ */
+function fileStem(candidate: string, company: string | undefined, docType: string): string {
+  const co = company ? safeName(company) : ''
+  return [safeName(candidate), co, docType].filter(Boolean).join('_')
 }
 
 function todayString(): string {
@@ -100,43 +115,87 @@ async function generateDocuments(
   if (!theme || !font) throw new Error('Style data is missing a master theme/font')
   const accent = resolveAssessmentAccent(theme)
 
-  const [resumeBuf, coverBuf, fitBuf] = await Promise.all([
-    buildResumeDocx(toResumeContent(profile, tailored, jobReqs), theme, font),
-    buildCoverLetterDocx(toCoverLetterContent(profile, tailored, jobReqs, date), theme, font),
-    buildFitAssessmentDocx(toFitAssessmentContent(profile, fit, fitInput, jobReqs, date), theme, accent),
-  ])
+  // Map each of the three documents to its content + both-format builders, so DOCX and PDF are
+  // generated from the SAME content and can never drift. `prefix`/`slug` place the files in Storage.
+  const resumeContent = toResumeContent(profile, tailored, jobReqs)
+  const coverContent = toCoverLetterContent(profile, tailored, jobReqs, date)
+  const fitContent = toFitAssessmentContent(profile, fit, fitInput, jobReqs, date)
+  const company = jobReqs.company ?? undefined
+  const specs = [
+    {
+      key: 'resume' as const,
+      prefix: 'resumes',
+      slug: 'resume',
+      stem: fileStem(profile.name, company, 'Resume'),
+      docx: () => buildResumeDocx(resumeContent, theme, font),
+      pdf: () => buildResumePdf(resumeContent, theme),
+    },
+    {
+      key: 'coverLetter' as const,
+      prefix: 'cover-letters',
+      slug: 'cover',
+      stem: fileStem(profile.name, company, 'Cover_Letter'),
+      docx: () => buildCoverLetterDocx(coverContent, theme, font),
+      pdf: () => buildCoverLetterPdf(coverContent, theme),
+    },
+    {
+      key: 'fitAssessment' as const,
+      prefix: 'fit-assessments',
+      slug: 'fit',
+      stem: fileStem(profile.name, company, 'Fit_Assessment'),
+      docx: () => buildFitAssessmentDocx(fitContent, theme, accent),
+      pdf: () => buildFitAssessmentPdf(fitContent, theme, accent),
+    },
+  ]
 
-  const base = safeName(profile.name)
-  const resumeName = `${base}_Resume.docx`
-  const coverName = `${base}_Cover_Letter.docx`
-  const fitName = `${base}_Fit_Assessment.docx`
+  // Build every (document × format) buffer up front (in parallel); how we serve them is decided below.
+  const formats: DocFormat[] = ['pdf', 'docx']
+  const built = await Promise.all(
+    specs.map(async (s) => ({
+      spec: s,
+      buffers: { pdf: await s.pdf(), docx: await s.docx() } as Record<DocFormat, Buffer>,
+    })),
+  )
+
+  const filenameOf = (stem: string, format: DocFormat) => `${stem}.${FORMAT_META[format].ext}`
+  const mimeOf = (format: DocFormat) => FORMAT_META[format].contentType
 
   if (isStorageConfigured()) {
     try {
       const id = crypto.randomUUID()
-      const [r, c, f] = await Promise.all([
-        uploadDocx(resumeBuf, 'resumes', `${id}-resume`, resumeName),
-        uploadDocx(coverBuf, 'cover-letters', `${id}-cover`, coverName),
-        uploadDocx(fitBuf, 'fit-assessments', `${id}-fit`, fitName),
-      ])
-      return {
-        storage: 'supabase',
-        resume: { filename: resumeName, signedUrl: r.signedUrl },
-        coverLetter: { filename: coverName, signedUrl: c.signedUrl },
-        fitAssessment: { filename: fitName, signedUrl: f.signedUrl },
-      }
+      const uploaded = await Promise.all(
+        built.map(async ({ spec, buffers }) => {
+          const refs = {} as DocFormats
+          for (const format of formats) {
+            const filename = filenameOf(spec.stem, format)
+            const { signedUrl } = await uploadDoc(buffers[format], format, spec.prefix, `${id}-${spec.slug}`, filename)
+            refs[format] = { filename, mime: mimeOf(format), signedUrl }
+          }
+          return [spec.key, refs] as const
+        }),
+      )
+      const byKey = Object.fromEntries(uploaded) as Record<(typeof specs)[number]['key'], DocFormats>
+      return { storage: 'supabase', ...byKey }
     } catch (err) {
       // Bucket missing or transient error — fall back to inline so the packet still ships.
       console.error('[packet] storage upload failed, returning docs inline', err)
     }
   }
 
-  return {
-    storage: 'inline',
-    resume: { filename: resumeName, base64: resumeBuf.toString('base64') },
-    coverLetter: { filename: coverName, base64: coverBuf.toString('base64') },
-    fitAssessment: { filename: fitName, base64: fitBuf.toString('base64') },
-  }
+  const inline = Object.fromEntries(
+    built.map(({ spec, buffers }) => {
+      const refs = {} as DocFormats
+      for (const format of formats) {
+        refs[format] = {
+          filename: filenameOf(spec.stem, format),
+          mime: mimeOf(format),
+          base64: buffers[format].toString('base64'),
+        }
+      }
+      return [spec.key, refs]
+    }),
+  ) as Record<(typeof specs)[number]['key'], DocFormats>
+  return { storage: 'inline', ...inline }
 }
 
 /** Carries which pipeline step failed, so the route can report it without log-diving. */
