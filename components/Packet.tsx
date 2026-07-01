@@ -428,8 +428,8 @@ export default function PacketView({ packet, sourceUrl }: { packet: Packet; sour
           )}
 
           <p className="fit-trust">
-            This fit assessment is just for you, to help you decide whether to apply. It is never sent to
-            the employer, only your tailored resume and cover letter are.
+            This fit assessment is just for you, to help you decide whether to apply. It stays private,
+            separate from the resume and cover letter you download.
           </p>
         </section>
 

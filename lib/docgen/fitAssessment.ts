@@ -226,7 +226,7 @@ export async function buildFitAssessmentDocx(
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: 'Built from your structured history and stated preferences. This is a private decision aid for you, never shared with the employer.',
+          text: 'Built from your structured history and stated preferences. This is a private decision aid, separate from the resume and cover letter you download.',
           font: SANS,
           italics: true,
           size: 18,
