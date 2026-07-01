@@ -24,7 +24,7 @@ function normalizeTerm(s: string): string {
 
 // Each group is one equivalence class: [canonical, ...synonyms]. Compared after normalizeTerm, so
 // write forms in their natural spelling (dots/slashes are preserved by normalize, only dashes fold).
-const CORE_ALIAS_GROUPS: string[][] = [
+export const CORE_ALIAS_GROUPS: string[][] = [
   ['kubernetes', 'k8s'],
   ['javascript', 'js'],
   ['amazon web services', 'aws'],
@@ -52,7 +52,7 @@ const CORE_ALIAS_GROUPS: string[][] = [
 // to the same unambiguous bar as the core table. Stack Exchange tag synonyms only: every O*NET
 // parenthetical candidate was a short collision-prone acronym (EMR/IMS/GCE/CNS/...) and was excluded,
 // as were Stack Overflow sub-topic/version tags (jdk, php-fpm, angular2) and pairs already in core.
-const IMPORTED_ALIAS_GROUPS: string[][] = [
+export const IMPORTED_ALIAS_GROUPS: string[][] = [
   // Stack Exchange: React spellings, "react" is the resume-facing form, "reactjs"/"react.js" the SO/npm ones.
   ['react', 'reactjs', 'react.js'],
   // Stack Exchange: Vue.js written several ways for the one framework.
