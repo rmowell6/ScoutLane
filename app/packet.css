@@ -56,6 +56,35 @@
 .packet * {
   box-sizing: border-box;
 }
+
+/* ---- results dashboard layout ----
+   The packet results are a dashboard, so on a wide screen use two columns instead of one narrow
+   stacked column: the fit ANALYSIS (role, gauge + dimensions, keyword coverage) on the left, the
+   ACT-ON-IT cards (documents, outreach, next steps) on the right. Collapses to a single column on
+   tablet/mobile, where the columns simply stack in source order. */
+.packet .packet__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.packet .packet__col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0; /* let children shrink instead of forcing overflow (tables, long tokens) */
+}
+/* Inside a column the flex `gap` owns vertical spacing, so drop the cards' own bottom margin. */
+.packet .packet__col > .card,
+.packet .packet__col > .grid-2 {
+  margin-bottom: 0;
+}
+@media (min-width: 1024px) {
+  .packet .packet__body {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 16px;
+  }
+}
 .packet a {
   color: var(--color-link);
   text-decoration: none;
