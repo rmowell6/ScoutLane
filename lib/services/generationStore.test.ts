@@ -73,6 +73,7 @@ describe('saveGeneration', () => {
       user_id: 'u1',
       profile_id: 'p1',
       job_id: 'j1',
+      status: 'shipped', // guardrails.ok === true
       scores: packet.fit,
       guardrail_report: packet.guardrails,
       style: packet.style,
@@ -96,6 +97,23 @@ describe('saveGeneration', () => {
       job_id: null,
       resume_doc_path: null,
       cover_doc_path: null,
+    })
+  })
+
+  test('a guardrail-blocked packet inserts status "blocked" with null doc paths', async () => {
+    configure()
+    state.insertResult = { data: { id: 'gen-3' }, error: null }
+    const blocked = {
+      ...packet,
+      guardrails: { ok: false },
+      documents: null, // a blocked packet never generates documents
+    } as unknown as Packet
+    await saveGeneration({ userId: 'u1', packet: blocked })
+    expect(state.lastInsert).toMatchObject({
+      status: 'blocked',
+      resume_doc_path: null,
+      cover_doc_path: null,
+      guardrail_report: { ok: false },
     })
   })
 

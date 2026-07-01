@@ -118,7 +118,9 @@ them and returns signed download URLs, and without it falls back to returning th
    via the SQL Editor or `supabase db push`. They create `profiles` / `jobs` / `generations` with
    RLS, the ingest indexes, and the `ingest_run_markers` table (the Apify per-day cost guard). Each
    is idempotent (`if not exists`), so re-running is safe. The unified ingest cron needs these
-   applied; the stateless packet path does not.
+   applied; the stateless packet path does not. Note: `generations` records BOTH shipped and
+   guardrail-blocked packets (migration `0016` adds `status` = `'shipped' | 'blocked'`), so when
+   querying generation history, filter by `status` to separate the two.
 3. **Env vars:** ensure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and
    `SUPABASE_SECRET_KEY` are set in Vercel (Production + Preview). The secret key is server-only.
 
