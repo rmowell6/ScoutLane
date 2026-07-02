@@ -130,10 +130,26 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
   // hardGaps: flag ungrounded gaps for telemetry, but keep them (paraphrase-safe, non-blocking).
   const ungroundedHardGaps = (signals.hardGaps ?? []).filter((g) => !mentionsAny(jdNorm, g))
 
+  // must-haves drive the skillsCoverage SCORE (coverage()'s `required` list), so dropping them is not
+  // score-neutral like dropping a display-only preferred skill: fewer requirements can only RAISE the
+  // score. Tier 1's per-token drop of hallucinated requirements stays, with ONE guard (finding 7):
+  // never empty a NON-empty must-have list. coverage() returns a fixed neutral (80) for an empty
+  // `required`, which is right when the JD genuinely specified no must-haves, but if grounding drops
+  // EVERY real must-have (e.g. all paraphrased in the JD text), that same neutral 80 would replace an
+  // honest low score, silently turning a candidate who meets none of the requirements into an 80. So
+  // when grounding would drop all of them, keep the originals: they stay counted as unmet in the
+  // denominator, so grounding can never raise skillsCoverage. A list that was ALREADY empty still
+  // takes the legitimate neutral path unchanged.
+  const mustHaveGrounded = (signals.mustHaveSkills ?? []).filter((t) => mentionsAny(jdNorm, t))
+  const dropWouldEmptyAll = signals.mustHaveSkills.length > 0 && mustHaveGrounded.length === 0
+  const mustHaveSkills = dropWouldEmptyAll ? signals.mustHaveSkills : mustHaveGrounded
+  // Report as dropped only the must-haves actually removed (none, when the originals were kept).
+  for (const t of signals.mustHaveSkills) if (!mustHaveSkills.includes(t)) droppedJd.push(t)
+
   return {
     signals: {
       ...signals,
-      mustHaveSkills: keepJd(signals.mustHaveSkills),
+      mustHaveSkills,
       preferredSkills: keepJd(signals.preferredSkills),
       requiredCerts: keepJd(signals.requiredCerts),
       compTopUsd,

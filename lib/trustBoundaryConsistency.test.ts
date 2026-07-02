@@ -238,7 +238,7 @@ describe('finding 7: drop-all JD must-haves inflates skillsCoverage via the neut
   const dimScore = (s: FitSignals): number =>
     assessFit(assembleFitInput(s, undefined, jobReqs)).dimensions.find((d) => d.key === 'skillsCoverage')!.score
 
-  test.fails('OPEN: grounding must not raise the skillsCoverage score by emptying the list', () => {
+  test('FIXED: grounding must not raise the skillsCoverage score by emptying the list', () => {
     const before = dimScore(signals) // candidate holds neither must-have -> 0
     const grounded = groundJobSignals(signals, jdText).signals // paraphrased tokens -> all dropped
     expect(dimScore(grounded)).toBeLessThanOrEqual(before)
