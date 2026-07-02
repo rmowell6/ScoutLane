@@ -56,6 +56,33 @@ describe('groundCandidateSignals', () => {
     expect(dropped).toEqual([])
   })
 
+  test('a fact stating "no Kubernetes experience" does NOT keep Kubernetes as held (negation guard)', () => {
+    // Mirrors guardrails' negation rationale: a disclaimer must not ground the very skill it denies.
+    // Before this guard, the flattened-text scan kept the token, inflating skillsCoverage and the
+    // on-screen coverage table while checkNoFabrication simultaneously refused to ground it.
+    const disclaiming = profile({
+      summary: 'No hands-on Kubernetes experience yet, focused on containers.',
+      roles: [{ title: 'Cloud Engineer', company: 'Acme', bullets: ['Built container pipelines.'] }],
+    } as never)
+    const { signals: out, dropped } = groundCandidateSignals(
+      signals({ candidateSkills: ['azure', 'kubernetes'] }),
+      disclaiming,
+    )
+    expect(out.candidateSkills).toEqual(['azure'])
+    expect(dropped).toEqual(['kubernetes'])
+  })
+
+  test('a negated fact does not block grounding via a DIFFERENT positive fact (fact-by-fact scope)', () => {
+    // Same semantics as guardrails.groundedInFacts: only the negated fact is skipped, so a skill
+    // positively stated elsewhere still grounds.
+    const mixed = profile({
+      summary: 'No hands-on AWS experience.',
+      roles: [{ title: 'Cloud Engineer', company: 'Acme', bullets: ['Led the kubernetes migration for the platform team.'] }],
+    } as never)
+    const { signals: out } = groundCandidateSignals(signals({ candidateSkills: ['kubernetes'] }), mixed)
+    expect(out.candidateSkills).toEqual(['kubernetes'])
+  })
+
   test('drops a hallucinated candidate skill the profile does not support', () => {
     const { signals: out, dropped } = groundCandidateSignals(
       signals({ candidateSkills: ['azure', 'cobol'] }), // cobol appears nowhere

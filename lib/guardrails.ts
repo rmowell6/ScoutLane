@@ -109,7 +109,7 @@ function factIsNegated(fact: string): boolean {
  *  doubt a term reads as ungrounded (over-blocks), never as silently grounded. Alias-aware
  *  (mentionsAny) so "K8s" in the profile grounds a tailored "Kubernetes"; the alias net composes with
  *  negation because each alias form is still only tried against the NON-negated facts. */
-function groundedInFacts(facts: string[], term: string): boolean {
+export function groundedInFacts(facts: string[], term: string): boolean {
   return facts.some((fact) => !factIsNegated(fact) && mentionsAny(fact, term))
 }
 
