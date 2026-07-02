@@ -514,7 +514,20 @@ export function mentions(haystack: string, term: string): boolean {
   // hardcoded to "js", so any short alias is protected. A term that legitimately CONTAINS or STARTS
   // with a dot (Node.js, .NET) still matches as itself: the lookbehind/ahead only inspect the chars
   // OUTSIDE the term, and a sentence-final "JS." still matches ("." not followed by a word char).
-  return new RegExp(`(?<![\\w.])${escaped}(?!\\w)(?!\\.\\w)`).test(haystack)
+  // Finding F-H: the dotted-compound guards (a "." immediately before or after the term) exist to keep
+  // a SHORT alias from matching a COMPONENT of a real compound identifier ("js" inside "vue.js", "net"
+  // inside "asp.net"). But a full-length term sitting next to a dot is almost always a missing-space
+  // typo that joins two separate terms ("Docker.Kubernetes"), where the term IS standalone and MUST
+  // match. Facts are normalized (lowercased) before matching, so capitalization ("Docker.Kubernetes" =
+  // two Title-Case words vs "vue.js") is unavailable as a signal; length is the case-independent
+  // discriminator: genuine dotted suffixes/prefixes are short (js, ts, io, net, css, aspx), while a
+  // typo-joined term is a whole word. So apply the dot guards only to short terms; longer terms keep
+  // just the word-char boundary (which still protects "sql server" from matching inside "mysql server",
+  // since that hinges on a preceding WORD char, not a dot).
+  const dotGuarded = t.length <= 4
+  const behind = dotGuarded ? '(?<![\\w.])' : '(?<!\\w)'
+  const ahead = dotGuarded ? '(?!\\w)(?!\\.\\w)' : '(?!\\w)'
+  return new RegExp(`${behind}${escaped}${ahead}`).test(haystack)
 }
 
 /** Alias-aware mentions: true when `term` OR any curated canonical-equivalent form (K8s <-> Kubernetes,
