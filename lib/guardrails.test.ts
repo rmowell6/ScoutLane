@@ -939,6 +939,20 @@ describe('checkNoFabrication skill grounding (alias-pairing for external ATS)', 
   })
 })
 
+// Finding 11 scoped groundCandidateSignals (the SCORING path) to credit-bearing facts. The
+// fabrication-grounding path here is deliberately BROAD (fail-closed: avoid false-blocking a real
+// claim) and must be unaffected: a tailored skill matching only a company name is still grounded.
+describe('checkNoFabrication grounding stays broad across company/title (finding 11 boundary)', () => {
+  test('a tailored skill matching only a company name is NOT flagged as ungrounded (broad, unchanged)', () => {
+    const profile = makeProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Oracle Health', title: 'Support Engineer', startDate: '2020', endDate: null, bullets: ['Resolved customer tickets'] }],
+    })
+    const r = checkNoFabrication(makeTailored({ skills: ['Oracle'], claims: [] }), profile)
+    expect(r.ungroundedSkills).toEqual([]) // fabrication path still searches the full corpus
+  })
+})
+
 describe('mentions() dotted-identifier boundary (finding 10)', () => {
   test('"js" does NOT match inside a dotted product name (vue/node/express/next .js)', () => {
     for (const name of ['vue.js', 'node.js', 'express.js', 'next.js']) {

@@ -111,6 +111,34 @@ describe('groundCandidateSignals', () => {
     expect(out.requiredCerts).toEqual(['az-104', 'ccna'])
     expect(out.hardGaps).toEqual(['aws'])
   })
+
+  // Finding 11: scoring credit must come from an explicit capability assertion, not an incidental word
+  // match in a company name, job title, or school.
+  test('a company name alone does NOT keep the matching candidate skill ("Oracle Health" != Oracle)', () => {
+    const oracleEmployer = profile({
+      skills: ['azure'],
+      roles: [{ title: 'Support Engineer', company: 'Oracle Health', bullets: ['Resolved customer tickets'] }],
+    } as never)
+    const { signals: out, dropped } = groundCandidateSignals(signals({ candidateSkills: ['oracle'] }), oracleEmployer)
+    expect(out.candidateSkills).toEqual([])
+    expect(dropped).toEqual(['oracle'])
+  })
+
+  test('a job title alone does NOT keep the matching candidate skill', () => {
+    const titled = profile({
+      skills: ['azure'],
+      roles: [{ title: 'Kubernetes Platform Lead', company: 'Acme', bullets: ['Resolved customer tickets'] }],
+    } as never)
+    const { signals: out } = groundCandidateSignals(signals({ candidateSkills: ['kubernetes'] }), titled)
+    expect(out.candidateSkills).toEqual([])
+  })
+
+  test('regression: a genuine skill-list or bullet claim of Oracle still gets full credit', () => {
+    const skillClaim = profile({ skills: ['oracle', 'azure'], roles: [{ title: 'Engineer', company: 'Acme', bullets: ['Resolved tickets'] }] } as never)
+    expect(groundCandidateSignals(signals({ candidateSkills: ['oracle'] }), skillClaim).signals.candidateSkills).toEqual(['oracle'])
+    const bulletClaim = profile({ skills: ['azure'], roles: [{ title: 'DBA', company: 'Acme', bullets: ['Administered Oracle databases in production'] }] } as never)
+    expect(groundCandidateSignals(signals({ candidateSkills: ['oracle'] }), bulletClaim).signals.candidateSkills).toEqual(['oracle'])
+  })
 })
 
 // A clean JD carrying every token, figure, and evidence phrase the fully-grounded cases reference.

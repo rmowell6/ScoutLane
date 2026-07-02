@@ -26,8 +26,27 @@ export interface GroundedSignals {
  * fail-closed, whole-fact negation scope as guardrails; shared, not re-implemented, so the two
  * consumers cannot drift again.
  */
+// Finding 11: full SCORING credit for a candidate skill must trace to an explicit capability
+// assertion, the skills list, certs, role bullets, or summary, NOT to an incidental word match in a
+// COMPANY name, JOB TITLE, or EDUCATION entry. Working at a company named "Oracle Health" is not
+// Oracle experience, yet the full indexFacts() corpus (which includes company/title/school) grounded
+// it and inflated skillsCoverage. We reuse indexFacts as the ONE fact source but drop the
+// non-capability entries by their stable ids. Education is dropped whole: indexFacts joins the school
+// NAME (an incidental-collision risk like a company name) with the degree/field into one string, so
+// there is no clean way to keep only the field without restructuring indexFacts (out of scope), and
+// the finding's credit-bearing set is skills/certs/bullets/summary. The fabrication-grounding path
+// (guardrails.checkNoFabrication) still searches the FULL corpus, which is deliberate and unchanged:
+// its fail-closed goal is to avoid false-blocking a legitimate claim, the opposite trade-off.
+function creditBearingFacts(profile: Profile): string[] {
+  const isCredit = (id: string): boolean =>
+    !/:title$/.test(id) && !/:company$/.test(id) && !id.startsWith('edu:')
+  return [...indexFacts(profile).byId.entries()]
+    .filter(([id]) => isCredit(id))
+    .map(([, text]) => normalize(text))
+}
+
 export function groundCandidateSignals(signals: FitSignals, profile: Profile): GroundedSignals {
-  const facts = indexFacts(profile).texts
+  const facts = creditBearingFacts(profile)
   const dropped: string[] = []
 
   const keep = (tokens: string[]): string[] =>

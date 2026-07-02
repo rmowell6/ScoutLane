@@ -304,7 +304,7 @@ describe('finding 11: company name grounds a scoring skill token', () => {
     roles: [{ company: 'Oracle Health', title: 'Support Engineer', startDate: '2020', endDate: null, bullets: ['Resolved customer tickets'] }],
   })
 
-  test.fails('OPEN: working AT "Oracle Health" must not keep the candidate skill "Oracle"', () => {
+  test('FIXED: working AT "Oracle Health" must not keep the candidate skill "Oracle"', () => {
     expect(signalsKeep(oracleEmployer, 'Oracle')).toBe(false)
   })
 })
