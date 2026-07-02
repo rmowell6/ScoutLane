@@ -277,10 +277,10 @@ export default function LandingPage() {
               <h3 className={styles.getCardTitle}>One note, built from the same facts.</h3>
               <p className={styles.getCardP}>A LinkedIn connection note and a follow-up email, pulled from the same facts as your packet, meant to be personalized, never mass-sent.</p>
               <div className={styles.clPreview}>
-                “Hi, saw the Senior Engineer opening at Novalus and thought of the async migration work I led that cut p95 latency 40%. Would love to connect and hear more about the team’s roadmap.”
+                “Hi Novalus team, your core-infrastructure rebuild at Series B is exactly the kind of work I love. I saw the Senior Software Engineer role and wanted to reach out. I recently led an async migration that made our slowest API calls about 40% faster. Would love to connect.”
               </div>
               <div className={styles.clChips}>
-                {['181/300 chars', '2 openers', 'LinkedIn + email'].map((c) => (
+                {['269/300 chars', '2 openers', 'LinkedIn + email'].map((c) => (
                   <span className={styles.clChip} key={c}>{c}</span>
                 ))}
               </div>
