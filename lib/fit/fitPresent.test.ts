@@ -151,6 +151,14 @@ describe('humanizeNote — not-assessed dimensions read cleanly', () => {
       'No specific must-have skills were listed for this role.',
     )
   })
+
+  // Finding 13: the target-unavailable neutral (JD posted a range, candidate set no target) is a
+  // DIFFERENT situation from no-range-posted and must not reuse the "No salary range was posted" copy.
+  test('comp target-unavailable neutral reads accurately (does not claim no range was posted)', () => {
+    const line = humanizeNote(dimOf({ ...base, compTopUsd: 200_000, targetCompTopUsd: 0 }, 'compAlignment'))
+    expect(line).toBe('You have not set a target salary, so pay was not compared.')
+    expect(line).not.toContain('No salary range was posted')
+  })
 })
 
 describe('leadDimension (only candidate-differentiating dimensions)', () => {
