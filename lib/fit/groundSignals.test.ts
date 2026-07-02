@@ -202,6 +202,39 @@ describe('groundJobSignals', () => {
     expect(skillsCovScore(g.signals)).toBe(80) // legitimate empty-list neutral path, unchanged
   })
 
+  // Finding F-A: requiredCerts drives certRequirementFit through the SAME coverage() empty-list
+  // neutral, so it has finding 7's identical exposure. The same never-empty guard now applies.
+  const certCovScore = (s: FitSignals): number =>
+    assessFit(assembleFitInput(s, undefined, noReqs)).dimensions.find((d) => d.key === 'certRequirementFit')!.score
+
+  test('F-A: a requiredCerts list fully dropped by grounding does NOT jump to the neutral 80', () => {
+    // Both certs are real requirements paraphrased in the JD, so Tier 1 would drop both; the candidate
+    // holds neither, so the honest certs score is 0.
+    const jd = 'Requires an Azure administration certification and a networking certification.'
+    const s = signals({ mustHaveSkills: [], requiredCerts: ['az-104', 'ccna'], heldCerts: [], adjacentCerts: [] })
+    const honest = certCovScore(s) // against the original (pre-drop) list -> 0
+    const g = groundJobSignals(s, jd)
+    expect(g.signals.requiredCerts).toEqual(['az-104', 'ccna']) // originals kept, still counted unmet
+    expect(g.droppedJd).toEqual([]) // no cert reported dropped, since none was removed
+    expect(certCovScore(g.signals)).toBe(honest)
+    expect(certCovScore(g.signals)).toBeLessThanOrEqual(honest) // never raised
+    expect(certCovScore(g.signals)).not.toBe(80)
+  })
+
+  test('F-A regression: a JD that GENUINELY specified no required certs still gets the neutral 80', () => {
+    const g = groundJobSignals(signals({ requiredCerts: [], heldCerts: [], adjacentCerts: [] }), JD)
+    expect(g.signals.requiredCerts).toEqual([])
+    expect(certCovScore(g.signals)).toBe(80) // legitimate empty-list neutral path, unchanged
+  })
+
+  test('F-A: a partial cert drop still removes the ungrounded cert and reports it', () => {
+    // 'az-104' is in the JD text, 'ccna' is not; the list stays non-empty, so the guard does not fire.
+    const jd = 'Requires AZ-104 and container orchestration experience.'
+    const g = groundJobSignals(signals({ requiredCerts: ['az-104', 'ccna'], heldCerts: [], adjacentCerts: [] }), jd)
+    expect(g.signals.requiredCerts).toEqual(['az-104'])
+    expect(g.droppedJd).toContain('ccna')
+  })
+
   test('Tier 2: keeps a compTopUsd matching a JD figure written as $150,000', () => {
     const g = groundJobSignals(signals({ compTopUsd: 150000 }), JD)
     expect(g.signals.compTopUsd).toBe(150000)

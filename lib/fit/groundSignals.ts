@@ -165,12 +165,23 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
   // Report as dropped only the must-haves actually removed (none, when the originals were kept).
   for (const t of signals.mustHaveSkills) if (!mustHaveSkills.includes(t)) droppedJd.push(t)
 
+  // requiredCerts drives the certRequirementFit SCORE exactly as must-haves drive skillsCoverage, via
+  // the SAME coverage() empty-list neutral (80). So it has the identical finding-7 exposure and gets
+  // the identical guard: never empty a NON-empty required-cert list (dropping every one would replace
+  // an honest low certs score with a false neutral 80). An already-empty list keeps the legitimate
+  // neutral path. preferredSkills below stays a plain keepJd: it is display-only, never scored, so
+  // emptying it cannot raise a score.
+  const certsGrounded = (signals.requiredCerts ?? []).filter((t) => mentionsAny(jdNorm, t))
+  const dropCertsWouldEmptyAll = signals.requiredCerts.length > 0 && certsGrounded.length === 0
+  const requiredCerts = dropCertsWouldEmptyAll ? signals.requiredCerts : certsGrounded
+  for (const t of signals.requiredCerts) if (!requiredCerts.includes(t)) droppedJd.push(t)
+
   return {
     signals: {
       ...signals,
       mustHaveSkills,
       preferredSkills: keepJd(signals.preferredSkills),
-      requiredCerts: keepJd(signals.requiredCerts),
+      requiredCerts,
       compTopUsd,
       engagementType: engagementGrounded ? signals.engagementType : 'unspecified',
       sponsorshipAvailable: sponsorshipGrounded ? signals.sponsorshipAvailable : 'unspecified',
