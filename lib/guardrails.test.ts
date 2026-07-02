@@ -791,3 +791,57 @@ describe('checkNoFabrication skill grounding (alias-pairing for external ATS)', 
     expect(r.ungroundedSkills).toEqual([])
   })
 })
+
+describe('checkNoFabrication multi-word boundary matching (finding 1)', () => {
+  test('a MySQL-only fact set does NOT ground a "SQL Server" claim (no phrase-inside-a-word match)', () => {
+    const profile = makeProfile({
+      skills: ['MySQL Server'],
+      roles: [
+        {
+          company: 'Acme',
+          title: 'DBA',
+          startDate: '2020',
+          endDate: null,
+          bullets: ['Administered MySQL Server databases for three teams'],
+        },
+      ],
+    })
+    const r = checkNoFabrication(makeTailored({ skills: ['SQL Server'], claims: [] }), profile)
+    expect(r.ungroundedSkills).toEqual(['SQL Server'])
+    expect(r.ok).toBe(false)
+  })
+
+  test('"virtual machinery" does NOT ground the "virtual machine"/"VMs" alias family', () => {
+    const profile = makeProfile({
+      skills: [],
+      roles: [
+        {
+          company: 'Acme',
+          title: 'Engineer',
+          startDate: '2020',
+          endDate: null,
+          bullets: ['Maintained the virtual machinery lab'],
+        },
+      ],
+    })
+    const r = checkNoFabrication(makeTailored({ skills: ['VMs'], claims: [] }), profile)
+    expect(r.ungroundedSkills).toEqual(['VMs'])
+  })
+
+  test('a genuine multi-word skill still grounds with the anchored phrase match (no regression)', () => {
+    const profile = makeProfile({
+      skills: [],
+      roles: [
+        {
+          company: 'Acme',
+          title: 'DBA',
+          startDate: '2020',
+          endDate: null,
+          bullets: ['Tuned SQL Server stored procedures.'],
+        },
+      ],
+    })
+    // Mid-sentence with a trailing period: boundaries must accept space/punctuation neighbors.
+    expect(checkNoFabrication(makeTailored({ skills: ['SQL Server'], claims: [] }), profile).ungroundedSkills).toEqual([])
+  })
+})
