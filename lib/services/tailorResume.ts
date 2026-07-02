@@ -4,8 +4,8 @@
 // share one source of truth (Engineering Plan §5/§6).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
-import { groundedInFacts, indexFacts, normalize } from '@/lib/guardrails'
-import { canonicalize } from '@/lib/skillAliases'
+import { factIsNegated, groundedInFacts, indexFacts, mentions, normalize } from '@/lib/guardrails'
+import { aliasForms, canonicalize } from '@/lib/skillAliases'
 import { TailoredContentSchema, type JobReqs, type Profile, type TailoredContent } from '@/lib/schemas'
 
 // PLACEHOLDER, replace with the tailoring approach (voice, ordering, emphasis rules).
@@ -70,36 +70,46 @@ const TAILOR_INSTRUCTIONS = [
 ].join(' ')
 
 /**
- * The exact, CLOSED set of "JobForm (FactForm)" alias pairings the guardrail will accept for THIS
- * packet, computed from the curated alias table rather than the model's own judgment of which spellings
- * count as equivalent. A pairing "J (F)" is permitted iff a JD term J and a candidate-held skill
- * form F are curated aliases (same canonical) written differently AND F is grounded in the candidate's
- * facts. That is exactly guardrails.skillGrounded()'s alias-pairing acceptance test, so the list we
- * hand the model equals the set the guardrail will approve.
+ * The CLOSED set of "JobForm (FactForm)" alias pairings the guardrail will accept for THIS packet,
+ * computed from the curated alias table rather than the model's own judgment of which spellings count
+ * as equivalent. A pairing "J (F)" is offered when a JD term J and a curated alias form F of it are
+ * different spellings of the SAME skill (shared canonical) and the candidate actually holds that skill.
+ * Every pairing offered is one guardrails.skillGrounded() will approve; it does not offer every form
+ * the guardrail would accept, only one per JD term (the useful one). (The earlier claim that it "equals
+ * the guardrail's set" was inaccurate, F-G.)
+ *
+ * Evidence set (F-G): a skill the candidate proves ANYWHERE the guardrail credits, skills, certs, role
+ * bullets, or summary (the ai-28 scope), can be surfaced, not just the formal skills list. For each JD
+ * term we prefer the candidate's own spelling from profile.skills (keeps their casing), and otherwise
+ * fall back to a curated alias form that LITERALLY appears in a non-negated fact, so a bullet-only "K8s"
+ * is offered as "Kubernetes (K8s)" too. The fallback checks LITERAL presence (mentions), not the
+ * alias-aware groundedInFacts, so it never surfaces a form the candidate never actually wrote (e.g. it
+ * won't invent "Kubernetes (K8s)" from a fact that only says "Kubernetes").
  *
  * This is what makes finding 5's fix DETERMINISTIC rather than merely less likely: the model is never
  * offered a famous-but-uncurated pairing like "TypeScript (TS)" ("TS" is deliberately excluded from
  * the table, it collides with TS/SCI clearances), so it can never attempt one and be nondeterministically
- * blocked. Reuses canonicalize() (the same table fitScore/guardrails use) and groundedInFacts(); it does
- * NOT re-implement the alias mechanism. Pure and deterministic (no model call, no randomness).
+ * blocked. Reuses canonicalize()/aliasForms() (the same table fitScore/guardrails use); it does NOT
+ * re-implement the alias mechanism. Pure and deterministic (no model call, no randomness).
  */
 export function allowedAliasPairings(profile: Profile, jobReqs: JobReqs): string[] {
   const facts = indexFacts(profile).texts
   const jdTerms = [...jobReqs.mustHave, ...jobReqs.niceToHave]
+  // A curated alias form F is LITERALLY held when it appears as a whole token in a NON-negated fact.
+  // Literal (mentions, not the alias-aware groundedInFacts) so we surface only spellings the candidate
+  // actually used, and negation-aware so a disclaimed "no K8s experience" never licenses a pairing.
+  const literallyHeld = (form: string): boolean =>
+    facts.some((fact) => !factIsNegated(fact) && mentions(fact, form))
   const pairings = new Set<string>()
   for (const jobForm of jdTerms) {
     const canon = canonicalize(jobForm)
-    for (const factForm of profile.skills) {
-      // Same technology (shared curated canonical), written differently, and actually held: the exact
-      // condition skillGrounded() accepts. Same normalized spelling needs no pairing (already matches).
-      if (
-        canonicalize(factForm) === canon &&
-        normalize(jobForm) !== normalize(factForm) &&
-        groundedInFacts(facts, factForm)
-      ) {
-        pairings.add(`${jobForm} (${factForm})`)
-      }
-    }
+    // Prefer the candidate's own spelling from the formal skills list (preserves their casing).
+    let factForm = profile.skills.find(
+      (s) => canonicalize(s) === canon && normalize(s) !== normalize(jobForm) && groundedInFacts(facts, s),
+    )
+    // Fall back to a curated alias form evidenced only in a bullet / cert / summary (F-G).
+    factForm ??= aliasForms(jobForm).find((f) => normalize(f) !== normalize(jobForm) && literallyHeld(f))
+    if (factForm) pairings.add(`${jobForm} (${factForm})`)
   }
   return [...pairings]
 }
