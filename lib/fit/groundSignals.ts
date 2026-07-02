@@ -4,7 +4,7 @@
 // anywhere in the profile facts. JD-side lists (mustHaveSkills / requiredCerts / hardGaps) describe
 // the job, not the candidate, so they are NOT filtered, they must stay intact for coverage to mean
 // anything.
-import { groundedInFacts, indexFacts, mentionsAny, normalize, numbersIn } from '@/lib/guardrails'
+import { capabilityFactTexts, groundedInFacts, indexFacts, mentionsAny, normalize, numbersIn } from '@/lib/guardrails'
 import type { FitSignals } from '@/lib/fit/fitSignals'
 import type { Profile } from '@/lib/schemas'
 
@@ -38,11 +38,9 @@ export interface GroundedSignals {
 // (guardrails.checkNoFabrication) still searches the FULL corpus, which is deliberate and unchanged:
 // its fail-closed goal is to avoid false-blocking a legitimate claim, the opposite trade-off.
 function creditBearingFacts(profile: Profile): string[] {
-  const isCredit = (id: string): boolean =>
-    !/:title$/.test(id) && !/:company$/.test(id) && !id.startsWith('edu:')
-  return [...indexFacts(profile).byId.entries()]
-    .filter(([id]) => isCredit(id))
-    .map(([, text]) => normalize(text))
+  // The field-exclusion rule is shared with guardrails.checkBannedTerms (finding F-F) as capabilityFactTexts
+  // so both consumers use ONE definition of "a genuine capability assertion" rather than drifting.
+  return capabilityFactTexts(indexFacts(profile))
 }
 
 export function groundCandidateSignals(signals: FitSignals, profile: Profile): GroundedSignals {

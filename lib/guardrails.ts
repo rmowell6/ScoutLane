@@ -533,13 +533,31 @@ export interface BannedTermsResult {
  * Banned terms: a sensitive term (e.g. "Kubernetes") may appear in the tailored output only
  * if it is present somewhere in the profile facts. Caller supplies the watch list.
  */
+/** The profile facts that assert a genuine CAPABILITY, skills, certs, role bullets, and summary, with
+ *  company names, job titles, and education institution/school entries excluded. This is finding 11's
+ *  field-exclusion rule (working AT "Oracle Health" is not Oracle experience), shared here so
+ *  scoring (groundSignals.creditBearingFacts) and banned-term grounding use ONE definition. Excluded
+ *  entries are dropped by their stable indexFacts() ids; the kept values are normalized like
+ *  index.texts. Callers that need the FULL corpus (e.g. checkNoFabrication's claim tracing) keep using
+ *  index.texts and are unaffected. */
+export function capabilityFactTexts(index: FactIndex): string[] {
+  const isCapability = (id: string): boolean =>
+    !/:title$/.test(id) && !/:company$/.test(id) && !id.startsWith('edu:')
+  return [...index.byId.entries()].filter(([id]) => isCapability(id)).map(([, text]) => normalize(text))
+}
+
 export function checkBannedTerms(
   tailored: TailoredContent,
   profile: Profile,
   bannedTerms: string[],
   index: FactIndex = indexFacts(profile),
 ): BannedTermsResult {
-  const facts = index.texts
+  // Ground the exception check against CAPABILITY facts only (finding F-F): a banned term is licensed
+  // only by a real skill/cert/bullet/summary assertion, NOT by an incidental company name or job title.
+  // Employment at a company literally named "Oracle Health" must not let a banned "Oracle" ship. This
+  // reuses finding 11's field-exclusion rule; checkNoFabrication's claim tracing still uses the full
+  // corpus (a tailored claim genuinely naming an employer is a real, groundable fact) and is unchanged.
+  const facts = capabilityFactTexts(index)
   // Check each field SEPARATELY, never a single joined blob (finding 12). Joining with a space let a
   // multi-word banned term form spuriously across a field boundary: a summary ending "...Windows" plus
   // a skill "Server administration" concatenated to "...Windows Server administration...", tripping a
