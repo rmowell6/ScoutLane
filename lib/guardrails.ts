@@ -356,13 +356,23 @@ export interface NoFabricationResult {
 // digits. The combined METRIC_RE is built from these same branches, so phrase matching and kind-tagging
 // share one source of truth (no parallel classifier). Digit runs stay bounded ({0,24}); see below.
 type MetricKind = 'percent' | 'dollar' | 'team' | 'count'
+
+// Magnitude multiplier shared by the dollar and count branches, so both recognize "…million"/"…k" from
+// ONE source of truth rather than two divergent parsers. `(?![a-z])` is finding F-I's word boundary: a
+// single-letter k/m/b must not match as the PREFIX of a longer word ("$5 monthly", "2 million users",
+// "40 branches"). Longest spellings first so "million" is never consumed as a bare "m".
+const MULT_WORDS = String.raw`million|billion|thousand|k|m|b`
+const MULT_ALT = String.raw`(?:${MULT_WORDS})(?![a-z])`
+
 const METRIC_BRANCHES: readonly { kind: MetricKind; re: string }[] = [
   { kind: 'percent', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*%` }, // 40%, 1,200%
   { kind: 'percent', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*percent\b` }, // 40 percent
-  { kind: 'dollar', re: String.raw`\$\s?\d[\d,]{0,24}(?:\.\d{0,12})?(?:\s*(?:k|m|b|million|billion|thousand)(?![a-z]))?` }, // $2M, $500,000 (finding F-I: (?![a-z]) stops a single-letter k/m/b from matching as the PREFIX of a longer word, e.g. the "m" of "$5 monthly" wrongly reading as $5M)
+  { kind: 'dollar', re: String.raw`\$\s?\d[\d,]{0,24}(?:\.\d{0,12})?(?:\s*${MULT_ALT})?` }, // $2M, $500,000, $1.5 million
   { kind: 'team', re: String.raw`team\s+of\s+\d[\d,]{0,24}` }, // team of 12
-  // a count bound to a candidate-scope unit (years intentionally excluded)
-  { kind: 'count', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\+?\s*(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b` },
+  // a count bound to a candidate-scope unit (years intentionally excluded); finding F-J: an optional
+  // magnitude multiplier may sit between the digit and the unit word ("2 million users", "40k users"),
+  // else such a claim matched NO branch and escaped the fabrication check entirely.
+  { kind: 'count', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\+?\s*(?:${MULT_ALT}\s*)?(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b` },
 ]
 
 // Digit runs are bounded (`{0,24}` not `*`): a real metric never has 25+ digit/comma chars, and the
@@ -377,9 +387,12 @@ export function numbersIn(s: string): string[] {
   return (s.match(/\d[\d,]{0,24}(?:\.\d{0,12})?/g) ?? []).map((n) => n.replace(/,/g, ''))
 }
 
-// Dollar shorthand multipliers. Longest spellings first so "million" is not consumed as a bare "m".
-const DOLLAR_SUFFIX = /(million|billion|thousand|k|m|b)\s*$/i
-const DOLLAR_MULT: Record<string, number> = { k: 1e3, thousand: 1e3, m: 1e6, million: 1e6, b: 1e9, billion: 1e9 }
+// Magnitude multipliers, drawn from the same MULT_WORDS set as the branch regexes. A dollar shorthand
+// sits at the END of the phrase ("$5m"); a count shorthand sits BETWEEN the number and the unit word
+// ("40k users"), so the two extractors differ only in anchoring, not in the recognized token set.
+const DOLLAR_SUFFIX = new RegExp(String.raw`(${MULT_WORDS})\s*$`, 'i')
+const COUNT_MULT = new RegExp(String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\+?\s*(${MULT_WORDS})(?![a-z])`, 'i')
+const MAGNITUDE_MULT: Record<string, number> = { k: 1e3, thousand: 1e3, m: 1e6, million: 1e6, b: 1e9, billion: 1e9 }
 
 interface Metric {
   kind: MetricKind
@@ -402,9 +415,14 @@ function classifyMetric(phrase: string): Metric | null {
   let unit = ''
   if (branch.kind === 'dollar') {
     const suf = p.toLowerCase().match(DOLLAR_SUFFIX)
-    const mult = suf ? DOLLAR_MULT[suf[1] as string] : undefined
+    const mult = suf ? MAGNITUDE_MULT[suf[1] as string] : undefined
     if (mult) value *= mult
   } else if (branch.kind === 'count') {
+    // Finding F-J: apply a magnitude multiplier that sits between the digit and the unit word so
+    // "2 million users" -> 2,000,000 and "40k users" -> 40,000 before comparison (same set as dollars).
+    const magnitude = p.toLowerCase().match(COUNT_MULT)
+    const mult = magnitude ? MAGNITUDE_MULT[magnitude[1] as string] : undefined
+    if (mult) value *= mult
     // The trailing unit word, singularized so "40 vms" and "40 vm" compare equal.
     unit = (p.toLowerCase().match(/([a-z]+)\s*$/)?.[1] ?? '').replace(/s$/, '')
   }

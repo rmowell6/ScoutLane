@@ -307,6 +307,46 @@ describe('checkNoFabrication: dollar suffix must not match a word prefix (findin
   })
 })
 
+// Finding F-J: the count/unit branch matched only a bare digit run directly before a unit word, so a
+// magnitude multiplier BETWEEN the digit and the unit ("2 million users", "40k users") made the branch
+// match nothing at all, a complete escape: the claim was never evaluated for grounding. The branch now
+// recognizes the same multiplier set as the dollar branch (shared MULT_WORDS + F-I boundary) and
+// normalizes the count value. Lives with the finding-9 metric tests (single-guardrail parsing).
+describe('checkNoFabrication: count/unit branch recognizes a magnitude multiplier (finding F-J)', () => {
+  const countFact = (bullet: string): Profile =>
+    makeProfile({ skills: [], roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: [bullet] }] })
+
+  test('escape closed: a fabricated "grew to 2 million users" is now extracted and flagged', () => {
+    // Before F-J the "million" between the digit and "users" meant NO branch matched, so the claim
+    // shipped without ever being checked for grounding.
+    const r = checkNoFabrication(makeTailored({ summary: 'Grew the platform to 2 million users.' }), makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/2 million users/i)
+  })
+
+  test('"2 million users" normalizes to 2,000,000 and grounds a matching "2,000,000 users" fact', () => {
+    expect(checkNoFabrication(makeTailored({ summary: 'Grew to 2 million users.' }), countFact('Scaled to 2,000,000 users')).ungroundedMetrics).toEqual([])
+  })
+
+  test('"40k users" normalizes to 40,000: grounds a "40,000 users" fact, but NOT a "40 users" fact', () => {
+    expect(checkNoFabrication(makeTailored({ summary: 'Onboarded 40k users.' }), countFact('Onboarded 40,000 users')).ungroundedMetrics).toEqual([])
+    const r = checkNoFabrication(makeTailored({ summary: 'Onboarded 40k users.' }), countFact('Onboarded 40 users'))
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/40k users/i) // 40,000 != 40, so not grounded
+  })
+
+  test('regression: a bare count ("managed 40 servers") still works exactly as before', () => {
+    expect(checkNoFabrication(makeTailored({ summary: 'Managed 40 servers.' }), countFact('Managed 40 servers')).ungroundedMetrics).toEqual([])
+    expect(checkNoFabrication(makeTailored({ summary: 'Managed 200 servers.' }), makeProfile()).ungroundedMetrics.join(' ')).toMatch(/200 servers/i)
+    // A unit starting with a multiplier letter ("branches" starts with b) is not eaten by the multiplier.
+    expect(checkNoFabrication(makeTailored({ summary: 'Ran 40 branches.' }), countFact('Ran 40 branches')).ungroundedMetrics).toEqual([])
+  })
+
+  test('regression: F-I dollar-branch multiplier is unaffected by sharing the logic here', () => {
+    const r = checkNoFabrication(makeTailored({ coverLetter: 'Delivered $5M in savings.' }), countFact('Handled $5 monthly billing runs'))
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/\$5M/i) // "$5 monthly" is still bare $5, not $5,000,000
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'Saved $5m.' }), countFact('Saved $5,000,000 last year')).ungroundedMetrics).toEqual([])
+  })
+})
+
 // Finding F-C: metric grounding must check each field SEPARATELY (the metric-side twin of finding 12).
 // METRIC_RE's whitespace classes match a newline, so joining fields let a metric form across a boundary.
 describe('checkNoFabrication: metric grounding does not bridge field boundaries (finding F-C)', () => {
