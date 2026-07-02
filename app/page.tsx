@@ -87,7 +87,7 @@ export default function LandingPage() {
               <div className={styles.cardHeadGood}>✓ &nbsp;ScoutLane packet</div>
               <div className={styles.afterScoreRow}>
                 <span className={styles.scorePill}>89 / 100</span>
-                <span className={styles.scoreLabel}>Strong match · 6 of 7 requirements met</span>
+                <span className={styles.scoreLabel}>Best fit · 6 of 7 requirements met</span>
               </div>
               <div className={styles.afterBullets}>
                 <div className={styles.afterBullet}>
@@ -145,7 +145,7 @@ export default function LandingPage() {
                     <text x="60" y="53" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="26" fontWeight="800" fill="#111827">89</text>
                     <text x="60" y="70" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="11" fill="#4B5563">/100</text>
                   </svg>
-                  <div className={styles.ringVerdict}>Strong match</div>
+                  <div className={styles.ringVerdict}>Best fit</div>
                   <div className={styles.ringSub}>Weighted 86.8 base<br />+ adjustment 2.2</div>
                 </div>
 
@@ -226,7 +226,7 @@ export default function LandingPage() {
                   <text x="30" y="37" textAnchor="middle" style={{ fontFamily: 'var(--font-body)' }} fontSize="7" fill="#4B5563">/100</text>
                 </svg>
                 <div>
-                  <div className={styles.mrtVerdict}>Strong match</div>
+                  <div className={styles.mrtVerdict}>Best fit</div>
                   <div className={styles.mrtSub}>1 gap flagged<br />5 dims scored</div>
                 </div>
               </div>
