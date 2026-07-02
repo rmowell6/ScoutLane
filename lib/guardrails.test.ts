@@ -9,6 +9,8 @@ import {
   checkNoFabrication,
   checkStyle,
   indexFacts,
+  mentions,
+  mentionsAny,
   runGuardrails,
   surfacedForms,
 } from '@/lib/guardrails'
@@ -934,6 +936,41 @@ describe('checkNoFabrication skill grounding (alias-pairing for external ATS)', 
     const profile = makeProfile({ certs: [{ name: 'Security+ (SY0-601)' }] })
     const r = checkNoFabrication(makeTailored({ skills: ['Security+ (SY0-601)'], claims: [] }), profile)
     expect(r.ungroundedSkills).toEqual([])
+  })
+})
+
+describe('mentions() dotted-identifier boundary (finding 10)', () => {
+  test('"js" does NOT match inside a dotted product name (vue/node/express/next .js)', () => {
+    for (const name of ['vue.js', 'node.js', 'express.js', 'next.js']) {
+      expect(mentions(name, 'js')).toBe(false)
+    }
+  })
+
+  test('a Vue.js-only fact does NOT ground "JavaScript" (alias-aware, agrees with canonical impl)', () => {
+    expect(mentionsAny('built dashboards in vue.js', 'JavaScript')).toBe(false)
+  })
+
+  test('"JS" as a genuinely standalone term still matches (word-flanked and sentence-final)', () => {
+    expect(mentions('proficient in js and python', 'JS')).toBe(true)
+    expect(mentions('strong front-end work in js.', 'JS')).toBe(true) // trailing period is not a compound
+  })
+
+  test('a term that legitimately contains/starts with a dot still matches itself', () => {
+    expect(mentions('experience with node.js on the backend', 'Node.js')).toBe(true)
+    expect(mentions('shipped services on .net', '.NET')).toBe(true)
+  })
+
+  test('does not match a term forming the first half of a dotted compound (js.foo)', () => {
+    expect(mentions('wrote js.worker glue code', 'js')).toBe(false)
+  })
+
+  test('end-to-end: a Vue.js-only profile leaves a tailored "JavaScript" skill ungrounded', () => {
+    const profile = makeProfile({
+      skills: ['Vue.js'],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Built dashboards in Vue.js'] }],
+    })
+    const r = checkNoFabrication(makeTailored({ skills: ['JavaScript'], claims: [] }), profile)
+    expect(r.ungroundedSkills).toEqual(['JavaScript'])
   })
 })
 
