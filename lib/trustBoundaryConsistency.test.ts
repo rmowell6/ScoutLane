@@ -302,6 +302,48 @@ describe('finding 10: "js" alias inside dotted identifiers (vue.js grounds JavaS
 })
 
 // -------------------------------------------------------------------------------------------
+// Finding F-H: the finding-10 dotted-identifier guard over-rejects. It excluded ANY term whose
+// immediate neighbor was a dot, which correctly protects a short suffix ("js" in "vue.js") but
+// ALSO wrongly rejected a full-length term next to a dot in a missing-space typo
+// ("Docker.Kubernetes"), so a candidate who typo'd their own profile could not ground a skill
+// they genuinely hold. Facts are normalized (lowercased) before matching, so capitalization is
+// gone; the case-independent discriminator is length: a genuine dotted suffix is short (js/net),
+// a typo-joined term is a whole word. Desired: the typo still grounds; the genuine compounds do
+// not; and the finding-1 "sql server" protection (which hinges on a word char, not a dot) holds.
+// -------------------------------------------------------------------------------------------
+describe('finding F-H: dotted-identifier guard must not over-reject a missing-space typo', () => {
+  const typoK8s = mkProfile({
+    skills: ['Docker'],
+    roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Ran Docker.Kubernetes in production'] }],
+  })
+
+  test('FIXED: a "Docker.Kubernetes" typo still grounds the standalone term "Kubernetes"', () => {
+    expect(mentionsAny('ran docker.kubernetes in production', 'Kubernetes')).toBe(true)
+    expect(groundingAccepts(typoK8s, 'Kubernetes')).toBe(true)
+  })
+
+  test('REGRESSION: genuine dotted compounds still do NOT match their bare short component', () => {
+    expect(mentionsAny('built dashboards in vue.js', 'JS')).toBe(false)
+    expect(mentionsAny('backend services on node.js', 'JS')).toBe(false)
+    expect(mentionsAny('shipped an asp.net api', 'NET')).toBe(false)
+  })
+
+  test('REGRESSION: finding-1 "sql server" still does not match inside "mysql server"', () => {
+    expect(mentionsAny('administered mysql server databases', 'SQL Server')).toBe(false)
+  })
+
+  test('must-have-drop guard (F-A/F-B): a typo’d must-have skill is now credited, not dropped', () => {
+    // Before F-H the over-rejection meant the coverage/grounding side saw NO Kubernetes even though
+    // the (typo’d) profile holds it, so a required "Kubernetes" read as an unmet gap. With the fix
+    // grounding credits it; the scored must-have list itself is never shrunk (F-B), so the requirement
+    // stays present AND is now correctly recognized as held.
+    const kept = groundJobSignals(mkSignals({ mustHaveSkills: ['Kubernetes'] }), 'A Docker shop.').signals.mustHaveSkills
+    expect(kept).toEqual(['Kubernetes']) // requirement never dropped even absent from JD text (F-B)
+    expect(groundingAccepts(typoK8s, 'Kubernetes')).toBe(true) // and the typo'd profile now grounds it (F-H)
+  })
+})
+
+// -------------------------------------------------------------------------------------------
 // Finding 11 (Low-med): employer names ground full-credit scoring tokens. Desired: a company
 // fact alone does not keep a candidateSkills token.
 // -------------------------------------------------------------------------------------------
