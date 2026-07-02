@@ -71,3 +71,34 @@ describe('allowedAliasPairings (finding 5: closed, table-derived pairing set)', 
     expect(allowedAliasPairings(profile, job)).toEqual([])
   })
 })
+
+describe('allowedAliasPairings (finding F-G: broaden beyond profile.skills to bullet/cert/summary)', () => {
+  test('offers a pairing for a skill evidenced ONLY in a role bullet, not the skills list', () => {
+    // "K8s" appears only in a bullet; the guardrail already grounds a skill from a bullet (ai-28), so
+    // the pairing must be offered too. The surfaced fact-form is the curated alias literally present.
+    const profile = mkProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Managed K8s clusters in production'] }],
+    })
+    expect(allowedAliasPairings(profile, mkJob({ mustHave: ['Kubernetes'] }))).toEqual(['Kubernetes (k8s)'])
+  })
+
+  test('regression: a skill in profile.skills is still offered with its own casing, exactly as before', () => {
+    const profile = mkProfile({ skills: ['K8s'] })
+    expect(allowedAliasPairings(profile, mkJob({ mustHave: ['Kubernetes'] }))).toEqual(['Kubernetes (K8s)'])
+  })
+
+  test('a bullet-only alias form inside a NEGATED fact is not offered', () => {
+    const profile = mkProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['No hands-on K8s experience yet'] }],
+    })
+    expect(allowedAliasPairings(profile, mkJob({ mustHave: ['Kubernetes'] }))).toEqual([])
+  })
+
+  test('does NOT invent a spelling the candidate never used (fact says "Kubernetes", not "K8s")', () => {
+    // Literal (not alias-aware) fallback: a fact spelled "Kubernetes" must not surface "Kubernetes (K8s)".
+    const profile = mkProfile({ skills: ['Kubernetes'] })
+    expect(allowedAliasPairings(profile, mkJob({ mustHave: ['Kubernetes'] }))).toEqual([])
+  })
+})

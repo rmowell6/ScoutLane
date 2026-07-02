@@ -212,7 +212,7 @@ function directionalRolesAgree(claimTokens: string[], factTokens: string[]): boo
  *  capability. Whole-fact scope (not term-proximity) on purpose: it is the conservative, fail-CLOSED
  *  reading. A mixed "no Java but expert Kubernetes" fact is treated as negated (a safe over-block); we
  *  never let a fact the profile explicitly disclaims count as grounding. */
-function factIsNegated(fact: string): boolean {
+export function factIsNegated(fact: string): boolean {
   return negationKey(new Set(wordTokens(fact))) !== ''
 }
 
