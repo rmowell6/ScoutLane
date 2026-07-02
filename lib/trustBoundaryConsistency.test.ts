@@ -266,12 +266,12 @@ describe('finding 8: JD comp used as "your target" when no preference exists', (
 describe('finding 9: unit-blind prose metric grounding', () => {
   const vmProfile = mkProfile() // fact: "Migrated 40 VMs to Azure"
 
-  test.fails('OPEN: invented "$40M" must NOT be grounded by the count "40 VMs"', () => {
+  test('FIXED: invented "$40M" must NOT be grounded by the count "40 VMs"', () => {
     const r = checkNoFabrication(mkTailored({ coverLetter: 'I delivered $40M in savings.' }), vmProfile)
     expect(r.ungroundedMetrics.length).toBeGreaterThan(0)
   })
 
-  test.fails('OPEN: real "$1,500,000" must be grounded by the fact "$1.5M" (shorthand equivalence)', () => {
+  test('FIXED: real "$1,500,000" must be grounded by the fact "$1.5M" (shorthand equivalence)', () => {
     const p = mkProfile({ roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Saved the company $1.5M in licensing'] }] })
     const r = checkNoFabrication(mkTailored({ coverLetter: 'I saved $1,500,000 in licensing.' }), p)
     expect(r.ungroundedMetrics).toEqual([])

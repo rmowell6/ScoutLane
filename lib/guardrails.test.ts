@@ -205,6 +205,68 @@ describe('checkNoFabrication', () => {
   })
 })
 
+// Finding 9: metric grounding is now KIND-aware (dollar / percent / team / count-of-unit) and compares
+// NORMALIZED numeric values, closing both a fall-open (a dollar figure grounding off a same-numbered
+// count) and a fall-closed (shorthand vs full-digits of the same money value being treated as different).
+describe('checkNoFabrication: kind-aware, value-normalized metric grounding (finding 9)', () => {
+  const dollarFact = (bullet: string): Profile =>
+    makeProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: [bullet] }],
+    })
+
+  test('fall-open: invented "$40M" is NOT grounded by an unrelated "40 VMs" count', () => {
+    // makeProfile carries "Migrated 40 VMs to Azure"; the digits coincide but the kinds differ.
+    const tailored = makeTailored({ coverLetter: 'I delivered $40M in savings.' })
+    const r = checkNoFabrication(tailored, makeProfile())
+    expect(r.ok).toBe(false)
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/\$40M/i)
+  })
+
+  test('fall-closed: "$1.5M" IS grounded by a fact stating "$1,500,000" (same value, different form)', () => {
+    const tailored = makeTailored({ coverLetter: 'I saved $1.5M in licensing.' })
+    expect(checkNoFabrication(tailored, dollarFact('Saved the company $1,500,000 in licensing')).ungroundedMetrics).toEqual([])
+  })
+
+  test('also grounds "$1.5 million" against a "$1,500,000" fact (spelled-out shorthand)', () => {
+    const tailored = makeTailored({ coverLetter: 'I saved $1.5 million in licensing.' })
+    expect(checkNoFabrication(tailored, dollarFact('Saved the company $1,500,000 in licensing')).ungroundedMetrics).toEqual([])
+  })
+
+  test('a count still grounds a count of the SAME unit + value ("40 VMs" vs "40 vms")', () => {
+    const tailored = makeTailored({ summary: 'Migrated 40 VMs across the estate.' })
+    expect(checkNoFabrication(tailored, makeProfile()).ungroundedMetrics).toEqual([])
+  })
+
+  // Regression: a genuinely ungrounded metric is still flagged, one case per kind.
+  test('still flags an ungrounded DOLLAR metric (no matching money value in facts)', () => {
+    const r = checkNoFabrication(makeTailored({ coverLetter: 'Saved $7M.' }), dollarFact('Saved the company $1,500,000 in licensing'))
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/\$7M/i)
+  })
+
+  test('still flags an ungrounded PERCENT metric', () => {
+    // makeProfile has "Cut backup costs 30%"; 77% is not present.
+    const r = checkNoFabrication(makeTailored({ summary: 'Cut costs 77%.' }), makeProfile())
+    expect(r.ungroundedMetrics).toContain('77%')
+  })
+
+  test('still flags an ungrounded TEAM-size metric', () => {
+    const r = checkNoFabrication(makeTailored({ coverLetter: 'Led a team of 25.' }), makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/team of 25/i)
+  })
+
+  test('still flags an ungrounded COUNT metric (unit present in facts, value not)', () => {
+    // Facts have "40 VMs"; "200 servers" is a different unit and value, so it must not ground.
+    const r = checkNoFabrication(makeTailored({ summary: 'Managed 200 servers.' }), makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/200 servers/i)
+  })
+
+  test('a count does NOT ground a different unit with the same value ("40 VMs" != "40 servers")', () => {
+    const r = checkNoFabrication(makeTailored({ summary: 'Managed 40 servers.' }), makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/40 servers/i)
+  })
+})
+
 // Regression: grounding a skill against the WHOLE flattened profile text let a disclaimer ground the
 // very skill it denies. "No hands-on Kubernetes experience" wrongly grounded "Kubernetes". Grounding
 // now runs fact-by-fact and skips any negated fact, so an explicitly-disclaimed skill stays ungrounded
