@@ -1,7 +1,7 @@
 // Resume structuring: raw resume text -> schema-validated Profile (LLM + Zod).
 // The resume is untrusted third-party text, isolated as labeled data (Engineering Plan §7).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { anthropic, MODELS, readParsed } from '@/lib/anthropic'
+import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
 import { ProfileSchema, type Profile } from '@/lib/schemas'
 
 // A full resume structures into a sizeable Profile JSON (roles + bullets + skills + education); 2000
@@ -41,5 +41,6 @@ export async function structureResume(resumeText: string): Promise<Profile> {
     ],
   })
 
+  logModelUsage('structureResume', message)
   return readParsed(message, 'structureResume', MAX_TOKENS)
 }
