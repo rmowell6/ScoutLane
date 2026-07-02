@@ -147,6 +147,33 @@ describe('groundJobSignals', () => {
     expect(g.droppedJd.sort()).toEqual(['ccna', 'cobol', 'fortran'])
   })
 
+  // Finding 7: dropping EVERY must-have must not route skillsCoverage to coverage()'s empty-list
+  // neutral (80), which would replace an honest low score. Grounding must never RAISE skillsCoverage.
+  const noReqs = { title: 'x', company: 'y', mustHave: [], niceToHave: [] }
+  const skillsCovScore = (s: FitSignals): number =>
+    assessFit(assembleFitInput(s, undefined, noReqs)).dimensions.find((d) => d.key === 'skillsCoverage')!.score
+
+  test('finding 7: a must-have list fully dropped by grounding does NOT jump to the neutral 80', () => {
+    // 'kubernetes'/'terraform' are real requirements paraphrased in the JD text, so Tier 1 would drop
+    // both; the candidate holds neither, so the honest score is 0.
+    const jd = 'We need container orchestration and infrastructure automation experience.'
+    const s = signals({ mustHaveSkills: ['kubernetes', 'terraform'], candidateSkills: [], requiredCerts: [], heldCerts: [] })
+    const honest = skillsCovScore(s) // against the original (pre-drop) list -> 0
+    const g = groundJobSignals(s, jd)
+    // The guard keeps the originals rather than emptying, so they still count as unmet.
+    expect(g.signals.mustHaveSkills).toEqual(['kubernetes', 'terraform'])
+    expect(g.droppedJd).toEqual([]) // no must-have reported dropped, since none was removed
+    expect(skillsCovScore(g.signals)).toBe(honest)
+    expect(skillsCovScore(g.signals)).toBeLessThanOrEqual(honest) // never raised
+    expect(skillsCovScore(g.signals)).not.toBe(80)
+  })
+
+  test('finding 7 regression: a JD that GENUINELY specified no must-haves still gets the neutral 80', () => {
+    const g = groundJobSignals(signals({ mustHaveSkills: [], candidateSkills: [] }), JD)
+    expect(g.signals.mustHaveSkills).toEqual([])
+    expect(skillsCovScore(g.signals)).toBe(80) // legitimate empty-list neutral path, unchanged
+  })
+
   test('Tier 2: keeps a compTopUsd matching a JD figure written as $150,000', () => {
     const g = groundJobSignals(signals({ compTopUsd: 150000 }), JD)
     expect(g.signals.compTopUsd).toBe(150000)
