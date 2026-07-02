@@ -114,13 +114,19 @@ them and returns signed download URLs, and without it falls back to returning th
 
 1. **Storage bucket:** create a **private** bucket named `documents` (Storage → New bucket).
    `/api/packet` uploads under `resumes/` and `cover-letters/` and returns 1-hour signed URLs.
-2. **Database schema:** apply the migrations in `supabase/migrations/` **in order** (`0001`–`0005`)
-   via the SQL Editor or `supabase db push`. They create `profiles` / `jobs` / `generations` with
-   RLS, the ingest indexes, and the `ingest_run_markers` table (the Apify per-day cost guard). Each
-   is idempotent (`if not exists`), so re-running is safe. The unified ingest cron needs these
-   applied; the stateless packet path does not. Note: `generations` records BOTH shipped and
-   guardrail-blocked packets (migration `0016` adds `status` = `'shipped' | 'blocked'`), so when
-   querying generation history, filter by `status` to separate the two.
+2. **Database schema:** apply **every** migration in `supabase/migrations/` **in order** (`0001`
+   through the highest-numbered file, currently `0020`) via the SQL Editor or `supabase db push`.
+   Apply ALL of them, not just the first few: later migrations add columns the app writes on every
+   request (for example `0016` adds `generations.status`), so skipping them makes packet persistence
+   fail at runtime with a PostgREST `PGRST204 "Could not find the 'status' column ... in the schema
+   cache"` and NO generation record is saved. They create `profiles` / `jobs` / `generations` with
+   RLS, the ingest indexes, and the `ingest_run_markers` table (the Apify per-day cost guard). Each is
+   idempotent (`if not exists`), so re-running the whole set is safe. After applying DDL, Supabase
+   reloads the PostgREST schema cache automatically; if a `PGRST204` persists, force it once with
+   `notify pgrst, 'reload schema';`. The unified ingest cron needs these applied; the stateless packet
+   path does not. Note: `generations` records BOTH shipped and guardrail-blocked packets (`0016`'s
+   `status` = `'shipped' | 'blocked'`), so when querying generation history, filter by `status` to
+   separate the two.
 3. **Env vars:** ensure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and
    `SUPABASE_SECRET_KEY` are set in Vercel (Production + Preview). The secret key is server-only.
 
