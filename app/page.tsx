@@ -298,7 +298,7 @@ export default function LandingPage() {
           <p className={styles.sectP}>No inventing. No enriching your profile from outside sources. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
           <div className={styles.stepsV}>
             {[
-              ['1', 'Paste any job listing', 'Drop in a URL or paste the full text. ScoutLane reads what the role requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
+              ['1', 'Add a job listing', 'Paste the full text, or pick a role from the built-in job pool. ScoutLane reads what the role requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
               ['2', 'Connect your own history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
               ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with cited sources, a cover letter written for the role, and hiring-manager outreach you can personalize. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
