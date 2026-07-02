@@ -99,7 +99,15 @@ export function humanizeNote(d: FitDimension): string {
       return m ? `You hold ${m[1]} of the ${m[2]} required certifications.` : 'This role lists no required certifications.'
     }
     case 'compAlignment': {
-      if (d.note.includes('(neutral)')) return 'No salary range was posted, so pay was not scored.'
+      // Two distinct reasons a comp comparison is unassessed need accurate, DIFFERENT copy (finding 13):
+      // the employer posted no salary range, versus the candidate set no target so there was nothing to
+      // compare the posted range against. scoreComp marks the latter "target unavailable"; saying "no
+      // salary range was posted" there is factually wrong, the JD did post one.
+      if (d.note.includes('(neutral)')) {
+        return d.note.includes('target unavailable')
+          ? 'You have not set a target salary, so pay was not compared.'
+          : 'No salary range was posted, so pay was not scored.'
+      }
       const m = d.note.match(/Posted top (\$[\d,]+) vs target (\$[\d,]+)/)
       if (!m) return d.note
       if (d.score >= 92) return `The posted top of ${m[1]} meets or beats your ${m[2]} target.`

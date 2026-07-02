@@ -331,7 +331,7 @@ describe('finding 13: wrong comp copy for the target-unavailable neutral case', 
     expect(line).toContain('No salary range was posted')
   })
 
-  test.fails('OPEN: the target-unavailable neutral must NOT claim no salary range was posted', () => {
+  test('FIXED: the target-unavailable neutral must NOT claim no salary range was posted', () => {
     const line = humanizeNote({ key: 'compAlignment', label: 'Compensation alignment', weight: 0.12, score: 65, note: 'Comp target unavailable (neutral).' })
     expect(line.includes('No salary range was posted')).toBe(false)
   })
