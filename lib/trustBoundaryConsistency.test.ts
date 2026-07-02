@@ -222,7 +222,7 @@ describe('finding 5: tailor prompt allowance vs actual alias-table boundary', ()
 // with the table, so stored scores are attributable.
 // -------------------------------------------------------------------------------------------
 describe('finding 6: alias-table version coupling for score reproducibility', () => {
-  test.fails('OPEN: skillAliases must export ALIAS_TABLE_VERSION (bumped on any table change)', () => {
+  test('FIXED: skillAliases exports ALIAS_TABLE_VERSION (content-addressed, changes with the table)', () => {
     expect('ALIAS_TABLE_VERSION' in skillAliases).toBe(true)
   })
 })

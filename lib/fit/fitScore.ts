@@ -4,11 +4,17 @@
 // input always produces the same output, on any machine. Design (see docs/Fit_Assessment_SPEC.md):
 //   - Extraction (fuzzy, upstream, LLM): reads resume + JD -> structured FitInput.
 //   - Scoring (exact, THIS module): pure, rule-based math over FitInput. No model call, no
-//     randomness, no Date/locale-by-default. Identical input -> identical output.
+//     randomness, no Date/locale-by-default. Precisely: identical input AND identical scoring basis
+//     produce identical output, where the basis is (RUBRIC_VERSION, skillAliases.ALIAS_TABLE_VERSION).
+//     The second half matters because coverage() runs both skill lists through canonicalize(), so the
+//     score depends on the alias table's contents; that table is no longer static (PR #145 imports, the
+//     Phase 8 refresh pipeline), so the same input can score differently after a table change. Those
+//     two versions are what make such a change attributable rather than looking like a regression.
 // This re-implementation must reproduce fit_score.golden.json byte-for-byte (parity test).
 //
 // Do NOT edit constants/formulas casually: a change alters the contract. On a deliberate rubric
-// change, bump RUBRIC_VERSION and regenerate the golden file from the reference engine.
+// change, bump RUBRIC_VERSION and regenerate the golden file from the reference engine. ALIAS_TABLE_
+// VERSION tracks the alias table automatically (content hash) and needs no manual bump.
 //
 // Rubric 1.1.0 (deliberate change, not a port): adds two engagement/work-authorization PENALTIES
 // (workAuthMismatch, engagementMismatch). These are NEW capability, there is no fit_score.js value to

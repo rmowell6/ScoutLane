@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { ALIAS_GROUPS, aliasForms, canonicalize } from './skillAliases'
+import { ALIAS_GROUPS, ALIAS_TABLE_VERSION, aliasForms, canonicalize, computeAliasTableVersion } from './skillAliases'
 
 describe('canonicalize', () => {
   test('collapses curated synonyms to a shared canonical form', () => {
@@ -65,6 +65,33 @@ describe('imported alias groups (O*NET / Stack Exchange, Phase 3)', () => {
     expect(canonicalize('React')).not.toBe(canonicalize('Vue.js'))
     expect(canonicalize('Kafka')).not.toBe(canonicalize('Hadoop'))
     expect(canonicalize('React')).not.toBe(canonicalize('Kubernetes')) // vs a core group
+  })
+})
+
+// Finding 6: the fit score reads the alias table through canonicalize(), so the "identical input ->
+// identical output" contract is only true for a fixed table. ALIAS_TABLE_VERSION is a content-addressed
+// marker (auto-derived, can't be forgotten) that changes whenever ALIAS_GROUPS' contents change, so a
+// score's basis is attributable across a future table update.
+describe('ALIAS_TABLE_VERSION (content-addressed table identity)', () => {
+  test('is exported as a non-empty string equal to the hash of the live table', () => {
+    expect(typeof ALIAS_TABLE_VERSION).toBe('string')
+    expect(ALIAS_TABLE_VERSION.length).toBeGreaterThan(0)
+    expect(ALIAS_TABLE_VERSION).toBe(computeAliasTableVersion(ALIAS_GROUPS))
+  })
+
+  test('is stable: hashing the same contents always yields the same version', () => {
+    expect(computeAliasTableVersion(ALIAS_GROUPS)).toBe(computeAliasTableVersion(ALIAS_GROUPS))
+    expect(computeAliasTableVersion([['a', 'b']])).toBe(computeAliasTableVersion([['a', 'b']]))
+  })
+
+  test('CHANGES when the table contents change (a member, a group, or its order)', () => {
+    const base = [['kubernetes', 'k8s'], ['aws', 'amazon web services']]
+    // A changed member form.
+    expect(computeAliasTableVersion(base)).not.toBe(computeAliasTableVersion([['kubernetes', 'k8s'], ['aws', 'amzn']]))
+    // An added group (what the refresh pipeline does).
+    expect(computeAliasTableVersion(base)).not.toBe(computeAliasTableVersion([...base, ['typescript', 'ts']]))
+    // A reordered group (canonical is the first element, so order is significant).
+    expect(computeAliasTableVersion([['k8s', 'kubernetes']])).not.toBe(computeAliasTableVersion([['kubernetes', 'k8s']]))
   })
 })
 
