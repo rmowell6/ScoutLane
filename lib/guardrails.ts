@@ -304,12 +304,17 @@ export function checkNoFabrication(
 export function mentions(haystack: string, term: string): boolean {
   const t = normalize(term)
   if (!t) return false
-  if (/\s/.test(t)) return haystack.includes(t)
   const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   // Token boundary that tolerates the TERM's own non-word edge chars (C++, C#, F#, .NET, Node.js):
   // match unless flanked by a WORD char (which would make it part of a larger identifier, e.g. "java"
   // inside "javascript"). `\b` fails when an edge char is non-word (+/#/.), which false-blocked real,
   // listed skills. Negative word-char lookarounds keep the whole-token intent without that bug.
+  //
+  // The SAME boundaries apply to multi-word terms. The earlier raw `includes()` fallback for phrases
+  // had NO boundary protection, so a phrase matched INSIDE a longer, different term: the alias form
+  // "sql server" matched "mysql server" ("my" + "sql server"), letting a MySQL-only profile ground a
+  // tailored "SQL Server" claim, and "virtual machine" matched "virtual machinery". Anchoring both
+  // ends of the whole phrase closes that class for every multi-word form the alias table fans out to.
   return new RegExp(`(?<!\\w)${escaped}(?!\\w)`).test(haystack)
 }
 

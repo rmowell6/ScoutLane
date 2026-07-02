@@ -110,13 +110,13 @@ describe('finding 1: substring grounding vs canonical equality (sql server / mys
     expect(eqMatches('sql server', 'mysql server')).toBe(false)
   })
 
-  test.fails('OPEN: grounding must agree that a MySQL-only profile does NOT hold "SQL Server"', () => {
+  test('FIXED: grounding agrees a MySQL-only profile does NOT hold "SQL Server"', () => {
     expect(groundingAccepts(mysqlOnly, 'SQL Server')).toBe(false)
     expect(groundingAccepts(mysqlOnly, 'MSSQL')).toBe(false)
     expect(groundingAccepts(mysqlOnly, 'SQL Server (MSSQL)')).toBe(false)
   })
 
-  test.fails('OPEN (same class): "virtual machine" must not ground from "virtual machinery"', () => {
+  test('FIXED (same class): "virtual machine" does not ground from "virtual machinery"', () => {
     const p = mkProfile({ skills: [], roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Maintained the virtual machinery lab'] }] })
     expect(groundingAccepts(p, 'VMs')).toBe(false)
   })
