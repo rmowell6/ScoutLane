@@ -410,8 +410,8 @@ export default function Home() {
           <h1 className={styles.title}>New application packet</h1>
           <p className={styles.tagline}>
             Paste a resume and a job description. Get a fit assessment plus a tailored,
-            ATS-safe resume and cover letter, built only from facts in the resume, with a
-            code-enforced no-fabrication guardrail.
+            ATS-safe resume, cover letter, and hiring-manager outreach, built only from facts
+            in the resume, with a code-enforced no-fabrication guardrail.
           </p>
         </header>
 
