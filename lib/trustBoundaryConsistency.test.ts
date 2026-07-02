@@ -252,7 +252,7 @@ describe('finding 7: drop-all JD must-haves inflates skillsCoverage via the neut
 describe('finding 8: JD comp used as "your target" when no preference exists', () => {
   const jobReqs = { title: 'Eng', company: 'Co', mustHave: [], niceToHave: [] } as unknown as JobReqs
 
-  test.fails('OPEN: comp must be neutral/unassessed when the candidate never set a target', () => {
+  test('FIXED: comp must be neutral/unassessed when the candidate never set a target', () => {
     const input: FitInput = assembleFitInput(mkSignals({ compTopUsd: 200_000 }), undefined, jobReqs)
     const dim = assessFit(input).dimensions.find((d) => d.key === 'compAlignment')!
     expect(isUnassessed(dim)).toBe(true)

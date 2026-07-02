@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { assembleFitInput, type FitSignals } from './fitSignals'
 import { assessFit } from './fitScore'
+import { isUnassessed } from './fitPresent'
 import { CandidatePreferencesSchema, type JobReqs } from '@/lib/schemas'
 
 const SIGNALS: FitSignals = {
@@ -37,17 +38,34 @@ describe('assembleFitInput', () => {
     expect(input.lanesSurfaced).toBe(1)
   })
 
-  test('falls back to the posted comp as the target when no preference is set', () => {
-    const input = assembleFitInput(SIGNALS, undefined, JOB)
-    expect(input.targetCompTopUsd).toBe(200000) // == compTopUsd -> ratio 1.0
+  // Finding 8: with no candidate target, do NOT fall back to the JD's posted comp (that made the comp
+  // scorer compare the posted number to itself -> ratio 1.0 -> 92, "meets your target", for a target
+  // the candidate never set). No target -> 0, which routes the comp dimension to the neutral/unassessed
+  // path instead of fabricating a match.
+  test('no candidate target -> 0 (no JD self-comparison), comp dimension is unassessed', () => {
+    const input = assembleFitInput(SIGNALS, undefined, JOB) // SIGNALS.compTopUsd = 200000, no preference
+    expect(input.targetCompTopUsd).toBe(0)
+    const comp = assessFit(input).dimensions.find((d) => d.key === 'compAlignment')!
+    expect(isUnassessed(comp)).toBe(true)
+    // The old bug scored this 92; it must no longer read as a real target match.
+    expect(comp.note).not.toMatch(/target \$200,000/)
   })
 
-  test('uses a harmless placeholder when neither target nor posted comp exists', () => {
+  test('no target and no posted comp -> 0, comp scorer stays neutral 65', () => {
     const input = assembleFitInput({ ...SIGNALS, compTopUsd: null }, undefined, JOB)
-    expect(input.targetCompTopUsd).toBe(1)
-    // comp scorer is neutral 65 when compTopUsd is null, regardless of the placeholder target.
+    expect(input.targetCompTopUsd).toBe(0)
     const comp = assessFit(input).dimensions.find((d) => d.key === 'compAlignment')
     expect(comp?.score).toBe(65)
+    expect(isUnassessed(comp!)).toBe(true)
+  })
+
+  test('a real candidate target still scores + displays exactly as before (regression)', () => {
+    const prefs = { targetCompTopUsd: 170000, targetLanes: [], workModes: [], employmentTypes: [], noGoLocations: [] }
+    const input = assembleFitInput(SIGNALS, prefs, JOB) // posted 200000 vs target 170000 -> ratio > 1.1
+    expect(input.targetCompTopUsd).toBe(170000)
+    const comp = assessFit(input).dimensions.find((d) => d.key === 'compAlignment')!
+    expect(isUnassessed(comp)).toBe(false)
+    expect(comp.score).toBe(100)
   })
 
   test('feeds straight into the deterministic engine', () => {

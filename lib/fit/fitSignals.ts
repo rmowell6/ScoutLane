@@ -61,15 +61,18 @@ export type FitSignals = z.infer<typeof FitSignalsSchema>
  * Merge extracted JD/resume signals with candidate preferences into the engine's FitInput.
  * Pure + deterministic so it's unit-testable without the LLM.
  *
- * targetCompTopUsd precedence: candidate's target -> the JD's posted top -> 1 (a harmless
- * placeholder; when compTopUsd is null the comp scorer returns neutral 65 regardless of target).
+ * targetCompTopUsd: the candidate's own target, or 0 when they never set one. We deliberately do NOT
+ * fall back to the JD's posted comp (finding 8): doing so made the comp scorer compare the posted
+ * number to itself (ratio 1.0 -> score 92, "meets your target") for a target the candidate never
+ * provided. Passing 0 routes scoreComp to its existing "target unavailable (neutral)" path, so
+ * isUnassessed() marks the dimension "Not assessed" rather than displaying a fabricated match.
  */
 export function assembleFitInput(
   signals: FitSignals,
   preferences: CandidatePreferences | undefined,
   jobReqs: JobReqs,
 ): FitInput {
-  const targetCompTopUsd = preferences?.targetCompTopUsd ?? signals.compTopUsd ?? 1
+  const targetCompTopUsd = preferences?.targetCompTopUsd ?? 0
   return {
     title: jobReqs.title,
     roleTypeMatch: signals.roleTypeMatch,
