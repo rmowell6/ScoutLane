@@ -4,7 +4,7 @@
 // share one source of truth (Engineering Plan §5/§6).
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { anthropic, MODELS, logModelUsage, readParsed } from '@/lib/anthropic'
-import { factIsNegated, groundedInFacts, indexFacts, mentions, normalize } from '@/lib/guardrails'
+import { capabilityFactTexts, factIsNegated, groundedInFacts, indexFacts, mentions, normalize } from '@/lib/guardrails'
 import { aliasForms, canonicalize } from '@/lib/skillAliases'
 import { TailoredContentSchema, type JobReqs, type Profile, type TailoredContent } from '@/lib/schemas'
 
@@ -93,7 +93,13 @@ const TAILOR_INSTRUCTIONS = [
  * re-implement the alias mechanism. Pure and deterministic (no model call, no randomness).
  */
 export function allowedAliasPairings(profile: Profile, jobReqs: JobReqs): string[] {
-  const facts = indexFacts(profile).texts
+  // Ground pairings against CAPABILITY facts only (skills, certs, role bullets, summary), the same set
+  // finding F-F's banned-term guard uses and finding 11 established for scoring. Using the full
+  // indexFacts().texts would also count a role's company/title/education, so a candidate at "Kubernetes
+  // Consulting" would be offered a "Kubernetes" pairing the banned-term guard then refuses to license,
+  // and a company name is not capability evidence. This matches F-G's stated intent (skills/certs/
+  // bullets/summary), which the earlier indexFacts().texts spelling did not actually honor.
+  const facts = capabilityFactTexts(indexFacts(profile))
   const jdTerms = [...jobReqs.mustHave, ...jobReqs.niceToHave]
   // A curated alias form F is LITERALLY held when it appears as a whole token in a NON-negated fact.
   // Literal (mentions, not the alias-aware groundedInFacts) so we surface only spellings the candidate

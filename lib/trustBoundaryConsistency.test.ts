@@ -371,6 +371,132 @@ describe('finding 12: banned term matching across concatenated field boundaries'
 })
 
 // -------------------------------------------------------------------------------------------
+// Composition: the F-A..F-J fixes landed independently but several touch the SAME mechanism
+// (drop-handling in groundJobSignals; METRIC_RE extraction; "what counts as skill evidence";
+// mentions() boundaries; the fit-score result shape). Each test below exercises one overlap
+// pair/triple TOGETHER to pin that the fixes compose rather than merely pass in isolation.
+// -------------------------------------------------------------------------------------------
+describe('composition: F-A..F-J interactions', () => {
+  const noReqs = { title: 'Eng', company: 'Co', mustHave: [], niceToHave: [] } as unknown as JobReqs
+  const dimScore = (s: FitSignals, key: string): number =>
+    assessFit(assembleFitInput(s, undefined, noReqs)).dimensions.find((d) => d.key === key)!.score
+
+  test('F-A x F-B: mixed grounded/ungrounded must-haves AND certs, neither scored list ever shrinks', () => {
+    // azure + az-104 appear in the JD; terraform + ccna do not (paraphrased). F-B's generalized rule
+    // (never remove from a SCORED list) must hold for both fields at once, with F-A's cert port not
+    // reintroducing a cert-only filter path. Only display-only preferred still drops.
+    const jd = 'Needs Azure and infrastructure automation experience. AZ-104 required, plus a networking certification.'
+    const s = mkSignals({
+      mustHaveSkills: ['azure', 'terraform'],
+      preferredSkills: ['fortran'], // absent from the JD: the one list that STILL drops
+      requiredCerts: ['az-104', 'ccna'],
+      candidateSkills: ['azure'],
+      heldCerts: ['az-104'],
+    })
+    const honestSkills = dimScore(s, 'skillsCoverage')
+    const honestCerts = dimScore(s, 'certRequirementFit')
+    const g = groundJobSignals(s, jd)
+    expect(g.signals.mustHaveSkills).toEqual(['azure', 'terraform']) // full list retained (F-B)
+    expect(g.signals.requiredCerts).toEqual(['az-104', 'ccna']) // full list retained (F-A via F-B)
+    expect(g.droppedJd).toEqual(['fortran']) // only preferred (display-only) is dropped/reported
+    expect(dimScore(g.signals, 'skillsCoverage')).toBe(honestSkills) // grounding never raised either score
+    expect(dimScore(g.signals, 'certRequirementFit')).toBe(honestCerts)
+  })
+
+  test('F-C x F-I/F-J: a multiplier count must not form across a FIELD boundary (prose side)', () => {
+    // "grew to 2" (no unit) + "million users..." (no leading digit) would join to the F-J phrase
+    // "2 million users" ONLY if fields were concatenated. F-C's per-field scanning must keep the
+    // F-J multiplier branch from bridging the boundary: per field, no metric exists at all.
+    const tailored = mkTailored({ summary: 'Our platform grew to 2', coverLetter: 'million users onboarded smoothly.' })
+    expect(checkNoFabrication(tailored, mkProfile()).ungroundedMetrics).toEqual([])
+  })
+
+  test('F-C x F-J: a multiplier count must not GROUND across two profile FACTS (fact side)', () => {
+    // Bullet 1 ends "...to 2" and bullet 2 starts "million users": neither fact alone asserts
+    // "2 million users", so an invented claim at that value must still be flagged.
+    const split = mkProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Grew the platform to 2', 'million users signed up in year two'] }],
+    })
+    const r = checkNoFabrication(mkTailored({ summary: 'Grew the platform to 2 million users.' }), split)
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/2 million users/i)
+  })
+
+  test('F-C x F-J regression: an in-ONE-field "2 million users" still extracts and grounds', () => {
+    const whole = mkProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Grew the platform to 2 million users'] }],
+    })
+    // Normalized grounding: the fact's "2 million users" grounds the claim's "2,000,000 users".
+    expect(checkNoFabrication(mkTailored({ summary: 'Grew to 2,000,000 users.' }), whole).ungroundedMetrics).toEqual([])
+    // And with no supporting fact, the same single-field phrase is still caught (F-J escape closed).
+    expect(checkNoFabrication(mkTailored({ summary: 'Grew to 2 million users.' }), mkProfile()).ungroundedMetrics.join(' ')).toMatch(/2 million users/i)
+  })
+
+  // F-F x F-G evidence-scope alignment (composition fix). F-F grounds banned-term exceptions against
+  // CAPABILITY facts only (capabilityFactTexts: skills/certs/bullets/summary; title/company/edu
+  // excluded, per finding 11). F-G's allowedAliasPairings originally read indexFacts(profile).texts,
+  // the FULL corpus, so a curated alias form evidenced ONLY by a company name (or job title) was
+  // offered to the tailor model as an approved pairing, which F-F's banned-term guard then refused to
+  // license. allowedAliasPairings now grounds against capabilityFactTexts too, so the two mechanisms
+  // agree (a company literally named "Kubernetes Consulting" is not Kubernetes experience).
+  test('FIXED: F-F x F-G: a company-name-only alias evidence must NOT be offered as a pairing', () => {
+    const companyOnly = mkProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Kubernetes Consulting', title: 'Account Manager', startDate: '2020', endDate: null, bullets: ['Managed client renewals'] }],
+    })
+    const job = { title: 'Eng', company: 'Co', mustHave: ['K8s'], niceToHave: [] } as unknown as JobReqs
+    // Sanity: F-F is already strict here, the SAME evidence does not license the banned term.
+    expect(checkBannedTerms(mkTailored({ summary: 'K8s work.' }), companyOnly, ['Kubernetes']).violations).toContain('Kubernetes')
+    // FIXED: the pairing generator now grounds against capability facts too, so it offers nothing.
+    expect(allowedAliasPairings(companyOnly, job)).toEqual([])
+  })
+
+  test('F-F x F-G agree on bullet evidence: pairing offered AND banned term licensed', () => {
+    // A bullet-evidenced skill is capability evidence for BOTH mechanisms: F-G surfaces the pairing
+    // (the point of the fix) and F-F licenses the term, so the offered option is actually shippable.
+    const bulletOnly = mkProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Operated K8s clusters in production'] }],
+    })
+    const job = { title: 'Eng', company: 'Co', mustHave: ['Kubernetes'], niceToHave: [] } as unknown as JobReqs
+    expect(allowedAliasPairings(bulletOnly, job)).toContain('Kubernetes (k8s)')
+    expect(checkBannedTerms(mkTailored({ summary: 'Kubernetes operations.' }), bulletOnly, ['Kubernetes']).violations).toEqual([])
+  })
+
+  test('F-E x F-B: a score produced through the retained-list path still carries aliasTableVersion', () => {
+    // The F-B scenario: one unmet must-have ("terraform") is only PARAPHRASED in the JD. The retained
+    // list keeps the honest 50, and the FitResult from that path must stamp the live table version.
+    const jd = 'We need Kubernetes and infrastructure automation experience.'
+    const s = mkSignals({ mustHaveSkills: ['kubernetes', 'terraform'], candidateSkills: ['kubernetes'] })
+    const g = groundJobSignals(s, jd)
+    expect(g.signals.mustHaveSkills).toEqual(['kubernetes', 'terraform'])
+    const result = assessFit(assembleFitInput(g.signals, undefined, noReqs))
+    expect(result.aliasTableVersion).toBe(skillAliases.ALIAS_TABLE_VERSION)
+    expect(result.dimensions.find((d) => d.key === 'skillsCoverage')!.score).toBe(50) // honest, not 100
+  })
+
+  test('F-H x F-I/F-J: dotted-identifier grounding and multiplier metrics coexist in one packet', () => {
+    // One profile exercises both regex families at once: the F-H typo'd skill must ground, the F-J
+    // multiplier metric must ground at its normalized value, and neither check disturbs the other.
+    const p = mkProfile({
+      skills: ['Docker'],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Ran Docker.Kubernetes serving 2 million users'] }],
+    })
+    const r = checkNoFabrication(
+      mkTailored({ skills: ['Kubernetes'], summary: 'Served 2,000,000 users on Kubernetes.' }),
+      p,
+    )
+    expect(r.ungroundedSkills).toEqual([]) // F-H: the typo still grounds the standalone term
+    expect(r.ungroundedMetrics).toEqual([]) // F-J: "2 million users" grounds "2,000,000 users"
+    // And an unsupported dollar figure in the same packet is still caught with F-I's boundary intact:
+    // "$5 monthly" is a bare $5, not $5M, so it does not accidentally ground off anything.
+    const bad = checkNoFabrication(mkTailored({ summary: 'Saved $5 monthly per Kubernetes node.', skills: ['Kubernetes'] }), p)
+    expect(bad.ungroundedMetrics).toContain('$5')
+  })
+})
+
+// -------------------------------------------------------------------------------------------
 // Finding 13 (Low): fitPresent collapses both comp-neutral notes into "No salary range was
 // posted", which is false for the target-unavailable case (comp WAS posted).
 // -------------------------------------------------------------------------------------------
