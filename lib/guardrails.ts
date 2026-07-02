@@ -429,13 +429,23 @@ function metricsIn(text: string): Set<string> {
 
 /** Metric phrases in the prose whose (kind, normalized value) is absent from the profile facts. Compares
  *  within a metric KIND and by canonical VALUE: an invented "$40M" is NOT grounded by an unrelated
- *  "40 VMs" count, and a real "$1,500,000" IS grounded by a fact's "$1.5M" shorthand. */
-function ungroundedMetricsIn(prose: string, profileText: string): string[] {
-  const profileKeys = metricsIn(profileText)
+ *  "40 VMs" count, and a real "$1,500,000" IS grounded by a fact's "$1.5M" shorthand.
+ *
+ *  Each prose field and each profile fact is scanned SEPARATELY, never a single joined string
+ *  (finding F-C, the metric-side twin of finding 12). METRIC_RE's `\s*`/`\s+` match a newline, so
+ *  joining fields let a phrase form across a boundary: a field ending "...team of" + a field starting
+ *  "12 engineers..." phantom-matched "team of 12", and a bare trailing number + a next field starting
+ *  with a unit word fabricated a grounded count, neither present in any single field. Per-field scanning
+ *  means a metric must appear COMPLETE within one field to count (prose side) or ground (fact side). */
+function ungroundedMetricsIn(proseFields: string[], factTexts: string[]): string[] {
+  const profileKeys = new Set<string>()
+  for (const fact of factTexts) for (const k of metricsIn(fact)) profileKeys.add(k)
   const flagged: string[] = []
-  for (const phrase of prose.match(METRIC_RE) ?? []) {
-    const m = classifyMetric(phrase)
-    if (m && !profileKeys.has(metricKey(m))) flagged.push(phrase.trim())
+  for (const field of proseFields) {
+    for (const phrase of field.match(METRIC_RE) ?? []) {
+      const m = classifyMetric(phrase)
+      if (m && !profileKeys.has(metricKey(m))) flagged.push(phrase.trim())
+    }
   }
   return flagged
 }
@@ -454,11 +464,14 @@ export function checkNoFabrication(
   index: FactIndex = indexFacts(profile),
 ): NoFabricationResult {
   const unverifiable = tailored.claims.filter((c) => !traceable(c, index))
-  const profileText = index.texts.join(' \n ')
   const ungroundedSkills = tailored.skills.filter((s) => !skillGrounded(index.texts, s))
   // The outreach messages are fact-grounded prose too, so hold them to the same no-invented-metric bar.
-  const prose = `${tailored.summary}\n${tailored.coverLetter}\n${tailored.outreach.linkedin}\n${tailored.outreach.email}`
-  const ungroundedMetrics = ungroundedMetricsIn(prose, profileText)
+  // Pass each field separately (never one joined blob) so a metric can't form across a field boundary,
+  // and ground against each fact separately (index.texts) for the same reason (finding F-C).
+  const ungroundedMetrics = ungroundedMetricsIn(
+    [tailored.summary, tailored.coverLetter, tailored.outreach.linkedin, tailored.outreach.email],
+    index.texts,
+  )
   return {
     ok: unverifiable.length === 0 && ungroundedSkills.length === 0 && ungroundedMetrics.length === 0,
     unverifiable,
@@ -650,7 +663,9 @@ export function checkBulletsGrounded(profile: Profile, sourceResumeText?: string
   const ungroundedMetrics: string[] = []
   const flagged: { text: string; overlap: number }[] = []
   for (const text of shipped) {
-    ungroundedMetrics.push(...ungroundedMetricsIn(text, source))
+    // One shipped bullet vs the raw source resume: each is a single contiguous string, so wrapping
+    // in singleton arrays preserves the prior behavior (the array API is for the field-join guard).
+    ungroundedMetrics.push(...ungroundedMetricsIn([text], [source]))
     const overlap = sourceOverlap(text, sourceTokens)
     if (overlap < OVERLAP_FLAG_THRESHOLD) {
       flagged.push({ text, overlap: Math.round(overlap * 100) / 100 })

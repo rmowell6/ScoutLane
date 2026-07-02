@@ -269,6 +269,53 @@ describe('checkNoFabrication: kind-aware, value-normalized metric grounding (fin
   })
 })
 
+// Finding F-C: metric grounding must check each field SEPARATELY (the metric-side twin of finding 12).
+// METRIC_RE's whitespace classes match a newline, so joining fields let a metric form across a boundary.
+describe('checkNoFabrication: metric grounding does not bridge field boundaries (finding F-C)', () => {
+  test('a "team of 12" that only forms across summary/coverLetter is NOT phantom-flagged', () => {
+    // "team of" (no digit) alone matches nothing; "12." (no unit) alone matches nothing; only the JOIN
+    // would have produced the phantom "team of 12". Per-field, no metric exists, so nothing is flagged.
+    const tailored = makeTailored({ summary: 'We ran a lean team of', coverLetter: '12. The rollout went smoothly.' })
+    const r = checkNoFabrication(tailored, makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).not.toMatch(/team of/i)
+    expect(r.ungroundedMetrics).toEqual([])
+  })
+
+  test('a bare trailing number + a next field starting with a unit does not fabricate a count', () => {
+    // "managed 40" (no unit) + "servers ..." (no leading number) join to the phantom "40 servers".
+    const tailored = makeTailored({ summary: 'Personally managed 40', coverLetter: 'servers across three regions were retired.' })
+    const r = checkNoFabrication(tailored, makeProfile())
+    expect(r.ungroundedMetrics.join(' ')).not.toMatch(/40 *\n? *servers/i)
+    expect(r.ungroundedMetrics).toEqual([])
+  })
+
+  test('a metric that spans two profile FACTS is not treated as grounded (fact side per-fact)', () => {
+    // Two separate bullets: one ends in a bare "40", the next starts with "servers". Neither fact alone
+    // asserts "40 servers", so an invented "40 servers" claim must still be flagged, not grounded.
+    const profile = makeProfile({
+      skills: [],
+      roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Owned a fleet of 40', 'Servers were later consolidated'] }],
+    })
+    const r = checkNoFabrication(makeTailored({ summary: 'Managed 40 servers.' }), profile)
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/40 servers/i)
+  })
+
+  test('regression: a genuine single-field metric is still flagged (same-field detection intact)', () => {
+    const r = checkNoFabrication(makeTailored({ summary: 'Cut costs 55%.' }), makeProfile())
+    expect(r.ungroundedMetrics).toContain('55%')
+  })
+
+  test('regression: finding 9 shorthand grounding still works with per-field fact keys', () => {
+    const profile = makeProfile({ skills: [], roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: ['Saved the company $1.5M in licensing'] }] })
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'I saved $1,500,000 in licensing.' }), profile).ungroundedMetrics).toEqual([])
+  })
+
+  test('regression: finding 12 banned-term field-join fix is unaffected (Windows + Server boundary)', () => {
+    const tailored = makeTailored({ summary: 'Deployed Windows', coverLetter: 'Server 2019 rollout body.' })
+    expect(checkBannedTerms(tailored, makeProfile(), ['Windows Server']).violations).toEqual([])
+  })
+})
+
 // Regression: grounding a skill against the WHOLE flattened profile text let a disclaimer ground the
 // very skill it denies. "No hands-on Kubernetes experience" wrongly grounded "Kubernetes". Grounding
 // now runs fact-by-fact and skips any negated fact, so an explicitly-disclaimed skill stays ungrounded
