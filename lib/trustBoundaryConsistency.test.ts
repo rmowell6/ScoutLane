@@ -178,7 +178,7 @@ describe('finding 4: banned-term detection alias-blind vs alias-aware grounding'
     expect(checkBannedTerms(out, hasK8s, ['Kubernetes']).violations).toEqual([])
   })
 
-  test.fails('OPEN: output containing ONLY the alias form must still trip the banned term', () => {
+  test('FIXED: output containing ONLY the alias form must still trip the banned term', () => {
     expect(checkBannedTerms(aliasOnlyOutput, noK8s, ['Kubernetes']).violations).toContain('Kubernetes')
   })
 })

@@ -625,6 +625,24 @@ describe('checkBannedTerms', () => {
     expect(result.ok).toBe(false)
     expect(result.violations).toContain('Kubernetes')
   })
+
+  test('detects a banned term shipping ONLY as its curated alias (output "K8s", banned "Kubernetes")', () => {
+    // Alias-consistency: detection must be as alias-aware as grounding. A profile with no Kubernetes
+    // and no K8s cannot license the alias form, so shipping "K8s" trips the banned "Kubernetes".
+    const noK8s = makeProfile({ skills: ['Azure'] })
+    const tailored = makeTailored({ summary: 'K8s operations engineer.', skills: ['Azure'] })
+    const result = checkBannedTerms(tailored, noK8s, ['Kubernetes'])
+    expect(result.ok).toBe(false)
+    expect(result.violations).toContain('Kubernetes')
+  })
+
+  test('does NOT flag a banned term alias that IS grounded (output "K8s", profile holds "K8s")', () => {
+    // Regression: the alias-aware detection must not become a false positive. When the profile itself
+    // holds the alias, both halves agree the term is licensed, so it is not a violation.
+    const hasK8s = makeProfile({ skills: ['K8s'] })
+    const tailored = makeTailored({ summary: 'K8s operations engineer.', skills: ['K8s'] })
+    expect(checkBannedTerms(tailored, hasK8s, ['Kubernetes']).ok).toBe(true)
+  })
 })
 
 describe('checkStyle', () => {
