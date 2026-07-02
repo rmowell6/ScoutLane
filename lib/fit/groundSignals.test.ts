@@ -160,19 +160,22 @@ const goodEvidence = {
 }
 
 describe('groundJobSignals', () => {
-  test('Tier 1: drops JD skills/certs absent from the JD, keeps present ones (case/dash variants)', () => {
+  test('Tier 1 (F-B): keeps must-haves/certs for scoring, drops only display-only preferred absent from the JD', () => {
     const g = groundJobSignals(
       signals({
-        mustHaveSkills: ['azure', 'terraform', 'cobol'], // cobol appears nowhere
+        mustHaveSkills: ['azure', 'terraform', 'cobol'], // cobol appears nowhere in the JD
         preferredSkills: ['Kubernetes', 'fortran'], // case variant kept, fortran dropped
-        requiredCerts: ['AZ-104', 'ccna'], // AZ-104 present (case/dash), ccna absent
+        requiredCerts: ['AZ-104', 'ccna'], // ccna absent from the JD
       }),
       JD,
     )
-    expect(g.signals.mustHaveSkills).toEqual(['azure', 'terraform'])
+    // must-haves and required certs drive the SCORE, so they are never filtered: dropping even one
+    // (e.g. the absent cobol / ccna) could shrink the denominator and raise the score (F-B).
+    expect(g.signals.mustHaveSkills).toEqual(['azure', 'terraform', 'cobol'])
+    expect(g.signals.requiredCerts).toEqual(['AZ-104', 'ccna'])
+    // preferred is display-only (never scored), so an absent one is still dropped and reported.
     expect(g.signals.preferredSkills).toEqual(['Kubernetes'])
-    expect(g.signals.requiredCerts).toEqual(['AZ-104'])
-    expect(g.droppedJd.sort()).toEqual(['ccna', 'cobol', 'fortran'])
+    expect(g.droppedJd).toEqual(['fortran'])
   })
 
   // Finding 7: dropping EVERY must-have must not route skillsCoverage to coverage()'s empty-list
@@ -227,12 +230,31 @@ describe('groundJobSignals', () => {
     expect(certCovScore(g.signals)).toBe(80) // legitimate empty-list neutral path, unchanged
   })
 
-  test('F-A: a partial cert drop still removes the ungrounded cert and reports it', () => {
-    // 'az-104' is in the JD text, 'ccna' is not; the list stays non-empty, so the guard does not fire.
+  test('F-B: a partial must-have drop does NOT raise skillsCoverage (one UNMET requirement paraphrased away)', () => {
+    // JD requires kubernetes + terraform; candidate holds only kubernetes -> honest score 50. The JD
+    // paraphrases "terraform" as "infrastructure automation", so the pre-F-B partial drop would have
+    // shrunk the list to just kubernetes (1/1 = 100). F-B keeps terraform, so the score stays 50.
+    const jd = 'We need Kubernetes and infrastructure automation experience.'
+    const s = signals({ mustHaveSkills: ['kubernetes', 'terraform'], candidateSkills: ['kubernetes'], requiredCerts: [], heldCerts: [] })
+    const honest = skillsCovScore(s) // full original list -> 50
+    const g = groundJobSignals(s, jd)
+    expect(g.signals.mustHaveSkills).toEqual(['kubernetes', 'terraform']) // terraform kept despite the paraphrase
+    expect(skillsCovScore(g.signals)).toBe(honest)
+    expect(skillsCovScore(g.signals)).toBeLessThanOrEqual(honest) // never raised
+    expect(skillsCovScore(g.signals)).not.toBe(100)
+  })
+
+  test('F-B: a partial cert drop is NOT removed either (denominator preserved, certs score cannot rise)', () => {
+    // 'az-104' is in the JD, 'ccna' is not; candidate holds only az-104 -> honest 50. Pre-F-B this
+    // dropped ccna (1/1 = 100); now ccna is kept, so the score stays the honest 50.
     const jd = 'Requires AZ-104 and container orchestration experience.'
-    const g = groundJobSignals(signals({ requiredCerts: ['az-104', 'ccna'], heldCerts: [], adjacentCerts: [] }), jd)
-    expect(g.signals.requiredCerts).toEqual(['az-104'])
-    expect(g.droppedJd).toContain('ccna')
+    const s = signals({ requiredCerts: ['az-104', 'ccna'], heldCerts: ['az-104'], adjacentCerts: [] })
+    const honest = certCovScore(s)
+    const g = groundJobSignals(s, jd)
+    expect(g.signals.requiredCerts).toEqual(['az-104', 'ccna']) // ccna kept, not dropped
+    expect(g.droppedJd).not.toContain('ccna')
+    expect(certCovScore(g.signals)).toBe(honest)
+    expect(certCovScore(g.signals)).not.toBe(100)
   })
 
   test('Tier 2: keeps a compTopUsd matching a JD figure written as $150,000', () => {
