@@ -10,7 +10,7 @@ import styles from './page.module.css'
 export const metadata: Metadata = {
   title: 'ScoutLane: the application packet that can’t make things up',
   description:
-    'Paste a job and your own history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, a cover letter, and hiring-manager outreach) that maps to what’s there. No fabrication, no invented credentials, no auto-applying.',
+    'Paste a job and your own history. ScoutLane builds a complete application packet (a fit score, a tailored ATS-safe resume, a cover letter, and hiring-manager outreach) that maps to what’s there. No fabrication, no auto-applying.',
   openGraph: {
     title: 'ScoutLane: the application packet that can’t make things up',
     description:
@@ -184,7 +184,7 @@ export default function LandingPage() {
               </div>
 
               <div className={styles.honestBox}>
-                <strong>The unfiltered part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed: zero invented bullets, zero inferred credentials, zero keyword stuffing. The domain gap above is real, and it’s in your packet too.
+                <strong>The unfiltered part:</strong> this packet only surfaces what’s genuinely in your history. The no-fabrication guardrail ran and passed: every bullet grounded in your history, every credential drawn from what you gave us, keyword matching clean. The domain gap above is real, and it’s in your packet too.
               </div>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <div className={styles.getCardFoot}>8 dimensions scored · Weighted total · Gaps shown, not hidden</div>
+              <div className={styles.getCardFoot}>8 dimensions scored · Weighted total · Gaps shown up front</div>
             </div>
 
             {/* Card 2: Tailored Resume */}
@@ -252,7 +252,7 @@ export default function LandingPage() {
                 <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Led a 3-engineer auth migration, delivered 2 weeks ahead of schedule<span className={styles.mw}>meets JD: “cross-functional collaboration”</span></div></div>
                 <div className={styles.miniB}><span className={styles.mk}>✓</span><div>Held 99.97% uptime across 4 service deployments in FY24<span className={styles.mw}>meets JD: “production reliability ownership”</span></div></div>
               </div>
-              <div className={styles.getCardFoot}>4 bullets adjusted · 0 invented · Every source citable in an interview</div>
+              <div className={styles.getCardFoot}>4 bullets adjusted · each drawn from your resume · Every source citable in an interview</div>
             </div>
 
             {/* Card 3: Cover Letter */}
@@ -284,7 +284,7 @@ export default function LandingPage() {
                   <span className={styles.clChip} key={c}>{c}</span>
                 ))}
               </div>
-              <div className={styles.getCardFoot}>2 ready-to-send openers · 0 invented · Personalize before sending</div>
+              <div className={styles.getCardFoot}>2 ready-to-send openers · built from your facts · Personalize before sending</div>
             </div>
           </div>
         </div>
@@ -295,11 +295,11 @@ export default function LandingPage() {
         <div className={styles.sectionInner}>
           <div className={styles.eyebrow}>Process</div>
           <h2 className={styles.h2}>From three inputs<br />to one packet.</h2>
-          <p className={styles.sectP}>No inventing. No enriching your profile from outside sources. ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
+          <p className={styles.sectP}>ScoutLane works only with what you give it, and produces only what you can defend in an interview.</p>
           <div className={styles.stepsV}>
             {[
               ['1', 'Add a job listing', 'Paste the full text, or pick a role from the built-in job pool. ScoutLane reads what the role requires: not just surface keywords, but the seniority signals, stack expectations, and team context the description reveals between the lines.'],
-              ['2', 'Connect your own history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Zero enrichment from your personal profiles. Nothing you didn’t give us yourself.'],
+              ['2', 'Connect your own history', 'Upload a resume, paste your LinkedIn profile, or describe your experience in plain language. ScoutLane works only from what you provide. Nothing you didn’t give us yourself.'],
               ['3', 'Download your application packet', 'A fit score showing the requirements you meet and the ones you don’t, a role-tailored resume with cited sources, a cover letter written for the role, and hiring-manager outreach you can personalize. Every line traces back to something you told us, and nothing else.'],
             ].map(([n, title, body]) => (
               <div className={styles.stepv} key={n}>
