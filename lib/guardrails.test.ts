@@ -386,6 +386,71 @@ describe('checkNoFabrication — faithful rephrasings (em-dash / parenthetical)'
   })
 })
 
+// Finding 3 (relational-order sensitivity): Route 2's token-faithfulness is bag-of-words, so without
+// the directional-pair guard a "from X to Y" whose X and Y are SWAPPED reads as a faithful paraphrase
+// (identical token set, identical empty negation key). The guard requires each half of a directional
+// pair present in BOTH the fact and the claim to bind to the SAME phrase. Reorders and rephrasings
+// with no directional relationship must be unaffected.
+describe('checkNoFabrication: relational/directional order (from/to, before/after)', () => {
+  const dirProfile = makeProfile({
+    skills: [],
+    roles: [
+      {
+        company: 'Meridian',
+        title: 'Data Engineer',
+        startDate: '2021',
+        endDate: null,
+        bullets: [
+          'Led migration from Oracle to PostgreSQL',
+          'Deployed the app before the audit and archived logs after the migration',
+          'Managed storage, compute, and networking',
+        ],
+      },
+    ],
+  })
+  const base = { summary: 'Data engineer.', skills: [] as string[] }
+
+  test('rejects a from/to inversion (roles swapped, identical token set)', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Led migration from PostgreSQL to Oracle', factId: 'role:0:bullet:0' }],
+    })
+    expect(checkNoFabrication(tailored, dirProfile).ok).toBe(false)
+  })
+
+  test('accepts a role-preserving reorder of the same from/to fact ("to Y from X")', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Led migration to PostgreSQL from Oracle', factId: 'role:0:bullet:0' }],
+    })
+    expect(checkNoFabrication(tailored, dirProfile).ok).toBe(true)
+  })
+
+  test('generalizes to another directional pair: rejects a before/after inversion', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Deployed the app before the migration and archived logs after the audit', factId: 'role:0:bullet:1' }],
+    })
+    expect(checkNoFabrication(tailored, dirProfile).ok).toBe(false)
+  })
+
+  test('generalizes to another directional pair: accepts a role-preserving before/after rephrase', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Deployed the app before the audit, archived logs after the migration', factId: 'role:0:bullet:1' }],
+    })
+    expect(checkNoFabrication(tailored, dirProfile).ok).toBe(true)
+  })
+
+  test('leaves a NON-directional reorder untouched (list order swap, no from/to)', () => {
+    const tailored = makeTailored({
+      ...base,
+      claims: [{ text: 'Managed compute, storage, and networking', factId: 'role:0:bullet:2' }],
+    })
+    expect(checkNoFabrication(tailored, dirProfile).ok).toBe(true)
+  })
+})
+
 // Regression: a faithful PARTIAL restatement of a LONG fact (the summary is the longest) covers well
 // under 70% of that fact, which the old "covers >= 70% of the fact" rule wrongly rejected, so a
 // near-verbatim summary claim blocked the whole packet. A substantial partial restatement must pass;

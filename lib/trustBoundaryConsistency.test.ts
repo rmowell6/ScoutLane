@@ -155,7 +155,7 @@ describe('finding 3: direction-inverting reorder accepted as a faithful restatem
     expect(traceable({ text: 'Led migration from Oracle to PostgreSQL', factId: 'role:0:bullet:0' }, index)).toBe(true)
   })
 
-  test.fails('OPEN: the from/to INVERTED claim must be rejected', () => {
+  test('FIXED: the from/to INVERTED claim must be rejected', () => {
     expect(traceable({ text: 'Led migration from PostgreSQL to Oracle', factId: 'role:0:bullet:0' }, index)).toBe(false)
   })
 })
