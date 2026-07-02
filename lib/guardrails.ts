@@ -359,7 +359,7 @@ type MetricKind = 'percent' | 'dollar' | 'team' | 'count'
 const METRIC_BRANCHES: readonly { kind: MetricKind; re: string }[] = [
   { kind: 'percent', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*%` }, // 40%, 1,200%
   { kind: 'percent', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\s*percent\b` }, // 40 percent
-  { kind: 'dollar', re: String.raw`\$\s?\d[\d,]{0,24}(?:\.\d{0,12})?(?:\s*(?:k|m|b|million|billion|thousand))?` }, // $2M, $500,000
+  { kind: 'dollar', re: String.raw`\$\s?\d[\d,]{0,24}(?:\.\d{0,12})?(?:\s*(?:k|m|b|million|billion|thousand)(?![a-z]))?` }, // $2M, $500,000 (finding F-I: (?![a-z]) stops a single-letter k/m/b from matching as the PREFIX of a longer word, e.g. the "m" of "$5 monthly" wrongly reading as $5M)
   { kind: 'team', re: String.raw`team\s+of\s+\d[\d,]{0,24}` }, // team of 12
   // a count bound to a candidate-scope unit (years intentionally excluded)
   { kind: 'count', re: String.raw`\d[\d,]{0,24}(?:\.\d{0,12})?\+?\s*(?:people|engineers?|staff|employees|reports?|clients?|customers?|users?|servers?|vms?|sites?|branches|stores?|locations?|projects?|deployments?|tickets?|incidents?|endpoints?|devices?|nodes?|clusters?)\b` },
