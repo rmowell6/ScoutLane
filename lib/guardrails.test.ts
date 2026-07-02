@@ -776,6 +776,41 @@ describe('checkBannedTerms', () => {
     expect(result.violations).toContain('Kubernetes')
   })
 
+  // Finding F-F: the banned-term exception check grounds against CAPABILITY facts only (skills, certs,
+  // bullets, summary), not company names / titles / education, so an incidental employer-name collision
+  // cannot license a banned term.
+  test('flags a banned term whose ONLY profile mention is a company name ("Oracle Health")', () => {
+    const oracleEmployer = makeProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Oracle Health', title: 'Support Engineer', startDate: '2020', endDate: null, bullets: ['Resolved customer tickets'] }],
+    })
+    const tailored = makeTailored({ summary: 'Oracle operations engineer.', skills: ['Azure'] })
+    const result = checkBannedTerms(tailored, oracleEmployer, ['Oracle'])
+    expect(result.ok).toBe(false)
+    expect(result.violations).toContain('Oracle')
+  })
+
+  test('does NOT flag a banned term genuinely grounded in a skill or bullet', () => {
+    const skillHeld = makeProfile({ skills: ['Oracle', 'Azure'] })
+    expect(checkBannedTerms(makeTailored({ summary: 'Oracle DBA.', skills: ['Oracle'] }), skillHeld, ['Oracle']).ok).toBe(true)
+    const bulletHeld = makeProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Acme', title: 'DBA', startDate: '2020', endDate: null, bullets: ['Administered Oracle databases in production'] }],
+    })
+    expect(checkBannedTerms(makeTailored({ summary: 'Oracle DBA.', skills: ['Azure'] }), bulletHeld, ['Oracle']).ok).toBe(true)
+  })
+
+  test('regression: checkNoFabrication claim-tracing against a company-name fact is unaffected (still broad)', () => {
+    // A tailored claim that genuinely names the employer traces to the company fact via the FULL corpus,
+    // confirming the F-F scoping did not leak into checkNoFabrication.
+    const oracleEmployer = makeProfile({
+      skills: ['Azure'],
+      roles: [{ company: 'Oracle Health', title: 'Support Engineer', startDate: '2020', endDate: null, bullets: ['Resolved customer tickets'] }],
+    })
+    const tailored = makeTailored({ skills: ['Azure'], claims: [{ text: 'Oracle Health', factId: 'role:0:company' }] })
+    expect(checkNoFabrication(tailored, oracleEmployer).ok).toBe(true)
+  })
+
   // Finding 12: fields are checked separately, not as one joined blob, so a multi-word banned term
   // cannot form spuriously across a field boundary.
   test('does NOT trip a multi-word banned term that only forms across a field boundary', () => {
