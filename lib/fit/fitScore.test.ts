@@ -3,14 +3,19 @@
 // fit_score.golden.json exactly for each case. Regenerate golden only on a deliberate rubric change.
 import { describe, it, expect } from 'vitest'
 import { assessFit, coverage, scoreComp, scoreLocation, WEIGHTS, type FitInput } from './fitScore'
+import { ALIAS_GROUPS, ALIAS_TABLE_VERSION, computeAliasTableVersion } from '@/lib/skillAliases'
 import golden from './fitScore.golden.json'
 
-const cases = golden.cases as Array<{ name: string; input: FitInput; expected: unknown }>
+const cases = golden.cases as Array<{ name: string; input: FitInput; expected: Record<string, unknown> }>
 
 describe('golden parity (cross-implementation contract)', () => {
   for (const c of cases) {
     it('reproduces expected output: ' + c.name, () => {
-      expect(assessFit(c.input)).toEqual(c.expected)
+      // The golden fixtures pin the SCORE. aliasTableVersion is content-derived basis metadata that
+      // legitimately changes whenever the alias table is refreshed, so it is injected from the live
+      // constant rather than frozen into the JSON (which would force a golden regen on every table
+      // change). version (the semantic rubric constant) stays pinned in the fixtures as before.
+      expect(assessFit(c.input)).toEqual({ ...c.expected, aliasTableVersion: ALIAS_TABLE_VERSION })
     })
   }
 })
@@ -45,6 +50,26 @@ describe('FitResult shape (independent of the golden fixtures)', () => {
       'certRequirementFit',
     ])
     expect(r.hardGaps).toEqual(['clearance', 'relocation'])
+  })
+
+  // Finding 6 / F-E: the score depends on the alias table (coverage -> canonicalize), so the result
+  // stamps ALIAS_TABLE_VERSION alongside RUBRIC_VERSION. Two scores for the SAME input computed against
+  // different table states must be distinguishable via the stamp, even when the numeric score is equal.
+  it('stamps the current ALIAS_TABLE_VERSION (and the rubric version) on the result', () => {
+    const r = assessFit(input)
+    expect(r.aliasTableVersion).toBe(ALIAS_TABLE_VERSION)
+    expect(typeof r.aliasTableVersion).toBe('string')
+    expect(r.aliasTableVersion).not.toBe(r.version) // formula version and table version are distinct axes
+  })
+
+  it('two identical-input scores are distinguishable when the alias table changes (attributable)', () => {
+    const before = assessFit(input)
+    // Simulate a Phase-8 table refresh: the version constant would change to the new table's hash.
+    const afterVersion = computeAliasTableVersion([...ALIAS_GROUPS, ['some-new-skill', 'sns']])
+    const after = { ...assessFit(input), aliasTableVersion: afterVersion }
+    expect(after.overall).toBe(before.overall) // the number can be unchanged...
+    expect(after.aliasTableVersion).not.toBe(before.aliasTableVersion) // ...yet the basis is attributable
+    expect(before.aliasTableVersion).toBe(ALIAS_TABLE_VERSION)
   })
 })
 

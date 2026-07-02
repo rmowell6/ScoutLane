@@ -225,6 +225,13 @@ describe('finding 6: alias-table version coupling for score reproducibility', ()
   test('FIXED: skillAliases exports ALIAS_TABLE_VERSION (content-addressed, changes with the table)', () => {
     expect('ALIAS_TABLE_VERSION' in skillAliases).toBe(true)
   })
+
+  test('FIXED (F-E): assessFit STAMPS the current ALIAS_TABLE_VERSION on a real score result', () => {
+    // The export existing is not enough: the score must actually carry the version so a table refresh
+    // is attributable. A real assessFit result must echo skillAliases.ALIAS_TABLE_VERSION.
+    const result = assessFit(assembleFitInput(mkSignals(), undefined, { title: 'Eng', company: 'Co', mustHave: [], niceToHave: [] }))
+    expect(result.aliasTableVersion).toBe(skillAliases.ALIAS_TABLE_VERSION)
+  })
 })
 
 // -------------------------------------------------------------------------------------------

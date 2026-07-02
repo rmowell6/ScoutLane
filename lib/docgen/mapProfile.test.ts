@@ -114,6 +114,7 @@ describe('toCoverLetterContent', () => {
 describe('toFitAssessmentContent', () => {
   const fit: FitResult = {
     version: '1.0.0',
+    aliasTableVersion: 't-00000000',
     overall: 82,
     band: 'Strong fit',
     base: 81.7,

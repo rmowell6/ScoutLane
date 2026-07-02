@@ -23,7 +23,7 @@
 // defaults, so any case lacking them scores identically to 1.0.0 (only `version` and the penalties
 // object shape change). Magnitudes + rationale live below and in docs/Fit_Assessment_SPEC.md.
 
-import { canonicalize } from '@/lib/skillAliases'
+import { ALIAS_TABLE_VERSION, canonicalize } from '@/lib/skillAliases'
 
 export const RUBRIC_VERSION = '1.1.0'
 
@@ -105,7 +105,13 @@ export interface FitPenalties {
 }
 
 export interface FitResult {
+  /** Scoring FORMULA version (RUBRIC_VERSION). Bumped by hand on a deliberate rubric change. */
   version: string
+  /** Alias-TABLE version (skillAliases.ALIAS_TABLE_VERSION), content-addressed. coverage() reads the
+   *  alias table through canonicalize(), so a score is reproducible only for a fixed (version,
+   *  aliasTableVersion) pair. Stamped so two scores for the same input, before and after a table
+   *  refresh, are distinguishable and attributable (finding 6 / F-E), not just "both 1.1.0". */
+  aliasTableVersion: string
   overall: number
   band: string
   base: number
@@ -330,6 +336,7 @@ export function assessFit(input: FitInput): FitResult {
 
   return {
     version: RUBRIC_VERSION,
+    aliasTableVersion: ALIAS_TABLE_VERSION,
     overall,
     band,
     base: round1(base),
