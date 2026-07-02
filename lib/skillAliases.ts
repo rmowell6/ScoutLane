@@ -80,6 +80,29 @@ export const IMPORTED_ALIAS_GROUPS: string[][] = [
 // different canonical forms.
 export const ALIAS_GROUPS: string[][] = [...CORE_ALIAS_GROUPS, ...IMPORTED_ALIAS_GROUPS]
 
+/** Content-addressed identity of the alias table: a deterministic hash of ALIAS_GROUPS' contents.
+ *  FNV-1a (32-bit) over the groups' JSON, pure and dependency-free so this module stays a browser-safe
+ *  leaf (no node:crypto): skillAliases is pulled into client components transitively via fitPresent. */
+export function computeAliasTableVersion(groups: readonly (readonly string[])[]): string {
+  const s = JSON.stringify(groups)
+  let h = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return 't-' + (h >>> 0).toString(16).padStart(8, '0')
+}
+
+/** The current alias table's version, derived AUTOMATICALLY from its contents at module load so it can
+ *  never silently go stale. This is the deliberate design choice for this finding: a hand-bumped
+ *  constant has exactly the forget-to-bump failure mode the finding is about, and the Phase 8 automated
+ *  refresh pipeline changes ALIAS_GROUPS without a human necessarily editing a version line. Pairs with
+ *  fitScore.RUBRIC_VERSION and is orthogonal to it: RUBRIC_VERSION identifies the scoring FORMULA (a
+ *  deliberate, human, semantic change), ALIAS_TABLE_VERSION identifies the alias TABLE the formula
+ *  reads through canonicalize(). A fit score is fully reproducible only for a fixed (input,
+ *  RUBRIC_VERSION, ALIAS_TABLE_VERSION) triple. */
+export const ALIAS_TABLE_VERSION = computeAliasTableVersion(ALIAS_GROUPS)
+
 // normalizedForm -> canonical normalized form (self-contained, safe to build at module load).
 const CANON = new Map<string, string>()
 // canonical normalized form -> every normalized form in its group (for the grounding fallback).
