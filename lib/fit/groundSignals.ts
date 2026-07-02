@@ -4,7 +4,7 @@
 // anywhere in the profile facts. JD-side lists (mustHaveSkills / requiredCerts / hardGaps) describe
 // the job, not the candidate, so they are NOT filtered, they must stay intact for coverage to mean
 // anything.
-import { indexFacts, mentionsAny, normalize, numbersIn } from '@/lib/guardrails'
+import { groundedInFacts, indexFacts, mentionsAny, normalize, numbersIn } from '@/lib/guardrails'
 import type { FitSignals } from '@/lib/fit/fitSignals'
 import type { Profile } from '@/lib/schemas'
 
@@ -17,14 +17,22 @@ export interface GroundedSignals {
 /**
  * Filter the candidate-side skill/cert lists to tokens actually grounded in the profile facts.
  * Pure + deterministic so it's unit-testable without the LLM.
+ *
+ * Grounding reuses guardrails.groundedInFacts, the SAME fact-by-fact, negation-aware primitive the
+ * no-fabrication check uses, NOT an independent flattened-text scan. The flattened approach was the
+ * "old approach" guardrails already fixed: it let a disclaimer keep the very skill it denies ("No
+ * hands-on Kubernetes experience" kept candidateSkills "Kubernetes", inflating skillsCoverage and the
+ * on-screen coverage table while the guardrail simultaneously refused to ground the term). Same
+ * fail-closed, whole-fact negation scope as guardrails; shared, not re-implemented, so the two
+ * consumers cannot drift again.
  */
 export function groundCandidateSignals(signals: FitSignals, profile: Profile): GroundedSignals {
-  const profileText = indexFacts(profile).texts.join(' \n ')
+  const facts = indexFacts(profile).texts
   const dropped: string[] = []
 
   const keep = (tokens: string[]): string[] =>
     (tokens ?? []).filter((t) => {
-      const grounded = mentionsAny(profileText, t)
+      const grounded = groundedInFacts(facts, t)
       if (!grounded) dropped.push(t)
       return grounded
     })

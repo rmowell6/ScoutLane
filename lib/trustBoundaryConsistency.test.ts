@@ -138,7 +138,7 @@ describe('finding 2: negation guard present in guardrails, absent in groundCandi
     expect(groundingAccepts(disclaimed, 'Kubernetes')).toBe(false)
   })
 
-  test.fails('OPEN: groundCandidateSignals must agree and DROP the disclaimed candidate skill', () => {
+  test('FIXED: groundCandidateSignals agrees and DROPS the disclaimed candidate skill', () => {
     expect(signalsKeep(disclaimed, 'Kubernetes')).toBe(false)
   })
 })
