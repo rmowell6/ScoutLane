@@ -515,6 +515,71 @@ describe('checkNoFabrication: relational/directional order (from/to, before/afte
   })
 })
 
+// Finding F-D: finding 3's guard only fired on EXPLICIT from/to present on both sides, and only spanned
+// the FIRST clause. Two gaps: (1) an implicit "migrated X to Y" (no literal "from") fell through to the
+// order-blind bag-of-words check, and the mixed case where one side drops "from"; (2) a multi-clause
+// fact only had its first clause's direction checked. Both are now covered.
+describe('checkNoFabrication: directional generalization (implicit + multi-clause) (finding F-D)', () => {
+  const fdProfile = makeProfile({
+    skills: [],
+    roles: [
+      {
+        company: 'Meridian',
+        title: 'Data Engineer',
+        startDate: '2021',
+        endDate: null,
+        bullets: [
+          'Migrated Oracle to PostgreSQL', // implicit direction, no "from"
+          'Migrated from Oracle to PostgreSQL', // explicit single clause
+          'Migrated data from Oracle to PostgreSQL and from MySQL to MongoDB', // multi-clause
+          'Managed storage, compute, and networking', // non-directional
+        ],
+      },
+    ],
+  })
+  const base = { summary: 'Data engineer.', skills: [] as string[] }
+  const claim = (text: string, factId: string) => makeTailored({ ...base, claims: [{ text, factId }] })
+
+  test('gap 1 (implicit): "Migrated Oracle to PostgreSQL" rejects the inverted "Migrated PostgreSQL to Oracle"', () => {
+    expect(checkNoFabrication(claim('Migrated PostgreSQL to Oracle', 'role:0:bullet:0'), fdProfile).ok).toBe(false)
+  })
+
+  test('gap 1 (mixed): an explicit-from/to fact rejects an inverted claim that DROPS "from"', () => {
+    // Claim tokens are all in the fact (no fabrication), so only the directional check can reject it.
+    expect(checkNoFabrication(claim('Migrated PostgreSQL to Oracle', 'role:0:bullet:1'), fdProfile).ok).toBe(false)
+  })
+
+  test('gap 1 (mixed): the same fact ACCEPTS a faithful claim that drops "from" but keeps direction', () => {
+    expect(checkNoFabrication(claim('Migrated Oracle to PostgreSQL', 'role:0:bullet:1'), fdProfile).ok).toBe(true)
+  })
+
+  test('gap 2 (multi-clause): a SECOND-clause swap is rejected', () => {
+    expect(
+      checkNoFabrication(claim('Migrated data from Oracle to PostgreSQL and from MongoDB to MySQL', 'role:0:bullet:2'), fdProfile).ok,
+    ).toBe(false)
+  })
+
+  test('gap 2 (multi-clause): a faithful clause REORDER (no swap) is accepted', () => {
+    expect(
+      checkNoFabrication(claim('Migrated data from MySQL to MongoDB and from Oracle to PostgreSQL', 'role:0:bullet:2'), fdProfile).ok,
+    ).toBe(true)
+  })
+
+  test('regression: explicit single from/to inversion still rejected', () => {
+    expect(checkNoFabrication(claim('Migrated from PostgreSQL to Oracle', 'role:0:bullet:1'), fdProfile).ok).toBe(false)
+  })
+
+  test('regression: a non-directional reorder ("... to ..."-free) still accepted', () => {
+    expect(checkNoFabrication(claim('Managed compute, storage, and networking', 'role:0:bullet:3'), fdProfile).ok).toBe(true)
+  })
+
+  test('regression: plain non-directional "to" ("reported to the CFO") is not treated as directional', () => {
+    const p = makeProfile({ skills: [], roles: [{ company: 'Co', title: 'Lead', startDate: '2020', endDate: null, bullets: ['Reported to the CFO and the CTO'] }] })
+    // A faithful reorder of a non-transition "to" phrase must still pass (no transition verb -> not directional).
+    expect(checkNoFabrication(claim('Reported to the CTO and the CFO', 'role:0:bullet:0'), p).ok).toBe(true)
+  })
+})
+
 // Regression: a faithful PARTIAL restatement of a LONG fact (the summary is the longest) covers well
 // under 70% of that fact, which the old "covers >= 70% of the fact" rule wrongly rejected, so a
 // near-verbatim summary claim blocked the whole packet. A substantial partial restatement must pass;
