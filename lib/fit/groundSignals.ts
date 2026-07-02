@@ -73,7 +73,9 @@ const EVIDENCE_FIELDS = ['roleTypeMatch', 'seniorityMatch', 'location', 'employe
 
 export interface JobGroundedSignals {
   signals: FitSignals
-  /** Tier 1: JD-side skill/cert tokens dropped because the JD text does not contain them. */
+  /** Tier 1: PREFERRED (display-only) JD skills dropped because the JD text does not contain them.
+   *  mustHaveSkills and requiredCerts are NEVER dropped (they drive the score; see groundJobSignals),
+   *  so they never appear here. */
   droppedJd: string[]
   /** Tier 2: true when compTopUsd was nulled because no matching figure appears in the JD text. */
   compNulled: boolean
@@ -149,32 +151,23 @@ export function groundJobSignals(signals: FitSignals, jdText: string): JobGround
   // hardGaps: flag ungrounded gaps for telemetry, but keep them (paraphrase-safe, non-blocking).
   const ungroundedHardGaps = (signals.hardGaps ?? []).filter((g) => !mentionsAny(jdNorm, g))
 
-  // must-haves drive the skillsCoverage SCORE (coverage()'s `required` list), so dropping them is not
-  // score-neutral like dropping a display-only preferred skill: fewer requirements can only RAISE the
-  // score. Tier 1's per-token drop of hallucinated requirements stays, with ONE guard (finding 7):
-  // never empty a NON-empty must-have list. coverage() returns a fixed neutral (80) for an empty
-  // `required`, which is right when the JD genuinely specified no must-haves, but if grounding drops
-  // EVERY real must-have (e.g. all paraphrased in the JD text), that same neutral 80 would replace an
-  // honest low score, silently turning a candidate who meets none of the requirements into an 80. So
-  // when grounding would drop all of them, keep the originals: they stay counted as unmet in the
-  // denominator, so grounding can never raise skillsCoverage. A list that was ALREADY empty still
-  // takes the legitimate neutral path unchanged.
-  const mustHaveGrounded = (signals.mustHaveSkills ?? []).filter((t) => mentionsAny(jdNorm, t))
-  const dropWouldEmptyAll = signals.mustHaveSkills.length > 0 && mustHaveGrounded.length === 0
-  const mustHaveSkills = dropWouldEmptyAll ? signals.mustHaveSkills : mustHaveGrounded
-  // Report as dropped only the must-haves actually removed (none, when the originals were kept).
-  for (const t of signals.mustHaveSkills) if (!mustHaveSkills.includes(t)) droppedJd.push(t)
-
-  // requiredCerts drives the certRequirementFit SCORE exactly as must-haves drive skillsCoverage, via
-  // the SAME coverage() empty-list neutral (80). So it has the identical finding-7 exposure and gets
-  // the identical guard: never empty a NON-empty required-cert list (dropping every one would replace
-  // an honest low certs score with a false neutral 80). An already-empty list keeps the legitimate
-  // neutral path. preferredSkills below stays a plain keepJd: it is display-only, never scored, so
-  // emptying it cannot raise a score.
-  const certsGrounded = (signals.requiredCerts ?? []).filter((t) => mentionsAny(jdNorm, t))
-  const dropCertsWouldEmptyAll = signals.requiredCerts.length > 0 && certsGrounded.length === 0
-  const requiredCerts = dropCertsWouldEmptyAll ? signals.requiredCerts : certsGrounded
-  for (const t of signals.requiredCerts) if (!requiredCerts.includes(t)) droppedJd.push(t)
+  // must-haves and requiredCerts drive the coverage() SCORE (skillsCoverage / certRequirementFit), so
+  // grounding must NEVER shrink their lists. Dropping a requirement shrinks coverage()'s denominator,
+  // and if the dropped one was UNMET the score jumps up: finding 7 caught the all-dropped case (which
+  // also fell into coverage()'s empty-list neutral 80), and F-B is the same bug at PARTIAL-drop scale
+  // (drop one unmet requirement, e.g. a paraphrased "terraform", and a 90 becomes a false 100). The
+  // resolved ruling is that grounding must never RAISE skillsCoverage, partial or total.
+  //
+  // groundJobSignals cannot tell a hallucinated requirement from a real one merely PARAPHRASED in the
+  // JD, both are just "absent from the JD text", so there is no reliable "proven never real" signal to
+  // act on. It therefore does NOT remove either list at all: the FULL original list stays as coverage()'s
+  // denominator and each item is scored on its merits, so grounding can only equal or lower the honest
+  // score, never raise it. (Design ruling for F-B: never-raise beats never-penalize; a genuinely
+  // hallucinated requirement the candidate lacks now counts against them, the safe direction.)
+  // preferredSkills stays a plain keepJd: it is display-only, never scored, so dropping it cannot move a
+  // score, and it is the only list still reported in droppedJd.
+  const mustHaveSkills = signals.mustHaveSkills ?? []
+  const requiredCerts = signals.requiredCerts ?? []
 
   return {
     signals: {
