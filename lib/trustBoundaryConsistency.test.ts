@@ -289,7 +289,7 @@ describe('finding 10: "js" alias inside dotted identifiers (vue.js grounds JavaS
     expect(eqMatches('javascript', 'vue.js')).toBe(false)
   })
 
-  test.fails('OPEN: grounding must agree that a Vue.js-only profile does not ground "JavaScript"', () => {
+  test('FIXED: grounding must agree that a Vue.js-only profile does not ground "JavaScript"', () => {
     expect(groundingAccepts(vueOnly, 'JavaScript')).toBe(false)
   })
 })
