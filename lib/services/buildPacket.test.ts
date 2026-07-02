@@ -74,6 +74,7 @@ const uploadDoc = vi.hoisted(() => vi.fn(async (..._args: unknown[]) => ({ signe
 vi.mock('@/lib/storage', () => ({
   isStorageConfigured,
   uploadDoc,
+  logStorageDegraded: vi.fn(),
   FORMAT_META: {
     docx: { ext: 'docx', contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
     pdf: { ext: 'pdf', contentType: 'application/pdf' },

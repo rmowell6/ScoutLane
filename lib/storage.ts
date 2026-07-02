@@ -20,6 +20,45 @@ export function isStorageConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
 }
 
+/**
+ * True when a Storage error is the persistent "bucket does not exist" MISCONFIGURATION rather than a
+ * transient network/5xx blip. Supabase raises a StorageApiError whose message is "Bucket not found";
+ * match on that resiliently (Error instance or a plain `{ message }` object), tolerant of SDK shape.
+ */
+export function isBucketNotFoundError(err: unknown): boolean {
+  const msg =
+    err instanceof Error
+      ? err.message
+      : typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : String(err ?? '')
+  return /bucket not found/i.test(msg)
+}
+
+/**
+ * Loudly log that a Storage upload failed and this packet's documents are being degraded to inline
+ * base64 delivery (the graceful fallback is unchanged; this only makes it VISIBLE). A missing bucket
+ * is a persistent misconfiguration, not a flake, so it gets a distinct, actionable message naming the
+ * exact bucket and the exact dashboard fix, so it cannot hide among info-level logs for weeks.
+ */
+export function logStorageDegraded(err: unknown): void {
+  if (isBucketNotFoundError(err)) {
+    console.error(
+      `[packet] STORAGE MISCONFIGURED: the "${BUCKET}" Storage bucket does not exist in this Supabase ` +
+        `project, so EVERY packet is degrading documents to inline base64 delivery instead of signed ` +
+        `download URLs. FIX (infrastructure, no code change resolves it): create a PRIVATE bucket named ` +
+        `"${BUCKET}" in the Supabase dashboard (Storage > New bucket; see docs/DEPLOY.md).`,
+      err,
+    )
+    return
+  }
+  console.error(
+    `[packet] STORAGE DEGRADED: upload to the "${BUCKET}" bucket failed (Storage unreachable or a ` +
+      `transient error); returning this packet's documents inline (base64) instead of signed URLs.`,
+    err,
+  )
+}
+
 function storageClient() {
   return serverSupabase() // server-only; bypasses RLS; reused across calls
 }

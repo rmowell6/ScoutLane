@@ -14,7 +14,7 @@ import { buildCoverLetterDocx } from '@/lib/docgen/coverLetter'
 import { buildFitAssessmentDocx } from '@/lib/docgen/fitAssessment'
 import { buildResumePdf, buildCoverLetterPdf, buildFitAssessmentPdf } from '@/lib/docgen/pdf'
 import { toCoverLetterContent, toFitAssessmentContent, toResumeContent } from '@/lib/docgen/mapProfile'
-import { isStorageConfigured, uploadDoc, FORMAT_META, type DocFormat } from '@/lib/storage'
+import { isStorageConfigured, logStorageDegraded, uploadDoc, FORMAT_META, type DocFormat } from '@/lib/storage'
 import themes from '@/lib/style/themes.json'
 import fonts from '@/lib/style/fonts.json'
 import { resolveAssessmentAccent } from '@/lib/style/assessmentAccent'
@@ -183,8 +183,10 @@ async function generateDocuments(
       const byKey = Object.fromEntries(uploaded) as Record<(typeof specs)[number]['key'], DocFormats>
       return { storage: 'supabase', ...byKey }
     } catch (err) {
-      // Bucket missing or transient error, fall back to inline so the packet still ships.
-      console.error('[packet] storage upload failed, returning docs inline', err)
+      // Bucket missing or transient error, fall back to inline so the packet still ships. Log loudly
+      // and specifically (a missing bucket is a persistent misconfiguration, not a flake) so the
+      // degrade-to-inline does not silently persist unnoticed.
+      logStorageDegraded(err)
     }
   }
 
