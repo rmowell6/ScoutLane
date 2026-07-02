@@ -314,7 +314,7 @@ describe('finding 11: company name grounds a scoring skill token', () => {
 // term can match ACROSS two unrelated fields. Desired: no cross-field phantom violation.
 // -------------------------------------------------------------------------------------------
 describe('finding 12: banned term matching across concatenated field boundaries', () => {
-  test.fails('OPEN: "windows" ending one field + "server" starting the next must not trip "windows server"', () => {
+  test('FIXED: "windows" ending one field + "server" starting the next must not trip "windows server"', () => {
     const profile = mkProfile({ skills: ['Azure'] })
     const out = mkTailored({ summary: 'Deployed Windows', coverLetter: 'Server 2019 rollout body.' })
     expect(checkBannedTerms(out, profile, ['windows server']).violations).toEqual([])
