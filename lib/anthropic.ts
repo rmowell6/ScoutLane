@@ -86,19 +86,36 @@ export function readParsed<T>(
 }
 
 /**
- * Log per-call OUTPUT token spend, including the thinking tokens that Sonnet 5 bills as output
- * (adaptive thinking is on by default, so this is the direct production view into that new spend).
- * Call right after `messages.parse(...)` and BEFORE `readParsed`, so usage is logged even when the
- * call truncates or is refused. Best-effort and total-safe: missing usage fields log as 0.
+ * Log per-call token spend: input, output, the thinking tokens Sonnet 5 bills as output (adaptive
+ * thinking is on by default), and the two prompt-cache counters. Call right after `messages.parse(...)`
+ * and BEFORE `readParsed`, so usage is logged even when the call truncates or is refused. Best-effort
+ * and total-safe: missing usage fields log as 0.
+ *
+ * The cache counters are the direct hit/miss signal for the ephemeral system-prompt cache (the
+ * spaced-out-manual-testing latency question): `cacheRead > 0` means the cache HIT (system prompt
+ * served from cache, cheap + fast first token); `cacheCreate > 0` with `cacheRead = 0` means a MISS
+ * that just repopulated the cache, i.e. the ~5-minute TTL lapsed since the previous call.
  */
 export function logModelUsage(
   label: string,
   message: {
-    usage?: { output_tokens?: number; output_tokens_details?: { thinking_tokens?: number } | null } | null
+    usage?: {
+      input_tokens?: number
+      output_tokens?: number
+      cache_creation_input_tokens?: number | null
+      cache_read_input_tokens?: number | null
+      output_tokens_details?: { thinking_tokens?: number } | null
+    } | null
   },
 ): void {
   const usage = message.usage
+  const input = usage?.input_tokens ?? 0
   const output = usage?.output_tokens ?? 0
   const thinking = usage?.output_tokens_details?.thinking_tokens ?? 0
-  console.log(`[anthropic] usage ${label}: output=${output} thinking=${thinking}`)
+  const cacheRead = usage?.cache_read_input_tokens ?? 0
+  const cacheCreate = usage?.cache_creation_input_tokens ?? 0
+  console.log(
+    `[anthropic] usage ${label}: input=${input} output=${output} thinking=${thinking} ` +
+      `cacheRead=${cacheRead} cacheCreate=${cacheCreate}`,
+  )
 }
