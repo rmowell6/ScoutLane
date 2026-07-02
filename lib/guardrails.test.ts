@@ -269,6 +269,44 @@ describe('checkNoFabrication: kind-aware, value-normalized metric grounding (fin
   })
 })
 
+// Finding F-I: the dollar branch's single-letter k/m/b suffix had no word-boundary after it, so it
+// matched as the PREFIX of a longer, unrelated word ("$5 monthly" parsed as "$5" + "m" = $5,000,000).
+// A (?![a-z]) after the suffix confines k/m/b (and the spelled-out forms) to a real boundary, so a bare
+// "$5 monthly" stays $5. This lives with the finding-9 metric tests (single-guardrail parsing, not the
+// tri-implementation trust-boundary harness, which carries no metric-parse cases).
+describe('checkNoFabrication: dollar suffix must not match a word prefix (finding F-I)', () => {
+  const dollarFact = (bullet: string): Profile =>
+    makeProfile({ skills: [], roles: [{ company: 'Co', title: 'Eng', startDate: '2020', endDate: null, bullets: [bullet] }] })
+
+  test('fall-open: a "$5 monthly" fact (bare $5) does NOT ground a fabricated "$5M" claim', () => {
+    // Before the fix the fact misparsed to $5,000,000 and wrongly grounded the invented "$5M".
+    const r = checkNoFabrication(makeTailored({ coverLetter: 'I delivered $5M in savings.' }), dollarFact('Handled $5 monthly billing runs'))
+    expect(r.ungroundedMetrics.join(' ')).toMatch(/\$5M/i)
+  })
+
+  test('fall-closed: a claim "$5 monthly" (bare $5) grounds against a "$5" fact of the same value', () => {
+    // Before the fix the claim misparsed to $5,000,000 and failed to match the real "$5" fact.
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'Billed $5 monthly per seat.' }), dollarFact('Billed $5 per seat')).ungroundedMetrics).toEqual([])
+  })
+
+  test('regression: "$5m", "$5M", and "$5 m" (real boundary) still mean $5,000,000', () => {
+    for (const claim of ['I saved $5m in licensing.', 'I saved $5M in licensing.', 'I saved $5 m in licensing.']) {
+      expect(checkNoFabrication(makeTailored({ coverLetter: claim }), dollarFact('Saved the company $5,000,000 in licensing')).ungroundedMetrics).toEqual([])
+    }
+  })
+
+  test('regression: "$5b" still means $5,000,000,000 and "$5k" still means $5,000', () => {
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'Owned a $5b budget.' }), dollarFact('Owned a $5,000,000,000 budget')).ungroundedMetrics).toEqual([])
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'Cut $5k in costs.' }), dollarFact('Cut $5,000 in costs')).ungroundedMetrics).toEqual([])
+  })
+
+  test('regression: spelled-out "million"/"billion"/"thousand" normalization is unaffected', () => {
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'A $5 million program.' }), dollarFact('Ran a $5,000,000 program')).ungroundedMetrics).toEqual([])
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'A $5 billion program.' }), dollarFact('Ran a $5,000,000,000 program')).ungroundedMetrics).toEqual([])
+    expect(checkNoFabrication(makeTailored({ coverLetter: 'A $5 thousand pilot.' }), dollarFact('Ran a $5,000 pilot')).ungroundedMetrics).toEqual([])
+  })
+})
+
 // Finding F-C: metric grounding must check each field SEPARATELY (the metric-side twin of finding 12).
 // METRIC_RE's whitespace classes match a newline, so joining fields let a metric form across a boundary.
 describe('checkNoFabrication: metric grounding does not bridge field boundaries (finding F-C)', () => {
