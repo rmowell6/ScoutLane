@@ -664,6 +664,27 @@ describe('checkBannedTerms', () => {
     expect(result.violations).toContain('Kubernetes')
   })
 
+  // Finding 12: fields are checked separately, not as one joined blob, so a multi-word banned term
+  // cannot form spuriously across a field boundary.
+  test('does NOT trip a multi-word banned term that only forms across a field boundary', () => {
+    // "Windows" ends the summary; "Server" starts the cover letter. Joined they read "Windows Server",
+    // but neither field contains the banned phrase on its own.
+    const tailored = makeTailored({ summary: 'Deployed Windows', coverLetter: 'Server 2019 rollout body.' })
+    expect(checkBannedTerms(tailored, makeProfile(), ['Windows Server']).violations).toEqual([])
+  })
+
+  test('still flags a multi-word banned term genuinely present within a single field', () => {
+    const tailored = makeTailored({ summary: 'Ran a large Windows Server 2019 estate.' })
+    const result = checkBannedTerms(tailored, makeProfile(), ['Windows Server'])
+    expect(result.ok).toBe(false)
+    expect(result.violations).toContain('Windows Server')
+  })
+
+  test('still flags a banned term that only appears in a skill entry (per-field coverage)', () => {
+    const tailored = makeTailored({ summary: 'Cloud engineer.', skills: ['Docker'] })
+    expect(checkBannedTerms(tailored, makeProfile(), ['Docker']).violations).toContain('Docker')
+  })
+
   test('allows a watched term that IS present in the profile', () => {
     const profile = makeProfile({ skills: ['Azure', 'VMware', 'Kubernetes'] })
     const tailored = makeTailored({ summary: 'Expert in Kubernetes and Azure.' })
