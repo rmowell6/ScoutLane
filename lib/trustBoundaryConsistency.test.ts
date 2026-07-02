@@ -5,6 +5,7 @@ import { skillCoverage, humanizeNote, isUnassessed } from '@/lib/fit/fitPresent'
 import { groundCandidateSignals, groundJobSignals } from '@/lib/fit/groundSignals'
 import { assembleFitInput, type FitSignals } from '@/lib/fit/fitSignals'
 import { checkBannedTerms, checkNoFabrication, indexFacts, mentionsAny, normalize, traceable } from '@/lib/guardrails'
+import { allowedAliasPairings } from '@/lib/services/tailorResume'
 import * as skillAliases from '@/lib/skillAliases'
 import type { JobReqs, Profile, TailoredContent } from '@/lib/schemas'
 
@@ -184,10 +185,13 @@ describe('finding 4: banned-term detection alias-blind vs alias-aware grounding'
 })
 
 // -------------------------------------------------------------------------------------------
-// Finding 5 (Medium): the tailor prompt invites "well-known equivalent" pairings but the model
-// cannot see the curated table, so famous equivalents (TypeScript/TS) hard-block packets.
-// Guardrail side (fail-closed, correct) is pinned as a normal test; the prompt-side fix marker
-// (enumerating the actual table in TAILOR_INSTRUCTIONS) is probed from source.
+// Finding 5 (Medium): the tailor prompt invited "well-known equivalent" pairings by the model's own
+// judgment, but the model cannot see the curated table, so a famous-but-uncurated equivalent
+// (TypeScript/TS) was sometimes attempted and hard-blocked, nondeterministically. Guardrail side
+// (fail-closed, correct) is pinned as a normal test. The fix computes the exact closed set of
+// pairings the guardrail accepts for THIS packet and hands only that to the model, so the option
+// space equals the acceptance set: the judgment wording is gone and a disallowed pairing is never
+// even offered (deterministic), while a curated one still surfaces.
 // -------------------------------------------------------------------------------------------
 describe('finding 5: tailor prompt allowance vs actual alias-table boundary', () => {
   test('guardrail boundary: "TypeScript (TS)" is rejected while "Kubernetes (K8s)" is accepted', () => {
@@ -197,11 +201,18 @@ describe('finding 5: tailor prompt allowance vs actual alias-table boundary', ()
     expect(groundingAccepts(k8sProfile, 'Kubernetes (K8s)')).toBe(true)
   })
 
-  test.fails('OPEN: TAILOR_INSTRUCTIONS must enumerate the curated pairs it permits (not "well-known")', () => {
+  test('FIXED: permitted pairings are computed from the curated table, not the model\'s "well-known" judgment', () => {
+    // The judgment-based wording that invited uncurated pairings is gone from the prompt: the model is
+    // handed a closed, table-derived list instead of being asked to recognize equivalents itself.
     const src = readFileSync('lib/services/tailorResume.ts', 'utf8')
-    // A real fix embeds the table (or a generated list of its groups) in the instructions. Probe for
-    // groups that only appear if the table is enumerated; the current prompt names none of these.
-    expect(src.includes('sql server') && src.includes('scikit-learn') && src.includes('vsphere')).toBe(true)
+    expect(/well-known|recognized standard equivalent/i.test(src)).toBe(false)
+    // A famous-but-UNCURATED pairing (TS is deliberately excluded from the table) is never offered, no
+    // matter how the JD phrases it, so the same input can no longer be nondeterministically blocked.
+    const tsJob = { title: 'Eng', company: 'Co', mustHave: ['TypeScript', 'TS'], niceToHave: [] } as unknown as JobReqs
+    expect(allowedAliasPairings(mkProfile({ skills: ['TypeScript'] }), tsJob)).toEqual([])
+    // A curated pairing (K8s <-> Kubernetes) still surfaces for external ATS keyword matching.
+    const k8sJob = { title: 'Eng', company: 'Co', mustHave: ['Kubernetes'], niceToHave: [] } as unknown as JobReqs
+    expect(allowedAliasPairings(mkProfile({ skills: ['K8s'] }), k8sJob)).toContain('Kubernetes (K8s)')
   })
 })
 
